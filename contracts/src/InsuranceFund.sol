@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {AccessControlled} from "./AccessControlled.sol";
-import {IInsuranceFund} from "./interfaces/IInsuranceFund.sol";
+import { AccessControlled } from "./AccessControlled.sol";
+import { IInsuranceFund } from "./interfaces/IInsuranceFund.sol";
 
 contract InsuranceFund is AccessControlled, IInsuranceFund {
     uint256 public availableCapital;
@@ -27,7 +27,9 @@ contract InsuranceFund is AccessControlled, IInsuranceFund {
         emit EngineSet(engine_);
     }
 
-    /** Gate 1 accounting hook; asset custody and funding flows are deferred. */
+    /**
+     * Gate 1 accounting hook; asset custody and funding flows are deferred.
+     */
     function fund(uint256 amount) external onlyOwner {
         availableCapital += amount;
         emit CapitalFunded(amount);

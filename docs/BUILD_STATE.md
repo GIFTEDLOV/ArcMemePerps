@@ -22,3 +22,11 @@ Not implemented by design:
 - frontend, deployment, transactions, external paid resources, GitHub push, bridge/token custody, final economic formulas, governance, production thresholds, DEX quote simulation, and provider credentials.
 
 Foundry is available in WSL Ubuntu for this checkout. Network smoke tests remain environment-dependent and are intentionally separate from deterministic CI.
+
+# Gate 3 status
+
+Gate 3 is implemented on local branch `gate3-economics` and has not been deployed. Foundry
+is available through the official WSL installation. The branch includes the first executable
+economic core, but remains pre-audit and pre-deployment. Automatic ADL, public LP shares,
+production reporter governance, and full engine-level fee/funding settlement remain explicit
+follow-up boundaries.

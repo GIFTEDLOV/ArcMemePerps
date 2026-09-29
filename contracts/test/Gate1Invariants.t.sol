@@ -1,17 +1,18 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {InsuranceFund} from "../src/InsuranceFund.sol";
-import {MarketRegistry} from "../src/MarketRegistry.sol";
-import {OracleRouter} from "../src/OracleRouter.sol";
-import {PerpEngine} from "../src/PerpEngine.sol";
-import {QualificationRegistry} from "../src/QualificationRegistry.sol";
-import {RiskConfig} from "../src/RiskConfig.sol";
-import {USDCMarginVault} from "../src/USDCMarginVault.sol";
+import { InsuranceFund } from "../src/InsuranceFund.sol";
+import { MarketRegistry } from "../src/MarketRegistry.sol";
+import { OracleRouter } from "../src/OracleRouter.sol";
+import { PerpEngine } from "../src/PerpEngine.sol";
+import { QualificationRegistry } from "../src/QualificationRegistry.sol";
+import { RiskConfig } from "../src/RiskConfig.sol";
+import { USDCMarginVault } from "../src/USDCMarginVault.sol";
 
 interface Vm {
     function prank(address sender) external;
     function warp(uint256 timestamp) external;
+    function getBlockTimestamp() external view returns (uint256);
     function expectRevert() external;
 }
 
@@ -36,16 +37,20 @@ contract Gate1InvariantsTest {
         risk = new RiskConfig(address(qualification));
         vault = new USDCMarginVault();
         insurance = new InsuranceFund();
-        engine = new PerpEngine(address(registry), address(risk), address(oracle), address(vault), address(insurance));
+        engine = new PerpEngine(
+            address(registry), address(risk), address(oracle), address(vault), address(insurance)
+        );
 
         marketId = registry.registerEvmMarket(8453, address(1), bytes32("ESTABLISHED"));
-        qualification.approveQualification(marketId, bytes32(uint256(1)), bytes32("0.1.0"), 3e18, 1_000, 600, 0);
+        qualification.approveQualification(
+            marketId, bytes32(uint256(1)), bytes32("0.1.0"), 3e18, 1_000, 600, 0
+        );
         registry.activateMarket(marketId);
         risk.initializeConfig(marketId, 3e18, 1_000, 600, 1_000, 500);
         risk.setExposureProvider(address(engine));
         risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
         oracle.setUpdater(address(this), true);
-        oracle.setPrice(marketId, 1e18, uint64(block.timestamp), 9_500);
+        oracle.setPrice(marketId, 1e18, uint64(vm.getBlockTimestamp()), 9_500);
         vault.setEngine(address(engine));
         insurance.setEngine(address(engine));
         vault.creditCollateral(TRADER, 2_000);
@@ -89,8 +94,10 @@ contract Gate1InvariantsTest {
         vm.expectRevert();
         engine.openPosition(marketId, true, 200, 200);
 
-        vm.warp(block.timestamp + 1);
-        qualification.approveQualification(marketId, bytes32(uint256(2)), bytes32("0.1.0"), 3e18, 1_000, 600, 0);
+        vm.warp(vm.getBlockTimestamp() + 1);
+        qualification.approveQualification(
+            marketId, bytes32(uint256(2)), bytes32("0.1.0"), 3e18, 1_000, 600, 0
+        );
         risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
         vm.prank(TRADER);
         uint256 positionId = engine.openPosition(marketId, true, 200, 200);
@@ -104,7 +111,7 @@ contract Gate1InvariantsTest {
     }
 
     function testStaleAndLowConfidenceOracleCannotOpen() public {
-        vm.warp(block.timestamp + 121);
+        vm.warp(vm.getBlockTimestamp() + 121);
         vm.prank(TRADER);
         vm.expectRevert();
         engine.openPosition(marketId, true, 200, 200);
@@ -123,8 +130,10 @@ contract Gate1InvariantsTest {
         vm.expectRevert();
         risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
 
-        vm.warp(block.timestamp + 1);
-        qualification.approveQualification(marketId, bytes32(uint256(3)), bytes32("0.1.0"), 5e18, 2_000, 1_000, 0);
+        vm.warp(vm.getBlockTimestamp() + 1);
+        qualification.approveQualification(
+            marketId, bytes32(uint256(3)), bytes32("0.1.0"), 5e18, 2_000, 1_000, 0
+        );
         risk.requalifyMarket(marketId, 5e18, 2_000, 1_000, 1_000, 500);
         RiskConfig.Config memory config = risk.getConfig(marketId);
         assertEq(config.maxLeverage, 5e18);
@@ -135,10 +144,12 @@ contract Gate1InvariantsTest {
         vm.expectRevert();
         risk.emergencySetStatus(marketId, RiskConfig.MarketStatus.LIVE);
 
-        vm.warp(block.timestamp + 1);
-        uint64 expiry = uint64(block.timestamp + 10);
-        qualification.approveQualification(marketId, bytes32(uint256(4)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry);
-        vm.warp(block.timestamp + 11);
+        vm.warp(vm.getBlockTimestamp() + 1);
+        uint64 expiry = uint64(vm.getBlockTimestamp() + 10);
+        qualification.approveQualification(
+            marketId, bytes32(uint256(4)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry
+        );
+        vm.warp(vm.getBlockTimestamp() + 11);
         vm.expectRevert();
         risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
     }
@@ -147,9 +158,11 @@ contract Gate1InvariantsTest {
         QualificationRegistry freshQualification = new QualificationRegistry();
         MarketRegistry freshRegistry = new MarketRegistry(address(freshQualification));
         bytes32 freshMarket = freshRegistry.registerEvmMarket(5042, address(3), bytes32("DEX_LIVE"));
-        uint64 expiry = uint64(block.timestamp + 10);
-        freshQualification.approveQualification(freshMarket, bytes32(uint256(5)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry);
-        vm.warp(block.timestamp + 11);
+        uint64 expiry = uint64(vm.getBlockTimestamp() + 10);
+        freshQualification.approveQualification(
+            freshMarket, bytes32(uint256(5)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry
+        );
+        vm.warp(vm.getBlockTimestamp() + 11);
         vm.expectRevert();
         freshRegistry.activateMarket(freshMarket);
     }
@@ -180,13 +193,12 @@ contract Gate1InvariantsTest {
         assertTrue(vault.lockedCollateral(TRADER) <= vault.totalLockedCollateral());
     }
 
-    function testFuzz_PositionCannotExceedConfiguredLimits(uint256 collateral, uint256 size) public {
+    function testFuzz_PositionCannotExceedConfiguredLimits(uint256 collateral, uint256 size)
+        public
+    {
         if (
-            collateral == 0 ||
-            collateral > type(uint256).max - 2_000 ||
-            size == 0 ||
-            size > 600 ||
-            size * 1e18 / collateral > 3e18
+            collateral == 0 || collateral > type(uint256).max - 2_000 || size == 0 || size > 600
+                || size * 1e18 / collateral > 3e18
         ) {
             vm.prank(TRADER);
             vm.expectRevert();

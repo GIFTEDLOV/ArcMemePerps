@@ -39,3 +39,10 @@ canonical RPC + provider APIs (read only)
 Providers are replaceable evidence sources, not decision-makers. A missing API key produces `UNAVAILABLE`; it never becomes a passing security fact. The adapters preserve provider observations and disagreement metadata while exposing one normalized domain shape.
 
 The developer CLI is read-only and accepts no wallet, signing key, or transaction method. `pnpm test:live` is intentionally outside deterministic CI.
+
+# Gate 3 economic boundary
+
+Gate 3 adds fixed-point math, an oracle report boundary, two-phase order intent validation,
+quote-based depth, conservative manipulation estimates, capacity bounds, and deterministic
+economic simulation. Origin-chain assets remain off Arc; only USDC collateral and normalized
+oracle/evidence state are consumed by the Arc execution layer.

@@ -5,5 +5,9 @@
   "type": "module",
   "exports": {
     ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@arcmemeperps/shared": "workspace:*",
+    "viem": "^2.37.0"
   }
 }

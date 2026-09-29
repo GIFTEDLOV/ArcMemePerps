@@ -14,3 +14,12 @@ Mitigations in Gate 1 include hard-gate reasons, chain+address market IDs, provi
 Residual risks include provider correctness, reorg handling, proof anchoring, contract upgrade/governance design, token custody, economic formulas, oracle quorum design, and complete adversarial simulations. These remain required before any deployment or live market.
 
 Gate 2-specific controls include typed identity preimages, explicit source/position/freshness provenance, wrong-chain and wrong-token validation, provider timeout/rate-limit bounds, conservative disagreement resolution, explicit wallet classifications for cluster calculations, and no implicit LP-lock claim from DEX liquidity. Unknown wallets remain included; an address is excluded only when a classification is evidenced.
+
+# Gate 3 economic threats
+
+The economic layer explicitly treats oracle manipulation, stale reports, correlated sources,
+price gaps, thin depth, asymmetric OI, funding farming, liquidation reward farming, keeper
+delay, insurance depletion, bad debt, vault withdrawal races, reentrancy, unsafe decimals,
+and non-standard collateral behavior as active threats. Mitigations are conservative oracle
+bands, source-family independence, bounded limits, isolated margin, checked transfers/casts,
+state-before-interaction ordering, explicit bad-debt accounting, and emergency risk reduction.

@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {AccessControlled} from "./AccessControlled.sol";
-import {IQualificationRegistry} from "./interfaces/IQualificationRegistry.sol";
-import {IMarketRegistry} from "./interfaces/IMarketRegistry.sol";
+import { AccessControlled } from "./AccessControlled.sol";
+import { IQualificationRegistry } from "./interfaces/IQualificationRegistry.sol";
+import { IMarketRegistry } from "./interfaces/IMarketRegistry.sol";
 
 contract MarketRegistry is AccessControlled, IMarketRegistry {
     enum MarketState {
@@ -29,7 +29,9 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
     error MarketNotFound();
     error QualificationMissing();
 
-    event MarketRegistered(bytes32 indexed marketId, bytes32 indexed originChain, bytes originToken);
+    event MarketRegistered(
+        bytes32 indexed marketId, bytes32 indexed originChain, bytes originToken
+    );
     event LifecycleUpdated(bytes32 indexed marketId, bytes32 lifecycle);
     event MarketStateUpdated(bytes32 indexed marketId, MarketState state);
 
@@ -39,20 +41,22 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
     }
 
     function computeEvmMarketId(uint256 chainId, address token) public pure returns (bytes32) {
-        return keccak256(abi.encode(
-            keccak256(bytes("ARCMEMEPERPS_MARKET_ID_V2")),
-            keccak256(bytes("EVM")),
-            chainId,
-            token
-        ));
+        return keccak256(
+            abi.encode(
+                keccak256(bytes("ARCMEMEPERPS_MARKET_ID_V2")),
+                keccak256(bytes("EVM")),
+                chainId,
+                token
+            )
+        );
     }
 
     function computeSolanaMarketId(bytes32 publicKey) public pure returns (bytes32) {
-        return keccak256(abi.encode(
-            keccak256(bytes("ARCMEMEPERPS_MARKET_ID_V2")),
-            keccak256(bytes("SOLANA")),
-            publicKey
-        ));
+        return keccak256(
+            abi.encode(
+                keccak256(bytes("ARCMEMEPERPS_MARKET_ID_V2")), keccak256(bytes("SOLANA")), publicKey
+            )
+        );
     }
 
     function registerEvmMarket(uint256 chainId, address token, bytes32 lifecycle)

@@ -1,12 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {AccessControlled} from "./AccessControlled.sol";
-import {IExposureProvider} from "./interfaces/IExposureProvider.sol";
-import {IQualificationRegistry} from "./interfaces/IQualificationRegistry.sol";
-import {IRiskConfig} from "./interfaces/IRiskConfig.sol";
+import { AccessControlled } from "./AccessControlled.sol";
+import { IExposureProvider } from "./interfaces/IExposureProvider.sol";
+import { IQualificationRegistry } from "./interfaces/IQualificationRegistry.sol";
+import { IRiskConfig } from "./interfaces/IRiskConfig.sol";
 
 contract RiskConfig is AccessControlled, IRiskConfig {
+    uint256 public constant GLOBAL_MAX_LEVERAGE = 5e18;
     enum MarketStatus {
         BLOCKED,
         PAUSED,
@@ -51,7 +52,9 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         uint256 liquidationPenaltyBps
     ) external onlyOwner {
         if (_configs[marketId].maxOI != 0) revert InvalidLimits();
-        _validateLimits(maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps);
+        _validateLimits(
+            maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps
+        );
         _configs[marketId] = Config({
             maxLeverage: maxLeverage,
             maxOI: maxOI,
@@ -73,19 +76,25 @@ contract RiskConfig is AccessControlled, IRiskConfig {
     ) external onlyOwner {
         Config storage current = _configs[marketId];
         if (current.maxOI == 0) revert ConfigMissing();
-        if (maxLeverage > current.maxLeverage || maxOI > current.maxOI || maxPosition > current.maxPosition) {
+        if (
+            maxLeverage > current.maxLeverage || maxOI > current.maxOI
+                || maxPosition > current.maxPosition
+        ) {
             revert RiskIncreaseNotAllowed();
         }
         if (maintenanceMarginBps < current.maintenanceMarginBps) revert RiskIncreaseNotAllowed();
         if (liquidationPenaltyBps > current.liquidationPenaltyBps) revert RiskIncreaseNotAllowed();
         if (exposureProvider != address(0)) {
-            uint256 currentOpenInterest = IExposureProvider(exposureProvider).totalOpenInterest(marketId);
+            uint256 currentOpenInterest =
+                IExposureProvider(exposureProvider).totalOpenInterest(marketId);
             // A cap cannot be reduced below existing exposure. Existing positions must de-risk first.
             if (maxOI < currentOpenInterest || maxPosition < currentOpenInterest) {
                 revert RiskIncreaseNotAllowed();
             }
         }
-        _validateLimits(maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps);
+        _validateLimits(
+            maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps
+        );
         current.maxLeverage = maxLeverage;
         current.maxOI = maxOI;
         current.maxPosition = maxPosition;
@@ -113,16 +122,25 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         Config storage current = _configs[marketId];
         if (current.maxOI == 0) revert ConfigMissing();
         if (!qualificationRegistry.isApproved(marketId)) revert QualificationMissing();
-        IQualificationRegistry.Qualification memory qualification = qualificationRegistry.getQualification(marketId);
-        if (qualification.proofHash == bytes32(0) || qualification.qualifiedAt <= appliedQualificationAt[marketId]) {
+        IQualificationRegistry.Qualification memory qualification =
+            qualificationRegistry.getQualification(marketId);
+        if (
+            qualification.proofHash == bytes32(0)
+                || qualification.qualifiedAt <= appliedQualificationAt[marketId]
+        ) {
             revert QualificationMissing();
         }
-        if (qualification.expiresAt != 0 && block.timestamp >= qualification.expiresAt) revert QualificationMissing();
+        // forge-lint: disable-next-line(block-timestamp)
+        if (qualification.expiresAt != 0 && _clock() >= qualification.expiresAt) {
+            revert QualificationMissing();
+        }
         if (
             maxLeverage > qualification.maxLeverage || maxOI > qualification.maxOI
                 || maxPosition > qualification.maxPosition
         ) revert InvalidLimits();
-        _validateLimits(maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps);
+        _validateLimits(
+            maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps
+        );
         current.maxLeverage = maxLeverage;
         current.maxOI = maxOI;
         current.maxPosition = maxPosition;
@@ -152,8 +170,14 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         uint256 liquidationPenaltyBps
     ) private pure {
         if (
-            maxLeverage == 0 || maxOI == 0 || maxPosition == 0 || maxPosition > maxOI
-                || maintenanceMarginBps > 10_000 || liquidationPenaltyBps > 10_000
+            maxLeverage == 0 || maxLeverage > GLOBAL_MAX_LEVERAGE || maxOI == 0 || maxPosition == 0
+                || maxPosition > maxOI || maintenanceMarginBps > 10_000
+                || liquidationPenaltyBps > 10_000
         ) revert InvalidLimits();
+    }
+
+    function _clock() private view returns (uint256) {
+        // Used only for bounded qualification expiry; a validator cannot extend a proof.
+        return block.timestamp;
     }
 }

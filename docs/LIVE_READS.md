@@ -18,3 +18,20 @@ pnpm test:live
 It performs one read-only inspection per supported mainnet configuration and records chain ID or Solana slot, token, evidence classes, unavailable classes, errors, and latency. It is not deterministic CI and does not endorse the sample assets. Optional GoPlus, Helius, and Bubblemaps calls are skipped when credentials are absent.
 
 No live command uses `eth_sendTransaction`, `eth_sendRawTransaction`, Solana transaction submission, swaps, approvals, deployments, or wallet funding.
+# Gate 3 read-only smoke (2026-09-29)
+
+`pnpm test:live` was run against one public address/mint per supported mainnet. The command
+prints `readOnly: true` and `writesPerformed: false`; no wallet, signer, transaction, or
+contract write path is used.
+
+- Arc: canonical RPC and DexScreener available; latest block `23366563`.
+- Ethereum: canonical RPC and DexScreener available; latest block `26083033`.
+- Base: canonical RPC and DexScreener available; latest block `51947245`.
+- BNB: canonical RPC and DexScreener available; latest block `124714293`.
+- Robinhood Chain: canonical RPC and DexScreener available; latest block `75645596`.
+- Solana: DexScreener available, but the public canonical Solana RPC returned HTTP 429, so
+  slot/mint-account evidence was unavailable in this run. Helius was not configured.
+
+GoPlus, Bubblemaps, and Helius were explicitly unavailable because enrichment was disabled and
+no API credentials were supplied. These statuses remain unavailable/unknown to the risk engine;
+they are never treated as passing evidence.

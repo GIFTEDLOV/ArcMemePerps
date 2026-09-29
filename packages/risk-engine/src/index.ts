@@ -14,6 +14,9 @@ import type {
 export const RISK_RULE_VERSION = "0.1.0";
 
 export * from "./activity.js";
+export * from "./economics.js";
+export * from "./capacity.js";
+export * from "./manipulation.js";
 
 /**
  * Development defaults only. Thresholds are intentionally explicit and versioned so that
