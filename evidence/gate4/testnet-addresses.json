@@ -1,0 +1,46 @@
+{
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "identities": [
+    {
+      "role": "TESTNET_ADMIN",
+      "publicAddress": "0x69030D355c04734fE31975d1D24313CC27389fCC",
+      "purpose": "temporary testnet deployment and configuration administrator"
+    },
+    {
+      "role": "REPORTER_1",
+      "publicAddress": "0x748904283eb78B3eB03Eb82D65BB8d0b00633B1f",
+      "purpose": "testnet oracle reporter 1 of 3"
+    },
+    {
+      "role": "REPORTER_2",
+      "publicAddress": "0x2eB86B7a8Cda5Be0ce0a5356DdF20c9Ab1Ac9244",
+      "purpose": "testnet oracle reporter 2 of 3"
+    },
+    {
+      "role": "REPORTER_3",
+      "publicAddress": "0x5086639391A9b4Af3D1E9871D83D02B9cFdf9A38",
+      "purpose": "testnet oracle reporter 3 of 3"
+    },
+    {
+      "role": "KEEPER",
+      "publicAddress": "0x44469f78E57d16e2faf87522A91A6567342773D4",
+      "purpose": "testnet order and liquidation keeper"
+    },
+    {
+      "role": "TRADER_LONG",
+      "publicAddress": "0x31D2A7b0e45cceBb09155b39D3B909Bd498784b5",
+      "purpose": "testnet long canary trader"
+    },
+    {
+      "role": "TRADER_SHORT",
+      "publicAddress": "0x7eD1b0322388ed1f540cD32763ce1AB3FC4cAE27",
+      "purpose": "testnet short canary trader"
+    },
+    {
+      "role": "LIQUIDATOR",
+      "publicAddress": "0x9aA42Da9C4eAFf4e71bc1a5dcd557aF0c37c94c8",
+      "purpose": "testnet liquidation canary executor"
+    }
+  ]
+}
