@@ -1,16 +1,74 @@
 import { describe, expect, it } from "vitest";
-import type { QualificationProof } from "./index.js";
-import { canonicalQualificationProof, qualificationProofHash } from "./index.js";
+import type { EvidenceBundle, EvidenceRecord } from "@arcmemeperps/domain";
+import type { Hex } from "@arcmemeperps/shared";
+import {
+  canonicalQualificationProof,
+  evidenceRootForBundle,
+  qualificationCommitmentFromProof,
+  qualificationCommitmentHash,
+  type QualificationProof,
+  qualificationProofHash,
+} from "./index.js";
+
+const position = {
+  chain: "BASE" as const,
+  blockNumber: "100",
+  blockHash: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" as Hex,
+  slot: null,
+};
+
+const evidence = (id: string, value: unknown): EvidenceRecord => ({
+  evidenceId: id,
+  kind: id,
+  source: {
+    provider: "fixture-provider",
+    chain: "BASE",
+    network: "base-mainnet",
+    endpointClass: "FIXTURE",
+    dataVersion: "fixture-1",
+    schemaVersion: "1",
+  },
+  position: {
+    blockNumber: position.blockNumber,
+    blockHash: position.blockHash,
+    slot: null,
+    transaction: null,
+    signature: null,
+  },
+  observedAt: "2026-09-29T00:00:00.000Z",
+  sourceTimestamp: "2026-09-29T00:00:00.000Z",
+  fetchedAt: "2026-09-29T00:00:01.000Z",
+  freshness: "FRESH",
+  confidence: 1,
+  status: "AVAILABLE",
+  value,
+  rawHash: null,
+  unavailableReason: null,
+});
+
+const bundle: EvidenceBundle = {
+  schemaVersion: "1",
+  records: [
+    evidence("authority", { mintAuthorityActive: false }),
+    evidence("liquidity", { usd: 100 }),
+  ],
+};
 
 const proof: QualificationProof = {
-  schemaVersion: "1",
+  proofVersion: "2",
+  schemaVersion: "2",
+  evidenceSchemaVersion: "1",
   chain: "BASE",
+  marketId: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
   tokenAddress: "0x0000000000000000000000000000000000000001",
   lifecycle: "ESTABLISHED",
+  evidenceRoot: evidenceRootForBundle(bundle),
+  evidence: bundle.records,
   evidenceHashes: {
-    oracle: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-    holders: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    authority: "0xaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    liquidity: "0xbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
   },
+  assessmentPosition: position,
   liquidityMetrics: {
     totalLiquidityUsd: 1_000_000,
     depth1PctUsd: 100_000,
@@ -76,21 +134,34 @@ const proof: QualificationProof = {
     recommendedMaxOI: 100_000,
     recommendedMaxPosition: 25_000,
   },
+  riskRuleVersion: "0.1.0",
   ruleVersion: "0.1.0",
   assessedAt: "2026-09-29T00:00:00.000Z",
+  expiresAt: "2026-09-30T00:00:00.000Z",
 };
 
-describe("qualification proof", () => {
-  it("sorts object keys and gives the same logical record the same keccak hash", () => {
+describe("qualification proof v2", () => {
+  it("sorts evidence records and keeps canonical JSON deterministic", () => {
     const reordered = {
       ...proof,
-      evidenceHashes: {
-        holders: proof.evidenceHashes.holders!,
-        oracle: proof.evidenceHashes.oracle!,
-      },
+      evidence: [...proof.evidence].reverse(),
     };
     expect(canonicalQualificationProof(proof)).toBe(canonicalQualificationProof(reordered));
-    expect(qualificationProofHash(proof)).toBe(qualificationProofHash(reordered));
+    const reorderedRoot = evidenceRootForBundle({
+      ...bundle,
+      records: [...bundle.records].reverse(),
+    });
+    expect(reorderedRoot.root).toBe(proof.evidenceRoot.root);
+  });
+
+  it("creates a typed commitment and changes it for material risk changes", () => {
+    const commitment = qualificationCommitmentFromProof(proof);
+    const changed = qualificationCommitmentFromProof({
+      ...proof,
+      riskParameters: { ...proof.riskParameters, recommendedMaxOI: 90_000 },
+    });
+    expect(qualificationCommitmentHash(commitment)).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(qualificationCommitmentHash(commitment)).not.toBe(qualificationCommitmentHash(changed));
     expect(qualificationProofHash(proof)).toMatch(/^0x[0-9a-f]{64}$/);
   });
 });

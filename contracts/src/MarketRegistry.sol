@@ -38,32 +38,57 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
         qualificationRegistry = IQualificationRegistry(qualificationRegistry_);
     }
 
-    function computeMarketId(bytes32 originChain, bytes memory originToken)
-        public
-        pure
-        returns (bytes32)
-    {
-        // This is the packed preimage implemented by shared.marketIdForToken():
-        // domain bytes + left-aligned bytes32 chain namespace + normalized token bytes.
-        return keccak256(abi.encodePacked("ARCMEMEPERPS_MARKET_V1", originChain, originToken));
+    function computeEvmMarketId(uint256 chainId, address token) public pure returns (bytes32) {
+        return keccak256(abi.encode(
+            keccak256(bytes("ARCMEMEPERPS_MARKET_ID_V2")),
+            keccak256(bytes("EVM")),
+            chainId,
+            token
+        ));
     }
 
-    function registerMarket(bytes32 originChain, bytes calldata originToken, bytes32 lifecycle)
+    function computeSolanaMarketId(bytes32 publicKey) public pure returns (bytes32) {
+        return keccak256(abi.encode(
+            keccak256(bytes("ARCMEMEPERPS_MARKET_ID_V2")),
+            keccak256(bytes("SOLANA")),
+            publicKey
+        ));
+    }
+
+    function registerEvmMarket(uint256 chainId, address token, bytes32 lifecycle)
         external
         onlyOwner
         returns (bytes32 marketId)
     {
-        marketId = computeMarketId(originChain, originToken);
+        marketId = computeEvmMarketId(chainId, token);
         if (_markets[marketId].exists) revert MarketAlreadyExists();
         _markets[marketId] = Market({
             marketId: marketId,
-            originChain: originChain,
-            originToken: originToken,
+            originChain: bytes32(chainId),
+            originToken: abi.encodePacked(token),
             lifecycle: lifecycle,
             state: MarketState.BLOCKED,
             exists: true
         });
-        emit MarketRegistered(marketId, originChain, originToken);
+        emit MarketRegistered(marketId, bytes32(chainId), abi.encodePacked(token));
+    }
+
+    function registerSolanaMarket(bytes32 publicKey, bytes32 lifecycle)
+        external
+        onlyOwner
+        returns (bytes32 marketId)
+    {
+        marketId = computeSolanaMarketId(publicKey);
+        if (_markets[marketId].exists) revert MarketAlreadyExists();
+        _markets[marketId] = Market({
+            marketId: marketId,
+            originChain: keccak256(bytes("SOLANA")),
+            originToken: abi.encodePacked(publicKey),
+            lifecycle: lifecycle,
+            state: MarketState.BLOCKED,
+            exists: true
+        });
+        emit MarketRegistered(marketId, keccak256(bytes("SOLANA")), abi.encodePacked(publicKey));
     }
 
     function setLifecycle(bytes32 marketId, bytes32 lifecycle) external onlyOwner {

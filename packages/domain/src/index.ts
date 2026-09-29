@@ -1,4 +1,13 @@
 import type { ChainId, Hex, SupportedChain } from "@arcmemeperps/shared";
+import type {
+  AssessmentPosition,
+  DataDisagreement,
+  EvidenceRoot,
+  EvidenceRecord,
+  ProviderAvailability,
+} from "./provenance.js";
+
+export * from "./provenance.js";
 
 export type { ChainId, Hex, SupportedChain };
 
@@ -54,21 +63,21 @@ export interface LifecycleSnapshot {
 }
 
 export interface AuthorityState {
-  readonly mintAuthorityActive: boolean;
-  readonly freezeAuthorityActive: boolean;
-  readonly dangerousOwnerAdminPrivileges: boolean;
-  readonly upgradeable: boolean;
+  readonly mintAuthorityActive: boolean | null;
+  readonly freezeAuthorityActive: boolean | null;
+  readonly dangerousOwnerAdminPrivileges: boolean | null;
+  readonly upgradeable: boolean | null;
   readonly upgradeAuthority: string | null;
-  readonly transferRestricted: boolean;
-  readonly honeypotDetected: boolean;
+  readonly transferRestricted: boolean | null;
+  readonly honeypotDetected: boolean | null;
 }
 
 export type LpLockStatus = "LOCKED" | "BURNED" | "WITHDRAWABLE" | "UNKNOWN";
 
 export interface LiquidityState {
   readonly totalLiquidityUsd: number;
-  readonly depth1PctUsd: number;
-  readonly depth2PctUsd: number;
+  readonly depth1PctUsd: number | null;
+  readonly depth2PctUsd: number | null;
   readonly venueCount: number;
   readonly lpOwnershipConcentrationPct: number;
   readonly lpLockStatus: LpLockStatus;
@@ -90,20 +99,20 @@ export interface HolderConcentration {
 export interface DeployerRisk {
   readonly deployerAddress: string | null;
   readonly deployerHoldingsPct: number;
-  readonly knownRisk: boolean;
+  readonly knownRisk: boolean | null;
   readonly priorRugCount: number;
-  readonly relatedWalletFundingDetected: boolean;
-  readonly walletRotationDetected: boolean;
+  readonly relatedWalletFundingDetected: boolean | null;
+  readonly walletRotationDetected: boolean | null;
 }
 
 export interface ActivityQualityMetrics {
   readonly organicVolume24hUsd: number;
   readonly realizedVolatility30dPct: number;
-  readonly washTradingDetected: boolean;
-  readonly volumeFarmingDetected: boolean;
-  readonly suspiciousEarlyBuyers: boolean;
-  readonly suspiciousTransactionRepetition: boolean;
-  readonly bundledLaunchDetected: boolean;
+  readonly washTradingDetected: boolean | null;
+  readonly volumeFarmingDetected: boolean | null;
+  readonly suspiciousEarlyBuyers: boolean | null;
+  readonly suspiciousTransactionRepetition: boolean | null;
+  readonly bundledLaunchDetected: boolean | null;
   readonly fundingSourceDiversity: number;
 }
 
@@ -111,7 +120,7 @@ export interface OracleMetrics {
   readonly sourceCount: number;
   readonly disagreementPct: number;
   readonly confidenceBps: number;
-  readonly stale: boolean;
+  readonly stale: boolean | null;
   readonly priceUsd: number;
   readonly observedAt: string;
   readonly manipulationCostUsd: number;
@@ -120,8 +129,8 @@ export interface OracleMetrics {
 export interface DerivativesCapacityMetrics {
   readonly spotLiquidityUsd: number;
   readonly liquidityVenueCount: number;
-  readonly depth1PctUsd: number;
-  readonly depth2PctUsd: number;
+  readonly depth1PctUsd: number | null;
+  readonly depth2PctUsd: number | null;
   readonly organicVolume24hUsd: number;
   readonly realizedVolatilityPct: number;
   readonly oracleSourceCount: number;
@@ -213,4 +222,19 @@ export interface MarketObservation {
   readonly activity: ActivityQualityMetrics;
   readonly oracle: OracleMetrics;
   readonly derivatives: DerivativesCapacityMetrics;
+}
+
+export interface MarketIntelligenceRecord extends MarketObservation {
+  readonly marketId: Hex;
+  readonly evidenceRoot: EvidenceRoot;
+  readonly evidenceSchemaVersion: string;
+  readonly evidence: readonly EvidenceRecord[];
+  readonly assessmentPosition: AssessmentPosition;
+  readonly providerAvailability: readonly ProviderAvailability[];
+  readonly dataQuality: {
+    readonly status: "SUFFICIENT" | "PARTIAL" | "INSUFFICIENT";
+    readonly reconciliationStatus:
+      "CONSISTENT" | "MINOR_DIVERGENCE" | "MATERIAL_DIVERGENCE" | "STALE" | "UNAVAILABLE";
+    readonly disagreements: readonly DataDisagreement[];
+  };
 }

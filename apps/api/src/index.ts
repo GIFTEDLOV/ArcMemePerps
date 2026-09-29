@@ -40,7 +40,7 @@ export class MarketAssessmentService {
 }
 
 export const apiBuildState = {
-  transport: "not installed in Gate 1",
-  liveProviders: false,
+  transport: "read-only developer CLI",
+  liveProviders: true,
   writesToArc: false,
 } as const;

@@ -13,6 +13,8 @@ import type {
 
 export const RISK_RULE_VERSION = "0.1.0";
 
+export * from "./activity.js";
+
 /**
  * Development defaults only. Thresholds are intentionally explicit and versioned so that
  * empirical calibration can change a ruleset without changing historical assessments.
@@ -42,7 +44,7 @@ export interface RiskRuleConfig {
 export const DEVELOPMENT_RISK_RULES: RiskRuleConfig = {
   version: RISK_RULE_VERSION,
   maxIndividualHolderPct: 5,
-  maxConnectedClusterPct: 10,
+  maxConnectedClusterPct: 5,
   maxBundledLaunchPct: 10,
   maxDeployerHoldingsPct: 10,
   minimumLpLockDays: 7,
@@ -101,22 +103,22 @@ export function evaluateIntegrity(
 ): IntegrityEvaluation {
   const { authorities, liquidity, holders, deployer, activity } = observation;
   const hardGates: HardGateResult[] = [
-    gate("MINT_AUTHORITY_ACTIVE", !authorities.mintAuthorityActive, {
+    gate("MINT_AUTHORITY_ACTIVE", authorities.mintAuthorityActive === false, {
       active: authorities.mintAuthorityActive,
     }),
-    gate("FREEZE_AUTHORITY_ACTIVE", !authorities.freezeAuthorityActive, {
+    gate("FREEZE_AUTHORITY_ACTIVE", authorities.freezeAuthorityActive === false, {
       active: authorities.freezeAuthorityActive,
     }),
-    gate("DANGEROUS_OWNER_ADMIN_PRIVILEGE", !authorities.dangerousOwnerAdminPrivileges, {
+    gate("DANGEROUS_OWNER_ADMIN_PRIVILEGE", authorities.dangerousOwnerAdminPrivileges === false, {
       active: authorities.dangerousOwnerAdminPrivileges,
     }),
-    gate("UPGRADEABILITY_RISK", !authorities.upgradeable, {
+    gate("UPGRADEABILITY_RISK", authorities.upgradeable === false, {
       upgradeable: authorities.upgradeable,
       upgradeAuthority: authorities.upgradeAuthority,
     }),
     gate(
       "HONEYPOT_OR_TRANSFER_RESTRICTION",
-      !authorities.honeypotDetected && !authorities.transferRestricted,
+      authorities.honeypotDetected === false && authorities.transferRestricted === false,
       {
         honeypotDetected: authorities.honeypotDetected,
         transferRestricted: authorities.transferRestricted,
@@ -149,28 +151,48 @@ export function evaluateIntegrity(
       bundledLaunchPct: holders.bundledLaunchPct,
       maxBundledLaunchPct: rules.maxBundledLaunchPct,
     }),
-    gate("KNOWN_RISK_DEPLOYER", !deployer.knownRisk, {
+    gate("KNOWN_RISK_DEPLOYER", deployer.knownRisk === false, {
       knownRisk: deployer.knownRisk,
       priorRugCount: deployer.priorRugCount,
     }),
-    gate("RELATED_WALLET_FUNDING", !deployer.relatedWalletFundingDetected, {
+    gate("RELATED_WALLET_FUNDING", deployer.relatedWalletFundingDetected === false, {
       detected: deployer.relatedWalletFundingDetected,
     }),
-    gate("SUSPICIOUS_EARLY_BUYERS", !activity.suspiciousEarlyBuyers, {
+    gate("SUSPICIOUS_EARLY_BUYERS", activity.suspiciousEarlyBuyers === false, {
       detected: activity.suspiciousEarlyBuyers,
     }),
-    gate("WASH_TRADING", !activity.washTradingDetected, {
+    gate("WASH_TRADING", activity.washTradingDetected === false, {
       detected: activity.washTradingDetected,
     }),
-    gate("VOLUME_FARMING", !activity.volumeFarmingDetected, {
+    gate("VOLUME_FARMING", activity.volumeFarmingDetected === false, {
       detected: activity.volumeFarmingDetected,
     }),
-    gate("SUSPICIOUS_TRANSACTION_REPETITION", !activity.suspiciousTransactionRepetition, {
+    gate("SUSPICIOUS_TRANSACTION_REPETITION", activity.suspiciousTransactionRepetition === false, {
       detected: activity.suspiciousTransactionRepetition,
     }),
-    gate("INSUFFICIENT_EVIDENCE", liquidity.lpLockStatus !== "UNKNOWN", {
-      lpLockStatus: liquidity.lpLockStatus,
-    }),
+    gate(
+      "INSUFFICIENT_EVIDENCE",
+      liquidity.lpLockStatus !== "UNKNOWN" &&
+        holders.holderCount > 0 &&
+        deployer.deployerAddress !== null &&
+        authorities.mintAuthorityActive !== null &&
+        authorities.freezeAuthorityActive !== null &&
+        authorities.dangerousOwnerAdminPrivileges !== null &&
+        authorities.upgradeable !== null &&
+        authorities.transferRestricted !== null &&
+        authorities.honeypotDetected !== null &&
+        deployer.knownRisk !== null &&
+        deployer.relatedWalletFundingDetected !== null &&
+        activity.suspiciousEarlyBuyers !== null &&
+        activity.washTradingDetected !== null &&
+        activity.volumeFarmingDetected !== null &&
+        activity.suspiciousTransactionRepetition !== null,
+      {
+        lpLockStatus: liquidity.lpLockStatus,
+        authorityEvidenceComplete:
+          authorities.mintAuthorityActive !== null && authorities.freezeAuthorityActive !== null,
+      },
+    ),
   ];
 
   const failed = hardGates.filter((item) => !item.passed);
@@ -210,7 +232,7 @@ export function evaluateDerivativesCapacity(
   const safeOpenInterest = clampNonNegative(
     Math.min(
       derivatives.maximumSafeOpenInterestUsd,
-      liquidity.depth1PctUsd * 2,
+      (liquidity.depth1PctUsd ?? 0) * 2,
       activity.organicVolume24hUsd * 0.5,
       oracle.manipulationCostUsd * 0.25,
       derivatives.liquidationCapacityUsd * 0.8,
@@ -219,7 +241,7 @@ export function evaluateDerivativesCapacity(
   const safePosition = clampNonNegative(
     Math.min(
       derivatives.maximumPositionSizeUsd,
-      liquidity.depth1PctUsd * 0.25,
+      (liquidity.depth1PctUsd ?? 0) * 0.25,
       safeOpenInterest * 0.25,
     ),
   );
@@ -265,13 +287,13 @@ export function evaluateDerivativesCapacity(
     ],
     [
       "INSUFFICIENT_DEPTH_1_PERCENT",
-      liquidity.depth1PctUsd >= rules.minimumDepth1PctUsd,
+      (liquidity.depth1PctUsd ?? 0) >= rules.minimumDepth1PctUsd,
       "1% market depth is below development minimum",
       { actual: liquidity.depth1PctUsd, minimum: rules.minimumDepth1PctUsd },
     ],
     [
       "INSUFFICIENT_DEPTH_2_PERCENT",
-      liquidity.depth2PctUsd >= rules.minimumDepth2PctUsd,
+      (liquidity.depth2PctUsd ?? 0) >= rules.minimumDepth2PctUsd,
       "2% market depth is below development minimum",
       { actual: liquidity.depth2PctUsd, minimum: rules.minimumDepth2PctUsd },
     ],
@@ -329,7 +351,7 @@ export function evaluateDerivativesCapacity(
       warnings.push(reason(code, message, false, details));
     }
   }
-  if (oracle.stale) {
+  if (oracle.stale !== false) {
     rejectionReasons.push(reason("STALE_ORACLE", "oracle data is stale", false, { stale: true }));
   }
   if (integrity.status === "REJECTED") {
@@ -440,9 +462,9 @@ function roundDown(value: number, decimals: number): number {
 
 export function activityQualityIsSuspicious(activity: ActivityQualityMetrics): boolean {
   return (
-    activity.washTradingDetected ||
-    activity.volumeFarmingDetected ||
-    activity.suspiciousEarlyBuyers ||
-    activity.suspiciousTransactionRepetition
+    activity.washTradingDetected === true ||
+    activity.volumeFarmingDetected === true ||
+    activity.suspiciousEarlyBuyers === true ||
+    activity.suspiciousTransactionRepetition === true
   );
 }

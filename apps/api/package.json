@@ -7,8 +7,10 @@
     "dev": "node --import tsx src/index.ts"
   },
   "dependencies": {
+    "@arcmemeperps/chain-adapters": "workspace:*",
     "@arcmemeperps/domain": "workspace:*",
     "@arcmemeperps/qualification-proof": "workspace:*",
-    "@arcmemeperps/risk-engine": "workspace:*"
+    "@arcmemeperps/risk-engine": "workspace:*",
+    "@arcmemeperps/shared": "workspace:*"
   }
 }

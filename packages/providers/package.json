@@ -1,5 +1,5 @@
 {
-  "name": "@arcmemeperps/chain-adapters",
+  "name": "@arcmemeperps/providers",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -9,7 +9,6 @@
   "dependencies": {
     "@arcmemeperps/domain": "workspace:*",
     "@arcmemeperps/shared": "workspace:*",
-    "@arcmemeperps/providers": "workspace:*",
-    "@arcmemeperps/qualification-proof": "workspace:*"
+    "viem": "^2.37.0"
   }
 }

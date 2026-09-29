@@ -12,3 +12,5 @@ The first layer considers:
 Mitigations in Gate 1 include hard-gate reasons, chain+address market IDs, provider isolation, deterministic evidence/proof hashing, oracle staleness/confidence checks, conservative caps, dynamic risk-limit reductions, role checks, explicit bad-debt accounting, and independent market/risk status checks.
 
 Residual risks include provider correctness, reorg handling, proof anchoring, contract upgrade/governance design, token custody, economic formulas, oracle quorum design, and complete adversarial simulations. These remain required before any deployment or live market.
+
+Gate 2-specific controls include typed identity preimages, explicit source/position/freshness provenance, wrong-chain and wrong-token validation, provider timeout/rate-limit bounds, conservative disagreement resolution, explicit wallet classifications for cluster calculations, and no implicit LP-lock claim from DEX liquidity. Unknown wallets remain included; an address is excluded only when a classification is evidenced.

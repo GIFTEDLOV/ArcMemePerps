@@ -7,6 +7,14 @@ export type SupportedChain = (typeof SUPPORTED_CHAINS)[number];
 export type ChainId = SupportedChain;
 export type Hex = `0x${string}`;
 
+export const SUPPORTED_EVM_CHAIN_IDS: Readonly<Partial<Record<SupportedChain, number>>> = {
+  ARC: 5042,
+  ETHEREUM: 1,
+  BASE: 8453,
+  BNB: 56,
+  ROBINHOOD: 4663,
+};
+
 const EVM_CHAINS: ReadonlySet<SupportedChain> = new Set([
   "ARC",
   "ETHEREUM",
@@ -31,9 +39,7 @@ export function normalizeTokenAddress(chain: SupportedChain, tokenAddress: strin
     return trimmed.toLowerCase();
   }
 
-  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(trimmed)) {
-    throw new Error("invalid Solana token address");
-  }
+  decodeBase58PublicKey(trimmed);
   return trimmed;
 }
 
@@ -42,21 +48,62 @@ export function canonicalMarketKey(chain: SupportedChain, tokenAddress: string):
   return `arcmemeperps/market/v1|chain=${chain}|addressLength=${normalizedAddress.length}|address=${normalizedAddress}`;
 }
 
-/**
- * The Solidity registry stores the chain namespace as a left-aligned bytes32 label and the
- * normalized origin token as bytes. This helper uses the exact same packed preimage.
- */
 export function marketIdForToken(chain: SupportedChain, tokenAddress: string): Hex {
   const normalizedAddress = normalizeTokenAddress(chain, tokenAddress);
-  const domain = new TextEncoder().encode("ARCMEMEPERPS_MARKET_V1");
-  const chainNamespace = new Uint8Array(32);
-  chainNamespace.set(new TextEncoder().encode(chain));
-  const token = new TextEncoder().encode(normalizedAddress);
-  const packed = new Uint8Array(domain.length + chainNamespace.length + token.length);
-  packed.set(domain, 0);
-  packed.set(chainNamespace, domain.length);
-  packed.set(token, domain.length + chainNamespace.length);
-  return keccak256Hex(packed);
+  const chainId = SUPPORTED_EVM_CHAIN_IDS[chain];
+  if (chainId !== undefined) {
+    return marketIdForEvmToken(chainId, normalizedAddress);
+  }
+  return marketIdForSolanaToken(normalizedAddress);
+}
+
+export function marketIdForEvmToken(chainId: number, tokenAddress: string): Hex {
+  const normalizedAddress = normalizeEvmAddress(tokenAddress);
+  const tokenBytes = hexToBytes(normalizedAddress);
+  const addressWord = new Uint8Array(32);
+  addressWord.set(tokenBytes, 12);
+  return keccak256Hex(
+    concatBytes(
+      keccak_256(new TextEncoder().encode("ARCMEMEPERPS_MARKET_ID_V2")),
+      keccak_256(new TextEncoder().encode("EVM")),
+      uint256Word(BigInt(chainId)),
+      addressWord,
+    ),
+  );
+}
+
+export function marketIdForSolanaToken(publicKey: string): Hex {
+  return keccak256Hex(
+    concatBytes(
+      keccak_256(new TextEncoder().encode("ARCMEMEPERPS_MARKET_ID_V2")),
+      keccak_256(new TextEncoder().encode("SOLANA")),
+      decodeBase58PublicKey(publicKey),
+    ),
+  );
+}
+
+export function tokenIdentityHash(chain: SupportedChain, tokenAddress: string): Hex {
+  const normalizedAddress = normalizeTokenAddress(chain, tokenAddress);
+  const chainId = SUPPORTED_EVM_CHAIN_IDS[chain];
+  if (chainId !== undefined) {
+    const addressWord = new Uint8Array(32);
+    addressWord.set(hexToBytes(normalizedAddress), 12);
+    return keccak256Hex(
+      concatBytes(
+        keccak_256(new TextEncoder().encode("ARCMEMEPERPS_TOKEN_ID_V1")),
+        keccak_256(new TextEncoder().encode("EVM")),
+        uint256Word(BigInt(chainId)),
+        addressWord,
+      ),
+    );
+  }
+  return keccak256Hex(
+    concatBytes(
+      keccak_256(new TextEncoder().encode("ARCMEMEPERPS_TOKEN_ID_V1")),
+      keccak_256(new TextEncoder().encode("SOLANA")),
+      decodeBase58PublicKey(normalizedAddress),
+    ),
+  );
 }
 
 export function qualificationHashBytes(input: Uint8Array | string): Uint8Array {
@@ -88,3 +135,74 @@ function sortCanonicalValue(value: CanonicalValue): CanonicalValue {
   }
   return value;
 }
+
+function normalizeEvmAddress(tokenAddress: string): string {
+  const trimmed = tokenAddress.trim();
+  if (!/^0x[0-9a-fA-F]{40}$/.test(trimmed)) {
+    throw new Error("invalid EVM token address");
+  }
+  return trimmed.toLowerCase();
+}
+
+function hexToBytes(value: string): Uint8Array {
+  const output = new Uint8Array((value.length - 2) / 2);
+  for (let index = 2; index < value.length; index += 2) {
+    output[(index - 2) / 2] = Number.parseInt(value.slice(index, index + 2), 16);
+  }
+  return output;
+}
+
+function uint256Word(value: bigint): Uint8Array {
+  if (value < 0n || value > (1n << 256n) - 1n) {
+    throw new Error("uint256 out of range");
+  }
+  const output = new Uint8Array(32);
+  let remaining = value;
+  for (let index = 31; index >= 0; index -= 1) {
+    output[index] = Number(remaining & 0xffn);
+    remaining >>= 8n;
+  }
+  return output;
+}
+
+function concatBytes(...parts: readonly Uint8Array[]): Uint8Array {
+  const output = new Uint8Array(parts.reduce((length, part) => length + part.length, 0));
+  let offset = 0;
+  for (const part of parts) {
+    output.set(part, offset);
+    offset += part.length;
+  }
+  return output;
+}
+
+function decodeBase58PublicKey(value: string): Uint8Array {
+  if (!/^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(value)) {
+    throw new Error("invalid Solana public key encoding");
+  }
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const bytes: number[] = [0];
+  for (const character of value) {
+    const digit = alphabet.indexOf(character);
+    if (digit < 0) throw new Error("invalid Solana public key character");
+    let carry = digit;
+    for (let index = 0; index < bytes.length; index += 1) {
+      const next = bytes[index]! * 58 + carry;
+      bytes[index] = next & 0xff;
+      carry = next >> 8;
+    }
+    while (carry > 0) {
+      bytes.push(carry & 0xff);
+      carry >>= 8;
+    }
+  }
+  for (const character of value) {
+    if (character !== "1") break;
+    bytes.push(0);
+  }
+  const decoded = Uint8Array.from(bytes.reverse());
+  if (decoded.length !== 32) throw new Error("Solana public key must decode to 32 bytes");
+  return decoded;
+}
+
+export { NETWORK_CONFIGS, rpcUrlForNetwork } from "./networks.js";
+export type { EvmNetworkConfig, SolanaNetworkConfig, SupportedNetworkConfig } from "./networks.js";

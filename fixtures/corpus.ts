@@ -91,7 +91,7 @@ const baseObservation: MarketObservation = {
   holders: {
     topHolderPct: 3,
     topFivePct: 14,
-    connectedClusterPct: 7,
+    connectedClusterPct: 4,
     bundledLaunchPct: 2,
     individualWalletsUnderFivePct: true,
     holderCount: 50_000,
@@ -320,6 +320,22 @@ export const FIXTURE_CASES: readonly FixtureCase[] = [
     "Individual wallets under 5% but connected cluster exceeds 5%",
     {
       holders: { topHolderPct: 4.9, connectedClusterPct: 12, individualWalletsUnderFivePct: true },
+    },
+    {
+      integrityStatus: "REJECTED",
+      derivativesStatus: "BLOCKED",
+      reasonCodes: ["CONNECTED_CLUSTER_CONCENTRATION"],
+    },
+  ),
+  fixture(
+    "cluster-six-point-three-individuals-under-five",
+    "Four individually small wallets form a 6.3% connected cluster",
+    {
+      holders: {
+        topHolderPct: 2.1,
+        connectedClusterPct: 6.3,
+        individualWalletsUnderFivePct: true,
+      },
     },
     {
       integrityStatus: "REJECTED",

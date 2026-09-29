@@ -6,6 +6,7 @@ interface IQualificationRegistry {
         bytes32 proofHash;
         bytes32 ruleVersion;
         uint64 qualifiedAt;
+        uint64 expiresAt;
         uint256 maxLeverage;
         uint256 maxOI;
         uint256 maxPosition;

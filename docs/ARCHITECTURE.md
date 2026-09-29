@@ -11,7 +11,7 @@ origin chains -> chain adapters -> normalized observation
                                       |-> Arc registries and execution foundation
 ```
 
-Origin-chain tokens remain on their source chain. Arc is the settlement and margin domain; no bridge or token custody flow is implemented in Gate 1.
+Origin-chain tokens remain on their source chain. Arc is the settlement and margin domain; no bridge or token custody flow is implemented in Gate 2.
 
 `apps/api` is an application boundary around domain assessment. `apps/indexer` is a provider-neutral discovery coordinator. Neither starts a server or makes network calls in tests.
 
@@ -24,3 +24,18 @@ Statuses are intentionally independent:
 | Derivatives | Whether Arc perpetual risk capacity is currently acceptable  |
 
 The frontend, when added, must consume normalized read models and must not branch on chain-specific behavior.
+
+## Gate 2 read path
+
+```text
+canonical RPC + provider APIs (read only)
+       -> provider parsers and provenance records
+       -> GenericEvmChainAdapter / SolanaChainAdapter
+       -> MarketIntelligenceRecord
+       -> Gate 1 lifecycle + integrity + derivatives engines
+       -> QualificationProof v2 + typed Arc commitment
+```
+
+Providers are replaceable evidence sources, not decision-makers. A missing API key produces `UNAVAILABLE`; it never becomes a passing security fact. The adapters preserve provider observations and disagreement metadata while exposing one normalized domain shape.
+
+The developer CLI is read-only and accepts no wallet, signing key, or transaction method. `pnpm test:live` is intentionally outside deterministic CI.

@@ -258,3 +258,5 @@ export interface AdapterObservation {
   readonly activity: ActivityQualityMetrics;
   readonly oracle: OracleMetrics;
 }
+
+export * from "./live.js";

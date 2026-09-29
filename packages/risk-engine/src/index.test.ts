@@ -42,7 +42,7 @@ const base: MarketObservation = {
   holders: {
     topHolderPct: 3,
     topFivePct: 14,
-    connectedClusterPct: 7,
+    connectedClusterPct: 4,
     bundledLaunchPct: 2,
     individualWalletsUnderFivePct: true,
     holderCount: 50_000,

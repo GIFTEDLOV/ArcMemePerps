@@ -16,7 +16,8 @@ contract QualificationRegistry is AccessControlled, IQualificationRegistry {
         bytes32 indexed ruleVersion,
         uint256 maxLeverage,
         uint256 maxOI,
-        uint256 maxPosition
+        uint256 maxPosition,
+        uint64 expiresAt
     );
     event QualificationRevoked(bytes32 indexed marketId, bytes32 indexed proofHash);
 
@@ -26,23 +27,26 @@ contract QualificationRegistry is AccessControlled, IQualificationRegistry {
         bytes32 ruleVersion,
         uint256 maxLeverage,
         uint256 maxOI,
-        uint256 maxPosition
+        uint256 maxPosition,
+        uint64 expiresAt
     ) external onlyOwner {
         if (proofHash == bytes32(0) || ruleVersion == bytes32(0)) revert InvalidProof();
         if (maxLeverage == 0 || maxOI == 0 || maxPosition == 0 || maxPosition > maxOI) {
             revert InvalidLimits();
         }
+        if (expiresAt != 0 && expiresAt <= block.timestamp) revert InvalidProof();
         _qualifications[marketId] = Qualification({
             proofHash: proofHash,
             ruleVersion: ruleVersion,
             qualifiedAt: uint64(block.timestamp),
+            expiresAt: expiresAt,
             maxLeverage: maxLeverage,
             maxOI: maxOI,
             maxPosition: maxPosition,
             approved: true
         });
         emit QualificationApproved(
-            marketId, proofHash, ruleVersion, maxLeverage, maxOI, maxPosition
+            marketId, proofHash, ruleVersion, maxLeverage, maxOI, maxPosition, expiresAt
         );
     }
 
@@ -53,7 +57,9 @@ contract QualificationRegistry is AccessControlled, IQualificationRegistry {
     }
 
     function isApproved(bytes32 marketId) external view returns (bool) {
-        return _qualifications[marketId].approved;
+        Qualification memory qualification = _qualifications[marketId];
+        return qualification.approved
+            && (qualification.expiresAt == 0 || block.timestamp < qualification.expiresAt);
     }
 
     function getQualification(bytes32 marketId)

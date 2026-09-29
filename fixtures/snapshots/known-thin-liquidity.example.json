@@ -1,0 +1,22 @@
+{
+  "category": "KNOWN_THIN_LIQUIDITY",
+  "collectionTimestamp": "2026-09-29T00:00:00.000Z",
+  "chain": "BASE",
+  "network": "Base Mainnet",
+  "tokenAddress": "0x0000000000000000000000000000000000000001",
+  "sources": [
+    {
+      "provider": "dexscreener",
+      "endpointClass": "REST_API",
+      "observedAt": null,
+      "fetchedAt": "2026-09-29T00:00:00.000Z",
+      "rawHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "evidence": {
+    "totalObservedLiquidityUsd": 1200,
+    "depth1PctUsd": null,
+    "depth2PctUsd": null,
+    "reason": "DEX quote simulation is not implemented in Gate 2"
+  }
+}

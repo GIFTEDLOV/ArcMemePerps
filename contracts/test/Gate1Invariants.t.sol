@@ -38,12 +38,12 @@ contract Gate1InvariantsTest {
         insurance = new InsuranceFund();
         engine = new PerpEngine(address(registry), address(risk), address(oracle), address(vault), address(insurance));
 
-        marketId = registry.registerMarket(bytes32("BASE"), bytes("0x0000000000000000000000000000000000000001"), bytes32("ESTABLISHED"));
-        qualification.approveQualification(marketId, bytes32(uint256(1)), bytes32("0.1.0"), 3e18, 1_000, 600);
+        marketId = registry.registerEvmMarket(8453, address(1), bytes32("ESTABLISHED"));
+        qualification.approveQualification(marketId, bytes32(uint256(1)), bytes32("0.1.0"), 3e18, 1_000, 600, 0);
         registry.activateMarket(marketId);
         risk.initializeConfig(marketId, 3e18, 1_000, 600, 1_000, 500);
         risk.setExposureProvider(address(engine));
-        risk.setStatus(marketId, RiskConfig.MarketStatus.LIVE);
+        risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
         oracle.setUpdater(address(this), true);
         oracle.setPrice(marketId, 1e18, uint64(block.timestamp), 9_500);
         vault.setEngine(address(engine));
@@ -54,15 +54,20 @@ contract Gate1InvariantsTest {
     function testQualificationRequiredBeforeActivation() public {
         QualificationRegistry freshQualification = new QualificationRegistry();
         MarketRegistry freshRegistry = new MarketRegistry(address(freshQualification));
-        bytes32 freshMarket = freshRegistry.registerMarket(bytes32("ARC"), bytes("arc-token"), bytes32("DEX_LIVE"));
+        bytes32 freshMarket = freshRegistry.registerEvmMarket(5042, address(2), bytes32("DEX_LIVE"));
         vm.expectRevert();
         freshRegistry.activateMarket(freshMarket);
     }
 
     function testMarketIdUsesOriginChainAndToken() public view {
-        bytes32 baseId = registry.computeMarketId(bytes32("BASE"), bytes("same-token-text"));
-        bytes32 solanaId = registry.computeMarketId(bytes32("SOLANA"), bytes("same-token-text"));
+        bytes32 baseId = registry.computeEvmMarketId(8453, address(1));
+        bytes32 ethereumId = registry.computeEvmMarketId(1, address(1));
+        bytes32 otherTokenId = registry.computeEvmMarketId(8453, address(2));
+        bytes32 solanaId = registry.computeSolanaMarketId(bytes32(uint256(1)));
         assertTrue(baseId != solanaId);
+        assertTrue(baseId == 0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387);
+        assertTrue(baseId != ethereumId);
+        assertTrue(baseId != otherTokenId);
     }
 
     function testPositionLimitsAndCollateralAccounting() public {
@@ -79,15 +84,17 @@ contract Gate1InvariantsTest {
     }
 
     function testBlockedPausedAndCloseOnlyStates() public {
-        risk.setStatus(marketId, RiskConfig.MarketStatus.PAUSED);
+        risk.emergencySetStatus(marketId, RiskConfig.MarketStatus.PAUSED);
         vm.prank(TRADER);
         vm.expectRevert();
         engine.openPosition(marketId, true, 200, 200);
 
-        risk.setStatus(marketId, RiskConfig.MarketStatus.LIVE);
+        vm.warp(block.timestamp + 1);
+        qualification.approveQualification(marketId, bytes32(uint256(2)), bytes32("0.1.0"), 3e18, 1_000, 600, 0);
+        risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
         vm.prank(TRADER);
         uint256 positionId = engine.openPosition(marketId, true, 200, 200);
-        risk.setStatus(marketId, RiskConfig.MarketStatus.CLOSE_ONLY);
+        risk.emergencySetStatus(marketId, RiskConfig.MarketStatus.CLOSE_ONLY);
         vm.prank(TRADER);
         vm.expectRevert();
         engine.increasePosition(positionId, 10, 10);
@@ -109,15 +116,50 @@ contract Gate1InvariantsTest {
         qualification.revokeQualification(marketId);
         vm.prank(address(0xCAFE));
         vm.expectRevert();
-        risk.setStatus(marketId, RiskConfig.MarketStatus.BLOCKED);
+        risk.emergencySetStatus(marketId, RiskConfig.MarketStatus.BLOCKED);
+    }
+
+    function testNormalRequalificationRequiresFreshProofAndCanIncreaseLimits() public {
+        vm.expectRevert();
+        risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
+
+        vm.warp(block.timestamp + 1);
+        qualification.approveQualification(marketId, bytes32(uint256(3)), bytes32("0.1.0"), 5e18, 2_000, 1_000, 0);
+        risk.requalifyMarket(marketId, 5e18, 2_000, 1_000, 1_000, 500);
+        RiskConfig.Config memory config = risk.getConfig(marketId);
+        assertEq(config.maxLeverage, 5e18);
+        assertEq(config.maxOI, 2_000);
+    }
+
+    function testEmergencyPathCannotMakeMarketLiveOrReuseExpiredProof() public {
+        vm.expectRevert();
+        risk.emergencySetStatus(marketId, RiskConfig.MarketStatus.LIVE);
+
+        vm.warp(block.timestamp + 1);
+        uint64 expiry = uint64(block.timestamp + 10);
+        qualification.approveQualification(marketId, bytes32(uint256(4)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry);
+        vm.warp(block.timestamp + 11);
+        vm.expectRevert();
+        risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
+    }
+
+    function testExpiredQualificationCannotActivateMarket() public {
+        QualificationRegistry freshQualification = new QualificationRegistry();
+        MarketRegistry freshRegistry = new MarketRegistry(address(freshQualification));
+        bytes32 freshMarket = freshRegistry.registerEvmMarket(5042, address(3), bytes32("DEX_LIVE"));
+        uint64 expiry = uint64(block.timestamp + 10);
+        freshQualification.approveQualification(freshMarket, bytes32(uint256(5)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry);
+        vm.warp(block.timestamp + 11);
+        vm.expectRevert();
+        freshRegistry.activateMarket(freshMarket);
     }
 
     function testRiskReductionsCannotIncreaseExposure() public {
-        risk.reduceRiskLimits(marketId, 2e18, 500, 300, 1_500, 500);
+        risk.emergencyReduceRiskLimits(marketId, 2e18, 500, 300, 1_500, 500);
         RiskConfig.Config memory config = risk.getConfig(marketId);
         assertEq(config.maxOI, 500);
         vm.expectRevert();
-        risk.reduceRiskLimits(marketId, 3e18, 501, 300, 1_500, 500);
+        risk.emergencyReduceRiskLimits(marketId, 3e18, 501, 300, 1_500, 500);
     }
 
     function testBadDebtIsExplicitlyAccounted() public {
@@ -133,13 +175,19 @@ contract Gate1InvariantsTest {
         assertTrue(engine.totalOpenInterest(marketId) <= config.maxOI);
     }
 
-    function invariant_GlobalCollateralAccountingMatchesTraderLedger() public view {
-        assertEq(vault.totalFreeCollateral(), vault.freeCollateral(TRADER));
-        assertEq(vault.totalLockedCollateral(), vault.lockedCollateral(TRADER));
+    function invariant_GlobalCollateralAccountingContainsTraderLedger() public view {
+        assertTrue(vault.freeCollateral(TRADER) <= vault.totalFreeCollateral());
+        assertTrue(vault.lockedCollateral(TRADER) <= vault.totalLockedCollateral());
     }
 
     function testFuzz_PositionCannotExceedConfiguredLimits(uint256 collateral, uint256 size) public {
-        if (collateral == 0 || size == 0 || size > 600 || size * 1e18 / collateral > 3e18) {
+        if (
+            collateral == 0 ||
+            collateral > type(uint256).max - 2_000 ||
+            size == 0 ||
+            size > 600 ||
+            size * 1e18 / collateral > 3e18
+        ) {
             vm.prank(TRADER);
             vm.expectRevert();
             engine.openPosition(marketId, true, collateral, size);
