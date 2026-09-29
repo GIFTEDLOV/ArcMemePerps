@@ -1,0 +1,10 @@
+{
+  "name": "@arcmemeperps/indexer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@arcmemeperps/chain-adapters": "workspace:*",
+    "@arcmemeperps/domain": "workspace:*"
+  }
+}

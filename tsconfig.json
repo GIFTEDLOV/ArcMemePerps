@@ -1,0 +1,29 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "useUnknownInCatchVariables": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "noEmit": true,
+    "baseUrl": ".",
+    "paths": {
+      "@arcmemeperps/shared": ["packages/shared/src/index.ts"],
+      "@arcmemeperps/domain": ["packages/domain/src/index.ts"],
+      "@arcmemeperps/chain-adapters": ["packages/chain-adapters/src/index.ts"],
+      "@arcmemeperps/lifecycle": ["packages/lifecycle/src/index.ts"],
+      "@arcmemeperps/risk-engine": ["packages/risk-engine/src/index.ts"],
+      "@arcmemeperps/oracle": ["packages/oracle/src/index.ts"],
+      "@arcmemeperps/qualification-proof": ["packages/qualification-proof/src/index.ts"]
+    }
+  },
+  "include": ["apps/**/*.ts", "packages/**/*.ts", "fixtures/**/*.ts", "vitest.config.ts"],
+  "exclude": ["node_modules", "dist", "out", "cache"]
+}

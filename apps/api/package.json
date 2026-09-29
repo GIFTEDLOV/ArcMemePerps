@@ -1,0 +1,14 @@
+{
+  "name": "@arcmemeperps/api",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node --import tsx src/index.ts"
+  },
+  "dependencies": {
+    "@arcmemeperps/domain": "workspace:*",
+    "@arcmemeperps/qualification-proof": "workspace:*",
+    "@arcmemeperps/risk-engine": "workspace:*"
+  }
+}

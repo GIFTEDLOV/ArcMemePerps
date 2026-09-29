@@ -1,0 +1,15 @@
+node_modules/
+dist/
+out/
+cache/
+coverage/
+.env
+.env.*
+!.env.example
+.pnpm-debug.log
+*.local
+artifacts/
+broadcast/
+lib/
+*.key
+*.pem
