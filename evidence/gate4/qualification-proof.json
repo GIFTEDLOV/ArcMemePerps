@@ -1,0 +1,211 @@
+{
+  "testnetCanary": true,
+  "productionQualification": false,
+  "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+  "proofHash": "0x8741df261256ba64f8a81b188aa694165dd9989a67256d46c975b7de91071e4d",
+  "commitmentHash": "0xbbb6b1364b9979b8af30a06f9feed2469fda7747320cf852682f3b9b3686ba9b",
+  "proof": {
+    "proofVersion": "2",
+    "schemaVersion": "2",
+    "evidenceSchemaVersion": "1",
+    "chain": "BASE",
+    "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+    "tokenAddress": "0x0000000000000000000000000000000000000001",
+    "lifecycle": "ESTABLISHED",
+    "evidenceRoot": {
+      "algorithm": "keccak256-merkle-v1",
+      "schemaVersion": "1",
+      "root": "0x25eb6bee2b299bee9ba8146e59bd88600701912889e18b42ff6198cf34961b47",
+      "recordCount": 3,
+      "leafCount": 3
+    },
+    "evidence": [
+      {
+        "evidenceId": "canary-authority",
+        "kind": "canary-authority",
+        "source": {
+          "provider": "testnet-canary-fixture",
+          "chain": "BASE",
+          "network": "arc-testnet-canary",
+          "endpointClass": "FIXTURE",
+          "dataVersion": "gate4-canary-v1",
+          "schemaVersion": "1"
+        },
+        "position": {
+          "blockNumber": null,
+          "blockHash": null,
+          "slot": null,
+          "transaction": null,
+          "signature": null
+        },
+        "observedAt": "2026-09-30T00:00:00.000Z",
+        "sourceTimestamp": "2026-09-30T00:00:00.000Z",
+        "fetchedAt": "2026-09-30T00:00:00.000Z",
+        "freshness": "FRESH",
+        "confidence": 1,
+        "status": "AVAILABLE",
+        "value": {
+          "mintAuthorityActive": false,
+          "freezeAuthorityActive": false,
+          "dangerousOwnerAdminPrivileges": false,
+          "upgradeable": false
+        },
+        "rawHash": null,
+        "unavailableReason": null
+      },
+      {
+        "evidenceId": "canary-liquidity",
+        "kind": "canary-liquidity",
+        "source": {
+          "provider": "testnet-canary-fixture",
+          "chain": "BASE",
+          "network": "arc-testnet-canary",
+          "endpointClass": "FIXTURE",
+          "dataVersion": "gate4-canary-v1",
+          "schemaVersion": "1"
+        },
+        "position": {
+          "blockNumber": null,
+          "blockHash": null,
+          "slot": null,
+          "transaction": null,
+          "signature": null
+        },
+        "observedAt": "2026-09-30T00:00:00.000Z",
+        "sourceTimestamp": "2026-09-30T00:00:00.000Z",
+        "fetchedAt": "2026-09-30T00:00:00.000Z",
+        "freshness": "FRESH",
+        "confidence": 1,
+        "status": "AVAILABLE",
+        "value": {
+          "totalLiquidityUsd": 1000000,
+          "depth1PctUsd": 100000,
+          "depth2PctUsd": 200000,
+          "venueCount": 2,
+          "lpLockStatus": "LOCKED"
+        },
+        "rawHash": null,
+        "unavailableReason": null
+      },
+      {
+        "evidenceId": "canary-oracle",
+        "kind": "canary-oracle",
+        "source": {
+          "provider": "testnet-canary-fixture",
+          "chain": "BASE",
+          "network": "arc-testnet-canary",
+          "endpointClass": "FIXTURE",
+          "dataVersion": "gate4-canary-v1",
+          "schemaVersion": "1"
+        },
+        "position": {
+          "blockNumber": null,
+          "blockHash": null,
+          "slot": null,
+          "transaction": null,
+          "signature": null
+        },
+        "observedAt": "2026-09-30T00:00:00.000Z",
+        "sourceTimestamp": "2026-09-30T00:00:00.000Z",
+        "fetchedAt": "2026-09-30T00:00:00.000Z",
+        "freshness": "FRESH",
+        "confidence": 1,
+        "status": "AVAILABLE",
+        "value": {
+          "sourceCount": 3,
+          "independentSourceCount": 3,
+          "confidenceBps": 9500,
+          "disagreementPct": 0.4
+        },
+        "rawHash": null,
+        "unavailableReason": null
+      }
+    ],
+    "evidenceHashes": {
+      "canary-authority": "0x1251165f956c8f1e4b88200b1615f59a747e51c7fd8c88c20ce46cb3d2d73b27",
+      "canary-liquidity": "0xb408d6ee1090a22c79900f780f0036cb0313cfee1febcb2c1f733d57ce2e9901",
+      "canary-oracle": "0x74f92d7b9fe6e3497fd727273d50d05c2fae84ef0e9a67ec89ee47bf54fb1fa9"
+    },
+    "assessmentPosition": {
+      "chain": "BASE",
+      "blockNumber": null,
+      "blockHash": null,
+      "slot": null
+    },
+    "liquidityMetrics": {
+      "totalLiquidityUsd": 1000000,
+      "depth1PctUsd": 100000,
+      "depth2PctUsd": 200000,
+      "venueCount": 2,
+      "lpOwnershipConcentrationPct": 10,
+      "lpLockStatus": "LOCKED",
+      "earliestLpUnlockAt": "2027-01-01T00:00:00.000Z",
+      "liquidityVenues": [
+        "TESTNET_CANARY_POOL_A",
+        "TESTNET_CANARY_POOL_B"
+      ],
+      "suddenCollapsePct24h": 0
+    },
+    "authorityState": {
+      "mintAuthorityActive": false,
+      "freezeAuthorityActive": false,
+      "dangerousOwnerAdminPrivileges": false,
+      "upgradeable": false,
+      "upgradeAuthority": null,
+      "transferRestricted": false,
+      "honeypotDetected": false
+    },
+    "holderConcentration": {
+      "topHolderPct": 2,
+      "topFivePct": 10,
+      "connectedClusterPct": 5,
+      "bundledLaunchPct": 2,
+      "individualWalletsUnderFivePct": true,
+      "holderCount": 10000,
+      "organicHolderGrowthPct24h": 3
+    },
+    "connectedClusterConcentration": 5,
+    "bundleConcentration": 2,
+    "deployerRisk": {
+      "deployerAddress": "0x0000000000000000000000000000000000000001",
+      "deployerHoldingsPct": 2,
+      "knownRisk": false,
+      "priorRugCount": 0,
+      "relatedWalletFundingDetected": false,
+      "walletRotationDetected": false
+    },
+    "activityQualityMetrics": {
+      "organicVolume24hUsd": 500000,
+      "realizedVolatility30dPct": 60,
+      "washTradingDetected": false,
+      "volumeFarmingDetected": false,
+      "suspiciousEarlyBuyers": false,
+      "suspiciousTransactionRepetition": false,
+      "bundledLaunchDetected": false,
+      "fundingSourceDiversity": 0.8
+    },
+    "oracleMetrics": {
+      "sourceCount": 3,
+      "disagreementPct": 0.4,
+      "confidenceBps": 9500,
+      "stale": false,
+      "priceUsd": 1,
+      "observedAt": "2026-09-30T00:00:00.000Z",
+      "manipulationCostUsd": 500000
+    },
+    "manipulationCostEstimate": 500000,
+    "finalStatuses": {
+      "integrity": "QUALIFIED",
+      "derivatives": "ELIGIBLE"
+    },
+    "riskParameters": {
+      "recommendedMaxLeverage": 2,
+      "recommendedMaxOI": 1,
+      "recommendedMaxPosition": 0.2
+    },
+    "riskRuleVersion": "0.1.0",
+    "ruleVersion": "0.1.0",
+    "assessedAt": "2026-09-30T00:00:00.000Z",
+    "expiresAt": null
+  }
+}

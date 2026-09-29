@@ -1,0 +1,78 @@
+{
+  "status": "PREDEPLOYMENT_PLAN",
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "rpcIdentity": "https://rpc.testnet.arc.io",
+  "explorer": "https://testnet.arcscan.app/",
+  "compiler": {
+    "solc": "0.8.24",
+    "optimizer": true,
+    "optimizerRuns": 200,
+    "viaIR": true
+  },
+  "sourceHashPredeploy": "0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
+  "collateral": {
+    "symbol": "USDC",
+    "address": "0x3600000000000000000000000000000000000000",
+    "interfaceDecimals": 6,
+    "nativePrecision": 18,
+    "custodyModel": "ERC20_BALANCE_ONLY"
+  },
+  "deployer": "0x69030D355c04734fE31975d1D24313CC27389fCC",
+  "roles": {
+    "temporaryAdmin": "0x69030D355c04734fE31975d1D24313CC27389fCC",
+    "keeper": "0x44469f78E57d16e2faf87522A91A6567342773D4",
+    "liquidator": "0x9aA42Da9C4eAFf4e71bc1a5dcd557aF0c37c94c8",
+    "qualificationWriter": "0x69030D355c04734fE31975d1D24313CC27389fCC",
+    "riskAdmin": "0x69030D355c04734fE31975d1D24313CC27389fCC",
+    "oracleAdmin": "0x69030D355c04734fE31975d1D24313CC27389fCC",
+    "insuranceManager": "0x69030D355c04734fE31975d1D24313CC27389fCC"
+  },
+  "reporterSet": {
+    "threshold": 2,
+    "version": "testnet-reporters-v1",
+    "reporters": [
+      "0x748904283eb78B3eB03Eb82D65BB8d0b00633B1f",
+      "0x2eB86B7a8Cda5Be0ce0a5356DdF20c9Ab1Ac9244",
+      "0x5086639391A9b4Af3D1E9871D83D02B9cFdf9A38"
+    ],
+    "signingMode": "OFFCHAIN_EIP712"
+  },
+  "riskRuleVersion": "0.1.0",
+  "riskBudget": {
+    "protocolBackingBaseUnits": "5000000",
+    "protocolBackingUsdc": "5",
+    "insuranceBaseUnits": "2000000",
+    "insuranceUsdc": "2",
+    "maxLeverageWad": "2000000000000000000",
+    "maxLeverageX": "2",
+    "maxOIBaseUnits": "1000000",
+    "maxOIUsdc": "1",
+    "maxLongOIBaseUnits": "500000",
+    "maxShortOIBaseUnits": "500000",
+    "maxPositionBaseUnits": "200000",
+    "maxPositionUsdc": "0.2",
+    "status": "RISK_BUDGET_SAFE"
+  },
+  "market": {
+    "testnetCanary": true,
+    "originChain": "BASE",
+    "originChainId": 8453,
+    "originToken": "0x0000000000000000000000000000000000000001",
+    "lifecycle": "TESTNET_CANARY",
+    "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+    "qualificationProofHash": "0x8741df261256ba64f8a81b188aa694165dd9989a67256d46c975b7de91071e4d",
+    "qualificationCommitmentHash": "0xbbb6b1364b9979b8af30a06f9feed2469fda7747320cf852682f3b9b3686ba9b"
+  },
+  "contracts": {
+    "MarketRegistry": null,
+    "QualificationRegistry": null,
+    "OracleRouter": null,
+    "RiskConfig": null,
+    "USDCMarginVault": null,
+    "PerpEngine": null,
+    "InsuranceFund": null
+  },
+  "deploymentTransactions": [],
+  "verification": "PENDING"
+}

@@ -15,6 +15,8 @@ interface VmGate4Script {
     function startBroadcast() external;
     function stopBroadcast() external;
     function envOr(string calldata key, address defaultValue) external returns (address);
+    function envOr(string calldata key, bytes32 defaultValue) external returns (bytes32);
+    function envOr(string calldata key, uint256 defaultValue) external returns (uint256);
 }
 
 /**
@@ -29,12 +31,9 @@ contract DeployGate4 {
         VmGate4Script(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     address private constant DEFAULT_USDC = 0x3600000000000000000000000000000000000000;
-    address private constant DEFAULT_REPORTER_1 = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;
-    address private constant DEFAULT_REPORTER_2 = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;
-    address private constant DEFAULT_REPORTER_3 = 0x90F79bf6EB2c4f870365E785982E1f101E93b906;
+    uint256 private constant ARC_TESTNET_CHAIN_ID = 5_042_002;
 
     bytes32 private constant MARKET_LIFECYCLE = keccak256("TESTNET_CANARY");
-    bytes32 private constant QUALIFICATION_HASH = bytes32(uint256(1));
     bytes32 private constant RULE_VERSION = keccak256("0.1.0");
     bytes32 private constant REPORTER_SET_VERSION = keccak256("testnet-reporters-v1");
 
@@ -51,10 +50,39 @@ contract DeployGate4 {
     );
 
     function run() external {
+        if (block.chainid != ARC_TESTNET_CHAIN_ID) revert WrongChain();
+
         address usdc = vm.envOr("ARC_TESTNET_USDC_ADDRESS", DEFAULT_USDC);
-        address reporter1 = vm.envOr("REPORTER_1_ADDRESS", DEFAULT_REPORTER_1);
-        address reporter2 = vm.envOr("REPORTER_2_ADDRESS", DEFAULT_REPORTER_2);
-        address reporter3 = vm.envOr("REPORTER_3_ADDRESS", DEFAULT_REPORTER_3);
+        address reporter1 = vm.envOr("REPORTER_1_ADDRESS", address(0));
+        address reporter2 = vm.envOr("REPORTER_2_ADDRESS", address(0));
+        address reporter3 = vm.envOr("REPORTER_3_ADDRESS", address(0));
+        address keeper = vm.envOr("KEEPER_ADDRESS", address(0));
+        address liquidator = vm.envOr("LIQUIDATOR_ADDRESS", address(0));
+        bytes32 qualificationHash =
+            vm.envOr("QUALIFICATION_HASH", keccak256("ARCMEMEPERPS_TESTNET_CANARY_PROOF_V2"));
+        uint256 maxLeverage = vm.envOr("TESTNET_MAX_LEVERAGE_WAD", 2e18);
+        uint256 maxOI = vm.envOr("TESTNET_MAX_OI_BASE_UNITS", 1_000_000);
+        uint256 maxPosition = vm.envOr("TESTNET_MAX_POSITION_BASE_UNITS", 200_000);
+        uint256 maxLongOI = vm.envOr("TESTNET_MAX_LONG_OI_BASE_UNITS", 500_000);
+        uint256 maxShortOI = vm.envOr("TESTNET_MAX_SHORT_OI_BASE_UNITS", 500_000);
+        uint256 maintenanceMarginBps = vm.envOr("TESTNET_MAINTENANCE_MARGIN_BPS", 2_500);
+        uint256 liquidationPenaltyBps = vm.envOr("TESTNET_LIQUIDATION_PENALTY_BPS", 500);
+        uint256 backing = vm.envOr("INITIAL_VAULT_BACKING_BASE_UNITS", 5_000_000);
+        uint256 insuranceCapital = vm.envOr("INITIAL_INSURANCE_BASE_UNITS", 2_000_000);
+        uint256 liquidationReward = vm.envOr("LIQUIDATION_REWARD_BASE_UNITS", 1_000);
+        uint256 originChainId = vm.envOr("ORIGIN_CHAIN_ID", 8453);
+        address originToken =
+            vm.envOr("ORIGIN_TOKEN_ADDRESS", 0x0000000000000000000000000000000000000001);
+        if (
+            reporter1 == address(0) || reporter2 == address(0) || reporter3 == address(0)
+                || keeper == address(0) || liquidator == address(0)
+                || qualificationHash == bytes32(0)
+        ) revert MissingTestnetIdentity();
+        if (
+            maxLeverage == 0 || maxLeverage > 5e18 || maxOI == 0 || maxPosition == 0
+                || maxPosition > maxOI || maxLongOI == 0 || maxShortOI == 0 || maxLongOI > maxOI
+                || maxShortOI > maxOI || backing == 0 || insuranceCapital == 0
+        ) revert InvalidCanaryConfiguration();
 
         vm.startBroadcast();
         QualificationRegistry qualification = new QualificationRegistry();
@@ -71,22 +99,26 @@ contract DeployGate4 {
         vault.setEngine(address(engine));
         insurance.setCollateralToken(usdc);
         insurance.setEngine(address(engine));
-        engine.setOrderKeeper(msg.sender, true);
-        engine.setLiquidationKeeper(msg.sender, true);
+        engine.setOrderKeeper(keeper, true);
+        engine.setLiquidationKeeper(liquidator, true);
 
         oracle.setReporter(reporter1, true);
         oracle.setReporter(reporter2, true);
         oracle.setReporter(reporter3, true);
         oracle.setReporterThreshold(2, REPORTER_SET_VERSION);
 
-        bytes32 marketId = registry.registerEvmMarket(8453, address(1), MARKET_LIFECYCLE);
+        bytes32 marketId = registry.registerEvmMarket(originChainId, originToken, MARKET_LIFECYCLE);
         qualification.approveQualification(
-            marketId, QUALIFICATION_HASH, RULE_VERSION, 2e18, 10_000_000, 2_000_000, 0
+            marketId, qualificationHash, RULE_VERSION, maxLeverage, maxOI, maxPosition, 0
         );
         registry.activateMarket(marketId);
-        risk.initializeConfig(marketId, 2e18, 10_000_000, 2_000_000, 1_500, 500);
+        risk.initializeConfig(
+            marketId, maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps
+        );
         risk.setExposureProvider(address(engine));
-        risk.requalifyMarket(marketId, 2e18, 10_000_000, 2_000_000, 1_500, 500);
+        risk.requalifyMarket(
+            marketId, maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps
+        );
 
         engine.setEconomicConfig(
             EconomicModel.FundingConfig({
@@ -101,15 +133,15 @@ contract DeployGate4 {
             PerpEngine.FeeConfig({
                 openFeeRateWad: 1e15, closeFeeRateWad: 1e15, insuranceShareBps: 2_000
             }),
-            10_000
+            liquidationReward
         );
-        engine.setMarketSideCaps(marketId, 5_000_000, 5_000_000);
+        engine.setMarketSideCaps(marketId, maxLongOI, maxShortOI);
         engine.setSkewConfig(8e17, 5e14);
 
-        IERC20(usdc).approve(address(vault), 500_000_000);
-        vault.fundProtocolBacking(500_000_000);
-        IERC20(usdc).approve(address(insurance), 100_000_000);
-        insurance.fund(100_000_000);
+        IERC20(usdc).approve(address(vault), backing);
+        vault.fundProtocolBacking(backing);
+        IERC20(usdc).approve(address(insurance), insuranceCapital);
+        insurance.fund(insuranceCapital);
         vm.stopBroadcast();
 
         emit Gate4Deployed(
@@ -124,4 +156,8 @@ contract DeployGate4 {
             marketId
         );
     }
+
+    error WrongChain();
+    error MissingTestnetIdentity();
+    error InvalidCanaryConfiguration();
 }
