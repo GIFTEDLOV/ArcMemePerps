@@ -12,6 +12,7 @@ Providers are replaceable adapters. They return normalized values plus raw-respo
 | Bubblemaps                 | holders, transfers, clusters, labels                               | configured supported networks          | `BUBBLEMAPS_API_KEY` header | enrichment; no scraping; [map API](https://docs.bubblemaps.io/data/api/tokens/map) and [auth](https://docs.bubblemaps.io/data/api/authentication) |
 
 DexScreener’s documented limit is treated as a provider constraint, not an authorization to retry indefinitely. HTTP 429, timeout, 5xx, malformed JSON, unsupported chain, and wrong-token responses are explicit failures. `--no-enrichment` disables optional providers while retaining canonical reads.
+
 # Gate 3 trust boundary
 
 Provider data is untrusted input. Canonical RPC facts and provider enrichment remain separate,

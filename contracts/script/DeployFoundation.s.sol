@@ -7,5 +7,6 @@ pragma solidity ^0.8.24;
  * and deployment authorization will be added only after economic review.
  */
 contract DeployFoundation {
-    // TODO(Gate 2): add an explicitly dry-run deployment script after review.
+    // Gate 1 compatibility shell. Gate 4 uses DeployGate4.s.sol with explicit
+    // network configuration; this contract intentionally performs no deployment.
 }

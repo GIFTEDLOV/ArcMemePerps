@@ -13,3 +13,6 @@ broadcast/
 lib/
 *.key
 *.pem
+keystores/
+wallets/
+*.keystore

@@ -18,6 +18,7 @@ pnpm test:live
 It performs one read-only inspection per supported mainnet configuration and records chain ID or Solana slot, token, evidence classes, unavailable classes, errors, and latency. It is not deterministic CI and does not endorse the sample assets. Optional GoPlus, Helius, and Bubblemaps calls are skipped when credentials are absent.
 
 No live command uses `eth_sendTransaction`, `eth_sendRawTransaction`, Solana transaction submission, swaps, approvals, deployments, or wallet funding.
+
 # Gate 3 read-only smoke (2026-09-29)
 
 `pnpm test:live` was run against one public address/mint per supported mainnet. The command

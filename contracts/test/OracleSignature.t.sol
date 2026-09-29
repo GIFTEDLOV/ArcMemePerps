@@ -22,7 +22,7 @@ contract OracleSignatureTest {
         OracleRouter router = new OracleRouter(120, 8_500);
         address reporter = vm.addr(REPORTER_KEY);
         router.setReporter(reporter, true);
-        router.setReporterThreshold(1, bytes32("reporters-v1"));
+        router.setReporterThreshold(1, keccak256("reporters-v1"));
         IOracleRouter.OracleReport memory report = _report(router, 1, 1e18);
         bytes[] memory signatures = new bytes[](1);
         signatures[0] = _signature(REPORTER_KEY, _digest(router, report));
@@ -36,7 +36,7 @@ contract OracleSignatureTest {
         OracleRouter router = new OracleRouter(120, 8_500);
         address reporter = vm.addr(REPORTER_KEY);
         router.setReporter(reporter, true);
-        router.setReporterThreshold(2, bytes32("reporters-v1"));
+        router.setReporterThreshold(2, keccak256("reporters-v1"));
         IOracleRouter.OracleReport memory report = _report(router, 1, 1e18);
         bytes memory signature = _signature(REPORTER_KEY, _digest(router, report));
         bytes[] memory duplicate = new bytes[](2);
@@ -72,7 +72,7 @@ contract OracleSignatureTest {
             expiresAt: now64 + 60,
             sequence: sequence,
             evidenceRoot: bytes32(uint256(2)),
-            reporterSetVersion: bytes32("reporters-v1")
+            reporterSetVersion: keccak256("reporters-v1")
         });
     }
 

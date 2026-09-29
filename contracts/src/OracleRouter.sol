@@ -228,6 +228,9 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         if (report.independentSourceCount < minimumIndependentSources) {
             revert InsufficientIndependentSources();
         }
+        if (reporterThreshold > 0 && report.reporterSetVersion != reporterSetVersion) {
+            revert ReporterSetVersionMismatch();
+        }
     }
 
     function _validateReport(OracleReport calldata report) private view {

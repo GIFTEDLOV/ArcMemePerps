@@ -41,9 +41,9 @@ contract Gate1InvariantsTest {
             address(registry), address(risk), address(oracle), address(vault), address(insurance)
         );
 
-        marketId = registry.registerEvmMarket(8453, address(1), bytes32("ESTABLISHED"));
+        marketId = registry.registerEvmMarket(8453, address(1), keccak256("ESTABLISHED"));
         qualification.approveQualification(
-            marketId, bytes32(uint256(1)), bytes32("0.1.0"), 3e18, 1_000, 600, 0
+            marketId, bytes32(uint256(1)), keccak256("0.1.0"), 3e18, 1_000, 600, 0
         );
         registry.activateMarket(marketId);
         risk.initializeConfig(marketId, 3e18, 1_000, 600, 1_000, 500);
@@ -59,7 +59,8 @@ contract Gate1InvariantsTest {
     function testQualificationRequiredBeforeActivation() public {
         QualificationRegistry freshQualification = new QualificationRegistry();
         MarketRegistry freshRegistry = new MarketRegistry(address(freshQualification));
-        bytes32 freshMarket = freshRegistry.registerEvmMarket(5042, address(2), bytes32("DEX_LIVE"));
+        bytes32 freshMarket =
+            freshRegistry.registerEvmMarket(5042, address(2), keccak256("DEX_LIVE"));
         vm.expectRevert();
         freshRegistry.activateMarket(freshMarket);
     }
@@ -96,7 +97,7 @@ contract Gate1InvariantsTest {
 
         vm.warp(vm.getBlockTimestamp() + 1);
         qualification.approveQualification(
-            marketId, bytes32(uint256(2)), bytes32("0.1.0"), 3e18, 1_000, 600, 0
+            marketId, bytes32(uint256(2)), keccak256("0.1.0"), 3e18, 1_000, 600, 0
         );
         risk.requalifyMarket(marketId, 3e18, 1_000, 600, 1_000, 500);
         vm.prank(TRADER);
@@ -132,7 +133,7 @@ contract Gate1InvariantsTest {
 
         vm.warp(vm.getBlockTimestamp() + 1);
         qualification.approveQualification(
-            marketId, bytes32(uint256(3)), bytes32("0.1.0"), 5e18, 2_000, 1_000, 0
+            marketId, bytes32(uint256(3)), keccak256("0.1.0"), 5e18, 2_000, 1_000, 0
         );
         risk.requalifyMarket(marketId, 5e18, 2_000, 1_000, 1_000, 500);
         RiskConfig.Config memory config = risk.getConfig(marketId);
@@ -147,7 +148,7 @@ contract Gate1InvariantsTest {
         vm.warp(vm.getBlockTimestamp() + 1);
         uint64 expiry = uint64(vm.getBlockTimestamp() + 10);
         qualification.approveQualification(
-            marketId, bytes32(uint256(4)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry
+            marketId, bytes32(uint256(4)), keccak256("0.1.0"), 3e18, 1_000, 600, expiry
         );
         vm.warp(vm.getBlockTimestamp() + 11);
         vm.expectRevert();
@@ -157,10 +158,11 @@ contract Gate1InvariantsTest {
     function testExpiredQualificationCannotActivateMarket() public {
         QualificationRegistry freshQualification = new QualificationRegistry();
         MarketRegistry freshRegistry = new MarketRegistry(address(freshQualification));
-        bytes32 freshMarket = freshRegistry.registerEvmMarket(5042, address(3), bytes32("DEX_LIVE"));
+        bytes32 freshMarket =
+            freshRegistry.registerEvmMarket(5042, address(3), keccak256("DEX_LIVE"));
         uint64 expiry = uint64(vm.getBlockTimestamp() + 10);
         freshQualification.approveQualification(
-            freshMarket, bytes32(uint256(5)), bytes32("0.1.0"), 3e18, 1_000, 600, expiry
+            freshMarket, bytes32(uint256(5)), keccak256("0.1.0"), 3e18, 1_000, 600, expiry
         );
         vm.warp(vm.getBlockTimestamp() + 11);
         vm.expectRevert();

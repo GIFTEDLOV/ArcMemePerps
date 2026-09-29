@@ -9,11 +9,11 @@ contract Gate3EconomicTest {
 
     function testGoldenPnlVectors() public {
         EconomicMathHarness harness = new EconomicMathHarness();
-        require(harness.pnl(true, 100 * WAD, WAD, 2 * WAD) == int256(100 * WAD));
-        require(harness.pnl(true, 100 * WAD, WAD, WAD / 2) == -int256(50 * WAD));
-        require(harness.pnl(false, 100 * WAD, WAD, 2 * WAD) == -int256(100 * WAD));
-        require(harness.pnl(false, 100 * WAD, WAD, WAD / 2) == int256(50 * WAD));
-        require(harness.pnl(true, WAD, 1_000_000, 2_000_000) == int256(WAD));
+        require(harness.pnl(true, 100 * WAD, WAD, 2 * WAD) == 100e18);
+        require(harness.pnl(true, 100 * WAD, WAD, WAD / 2) == -50e18);
+        require(harness.pnl(false, 100 * WAD, WAD, 2 * WAD) == -100e18);
+        require(harness.pnl(false, 100 * WAD, WAD, WAD / 2) == 50e18);
+        require(harness.pnl(true, WAD, 1_000_000, 2_000_000) == 1e18);
     }
 
     function testFeeRoundingFavorsProtocol() public {
@@ -34,7 +34,7 @@ contract Gate3EconomicTest {
                 minimumDenominatorUsdWad: WAD
             })
         );
-        require(update.indexDeltaWad == int256(2_160_000_000_000_000));
+        require(update.indexDeltaWad == 2_160_000_000_000_000);
         require(update.longPaymentUsdWad == 172_800 * 1e15);
         require(update.shortPaymentUsdWad == 43_200 * 1e15);
         require(update.vaultRoutedUsdWad == 129_600 * 1e15);

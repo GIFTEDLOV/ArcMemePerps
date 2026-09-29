@@ -30,3 +30,12 @@ is available through the official WSL installation. The branch includes the firs
 economic core, but remains pre-audit and pre-deployment. Automatic ADL, public LP shares,
 production reporter governance, and full engine-level fee/funding settlement remain explicit
 follow-up boundaries.
+
+# Gate 4 status
+
+Gate 4 is on the local branch `gate4-arc-testnet`. The expected runtime changes are in the
+working tree and have not yet received the required pre-testnet checkpoint commit. The Arc
+local multi-account E2E now passes against `arc-anvil --network arc` with the canonical local
+ERC-20 USDC interface. No testnet identities, faucet funding, deployment, or external writes
+have been performed. Testnet work remains blocked until the clean checkpoint and dedicated
+identity/funding phases are completed.
