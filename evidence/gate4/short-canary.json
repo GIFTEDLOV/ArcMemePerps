@@ -1,0 +1,10 @@
+{
+  "status":"PASS",
+  "account":"0x7eD1b0322388ed1f540cD32763ce1AB3FC4cAE27",
+  "positionId":2,
+  "sizeBaseUnits":"200000",
+  "collateralBaseUnits":"100000",
+  "entryPriceWad":"899000000000000000",
+  "transactions":{"deposit":"0x4bcf1e3d852fc1b82e1ff94816ad8e390e5dcdf5d59a2081c5cc0566003262dd","order":"0x8489b04f699b3ae5b7445908b03190f42d067db04ee99e45069d27b36b80cd58","oracleOpen":"0x6fa69bb5db84568ee80444f9f7f7640078dea6cc04ac22b98b97a8e0f9f236e0","execute":"0xcc654892d75ff7d0f0e0e90753402d276b94ae9bb9c7aa546e7d3af9b8fbd47c","oracleClose":"0xcd0b5585e68e1f65d17fc7eb3b31c328633c1bf25b04ce97fb9e3c07007051b6","close":"0xa9e435e864349115858561ec7a02574fa929b0c131526f1227c02a494aabde02","withdraw":"0x05718532e37012e73b0ba637a91586c6ea7066ea6cfd18904c25b272b71fbc4a"},
+  "postClose":{"positionOpen":false,"totalOIBaseUnits":"0"}
+}

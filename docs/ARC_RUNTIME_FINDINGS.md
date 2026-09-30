@@ -12,8 +12,23 @@ The full multi-account flow is reproducible with `LocalGate4E2ETest` against the
 
 ## Testnet status
 
-No Arc Testnet transaction has been sent. A dedicated testnet-only deployer, reporter, keeper, trader, and liquidator configuration is not present in the environment, and no testnet faucet action was attempted. Consequently there is no testnet runtime evidence package yet.
+Arc Testnet chain ID `5042002` and the canonical ERC-20 USDC interface at
+`0x3600000000000000000000000000000000000000` were verified read-only before broadcast. The
+coherent suite was deployed once with dedicated testnet identities. The long, short, liquidation,
+market-state, oracle rejection, order replay, event/indexer, and final reconciliation canaries
+passed. Arc USDC deposits and withdrawals emitted both a system-level and ERC-20-shaped Transfer
+view; protocol accounting used explicit protocol events and canonical balance reconciliation, and
+no double credit was observed.
+
+Interactive report signing exposed an operational timing issue: the initial 120-second report
+window could elapse while waiting for inclusion. The testnet-only policy was temporarily widened
+to 600 seconds, then restored to 120 seconds. This was configuration handling, not a code bypass.
+
+The ArcScan verifier query returned address-only records for all seven contracts. Verification is
+therefore recorded as pending/not verified rather than claimed.
 
 ## Interpretation
 
-Local Arc runtime validation demonstrates compatibility of the tested paths. It does not prove Arc Testnet RPC availability, fee configuration, USDC custody, deployed bytecode verification, oracle key management, or production economic safety.
+Local and testnet Arc runtime validation demonstrates compatibility of the tested paths. It does
+not prove production economic safety, production oracle decentralization, production governance,
+production liquidity, solvency, formal audit completion, or deployed-source verification.

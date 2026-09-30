@@ -1,0 +1,17 @@
+{
+  "network": "ARC_TESTNET",
+  "explorer": "https://testnet.arcscan.app/",
+  "status": "NOT_VERIFIED",
+  "method": "Blockscout-compatible getsourcecode API read",
+  "result": "Each address returned an address-only record with no SourceCode/CompilerVersion metadata.",
+  "contracts": {
+    "MarketRegistry":"NOT_VERIFIED",
+    "QualificationRegistry":"NOT_VERIFIED",
+    "OracleRouter":"NOT_VERIFIED",
+    "RiskConfig":"NOT_VERIFIED",
+    "USDCMarginVault":"NOT_VERIFIED",
+    "PerpEngine":"NOT_VERIFIED",
+    "InsuranceFund":"NOT_VERIFIED"
+  },
+  "noVerificationClaimMade": true
+}

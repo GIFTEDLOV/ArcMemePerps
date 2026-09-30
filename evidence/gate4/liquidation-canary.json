@@ -1,0 +1,6 @@
+{
+  "status":"PASS",
+  "residualCollateralCase":{"positionId":3,"openTx":"0x810d753e825d04f3b5f6cc0e7afad6fa207d0cad4fe868a2fcd2099d3982c69b","oracleTx":"0xc3fa755cf322e68a76f9c4f773887de1667682a0f3df9739879d23f2dad67865","liquidationTx":"0x175a4495abb3883c6d68c40ae8daa6bf64a9990e7b6a4aad0d17bf8069863c89","liquidatorRewardBaseUnits":"1000","residualBaseUnits":"38660","badDebtBaseUnits":"0"},
+  "badDebtCase":{"positionId":4,"openTx":"0x819d4d6b56b208ecc008ca80c6f9984bb7fadc5c0d6426e1176a059ea34eeda","oracleTx":"0xd48c212feca03dc54293e0f9df1bbee4f44c45d1c8071cff449b8cc627d6a4ce","liquidationTx":"0x9638deed848d6404d03f86a419e96c0086e8bbf39741135d67b68c38c56b985a","badDebtBaseUnits":"80220","insuranceCoveredBaseUnits":"80220","uncoveredBadDebtBaseUnits":"0"},
+  "postState":{"openPositions":0,"totalOIBaseUnits":"0","vaultProtocolBadDebtBaseUnits":"80220","insuranceCoveredBadDebtBaseUnits":"80220"}
+}

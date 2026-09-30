@@ -17,7 +17,7 @@ Implemented:
 - normalized live inspection CLI and separate live-read smoke command;
 - deterministic provider failure/disagreement tests and neutral snapshot corpus structure.
 
-Not implemented by design:
+Not implemented by design at the end of Gate 2:
 
 - frontend, deployment, transactions, external paid resources, GitHub push, bridge/token custody, final economic formulas, governance, production thresholds, DEX quote simulation, and provider credentials.
 
@@ -33,9 +33,17 @@ follow-up boundaries.
 
 # Gate 4 status
 
-Gate 4 is on the local branch `gate4-arc-testnet`. The expected runtime changes are in the
-working tree and have not yet received the required pre-testnet checkpoint commit. The Arc
-local multi-account E2E now passes against `arc-anvil --network arc` with the canonical local
-ERC-20 USDC interface. No testnet identities, faucet funding, deployment, or external writes
-have been performed. Testnet work remains blocked until the clean checkpoint and dedicated
-identity/funding phases are completed.
+Gate 4B is on the local branch `gate4-arc-testnet`. The pretestnet checkpoint is
+`ac9571d972e1011b546decc8283f8cd13f35ad68`; the predeployment configuration checkpoint is
+`2b2b89936ea756f4dddc72d3515a5bca83409717`. The official Arc toolchain ran the local multi-account
+E2E and the complete deterministic regression suite. A coherent suite was deployed once to Arc
+Testnet chain `5042002` with dedicated testnet identities and Circle-faucet USDC.
+
+Live long, short, liquidation, state-transition, fresh-requalification, oracle-rejection,
+order-replay, event/indexer, and custody/OI/insurance/bad-debt reconciliation evidence is in
+`evidence/gate4/`. Final testnet custody is an exact ERC-20 balance match. The deployed contracts
+are not yet source-verified by ArcScan; the verifier response is recorded honestly. This testnet
+is a mechanics canary and is not a production safety claim.
+
+Gate 5 has not started. No Arc Mainnet write, GitHub remote, GitHub push, frontend, or production
+deployment exists.

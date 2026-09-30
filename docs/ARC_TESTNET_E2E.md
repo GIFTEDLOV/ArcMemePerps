@@ -12,8 +12,6 @@ The intended canaries are:
 
 Every write must have a receipt, chain ID, nonce, fee configuration, and protocol event record. No logical action may be retried blindly. A canary is successful only when internal state, position/OI sums, and the canonical ERC-20 balance reconcile.
 
-No canary has been executed on Arc Testnet in Gate 4 because the dedicated testnet identities and funding prerequisites are not configured. The local Arc runtime suite is separate evidence and must not be described as testnet evidence.
-
 ## Reproducible local Arc multi-account E2E
 
 The complete local flow is implemented as one Foundry test:
@@ -24,3 +22,16 @@ arc-forge test --fork-url http://127.0.0.1:8546 --match-contract LocalGate4E2ETe
 ```
 
 `LocalGate4E2ETest.testFullLocalMultiAccountE2E` uses the Arc Anvil ERC-20 USDC predeploy and distinct local admin, reporter, keeper, trader, and liquidator identities. It covers deployment/configuration, signed 2-of-3 reports, long/short settlement, equal-time-safe funding and borrow accrual, liquidation reward, bad debt and insurance, emergency state transitions, fresh-proof requalification, order cancellation/replay, oracle signature attacks, withdrawals, and final custody/OI/insurance/bad-debt reconciliation. The test passed on the Arc local runtime.
+
+## Gate 4B testnet result
+
+The dedicated funded testnet identities completed the long, short, liquidation, market-state,
+fresh-requalification, oracle rejection, order replay, event/indexer, and final reconciliation
+canaries. The final ERC-20 custody reconciliation was `MATCH`: vault actual and expected custody
+were both `5,244,914` base units; OI was zero; insurance actual and expected capital were both
+`1,919,780` base units; and uncovered bad debt was zero. Testnet artifacts are in
+`evidence/gate4/`.
+
+The Arc Testnet deployment validates execution mechanics only. It does not prove production
+economic safety, production oracle decentralization, governance safety, liquidity, solvency, or
+formal audit completion.

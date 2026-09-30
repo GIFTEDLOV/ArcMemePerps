@@ -1,0 +1,21 @@
+{
+  "status":"DEPLOYED_TESTNET_MECHANICS_ONLY",
+  "network":"ARC_TESTNET",
+  "chainId":5042002,
+  "rpc":"https://rpc.testnet.arc.io",
+  "explorer":"https://testnet.arcscan.app/",
+  "deployer":"0x69030D355c04734fE31975d1D24313CC27389fCC",
+  "compiler":{"solc":"0.8.24","optimizer":true,"optimizerRuns":200,"viaIR":true},
+  "sourceHashPredeploy":"0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
+  "usdc":"0x3600000000000000000000000000000000000000",
+  "riskRuleVersion":"0.1.0",
+  "reporterThreshold":"2-of-3",
+  "initialBackingUsdc":"5",
+  "initialInsuranceUsdc":"2",
+  "marketId":"0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+  "qualificationProofHash":"0x8741df261256ba64f8a81b188aa694165dd9989a67256d46c975b7de91071e4d",
+  "requalificationProofHash":"0xf7996d1ba15d109cea1c516776093c7eb458710880912835bdde64be98ddf814",
+  "deploymentPerformedOnce":true,
+  "verification":"NOT_VERIFIED_ARCSCAN_API_RETURNED_ADDRESS_ONLY",
+  "contracts":{"MarketRegistry":"0xd22dbcdd38009f9ea490f729715a1bb647783750","QualificationRegistry":"0xd6d568a74c3904d4ac66b5df9e0107b63442eead","OracleRouter":"0x87e68acec11e8af032f7215f22ac4883fef75e9c","RiskConfig":"0x88c7c840a0cff0b45400ebf3314b1949c6f8cb2d","USDCMarginVault":"0xb7dafc3203eb051c1a1d80bdb5c3c52bbd74c99a","PerpEngine":"0x00c40ee2e7a61e303da9d62a8b92ecaed6c2ce88","InsuranceFund":"0x6e097f5806f4be3528650eb6a6e55215e228dadf"}
+}

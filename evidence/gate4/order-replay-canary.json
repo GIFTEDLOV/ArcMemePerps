@@ -1,0 +1,10 @@
+{
+  "status":"PASS_READ_ONLY_REJECTIONS",
+  "consumedOrderId":"0xd4b069f9a7ec13f27ebe256f7971f0e9afc621ca3e5862f794b369711ca5c4de",
+  "cancelledOrderId":"0x367be596eefdeba7e48c42458daff65a6a17e0d094ec2f01e32e6c8d3f952904",
+  "cancelTransaction":"0x00a7dae15228a3f7d212e1a224a149a53ae143035dc118d3af3cf82bf5c72b49",
+  "consumedReplay":"OrderAlreadyFinalized",
+  "cancelledExecution":"OrderAlreadyFinalized",
+  "expiredOrderPath":"OrderExpired covered by live failed-order path and deterministic suite",
+  "noStateCorruption":true
+}

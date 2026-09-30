@@ -4,6 +4,8 @@
   "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
   "proofHash": "0x8741df261256ba64f8a81b188aa694165dd9989a67256d46c975b7de91071e4d",
   "commitmentHash": "0xbbb6b1364b9979b8af30a06f9feed2469fda7747320cf852682f3b9b3686ba9b",
+  "requalificationProofHash": "0xf7996d1ba15d109cea1c516776093c7eb458710880912835bdde64be98ddf814",
+  "requalificationApprovalTx": "0x762f73eaa1d651a1aacbb631fcf2b028e1645946099b4e3060b905415f642217",
   "proof": {
     "proofVersion": "2",
     "schemaVersion": "2",
