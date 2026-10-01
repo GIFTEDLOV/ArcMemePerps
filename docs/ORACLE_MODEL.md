@@ -19,3 +19,8 @@ market, price band, time window, monotonic sequence, evidence root, and reporter
 The verifier rejects duplicate, unauthorized, expired, future, replayed, and threshold-
 insufficient signatures. Chainlink feed and Data Streams adapters return `UNAVAILABLE` when
 not configured; they never synthesize a price.
+
+Gate 4D adds underlying venue/source identity to prevent an aggregation API and a direct read of
+the same pool from being counted as independent. The reporter service boundary persists sequence
+state and health, but the production operator topology and current testnet deployment must still
+be completed before it is a production oracle claim.

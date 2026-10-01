@@ -1,7 +1,28 @@
 {
-  "status":"PASS",
-  "pause":{"riskConfigTx":"0x92997cba67560f30273b8cbf411e54e62c4ef7faec7a6dc49b50a2f68097a0ff","sideCapsTx":"0x2ad3c79b04ddbb46db72680904291623e3dafb14ad3d659e72d291c7ae2325e9","riskStatus":"PAUSED","marketStateTx":"0xcbf9be19d50ca3a0b2459a9faece9bba7b17ae71a6c198ca844475f00561cb70","openAndIncrease":"REJECTED","decrease":"PASS","close":"PASS"},
-  "closeOnly":{"riskStatusTx":"0x351b60899b91ba0b2c70b7dbd055e4c509f3bbe8ee811e7c139261ac0ad52d7d","marketStateTx":"0x3a1f42cd7929b4a1304cf1f63dafa2ce3d6f21bac8324756b899c0c629bee3f0","open":"REJECTED","increase":"REJECTED"},
-  "requalification":{"proofHash":"0xf7996d1ba15d109cea1c516776093c7eb458710880912835bdde64be98ddf814","approvalTx":"0x762f73eaa1d651a1aacbb631fcf2b028e1645946099b4e3060b905415f642217","requalifyTx":"0xb88103b4c0fd2fd94fcf7909d7e3828c3b4de1d431519affc6db4b9610a47b2e","marketActivation":"0x1e4e914fafe61d75565d3f1f516a17a305da67aeedf3d63028c99e634e725cd4","finalRiskStatus":"LIVE","finalMarketState":"LIVE","riskIncreaseWithoutFreshProof":"REJECTED"},
-  "positionSafety":"No position remained open when limits were restored. Existing exposure was reduced/closed before requalification."
+  "status": "PASS",
+  "pause": {
+    "riskConfigTx": "0x92997cba67560f30273b8cbf411e54e62c4ef7faec7a6dc49b50a2f68097a0ff",
+    "sideCapsTx": "0x2ad3c79b04ddbb46db72680904291623e3dafb14ad3d659e72d291c7ae2325e9",
+    "riskStatus": "PAUSED",
+    "marketStateTx": "0xcbf9be19d50ca3a0b2459a9faece9bba7b17ae71a6c198ca844475f00561cb70",
+    "openAndIncrease": "REJECTED",
+    "decrease": "PASS",
+    "close": "PASS"
+  },
+  "closeOnly": {
+    "riskStatusTx": "0x351b60899b91ba0b2c70b7dbd055e4c509f3bbe8ee811e7c139261ac0ad52d7d",
+    "marketStateTx": "0x3a1f42cd7929b4a1304cf1f63dafa2ce3d6f21bac8324756b899c0c629bee3f0",
+    "open": "REJECTED",
+    "increase": "REJECTED"
+  },
+  "requalification": {
+    "proofHash": "0xf7996d1ba15d109cea1c516776093c7eb458710880912835bdde64be98ddf814",
+    "approvalTx": "0x762f73eaa1d651a1aacbb631fcf2b028e1645946099b4e3060b905415f642217",
+    "requalifyTx": "0xb88103b4c0fd2fd94fcf7909d7e3828c3b4de1d431519affc6db4b9610a47b2e",
+    "marketActivation": "0x1e4e914fafe61d75565d3f1f516a17a305da67aeedf3d63028c99e634e725cd4",
+    "finalRiskStatus": "LIVE",
+    "finalMarketState": "LIVE",
+    "riskIncreaseWithoutFreshProof": "REJECTED"
+  },
+  "positionSafety": "No position remained open when limits were restored. Existing exposure was reduced/closed before requalification."
 }

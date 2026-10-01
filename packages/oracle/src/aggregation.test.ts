@@ -80,4 +80,27 @@ describe("deterministic oracle aggregation", () => {
     expect(result.status).toBe("BLOCKED");
     expect(result.dispersionBps).toBeGreaterThan(300n);
   });
+
+  it("deduplicates an aggregator over the same underlying pool", () => {
+    const result = aggregatePriceObservations(
+      marketId,
+      "BASE",
+      [
+        observation({ source: "direct", underlyingVenueId: "pool-1" }),
+        observation({
+          source: "aggregator",
+          sourceFamily: "DEXSCREENER_AGGREGATION",
+          underlyingVenueId: "pool-1",
+        }),
+        observation({
+          source: "other-pool",
+          sourceFamily: "DIRECT_PANCAKESWAP_POOL",
+          underlyingVenueId: "pool-2",
+        }),
+      ],
+      1_010n,
+    );
+    expect(result.independentSourceCount).toBe(2);
+    expect(result.rejected.some((item) => item.reason === "CORRELATED_SOURCE_FAMILY")).toBe(true);
+  });
 });

@@ -304,10 +304,13 @@ export const NotificationEventSchema = z
     id: z.string().min(1),
     recipient: address,
     type: z.enum([
+      "ORDER_SUBMITTED",
       "ORDER_EXECUTED",
       "ORDER_FAILED",
       "ORDER_EXPIRED",
       "POSITION_OPENED",
+      "POSITION_INCREASED",
+      "POSITION_REDUCED",
       "POSITION_CLOSED",
       "POSITION_LIQUIDATED",
       "MARGIN_LOW",
@@ -320,11 +323,14 @@ export const NotificationEventSchema = z
       "WATCHED_WALLET_BUY",
       "WATCHED_WALLET_SELL",
       "WATCHED_TOKEN_GRADUATED",
+      "CLUSTER_THRESHOLD_BREACHED",
     ]),
     marketId: hash.nullable(),
     eventId: z.string().min(1),
+    sourceEventId: z.string().min(1).nullable().default(null),
     occurredAt: isoTimestamp,
     createdAt: isoTimestamp,
+    readAt: isoTimestamp.nullable().default(null),
     payload: z.record(z.string(), z.string()),
   })
   .strict();

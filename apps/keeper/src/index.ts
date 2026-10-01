@@ -15,6 +15,13 @@ export interface KeeperOracleReport {
 export interface KeeperExecutionPort {
   execute(order: ExecutableOrder, report: KeeperOracleReport): Promise<string>;
 }
+export interface KeeperStateStore {
+  hasExecuted(orderId: string): Promise<boolean>;
+  markExecuted(orderId: string, txHash: string): Promise<void>;
+}
+export interface KeeperNoncePort {
+  serialize<T>(chain: string, work: () => Promise<T>): Promise<T>;
+}
 export interface KeeperReadPort {
   discoverExecutableOrders(): Promise<readonly ExecutableOrder[]>;
   readOrderStatus(orderId: string): Promise<"PENDING" | "EXECUTED" | "CANCELLED" | "EXPIRED">;
@@ -26,11 +33,19 @@ export interface KeeperReportPort {
 export class KeeperService {
   private readonly consumed = new Set<string>();
   private stopped = false;
+  private lastSuccessAt: string | null = null;
+  private lastError: string | null = null;
+  private readonly state: KeeperStateStore | null;
+  private readonly nonces: KeeperNoncePort | null;
   public constructor(
     private readonly reads: KeeperReadPort,
     private readonly reports: KeeperReportPort,
     private readonly execution: KeeperExecutionPort,
-  ) {}
+    options: { readonly state?: KeeperStateStore; readonly nonces?: KeeperNoncePort } = {},
+  ) {
+    this.state = options.state ?? null;
+    this.nonces = options.nonces ?? null;
+  }
 
   public async executeCycle(now = new Date()): Promise<
     readonly {
@@ -48,7 +63,10 @@ export class KeeperService {
       txHash?: string;
     }[] = [];
     for (const order of await this.reads.discoverExecutableOrders()) {
-      if (this.consumed.has(order.orderId)) {
+      if (
+        this.consumed.has(order.orderId) ||
+        (this.state !== null && (await this.state.hasExecuted(order.orderId)))
+      ) {
         results.push({ orderId: order.orderId, status: "SKIPPED", reason: "IDEMPOTENCY" });
         continue;
       }
@@ -75,10 +93,17 @@ export class KeeperService {
         continue;
       }
       try {
-        const txHash = await this.execution.execute(order, report);
+        const execute = () => this.execution.execute(order, report);
+        const txHash = await (this.nonces === null
+          ? execute()
+          : this.nonces.serialize("ARC", execute));
         this.consumed.add(order.orderId);
+        if (this.state !== null) await this.state.markExecuted(order.orderId, txHash);
+        this.lastSuccessAt = new Date().toISOString();
+        this.lastError = null;
         results.push({ orderId: order.orderId, status: "EXECUTED", txHash });
       } catch (error) {
+        this.lastError = error instanceof Error ? error.message : "EXECUTION_FAILED";
         results.push({
           orderId: order.orderId,
           status: "FAILED",
@@ -96,10 +121,10 @@ export class KeeperService {
     return {
       component: "KEEPER",
       state: this.stopped ? "DEGRADED" : "OPERATIONAL",
-      lastSuccessAt: new Date().toISOString(),
+      lastSuccessAt: this.lastSuccessAt,
       latencyMs: null,
-      error: null,
-      freshness: "FRESH",
+      error: this.lastError,
+      freshness: this.lastSuccessAt === null ? "UNAVAILABLE" : "FRESH",
     };
   }
 }

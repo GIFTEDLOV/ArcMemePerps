@@ -61,26 +61,33 @@ export interface DexPairObservation {
     readonly name: string | null;
   };
   readonly priceUsd: number | null;
+  readonly priceUsdRaw?: string | null;
   readonly liquidityUsd: number;
+  readonly liquidityUsdRaw?: string;
   readonly baseLiquidity: number | null;
   readonly quoteLiquidity: number | null;
   readonly volume24hUsd: number;
+  readonly volume24hUsdRaw?: string;
   readonly buys24h: number;
   readonly sells24h: number;
   readonly priceChange24hPct: number | null;
   readonly fdvUsd: number | null;
+  readonly fdvUsdRaw?: string | null;
   readonly marketCapUsd: number | null;
+  readonly marketCapUsdRaw?: string | null;
   readonly pairCreatedAt: string | null;
 }
 
 export interface DexAggregate {
   readonly pairs: readonly DexPairObservation[];
   readonly totalObservedLiquidityUsd: number;
+  readonly totalObservedLiquidityUsdRaw?: string;
   readonly dominantPool: DexPairObservation | null;
   readonly poolConcentrationPct: number;
   readonly meaningfulPoolCount: number;
   readonly liquidityByDex: Readonly<Record<string, number>>;
   readonly volume24hUsd: number;
+  readonly volume24hUsdRaw?: string;
   readonly buys24h: number;
   readonly sells24h: number;
   readonly priceUsd: number | null;

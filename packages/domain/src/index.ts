@@ -9,6 +9,7 @@ import type {
 
 export * from "./provenance.js";
 export * from "./canonical.js";
+export * from "./passport.js";
 
 export type { ChainId, Hex, SupportedChain };
 

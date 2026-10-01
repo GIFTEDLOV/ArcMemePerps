@@ -1,13 +1,31 @@
 {
-  "status":"PASS",
-  "network":"ARC_TESTNET",
-  "chainId":5042002,
-  "protocolAccountingSource":"contract state transitions + explicit ArcMemePerps events + canonical ERC20 balance reconciliation",
-  "arcUsdcDuplicateFixtures":[
-    {"transaction":"0x53294dae4dec4e6b25eacf3fce015776b7b4f0089b6ee995ccd6034dbc935c0f","systemTransferLogs":1,"erc20TransferLogs":1,"protocolEvents":["CollateralDeposited"],"doubleCredit":false},
-    {"transaction":"0xf386053dced22298bebe267b9be45a4215f2d96b5fa67b4bbde70236f89c0558","systemTransferLogs":1,"erc20TransferLogs":1,"protocolEvents":["CollateralWithdrawn"],"doubleCredit":false},
-    {"transaction":"0x05718532e37012e73b0ba637a91586c6ea7066ea6cfd18904c25b272b71fbc4a","systemTransferLogs":1,"erc20TransferLogs":1,"protocolEvents":["CollateralWithdrawn"],"doubleCredit":false}
+  "status": "PASS",
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "protocolAccountingSource": "contract state transitions + explicit ArcMemePerps events + canonical ERC20 balance reconciliation",
+  "arcUsdcDuplicateFixtures": [
+    {
+      "transaction": "0x53294dae4dec4e6b25eacf3fce015776b7b4f0089b6ee995ccd6034dbc935c0f",
+      "systemTransferLogs": 1,
+      "erc20TransferLogs": 1,
+      "protocolEvents": ["CollateralDeposited"],
+      "doubleCredit": false
+    },
+    {
+      "transaction": "0xf386053dced22298bebe267b9be45a4215f2d96b5fa67b4bbde70236f89c0558",
+      "systemTransferLogs": 1,
+      "erc20TransferLogs": 1,
+      "protocolEvents": ["CollateralWithdrawn"],
+      "doubleCredit": false
+    },
+    {
+      "transaction": "0x05718532e37012e73b0ba637a91586c6ea7066ea6cfd18904c25b272b71fbc4a",
+      "systemTransferLogs": 1,
+      "erc20TransferLogs": 1,
+      "protocolEvents": ["CollateralWithdrawn"],
+      "doubleCredit": false
+    }
   ],
-  "canonicalProtocolEvents":"one explicit event per deposit/withdrawal/position mutation/liquidation; raw USDC logs are evidence only",
-  "reorgHandling":"protocol event identity retains chainId, transactionHash, logIndex, emitter, topic0; block hash is retained until finality"
+  "canonicalProtocolEvents": "one explicit event per deposit/withdrawal/position mutation/liquidation; raw USDC logs are evidence only",
+  "reorgHandling": "protocol event identity retains chainId, transactionHash, logIndex, emitter, topic0; block hash is retained until finality"
 }

@@ -1,0 +1,19 @@
+{
+  "name": "@arcmemeperps/backend-runtime",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@arcmemeperps/chain-adapters": "workspace:*",
+    "@arcmemeperps/domain": "workspace:*",
+    "@arcmemeperps/intelligence": "workspace:*",
+    "@arcmemeperps/lifecycle": "workspace:*",
+    "@arcmemeperps/persistence": "workspace:*",
+    "@arcmemeperps/risk-engine": "workspace:*",
+    "@arcmemeperps/shared": "workspace:*",
+    "zod": "^3.25.76"
+  }
+}

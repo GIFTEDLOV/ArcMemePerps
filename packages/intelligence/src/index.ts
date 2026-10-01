@@ -548,3 +548,6 @@ export function scoreCompetition(
     reasonCodes: suspicious ? ["SELF_OFFSET_SIGNAL"] : [],
   };
 }
+
+export * from "./product.js";
+export * from "./lp-security.js";

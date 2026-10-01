@@ -1,8 +1,8 @@
 {
-  "sourceHashPredeploy":"0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
-  "sourceHashPostdeploy":"0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
-  "sourceScope":"contracts, packages, apps, scripts",
-  "gitDiffFromDeployCheckpoint":"EMPTY",
-  "sourceUnchanged":true,
-  "evidenceAndDocumentationAddedAfterDeploy":true
+  "sourceHashPredeploy": "0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
+  "sourceHashPostdeploy": "0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
+  "sourceScope": "contracts, packages, apps, scripts",
+  "gitDiffFromDeployCheckpoint": "EMPTY",
+  "sourceUnchanged": true,
+  "evidenceAndDocumentationAddedAfterDeploy": true
 }

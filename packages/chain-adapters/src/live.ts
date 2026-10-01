@@ -165,8 +165,18 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
     throw new CapabilityUnavailableError(this.chain, "liquidity-lock-security");
   }
   public getPools(tokenAddress: string): Promise<readonly PoolSnapshot[]> {
-    void tokenAddress;
-    throw new CapabilityUnavailableError(this.chain, "pool-reserves");
+    const normalized = normalizeTokenAddress(this.chain, tokenAddress);
+    return this.dex.readToken(normalized, new Date().toISOString()).then((result) => {
+      if (result.value === null) throw new CapabilityUnavailableError(this.chain, "pool-reserves");
+      return result.value.pairs.map((pair) => ({
+        venue: pair.dexId,
+        poolAddress: pair.pairAddress,
+        tokenReserve: pair.baseLiquidity ?? 0,
+        quoteReserveUsd: pair.quoteLiquidity ?? 0,
+        liquidityUsd: pair.liquidityUsd,
+        feeBps: 0,
+      }));
+    });
   }
   public getTrades(tokenAddress: string, since?: string): Promise<readonly TradeRecord[]> {
     void tokenAddress;
@@ -206,8 +216,15 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
     return (await this.inspectToken(tokenAddress)).authorities;
   }
   public getTokenPermissions(tokenAddress: string): Promise<TokenPermissions> {
-    void tokenAddress;
-    throw new CapabilityUnavailableError(this.chain, "token-permissions");
+    return this.inspectToken(tokenAddress).then((record) => ({
+      mintAuthority: record.authorities.mintAuthorityActive === true ? "ACTIVE" : null,
+      freezeAuthority: record.authorities.freezeAuthorityActive === true ? "ACTIVE" : null,
+      owner: record.authorities.dangerousOwnerAdminPrivileges === true ? "UNKNOWN" : null,
+      admin: record.authorities.upgradeAuthority,
+      proxyImplementation: record.authorities.upgradeAuthority,
+      transferRestrictions:
+        record.authorities.transferRestricted === true ? ["PROVIDER_SIGNAL"] : [],
+    }));
   }
   public getLaunchData(tokenAddress: string): Promise<LaunchData> {
     void tokenAddress;
@@ -332,8 +349,18 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
     throw new CapabilityUnavailableError(this.chain, "liquidity-lock-security");
   }
   public getPools(tokenAddress: string): Promise<readonly PoolSnapshot[]> {
-    void tokenAddress;
-    throw new CapabilityUnavailableError(this.chain, "pool-reserves");
+    const normalized = normalizeTokenAddress("SOLANA", tokenAddress);
+    return this.dex.readToken(normalized, new Date().toISOString()).then((result) => {
+      if (result.value === null) throw new CapabilityUnavailableError(this.chain, "pool-reserves");
+      return result.value.pairs.map((pair) => ({
+        venue: pair.dexId,
+        poolAddress: pair.pairAddress,
+        tokenReserve: pair.baseLiquidity ?? 0,
+        quoteReserveUsd: pair.quoteLiquidity ?? 0,
+        liquidityUsd: pair.liquidityUsd,
+        feeBps: 0,
+      }));
+    });
   }
   public getTrades(tokenAddress: string, since?: string): Promise<readonly TradeRecord[]> {
     void tokenAddress;
@@ -372,8 +399,15 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
     return (await this.inspectToken(tokenAddress)).authorities;
   }
   public getTokenPermissions(tokenAddress: string): Promise<TokenPermissions> {
-    void tokenAddress;
-    throw new CapabilityUnavailableError(this.chain, "token-permissions");
+    return this.inspectToken(tokenAddress).then((record) => ({
+      mintAuthority: record.authorities.mintAuthorityActive === true ? "ACTIVE" : null,
+      freezeAuthority: record.authorities.freezeAuthorityActive === true ? "ACTIVE" : null,
+      owner: null,
+      admin: null,
+      proxyImplementation: null,
+      transferRestrictions:
+        record.authorities.transferRestricted === true ? ["PROVIDER_SIGNAL"] : [],
+    }));
   }
   public getLaunchData(tokenAddress: string): Promise<LaunchData> {
     void tokenAddress;

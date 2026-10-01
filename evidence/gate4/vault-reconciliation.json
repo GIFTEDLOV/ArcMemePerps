@@ -1,19 +1,39 @@
 {
-  "network":"ARC_TESTNET",
-  "chainId":5042002,
-  "vault":"0xb7dafc3203eb051c1a1d80bdb5c3c52bbd74c99a",
-  "collateralToken":"0x3600000000000000000000000000000000000000",
-  "actualCustodyBaseUnits":"5244914",
-  "expectedCustodyBaseUnits":"5244914",
-  "reconciliation":"MATCH",
-  "rawCashBaseUnits":"5244914",
-  "protocolBackingBaseUnits":"5000000",
-  "lockedCollateralBaseUnits":"0",
-  "withdrawableLiquidityBaseUnits":"5244914",
-  "insurance":{"actualCustodyBaseUnits":"1919780","availableCapitalBaseUnits":"1919780","badDebtCoveredBaseUnits":"80220","uncoveredBadDebtBaseUnits":"0","reconciliation":"MATCH"},
-  "perp":{"longOIBaseUnits":"0","shortOIBaseUnits":"0","totalOIBaseUnits":"0","reconciliation":"PASS"},
-  "badDebt":{"vaultProtocolBadDebtBaseUnits":"80220","insuranceCoveredBaseUnits":"80220","uncoveredBaseUnits":"0","reconciliation":"PASS"},
-  "unexpectedExternalTransfer":"NOT_OBSERVED",
-  "nativeBalanceExcludedFromCustody":true,
-  "withdrawalTransactions":{"long":"0xf386053dced22298bebe267b9be45a4215f2d96b5fa67b4bbde70236f89c0558","short":"0x05718532e37012e73b0ba637a91586c6ea7066ea6cfd18904c25b272b71fbc4a","liquidator":"0xbcdc485d81e720b59053c163d4a53e96f5ccf3d807002078576cbb2deca9a2f2"}
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "vault": "0xb7dafc3203eb051c1a1d80bdb5c3c52bbd74c99a",
+  "collateralToken": "0x3600000000000000000000000000000000000000",
+  "actualCustodyBaseUnits": "5244914",
+  "expectedCustodyBaseUnits": "5244914",
+  "reconciliation": "MATCH",
+  "rawCashBaseUnits": "5244914",
+  "protocolBackingBaseUnits": "5000000",
+  "lockedCollateralBaseUnits": "0",
+  "withdrawableLiquidityBaseUnits": "5244914",
+  "insurance": {
+    "actualCustodyBaseUnits": "1919780",
+    "availableCapitalBaseUnits": "1919780",
+    "badDebtCoveredBaseUnits": "80220",
+    "uncoveredBadDebtBaseUnits": "0",
+    "reconciliation": "MATCH"
+  },
+  "perp": {
+    "longOIBaseUnits": "0",
+    "shortOIBaseUnits": "0",
+    "totalOIBaseUnits": "0",
+    "reconciliation": "PASS"
+  },
+  "badDebt": {
+    "vaultProtocolBadDebtBaseUnits": "80220",
+    "insuranceCoveredBaseUnits": "80220",
+    "uncoveredBaseUnits": "0",
+    "reconciliation": "PASS"
+  },
+  "unexpectedExternalTransfer": "NOT_OBSERVED",
+  "nativeBalanceExcludedFromCustody": true,
+  "withdrawalTransactions": {
+    "long": "0xf386053dced22298bebe267b9be45a4215f2d96b5fa67b4bbde70236f89c0558",
+    "short": "0x05718532e37012e73b0ba637a91586c6ea7066ea6cfd18904c25b272b71fbc4a",
+    "liquidator": "0xbcdc485d81e720b59053c163d4a53e96f5ccf3d807002078576cbb2deca9a2f2"
+  }
 }

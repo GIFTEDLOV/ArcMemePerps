@@ -7,3 +7,7 @@ liquidity elsewhere.
 
 Statuses are `VERY_LOW`, `LOW`, `MEDIUM`, `HIGH`, `VERY_HIGH`, and `UNAVAILABLE`. A missing
 directional quote or missing source independence is unavailable and cannot increase leverage.
+
+The estimator remains a conservative range, not a guaranteed attack-cost proof. Gate 4D feeds it
+venue concentration, directional quote depth, and underlying source IDs from the canonical
+passport. A market can trend while still receiving low derivatives capacity or a blocked status.

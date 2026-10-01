@@ -104,6 +104,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     mapping(address keeper => bool enabled) public liquidationKeeper;
     mapping(address keeper => bool enabled) public orderKeeper;
     uint256 public nextPositionId = 1;
+    address public adlController;
 
     EconomicModel.FundingConfig public fundingConfig;
     EconomicModel.BorrowConfig public borrowConfig;
@@ -136,6 +137,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     error SkewCapExceeded();
     error LegacyPathDisabled();
     error InvalidSettlementOutcome();
+    error UnauthorizedADLController();
 
     event PositionOpened(
         uint256 indexed positionId,
@@ -168,6 +170,10 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     event BadDebtCoverageApplied(uint256 badDebt, uint256 covered, uint256 uncovered);
     event LiquidationOutcome(uint256 indexed positionId, uint256 reward, uint256 residual);
     event PartialSettlementOutcome(uint256 indexed positionId, uint256 payout, uint256 badDebt);
+    event ADLControllerSet(address indexed controller);
+    event ADLPositionReduced(
+        uint256 indexed positionId, uint256 sizeReduced, uint256 executionPrice
+    );
 
     modifier onlyKeeper() {
         if (!liquidationKeeper[msg.sender] && msg.sender != owner) revert UnauthorizedKeeper();
@@ -176,6 +182,11 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     modifier onlyOrderKeeper() {
         if (!orderKeeper[msg.sender] && msg.sender != owner) revert UnauthorizedOrderKeeper();
+        _;
+    }
+
+    modifier onlyADLController() {
+        if (msg.sender != adlController) revert UnauthorizedADLController();
         _;
     }
 
@@ -217,6 +228,28 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         if (keeper == address(0)) revert ZeroAddress();
         orderKeeper[keeper] = enabled;
         emit OrderKeeperSet(keeper, enabled);
+    }
+
+    function setADLController(address controller) external onlyOwner {
+        if (controller == address(0)) revert ZeroAddress();
+        adlController = controller;
+        emit ADLControllerSet(controller);
+    }
+
+    function adlReducePosition(uint256 positionId, uint256 sizeReduced, uint256 executionPrice)
+        external
+        nonReentrant
+        onlyADLController
+    {
+        Position memory position = positions[positionId];
+        if (!position.open || sizeReduced == 0 || sizeReduced > position.size) {
+            revert InvalidPosition();
+        }
+        uint256 collateralReleased = sizeReduced == position.size ? position.collateral : 0;
+        _reduceFor(positionId, sizeReduced, collateralReleased, executionPrice);
+        // _reduceFor finalizes OI and position state before guarded settlement calls.
+        // forge-lint: disable-next-line(reentrancy-events)
+        emit ADLPositionReduced(positionId, sizeReduced, executionPrice);
     }
 
     function setEconomicConfig(

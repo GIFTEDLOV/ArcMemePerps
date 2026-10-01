@@ -1,19 +1,19 @@
 {
-  "status":"PASS_READ_ONLY_REJECTIONS",
-  "reporterThreshold":"2-of-3",
-  "acceptedReportSequence":17,
-  "acceptedReportTx":"0xcd0b5585e68e1f65d17fc7eb3b31c328633c1bf25b04ce97fb9e3c07007051b6",
-  "rejections":{
-    "oneSigner":"InsufficientReporterThreshold",
-    "duplicateSigner":"DuplicateSigner",
-    "oldSequenceReplay":"NonMonotonicSequence",
-    "wrongMarket":"UnauthorizedReporter",
-    "wrongChain":"UnauthorizedReporter",
-    "tamperedPrice":"UnauthorizedReporter",
-    "tamperedEvidenceRoot":"UnauthorizedReporter",
-    "oldReporterSet":"ReporterSetVersionMismatch",
-    "expiredExecution":"StalePrice observed during failed close attempt; no state change"
+  "status": "PASS_READ_ONLY_REJECTIONS",
+  "reporterThreshold": "2-of-3",
+  "acceptedReportSequence": 17,
+  "acceptedReportTx": "0xcd0b5585e68e1f65d17fc7eb3b31c328633c1bf25b04ce97fb9e3c07007051b6",
+  "rejections": {
+    "oneSigner": "InsufficientReporterThreshold",
+    "duplicateSigner": "DuplicateSigner",
+    "oldSequenceReplay": "NonMonotonicSequence",
+    "wrongMarket": "UnauthorizedReporter",
+    "wrongChain": "UnauthorizedReporter",
+    "tamperedPrice": "UnauthorizedReporter",
+    "tamperedEvidenceRoot": "UnauthorizedReporter",
+    "oldReporterSet": "ReporterSetVersionMismatch",
+    "expiredExecution": "StalePrice observed during failed close attempt; no state change"
   },
-  "method":"viem eth_call simulation against live deployed state for malformed/replay cases; only valid reports were broadcast",
-  "noStateCorruption":true
+  "method": "viem eth_call simulation against live deployed state for malformed/replay cases; only valid reports were broadcast",
+  "noStateCorruption": true
 }

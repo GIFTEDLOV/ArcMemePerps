@@ -7,3 +7,9 @@ Every observation is an `EvidenceRecord` with provider, chain, network, endpoint
 Evidence records are sorted by `evidenceId` for the versioned Keccak Merkle root. Security-critical disagreements use explicit tolerances. A material disagreement blocks automatic qualification; a minor divergence retains the conservative value and remains visible. A provider saying “renounced” cannot override a contradictory canonical privileged path without reconciliation.
 
 Address classifications for holder/cluster analysis are explicit: `LP`, `BURN`, `DEX`, `BRIDGE`, `SYSTEM`, `CEX`, `KNOWN_PROTOCOL`, or `UNKNOWN`. Unknown wallets remain in concentration calculations. LP-lock security is independent from market liquidity and remains `UNKNOWN` without lock/burn/ownership evidence.
+
+The Gate 4D `MarketPassport` stores the evidence root and the normalized provider-health/freshness
+state alongside the derived result. A missing optional provider is an explicit unavailable record;
+it is not a zero value and cannot satisfy a qualification hard gate. Historical snapshots retain
+their collection time and source position so later re-evaluation does not confuse retrieval time
+with onchain event time.

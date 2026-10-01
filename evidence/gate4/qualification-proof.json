@@ -142,10 +142,7 @@
       "lpOwnershipConcentrationPct": 10,
       "lpLockStatus": "LOCKED",
       "earliestLpUnlockAt": "2027-01-01T00:00:00.000Z",
-      "liquidityVenues": [
-        "TESTNET_CANARY_POOL_A",
-        "TESTNET_CANARY_POOL_B"
-      ],
+      "liquidityVenues": ["TESTNET_CANARY_POOL_A", "TESTNET_CANARY_POOL_B"],
       "suddenCollapsePct24h": 0
     },
     "authorityState": {

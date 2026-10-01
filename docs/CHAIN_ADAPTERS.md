@@ -31,3 +31,9 @@ Gate 4C adds `DiscoveryCoordinator` and platform-plugin boundaries for Pump.fun/
 Raydium, Meteora, Four.meme, Flaunch, Aerodrome, Arc-native venues, and documented Robinhood
 DEXs. The catalog is not a claim that those plugins are live. A missing plugin is `UNAVAILABLE`,
 and unsupported methods on a live adapter raise `CapabilityUnavailableError`.
+
+Gate 4D keeps these boundaries explicit in the feature ledger. Generic EVM and Solana token reads
+and DexScreener normalization are live-read capabilities; continuous launchpad discovery and
+venue-specific PumpSwap/Raydium/Meteora/Pancake/Uniswap/Aerodrome depth or LP-control readers
+remain partial or externally blocked where no verified implementation is present. The adapter
+must return provenance-bearing `UNAVAILABLE`, never synthetic lifecycle or depth evidence.

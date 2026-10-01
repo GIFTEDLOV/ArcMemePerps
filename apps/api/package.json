@@ -11,6 +11,7 @@
     "@arcmemeperps/chain-adapters": "workspace:*",
     "@arcmemeperps/domain": "workspace:*",
     "@arcmemeperps/qualification-proof": "workspace:*",
+    "@arcmemeperps/persistence": "workspace:*",
     "@arcmemeperps/risk-engine": "workspace:*",
     "@arcmemeperps/shared": "workspace:*"
   }

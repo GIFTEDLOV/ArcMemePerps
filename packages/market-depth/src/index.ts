@@ -17,6 +17,8 @@ export interface VenueDepth {
   readonly sellDepth1PctUsdWad: bigint;
   readonly buyDepth2PctUsdWad: bigint;
   readonly sellDepth2PctUsdWad: bigint;
+  readonly buyDepth5PctUsdWad?: bigint;
+  readonly sellDepth5PctUsdWad?: bigint;
 }
 
 export interface MarketDepth {
@@ -26,6 +28,8 @@ export interface MarketDepth {
   readonly sellDepth1PctUsdWad: bigint | null;
   readonly buyDepth2PctUsdWad: bigint | null;
   readonly sellDepth2PctUsdWad: bigint | null;
+  readonly buyDepth5PctUsdWad?: bigint | null;
+  readonly sellDepth5PctUsdWad?: bigint | null;
   readonly venueBreakdown: readonly VenueDepth[];
   readonly reason?: string;
 }
@@ -131,6 +135,20 @@ export function calculateConstantProductDepth(
         pool.feeBps,
         false,
       ),
+      buyDepth5PctUsdWad: depthForMove(
+        pool.baseReserveUsdWad,
+        pool.quoteReserveUsdWad,
+        500n,
+        pool.feeBps,
+        true,
+      ),
+      sellDepth5PctUsdWad: depthForMove(
+        pool.baseReserveUsdWad,
+        pool.quoteReserveUsdWad,
+        500n,
+        pool.feeBps,
+        false,
+      ),
     }));
     return {
       status: "AVAILABLE",
@@ -139,6 +157,11 @@ export function calculateConstantProductDepth(
       sellDepth1PctUsdWad: venues.reduce((sum, venue) => sum + venue.sellDepth1PctUsdWad, 0n),
       buyDepth2PctUsdWad: venues.reduce((sum, venue) => sum + venue.buyDepth2PctUsdWad, 0n),
       sellDepth2PctUsdWad: venues.reduce((sum, venue) => sum + venue.sellDepth2PctUsdWad, 0n),
+      buyDepth5PctUsdWad: venues.reduce((sum, venue) => sum + (venue.buyDepth5PctUsdWad ?? 0n), 0n),
+      sellDepth5PctUsdWad: venues.reduce(
+        (sum, venue) => sum + (venue.sellDepth5PctUsdWad ?? 0n),
+        0n,
+      ),
       venueBreakdown: venues,
     };
   } catch (error) {
@@ -172,6 +195,116 @@ export class UnavailableSolanaDepthAdapter implements SolanaDepthAdapter {
       reason: "SOLANA_QUOTE_INFRASTRUCTURE_UNAVAILABLE",
     });
   }
+}
+
+export interface ConcentratedLiquidityPool {
+  readonly venue: string;
+  readonly poolAddress: string;
+  readonly liquidity: bigint;
+  readonly sqrtPriceX96: bigint;
+  readonly sqrtPriceLowerX96: bigint;
+  readonly sqrtPriceUpperX96: bigint;
+  readonly feeBps: bigint;
+}
+
+/**
+ * Directional quote/depth for a single active concentrated-liquidity range.
+ * Multi-range aggregation is performed by passing one state object per active
+ * range. A move that leaves the supplied ranges is explicitly unavailable.
+ */
+export function calculateConcentratedLiquidityDepth(
+  pools: readonly ConcentratedLiquidityPool[],
+  observedAt = new Date().toISOString(),
+): MarketDepth {
+  if (pools.length === 0) return unavailableDepth(observedAt, "NO_CONCENTRATED_LIQUIDITY_STATE");
+  try {
+    const venues = pools.map((pool) => {
+      const buy1 = concentratedQuoteForMove(pool, 100n, true);
+      const sell1 = concentratedQuoteForMove(pool, 100n, false);
+      const buy2 = concentratedQuoteForMove(pool, 200n, true);
+      const sell2 = concentratedQuoteForMove(pool, 200n, false);
+      const buy5 = concentratedQuoteForMove(pool, 500n, true);
+      const sell5 = concentratedQuoteForMove(pool, 500n, false);
+      return {
+        venue: pool.venue,
+        poolAddress: pool.poolAddress,
+        buyDepth1PctUsdWad: buy1,
+        sellDepth1PctUsdWad: sell1,
+        buyDepth2PctUsdWad: buy2,
+        sellDepth2PctUsdWad: sell2,
+        buyDepth5PctUsdWad: buy5,
+        sellDepth5PctUsdWad: sell5,
+      };
+    });
+    return {
+      status: "AVAILABLE",
+      observedAt,
+      buyDepth1PctUsdWad: venues.reduce((sum, item) => sum + item.buyDepth1PctUsdWad, 0n),
+      sellDepth1PctUsdWad: venues.reduce((sum, item) => sum + item.sellDepth1PctUsdWad, 0n),
+      buyDepth2PctUsdWad: venues.reduce((sum, item) => sum + item.buyDepth2PctUsdWad, 0n),
+      sellDepth2PctUsdWad: venues.reduce((sum, item) => sum + item.sellDepth2PctUsdWad, 0n),
+      buyDepth5PctUsdWad: venues.reduce((sum, item) => sum + (item.buyDepth5PctUsdWad ?? 0n), 0n),
+      sellDepth5PctUsdWad: venues.reduce((sum, item) => sum + (item.sellDepth5PctUsdWad ?? 0n), 0n),
+      venueBreakdown: venues,
+    };
+  } catch (error) {
+    return unavailableDepth(
+      observedAt,
+      error instanceof Error ? error.message : "INVALID_CLMM_STATE",
+      "INVALID",
+    );
+  }
+}
+
+function concentratedQuoteForMove(
+  pool: ConcentratedLiquidityPool,
+  moveBps: bigint,
+  buy: boolean,
+): bigint {
+  if (
+    pool.liquidity <= 0n ||
+    pool.sqrtPriceX96 <= pool.sqrtPriceLowerX96 ||
+    pool.sqrtPriceX96 >= pool.sqrtPriceUpperX96 ||
+    pool.sqrtPriceLowerX96 <= 0n ||
+    pool.sqrtPriceUpperX96 <= pool.sqrtPriceLowerX96
+  )
+    throw new Error("invalid concentrated-liquidity range");
+  const numerator = 10_000n + (buy ? moveBps : -moveBps);
+  if (numerator <= 0n) throw new Error("invalid price move");
+  const target = sqrtRatioAfterBps(pool.sqrtPriceX96, numerator, 10_000n);
+  if (target < pool.sqrtPriceLowerX96 || target > pool.sqrtPriceUpperX96)
+    throw new Error("requested move leaves supplied concentrated-liquidity range");
+  const low = buy ? pool.sqrtPriceX96 : target;
+  const high = buy ? target : pool.sqrtPriceX96;
+  const delta = high - low;
+  const q96 = 1n << 96n;
+  const amount0 = (pool.liquidity * delta * q96) / (high * low);
+  const amount1 = (pool.liquidity * delta) / q96;
+  const quote = buy ? amount1 : amount0;
+  return mulDivDown(quote, 10_000n - pool.feeBps, 10_000n);
+}
+
+function sqrtRatioAfterBps(current: bigint, numerator: bigint, denominator: bigint): bigint {
+  return isqrt((current * current * numerator) / denominator);
+}
+
+function unavailableDepth(
+  observedAt: string,
+  reason: string,
+  status: DepthStatus = "UNAVAILABLE",
+): MarketDepth {
+  return {
+    status,
+    observedAt,
+    buyDepth1PctUsdWad: null,
+    sellDepth1PctUsdWad: null,
+    buyDepth2PctUsdWad: null,
+    sellDepth2PctUsdWad: null,
+    buyDepth5PctUsdWad: null,
+    sellDepth5PctUsdWad: null,
+    venueBreakdown: [],
+    reason,
+  };
 }
 
 export type EvmVenueModel =
@@ -242,6 +375,16 @@ export async function aggregateReadOnlyVenueDepth(
       : null,
     sellDepth2PctUsdWad: available.every((item) => item.sellDepth2PctUsdWad !== null)
       ? available.reduce((sum, item) => sum + item.sellDepth2PctUsdWad!, 0n)
+      : null,
+    buyDepth5PctUsdWad: available.every(
+      (item) => item.buyDepth5PctUsdWad !== null && item.buyDepth5PctUsdWad !== undefined,
+    )
+      ? available.reduce((sum, item) => sum + item.buyDepth5PctUsdWad!, 0n)
+      : null,
+    sellDepth5PctUsdWad: available.every(
+      (item) => item.sellDepth5PctUsdWad !== null && item.sellDepth5PctUsdWad !== undefined,
+    )
+      ? available.reduce((sum, item) => sum + item.sellDepth5PctUsdWad!, 0n)
       : null,
     venueBreakdown: available.flatMap((item) => item.venueBreakdown),
   };

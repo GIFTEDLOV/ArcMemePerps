@@ -1,15 +1,38 @@
 {
-  "network":"ARC_TESTNET",
-  "testnetCanary":true,
-  "marketId":"0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
-  "originChain":"BASE",
-  "originChainId":8453,
-  "originToken":"0x0000000000000000000000000000000000000001",
-  "qualificationProofHash":"0x8741df261256ba64f8a81b188aa694165dd9989a67256d46c975b7de91071e4d",
-  "requalificationProofHash":"0xf7996d1ba15d109cea1c516776093c7eb458710880912835bdde64be98ddf814",
-  "riskRuleVersion":"0.1.0",
-  "usdcAddress":"0x3600000000000000000000000000000000000000",
-  "initialLimits":{"maxLeverageWad":"2000000000000000000","maxLeverageX":"2","maxOIBaseUnits":"1000000","maxOIUsdc":"1","maxPositionBaseUnits":"200000","maxPositionUsdc":"0.2","maxLongOIBaseUnits":"500000","maxShortOIBaseUnits":"500000","maintenanceMarginBps":2500,"liquidationPenaltyBps":500},
-  "finalLimitsAfterRequalification":{"maxLeverageWad":"2000000000000000000","maxLeverageX":"2","maxOIBaseUnits":"1000000","maxOIUsdc":"1","maxPositionBaseUnits":"200000","maxPositionUsdc":"0.2","status":"LIVE"},
-  "oraclePolicyFinal":{"maxStalenessSeconds":120,"minimumConfidenceBps":8500,"minimumIndependentSources":2}
+  "network": "ARC_TESTNET",
+  "testnetCanary": true,
+  "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+  "originChain": "BASE",
+  "originChainId": 8453,
+  "originToken": "0x0000000000000000000000000000000000000001",
+  "qualificationProofHash": "0x8741df261256ba64f8a81b188aa694165dd9989a67256d46c975b7de91071e4d",
+  "requalificationProofHash": "0xf7996d1ba15d109cea1c516776093c7eb458710880912835bdde64be98ddf814",
+  "riskRuleVersion": "0.1.0",
+  "usdcAddress": "0x3600000000000000000000000000000000000000",
+  "initialLimits": {
+    "maxLeverageWad": "2000000000000000000",
+    "maxLeverageX": "2",
+    "maxOIBaseUnits": "1000000",
+    "maxOIUsdc": "1",
+    "maxPositionBaseUnits": "200000",
+    "maxPositionUsdc": "0.2",
+    "maxLongOIBaseUnits": "500000",
+    "maxShortOIBaseUnits": "500000",
+    "maintenanceMarginBps": 2500,
+    "liquidationPenaltyBps": 500
+  },
+  "finalLimitsAfterRequalification": {
+    "maxLeverageWad": "2000000000000000000",
+    "maxLeverageX": "2",
+    "maxOIBaseUnits": "1000000",
+    "maxOIUsdc": "1",
+    "maxPositionBaseUnits": "200000",
+    "maxPositionUsdc": "0.2",
+    "status": "LIVE"
+  },
+  "oraclePolicyFinal": {
+    "maxStalenessSeconds": 120,
+    "minimumConfidenceBps": 8500,
+    "minimumIndependentSources": 2
+  }
 }

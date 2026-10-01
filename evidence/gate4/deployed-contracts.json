@@ -3,13 +3,41 @@
   "chainId": 5042002,
   "sourceHashPredeploy": "0x25f1267455f42bfbe6c2a59bdae5557b67136cf6b78e12473b8bed1a3e0532ee",
   "contracts": {
-    "MarketRegistry": {"address":"0xd22dbcdd38009f9ea490f729715a1bb647783750","runtimeBytecodeBytes":3974,"runtimeBytecodeHash":"0x8c414574e30142cd3b0b9f872a2f36ed7f1067d8216146b2b53cde386c39552c"},
-    "QualificationRegistry": {"address":"0xd6d568a74c3904d4ac66b5df9e0107b63442eead","runtimeBytecodeBytes":1438,"runtimeBytecodeHash":"0xe3e782c77bb630816afd2f41e566801b19719913063175292540c6979ddc4f71"},
-    "OracleRouter": {"address":"0x87e68acec11e8af032f7215f22ac4883fef75e9c","runtimeBytecodeBytes":6378,"runtimeBytecodeHash":"0x276d1d443720606367448d1d5868e5a081effb7f656abffbaf36aa2e12990b66"},
-    "RiskConfig": {"address":"0x88c7c840a0cff0b45400ebf3314b1949c6f8cb2d","runtimeBytecodeBytes":3181,"runtimeBytecodeHash":"0x4abdb0b4aa18cfa07300490b425615d9dc54b61705b03a2c877e9f94109ca9f6"},
-    "USDCMarginVault": {"address":"0xb7dafc3203eb051c1a1d80bdb5c3c52bbd74c99a","runtimeBytecodeBytes":8215,"runtimeBytecodeHash":"0x8ad2f7b40dcc0aa9f0e25ade57bd8d5a957415bd369d798ab81e44110d5a466c"},
-    "PerpEngine": {"address":"0x00c40ee2e7a61e303da9d62a8b92ecaed6c2ce88","runtimeBytecodeBytes":18419,"runtimeBytecodeHash":"0x6a22ada3e870ef11d08406d3ccd56dc053dbf0321c720bf2cdeaed2daec4a5fc"},
-    "InsuranceFund": {"address":"0x6e097f5806f4be3528650eb6a6e55215e228dadf","runtimeBytecodeBytes":2426,"runtimeBytecodeHash":"0x9661ea1a6b0e8a91d74a26165272005baffc169865a1002e7654bc37aaeaec37"}
+    "MarketRegistry": {
+      "address": "0xd22dbcdd38009f9ea490f729715a1bb647783750",
+      "runtimeBytecodeBytes": 3974,
+      "runtimeBytecodeHash": "0x8c414574e30142cd3b0b9f872a2f36ed7f1067d8216146b2b53cde386c39552c"
+    },
+    "QualificationRegistry": {
+      "address": "0xd6d568a74c3904d4ac66b5df9e0107b63442eead",
+      "runtimeBytecodeBytes": 1438,
+      "runtimeBytecodeHash": "0xe3e782c77bb630816afd2f41e566801b19719913063175292540c6979ddc4f71"
+    },
+    "OracleRouter": {
+      "address": "0x87e68acec11e8af032f7215f22ac4883fef75e9c",
+      "runtimeBytecodeBytes": 6378,
+      "runtimeBytecodeHash": "0x276d1d443720606367448d1d5868e5a081effb7f656abffbaf36aa2e12990b66"
+    },
+    "RiskConfig": {
+      "address": "0x88c7c840a0cff0b45400ebf3314b1949c6f8cb2d",
+      "runtimeBytecodeBytes": 3181,
+      "runtimeBytecodeHash": "0x4abdb0b4aa18cfa07300490b425615d9dc54b61705b03a2c877e9f94109ca9f6"
+    },
+    "USDCMarginVault": {
+      "address": "0xb7dafc3203eb051c1a1d80bdb5c3c52bbd74c99a",
+      "runtimeBytecodeBytes": 8215,
+      "runtimeBytecodeHash": "0x8ad2f7b40dcc0aa9f0e25ade57bd8d5a957415bd369d798ab81e44110d5a466c"
+    },
+    "PerpEngine": {
+      "address": "0x00c40ee2e7a61e303da9d62a8b92ecaed6c2ce88",
+      "runtimeBytecodeBytes": 18419,
+      "runtimeBytecodeHash": "0x6a22ada3e870ef11d08406d3ccd56dc053dbf0321c720bf2cdeaed2daec4a5fc"
+    },
+    "InsuranceFund": {
+      "address": "0x6e097f5806f4be3528650eb6a6e55215e228dadf",
+      "runtimeBytecodeBytes": 2426,
+      "runtimeBytecodeHash": "0x9661ea1a6b0e8a91d74a26165272005baffc169865a1002e7654bc37aaeaec37"
+    }
   },
   "allRuntimeBytecodePresent": true
 }

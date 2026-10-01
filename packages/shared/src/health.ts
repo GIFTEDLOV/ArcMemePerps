@@ -1,14 +1,26 @@
 export type HealthComponent =
   | "CHAIN_RPC"
+  | "ARC_RPC"
+  | "SOLANA_RPC"
+  | "ETH_RPC"
+  | "BASE_RPC"
+  | "BNB_RPC"
+  | "ROBINHOOD_RPC"
   | "INDEXER"
   | "DATABASE"
+  | "JOB_WORKER"
   | "MARKET_DATA"
   | "HOLDER_DATA"
   | "CLUSTER_DATA"
+  | "DEPTH_ENGINE"
+  | "RISK_ENGINE"
   | "KEEPER"
   | "ORACLE_REPORTERS"
-  | "ARC_RPC";
-export type HealthState = "OPERATIONAL" | "DEGRADED" | "UNAVAILABLE";
+  | "ORACLE"
+  | "VAULT"
+  | "INSURANCE"
+  | "REALTIME_STREAM";
+export type HealthState = "OPERATIONAL" | "DEGRADED" | "STALE" | "UNAVAILABLE" | "CRITICAL";
 
 export interface HealthRecord {
   readonly component: HealthComponent;

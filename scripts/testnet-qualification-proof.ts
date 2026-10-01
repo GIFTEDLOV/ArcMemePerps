@@ -1,9 +1,5 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import type {
-  AssessmentPosition,
-  EvidenceBundle,
-  EvidenceRecord,
-} from "@arcmemeperps/domain";
+import type { AssessmentPosition, EvidenceBundle, EvidenceRecord } from "@arcmemeperps/domain";
 import {
   evidenceLeafHash,
   evidenceRootForBundle,
@@ -180,8 +176,14 @@ await writeFile(
   `${JSON.stringify(output, null, 2)}\n`,
   "utf8",
 );
-console.log(JSON.stringify({
-  marketId: output.marketId,
-  proofHash: output.proofHash,
-  commitmentHash: output.commitmentHash,
-}, null, 2));
+console.log(
+  JSON.stringify(
+    {
+      marketId: output.marketId,
+      proofHash: output.proofHash,
+      commitmentHash: output.commitmentHash,
+    },
+    null,
+    2,
+  ),
+);

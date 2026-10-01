@@ -8,15 +8,21 @@ import {
 export const API_VERSION = "v1" as const;
 export const API_ENDPOINTS = [
   "GET /markets",
+  "GET /markets/search",
   "GET /markets/trending",
+  "GET /markets/fresh",
   "GET /markets/:marketId",
   "GET /markets/:marketId/risk",
   "GET /markets/:marketId/proof",
   "GET /markets/:marketId/history",
   "GET /markets/:marketId/holders",
   "GET /markets/:marketId/deployer",
+  "GET /markets/:marketId/clusters",
+  "GET /markets/:marketId/depth",
+  "GET /markets/:marketId/activity",
   "GET /wallet/:address",
   "GET /wallet/:address/activity",
+  "GET /wallet/:address/intelligence",
   "GET /profile/:address",
   "GET /profile/:address/stats",
   "GET /profile/:address/watchlist",
@@ -24,6 +30,7 @@ export const API_ENDPOINTS = [
   "GET /competitions/:id",
   "GET /competitions/:id/leaderboard",
   "GET /notifications/:address",
+  "GET /attention/:address",
   "GET /protocol/status",
 ] as const;
 
@@ -51,7 +58,10 @@ export const ProtocolStatusSchema = z
   .object({
     schemaVersion: z.literal(API_VERSION),
     asOf: z.string().datetime({ offset: true }),
-    health: z.record(z.string(), z.enum(["OPERATIONAL", "DEGRADED", "UNAVAILABLE"])),
+    health: z.record(
+      z.string(),
+      z.enum(["OPERATIONAL", "DEGRADED", "STALE", "UNAVAILABLE", "CRITICAL"]),
+    ),
     readOnly: z.literal(true),
   })
   .strict();

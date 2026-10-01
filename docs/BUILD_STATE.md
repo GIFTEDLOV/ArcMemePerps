@@ -61,3 +61,17 @@ This audit does not claim full product completion. Continuous discovery, histori
 venue-specific LP/depth readers, durable workers, production API wiring, and mainnet operations
 remain incomplete as listed in `docs/BACKEND_GAPS.md`. No blockchain write was performed in
 Gate 4C.
+
+# Gate 4D full-backend audit status
+
+Gate 4D adds and tests the canonical MarketPassport, separate qualification/execution gates,
+portable persistence interfaces, bounded worker/read-model/realtime foundations, source-family
+independence, LP-security/depth primitives, and local PublicLPVault, ADLController, and
+ProtocolTimelock foundations. The source audit remains truthful: 21 planned rows are still
+partial and are enumerated in `docs/BACKEND_GAPS.md`; `pnpm backend:frontend-readiness` therefore
+returns nonzero and frontend work must not start.
+
+Contracts changed materially. The previous Arc Testnet contracts remain mechanically valid for
+their historical evidence, but they do not validate the current LP/ADL/timelock source. A fresh
+testnet redeployment is required after explicit authorization. No Arc Testnet or Arc Mainnet
+write was performed in Gate 4D, and no Git remote exists.

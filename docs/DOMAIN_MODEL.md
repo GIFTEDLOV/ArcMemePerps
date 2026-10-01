@@ -6,4 +6,11 @@ Lifecycle states are `DISCOVERED`, `PRIMARY_MARKET`, `BONDING`, `GRADUATED`, `DE
 
 Integrity states are `PENDING`, `WATCH`, `QUALIFIED`, and `REJECTED`. Derivatives states are `UNASSESSED`, `WATCH`, `ELIGIBLE`, `LIVE`, `PAUSED`, `CLOSE_ONLY`, and `BLOCKED`. A `DEX_LIVE` / `QUALIFIED` / `WATCH` token is valid.
 
-Amounts in TypeScript are normalized USD numbers for Gate 1 fixtures. Production persistence should use a decimal or fixed-point representation with explicit scale and no binary floating-point loss. Solidity risk limits use integer units and leverage uses 1e18 fixed-point scale.
+`MarketPassport` is the single versioned market truth consumed by risk, API, notifications,
+trending, competitions, and future agents/frontend. It composes identity, lifecycle, evidence,
+liquidity, holders, deployer, activity, oracle, derivatives capacity, qualification, Arc market
+state, freshness, and provider health without collapsing unknown into pass.
+
+Amounts in TypeScript use bigint/fixed-point values at economic boundaries and decimal strings in
+transport schemas; JavaScript `Number` is not authoritative for monetary or risk arithmetic.
+Solidity risk limits use checked integer units and leverage uses 1e18 fixed-point scale.

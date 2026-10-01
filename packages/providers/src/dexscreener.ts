@@ -107,10 +107,13 @@ function parsePairs(
         name: nullableString(quote.name),
       },
       priceUsd: optionalNonNegative(item.priceUsd),
+      priceUsdRaw: optionalDecimal(item.priceUsd),
       liquidityUsd: nonNegative(objectField(item, "liquidity").usd, "liquidity.usd", true),
+      liquidityUsdRaw: decimal(objectField(item, "liquidity").usd, "liquidity.usd", true),
       baseLiquidity: optionalNonNegative(objectField(item, "liquidity").base),
       quoteLiquidity: optionalNonNegative(objectField(item, "liquidity").quote),
       volume24hUsd: nonNegative(objectField(item, "volume").h24, "volume.h24", false),
+      volume24hUsdRaw: decimal(objectField(item, "volume").h24, "volume.h24", false),
       buys24h: nonNegative(
         objectField(objectField(item, "txns"), "h24").buys,
         "txns.h24.buys",
@@ -123,7 +126,9 @@ function parsePairs(
       ),
       priceChange24hPct: optionalNumber(objectField(item, "priceChange").h24),
       fdvUsd: optionalNonNegative(item.fdv),
+      fdvUsdRaw: optionalDecimal(item.fdv),
       marketCapUsd: optionalNonNegative(item.marketCap),
+      marketCapUsdRaw: optionalDecimal(item.marketCap),
       pairCreatedAt:
         item.pairCreatedAt === undefined
           ? null
@@ -135,6 +140,10 @@ function parsePairs(
 
 function aggregatePairs(pairs: readonly DexPairObservation[]): DexAggregate {
   const total = pairs.reduce((sum, pair) => sum + pair.liquidityUsd, 0);
+  const totalRaw = pairs.reduce(
+    (sum, pair) => addDecimal(sum, pair.liquidityUsdRaw ?? pair.liquidityUsd.toString()),
+    "0",
+  );
   const dominantPool = pairs.reduce<DexPairObservation | null>(
     (dominant, pair) =>
       dominant === null || pair.liquidityUsd > dominant.liquidityUsd ? pair : dominant,
@@ -146,12 +155,17 @@ function aggregatePairs(pairs: readonly DexPairObservation[]): DexAggregate {
   return {
     pairs,
     totalObservedLiquidityUsd: total,
+    totalObservedLiquidityUsdRaw: totalRaw,
     dominantPool,
     poolConcentrationPct:
       total === 0 || dominantPool === null ? 0 : (dominantPool.liquidityUsd / total) * 100,
     meaningfulPoolCount: pairs.filter((pair) => pair.liquidityUsd > 0).length,
     liquidityByDex,
     volume24hUsd: pairs.reduce((sum, pair) => sum + pair.volume24hUsd, 0),
+    volume24hUsdRaw: pairs.reduce(
+      (sum, pair) => addDecimal(sum, pair.volume24hUsdRaw ?? pair.volume24hUsd.toString()),
+      "0",
+    ),
     buys24h: pairs.reduce((sum, pair) => sum + pair.buys24h, 0),
     sells24h: pairs.reduce((sum, pair) => sum + pair.sells24h, 0),
     priceUsd: dominantPool?.priceUsd ?? null,
@@ -209,4 +223,40 @@ function nonNegative(value: JsonValue | undefined, field: string, allowMissing: 
   if (typeof value !== "number" || !Number.isFinite(value) || value < 0)
     throw new Error(`DexScreener field ${field} is invalid`);
   return value;
+}
+
+function optionalDecimal(value: JsonValue | undefined): string | null {
+  if (value === undefined || value === null) return null;
+  return decimal(value, "numeric", false);
+}
+
+function decimal(value: JsonValue | undefined, field: string, allowMissing: boolean): string {
+  if (value === undefined && allowMissing) return "0";
+  const parsed =
+    typeof value === "number"
+      ? Number.isFinite(value) && value >= 0
+        ? value.toString()
+        : null
+      : typeof value === "string" && /^\d+(?:\.\d+)?$/.test(value.trim())
+        ? value.trim()
+        : null;
+  if (parsed === null) throw new Error(`DexScreener field ${field} is invalid`);
+  return parsed;
+}
+
+function addDecimal(left: string, right: string): string {
+  const [leftWhole, leftFraction = ""] = left.split(".");
+  const [rightWhole, rightFraction = ""] = right.split(".");
+  const places = Math.max(leftFraction.length, rightFraction.length);
+  const scale = 10n ** BigInt(places);
+  const leftInt =
+    BigInt(leftWhole!) * scale +
+    BigInt((leftFraction + "0".repeat(places)).slice(0, places) || "0");
+  const rightInt =
+    BigInt(rightWhole!) * scale +
+    BigInt((rightFraction + "0".repeat(places)).slice(0, places) || "0");
+  const sum = leftInt + rightInt;
+  const whole = sum / scale;
+  const fraction = (sum % scale).toString().padStart(places, "0").replace(/0+$/, "");
+  return fraction.length === 0 ? whole.toString() : `${whole.toString()}.${fraction}`;
 }

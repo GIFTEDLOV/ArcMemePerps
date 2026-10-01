@@ -1,14 +1,25 @@
 {
-  "status":"PASS",
-  "account":"0x31D2A7b0e45cceBb09155b39D3B909Bd498784b5",
-  "orderId":"0xd4b069f9a7ec13f27ebe256f7971f0e9afc621ca3e5862f794b369711ca5c4de",
-  "positionId":1,
-  "sizeBaseUnits":"200000",
-  "collateralBaseUnits":"100000",
-  "entryPriceWad":"1001000000000000000",
-  "closePriceBand":"minPrice=1.099e18",
-  "positiveRealizedPnlBaseUnits":"19574",
-  "feesObservedBaseUnits":"400",
-  "transactions":{"order":"0x2de0d0dc9a2ad86af061dc5fd389b7ac79c4d57bd90ff0d02b4b285c71b0a9ed","oracleOpen":"0x6ddf400f3b1b31c6ac8d7e05e1b89954a404ca586ac6746221d3f60cf3d51dec","execute":"0xc0177b4c97c572b6a8a2de7a7deb810ce0e4cb705fe9738e89bf7862220a61e2","closeOrder":"0xb770d27959db4eefb144c0b6a3fa291f415931476385fb8f93e8d390c7aeee4b","oracleClose":"0xa34baecd53b9ed0095fe84e01eb8b1703ee9bdcbbbea5aca9fabe9189b6c7cd1","close":"0x23b7f1656fcecac21980720d9e41e7c913102d621ea533b35a4987582347fd7c"},
-  "postClose":{"positionOpen":false,"totalOIBaseUnits":"0","vaultCustodyBaseUnits":"7000000"}
+  "status": "PASS",
+  "account": "0x31D2A7b0e45cceBb09155b39D3B909Bd498784b5",
+  "orderId": "0xd4b069f9a7ec13f27ebe256f7971f0e9afc621ca3e5862f794b369711ca5c4de",
+  "positionId": 1,
+  "sizeBaseUnits": "200000",
+  "collateralBaseUnits": "100000",
+  "entryPriceWad": "1001000000000000000",
+  "closePriceBand": "minPrice=1.099e18",
+  "positiveRealizedPnlBaseUnits": "19574",
+  "feesObservedBaseUnits": "400",
+  "transactions": {
+    "order": "0x2de0d0dc9a2ad86af061dc5fd389b7ac79c4d57bd90ff0d02b4b285c71b0a9ed",
+    "oracleOpen": "0x6ddf400f3b1b31c6ac8d7e05e1b89954a404ca586ac6746221d3f60cf3d51dec",
+    "execute": "0xc0177b4c97c572b6a8a2de7a7deb810ce0e4cb705fe9738e89bf7862220a61e2",
+    "closeOrder": "0xb770d27959db4eefb144c0b6a3fa291f415931476385fb8f93e8d390c7aeee4b",
+    "oracleClose": "0xa34baecd53b9ed0095fe84e01eb8b1703ee9bdcbbbea5aca9fabe9189b6c7cd1",
+    "close": "0x23b7f1656fcecac21980720d9e41e7c913102d621ea533b35a4987582347fd7c"
+  },
+  "postClose": {
+    "positionOpen": false,
+    "totalOIBaseUnits": "0",
+    "vaultCustodyBaseUnits": "7000000"
+  }
 }

@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@arcmemeperps/domain": "workspace:*",
-    "@arcmemeperps/shared": "workspace:*"
+    "@arcmemeperps/shared": "workspace:*",
+    "viem": "^2.37.0"
   }
 }

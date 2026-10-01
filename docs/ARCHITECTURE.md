@@ -59,3 +59,17 @@ Launchpad discovery is a plugin boundary. Missing platform adapters remain unava
 not synthesize lifecycle stages. LP-control evidence, holder/funding graphs, first-buyer signals,
 wallet analytics, trending, competition, keeper, reporter, and realtime delivery are separate
 deterministic boundaries and do not make qualification or liquidation decisions through heuristics.
+
+# Gate 4D audit boundary
+
+Gate 4D adds the canonical `MarketPassport`, dual qualification/execution gates, durable SQLite
+and PostgreSQL-compatible persistence interfaces, bounded worker/reconciliation primitives,
+versioned API read models, realtime replay semantics, LP/ADL/timelock contract foundations, and
+provider/source-independence hardening. These additions are tested locally only; the existing
+Arc Testnet deployment does not contain the changed contracts, so a new testnet deployment is
+required before those contract changes can be treated as live evidence.
+
+The audit is intentionally fail-closed. Twenty-one planned backend rows remain partial because
+continuous venue discovery, production operational services, complete API projections, and some
+venue-specific evidence readers are not yet real execution paths. They are listed in
+`docs/BACKEND_GAPS.md`; no frontend work should begin while the readiness command reports them.

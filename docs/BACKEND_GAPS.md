@@ -1,38 +1,48 @@
-# Remaining backend gaps after Gate 4C
+# Gate 4D backend gaps
 
-Only incomplete work is listed here. This is not a roadmap for frontend work.
+This list contains only unresolved work visible in the current source audit.
 
-## MAINNET_BLOCKER
+The readiness parser reports these 21 partial rows:
 
-- No mainnet launch is authorized by this audit.
-- Live discovery and lifecycle evidence are not complete for all supported chains and launch venues.
-- Live holder, funding-graph, deployer-history, and LP-control ingestion is incomplete.
-- Direct quote/depth adapters for concentrated-liquidity EVM venues and Solana venues are incomplete.
-- Legacy provider money fields still use JavaScript numbers and need a fixed-point/raw-decimal migration before they can be an authoritative derivatives input.
-- Durable event consumers, replay-from-checkpoint workers, and cross-component reconciliation jobs are not wired.
-- Qualification publication from canonical snapshots is not automated.
-- Keeper/reporter processes are architecture boundaries, not production-operated services.
-- No production governance, reporter operations, or ADL is present.
+- continuous market discovery
+- Solana discovery coordinator
+- Pump.fun/PumpSwap lifecycle
+- Raydium discovery/depth
+- Meteora discovery/depth
+- Pancake V2/V3 discovery/depth
+- Base Uniswap/Aerodrome discovery
+- bounded Ethereum DEX discovery
+- honeypot/transfer-restriction analysis
+- connected cluster graph ingestion
+- persistent deployer profile refresh
+- volatility/history refresh integration
+- PublicLPVault integration with live PerpEngine/NAV settlement
+- complete ADL economics and cross-component reconciliation
+- governance/timelock wiring across all configuration paths
+- long-lived keeper process/checkpoints/metrics
+- long-lived reporter process/persistent operator deployment
+- complete durable API read projections
+- historical market-window ingestion
+- exact-match search wired to the API read path
+- profile trading-statistics projection from indexed events
 
-## POST_HACKATHON
+## Mainnet blocker
 
-- PostgreSQL repository adapter and production migration runner.
-- Queue-backed persistent jobs, notification delivery, and operational alerting.
-- Full launchpad plugins for Pump.fun/PumpSwap, Four.meme, Flaunch, Arc-native venues, and Robinhood documented venues.
-- Complete V2/V3/CLMM LP security and quote readers.
-- Wallet, deployer, and competition projections over long-lived indexed history.
-- Signed profile mutation authorization and review tooling.
+- The changed LP vault, ADL controller, timelock, and role model are not in the existing Arc Testnet deployment. A clean local E2E and explicitly authorized testnet redeployment are required before those changes can be called runtime-validated.
+- LP vault accounting is not yet wired into PerpEngine pending-liability/NAV settlement.
+- ADL has a bounded controller and engine hook, but complete bad-debt episode economics, ranking validation, and cross-component invariants are pending.
+- Continuous venue discovery and direct pool/tick/account readers are not yet connected for all six chains.
+- API routes exist as a versioned read-only boundary, but every read model projection is not yet backed by the durable repository.
+- Keeper and reporter services remain process boundaries rather than fully operational long-lived deployments with persisted checkpoints and metrics.
 
-## OPTIONAL_ENHANCEMENT
+## External blocked
 
-- Additional DEX/source families and CEX references.
-- More sophisticated graph clustering and explainable anomaly features.
-- Cache performance benchmark suite and materialized trending projections.
-- Broker-backed realtime fanout.
+- Helius, GoPlus, and Bubblemaps enrichment requires credentials. The system returns explicit unavailable evidence and applies insufficient-evidence logic; no credential is committed.
+- Four.meme, Flaunch, Arc-native, Robinhood venue, and some Solana venue lifecycle/depth paths require documented/current venue access or program layouts that are not present in this repository. The adapters do not scrape websites or invent lifecycle states.
+- Public RPC rate limits can make live smoke evidence unavailable; deterministic snapshots remain offline-only test inputs.
 
-## EXTERNAL_DEPENDENCY
+## Release-only
 
-- Provider credentials/access for GoPlus, Helius, and Bubblemaps.
-- Current documented launchpad APIs or verified onchain event addresses for each venue.
-- Reliable RPC/indexer capacity for historical token transfers, holders, and funding edges.
-- ArcScan/Blockscout source verification service availability; current read-only response exposes address records without verified source metadata.
+- Re-run ArcScan source verification when its API returns source metadata.
+- Redeploy the materially changed contract suite to Arc Testnet after explicit authorization, then execute canaries and produce the updated evidence pack.
+- Arc mainnet deployment, role ceremony, production reporter keys, and final release configuration are not performed in Gate 4D.

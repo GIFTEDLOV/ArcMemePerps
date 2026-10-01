@@ -22,3 +22,15 @@ Gate 4C keeps lifecycle, integrity, derivatives, and tradability separate in the
 concentration totals. LP security has its own `LOCKED`, `BURNED`, `PROTOCOL_CONTROLLED`,
 `WITHDRAWABLE`, and `UNKNOWN` states. Missing launchpad, graph, depth, or provider evidence is
 preserved as unavailable and cannot become qualification.
+
+# Gate 4D gate separation
+
+The qualification gate answers whether a token may become a derivatives market. The execution
+gate answers whether a particular risk-increasing action is allowed now. Both are deterministic,
+versioned, and independent of frontend state or user-supplied portfolio facts. Qualification
+freshness, market state, oracle validity, OI/side caps, vault capacity, insurance condition,
+margin, order expiry, and the immutable pre-trade plan are execution inputs; they are not
+substitutes for token qualification.
+
+Public LP, ADL, and governance contracts added in Gate 4D are foundational and locally tested.
+They are not yet live on Arc Testnet and do not change the Gate 3/4B production-evidence claims.

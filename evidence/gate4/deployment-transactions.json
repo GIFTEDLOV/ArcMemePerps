@@ -3,36 +3,133 @@
   "chainId": 5042002,
   "deploymentBroadcastCount": 30,
   "deploymentTransactions": [
-    {"name":"QualificationRegistry","type":"CREATE","hash":"0x280fb4a53b98312b747c7f4770e643caf49d5aa09e02267da705181afab71a9d"},
-    {"name":"MarketRegistry","type":"CREATE","hash":"0x57c08ecd08fe8ad775168d41b2441f6c3549169fabb568e91a78f0afd948947e"},
-    {"name":"OracleRouter","type":"CREATE","hash":"0x7106192dc83bb024cb2d85cf5d8c5e374e919482af30809a043a906bec67ed10"},
-    {"name":"RiskConfig","type":"CREATE","hash":"0xbc8598c5034631a04e71609e645d8b8ed697d523578dc03148320df02565aeb7"},
-    {"name":"USDCMarginVault","type":"CREATE","hash":"0xbb318ccf5f0dd26912eca1a105abacb12f0fbd1e36995950d1718004c769a063"},
-    {"name":"InsuranceFund","type":"CREATE","hash":"0x081ca6dcfc355b015110a1de48bd845fd91212aa81794456f170949163e6fe06"},
-    {"name":"PerpEngine","type":"CREATE","hash":"0xc273243440f332953b2d99519f7d2e01d722d51829b20aaa742cc1449c925804"},
-    {"name":"USDCMarginVault.setCollateralToken","hash":"0x86f7870660b558c674f0e714dc84b8a3915b6f701b5d21af196caf88f2350c11"},
-    {"name":"USDCMarginVault.setEngine","hash":"0x57326b3323cbc4c451de0d30f82b6e0923a1a028587c44986c6733bc8cd7b2e7"},
-    {"name":"InsuranceFund.setCollateralToken","hash":"0x29cabb877043eeb0b1a737c1a3500c19e5778a414283cdcd991b8a249e24492f"},
-    {"name":"InsuranceFund.setEngine","hash":"0x51706035eb737e32d3bd1d914bb83753abc83d5d3f34a24bebde297ea38c89aa"},
-    {"name":"PerpEngine.setOrderKeeper","hash":"0xf0f8ca26f40fd3737513efb8f2924941cc2ec146731ad6748b10fee72d99ccfc"},
-    {"name":"PerpEngine.setLiquidationKeeper","hash":"0xf3b5d35e2a6b9556de5aa207121fbf1fea77b02906c6fe74d3015215951b04cc"},
-    {"name":"OracleRouter.setReporter[1]","hash":"0xb97336e8ace067c7b36e9ae6daa396ca8efc82ed9825d49d8c1ae09d37cafc41"},
-    {"name":"OracleRouter.setReporter[2]","hash":"0x8fde3dc4ef6d08bc63f2b83d153df03ac602d303a270e87fdcdfd5a3cddab8c2"},
-    {"name":"OracleRouter.setReporter[3]","hash":"0xb3fc39e0436a7b70d380ac2664233b91877d5ad468a1d753ca35fe1e6ee438e8"},
-    {"name":"OracleRouter.setReporterThreshold","hash":"0xe03d2bbb6376b030d181254f0d856258d74039db2d344d8d8a5673a68c0191df"},
-    {"name":"MarketRegistry.registerEvmMarket","hash":"0xf8e77dc7e64940ff153083a4f9b9cbf565e83932e909ea2f7d8ef5525d8c45ed"},
-    {"name":"QualificationRegistry.approveQualification","hash":"0x19cbe6e252ad5a2654d920daffcf404ae2f88463ca43e778a499b3ff52880fc2"},
-    {"name":"MarketRegistry.activateMarket","hash":"0x445cef74d46d1a636c1b9cf1e5acdbba80bfb42a48e4657b730ce3f3229e2d6e"},
-    {"name":"RiskConfig.initializeConfig","hash":"0x84af5d5b6359c77c1e8ee6b3807a9f587c7f2825dd20733c9fcca3725b9ec67e"},
-    {"name":"RiskConfig.setExposureProvider","hash":"0xcce615c9f82d914be9fb01f93dc0465b397fa621e5bc353e9afd77d5e8c66f60"},
-    {"name":"RiskConfig.requalifyMarket","hash":"0x11f13941662830d7bf3895c633b6496151bdcaad4633ced1708353ba48cd4156"},
-    {"name":"PerpEngine.setEconomicConfig","hash":"0x3b47393487cfd4d724a3cfba65d12d39f1091f5a1e1f300c01ed5a1177b5b09f"},
-    {"name":"PerpEngine.setMarketSideCaps","hash":"0x3cf88df51c10aa5ce4fc77460e7b6db145d367de5ccdba10ba426dc691c906d2"},
-    {"name":"PerpEngine.setSkewConfig","hash":"0xcb97d2384fd16bd13e14daefc576ea1d52b9c2eb02400857df590e7baabb1168"},
-    {"name":"USDC.approve(vault)","hash":"0xca290aa6f310954ee4510d67010ff4236924ec7fbe212836e721b72ab74fb242"},
-    {"name":"USDCMarginVault.fundProtocolBacking","hash":"0x9338c219f2627c396e96ae087b125149a3adb9428d1b52ea5de7339374fe483e"},
-    {"name":"USDC.approve(insurance)","hash":"0xf89519976e9e569f2d6d4607a341ff49ae73df714b995936482b62df066aab55"},
-    {"name":"InsuranceFund.fund","hash":"0x3a23e9d941364a59397f7005316452feb9670f6f45c4ea90b749d2a645952661"}
+    {
+      "name": "QualificationRegistry",
+      "type": "CREATE",
+      "hash": "0x280fb4a53b98312b747c7f4770e643caf49d5aa09e02267da705181afab71a9d"
+    },
+    {
+      "name": "MarketRegistry",
+      "type": "CREATE",
+      "hash": "0x57c08ecd08fe8ad775168d41b2441f6c3549169fabb568e91a78f0afd948947e"
+    },
+    {
+      "name": "OracleRouter",
+      "type": "CREATE",
+      "hash": "0x7106192dc83bb024cb2d85cf5d8c5e374e919482af30809a043a906bec67ed10"
+    },
+    {
+      "name": "RiskConfig",
+      "type": "CREATE",
+      "hash": "0xbc8598c5034631a04e71609e645d8b8ed697d523578dc03148320df02565aeb7"
+    },
+    {
+      "name": "USDCMarginVault",
+      "type": "CREATE",
+      "hash": "0xbb318ccf5f0dd26912eca1a105abacb12f0fbd1e36995950d1718004c769a063"
+    },
+    {
+      "name": "InsuranceFund",
+      "type": "CREATE",
+      "hash": "0x081ca6dcfc355b015110a1de48bd845fd91212aa81794456f170949163e6fe06"
+    },
+    {
+      "name": "PerpEngine",
+      "type": "CREATE",
+      "hash": "0xc273243440f332953b2d99519f7d2e01d722d51829b20aaa742cc1449c925804"
+    },
+    {
+      "name": "USDCMarginVault.setCollateralToken",
+      "hash": "0x86f7870660b558c674f0e714dc84b8a3915b6f701b5d21af196caf88f2350c11"
+    },
+    {
+      "name": "USDCMarginVault.setEngine",
+      "hash": "0x57326b3323cbc4c451de0d30f82b6e0923a1a028587c44986c6733bc8cd7b2e7"
+    },
+    {
+      "name": "InsuranceFund.setCollateralToken",
+      "hash": "0x29cabb877043eeb0b1a737c1a3500c19e5778a414283cdcd991b8a249e24492f"
+    },
+    {
+      "name": "InsuranceFund.setEngine",
+      "hash": "0x51706035eb737e32d3bd1d914bb83753abc83d5d3f34a24bebde297ea38c89aa"
+    },
+    {
+      "name": "PerpEngine.setOrderKeeper",
+      "hash": "0xf0f8ca26f40fd3737513efb8f2924941cc2ec146731ad6748b10fee72d99ccfc"
+    },
+    {
+      "name": "PerpEngine.setLiquidationKeeper",
+      "hash": "0xf3b5d35e2a6b9556de5aa207121fbf1fea77b02906c6fe74d3015215951b04cc"
+    },
+    {
+      "name": "OracleRouter.setReporter[1]",
+      "hash": "0xb97336e8ace067c7b36e9ae6daa396ca8efc82ed9825d49d8c1ae09d37cafc41"
+    },
+    {
+      "name": "OracleRouter.setReporter[2]",
+      "hash": "0x8fde3dc4ef6d08bc63f2b83d153df03ac602d303a270e87fdcdfd5a3cddab8c2"
+    },
+    {
+      "name": "OracleRouter.setReporter[3]",
+      "hash": "0xb3fc39e0436a7b70d380ac2664233b91877d5ad468a1d753ca35fe1e6ee438e8"
+    },
+    {
+      "name": "OracleRouter.setReporterThreshold",
+      "hash": "0xe03d2bbb6376b030d181254f0d856258d74039db2d344d8d8a5673a68c0191df"
+    },
+    {
+      "name": "MarketRegistry.registerEvmMarket",
+      "hash": "0xf8e77dc7e64940ff153083a4f9b9cbf565e83932e909ea2f7d8ef5525d8c45ed"
+    },
+    {
+      "name": "QualificationRegistry.approveQualification",
+      "hash": "0x19cbe6e252ad5a2654d920daffcf404ae2f88463ca43e778a499b3ff52880fc2"
+    },
+    {
+      "name": "MarketRegistry.activateMarket",
+      "hash": "0x445cef74d46d1a636c1b9cf1e5acdbba80bfb42a48e4657b730ce3f3229e2d6e"
+    },
+    {
+      "name": "RiskConfig.initializeConfig",
+      "hash": "0x84af5d5b6359c77c1e8ee6b3807a9f587c7f2825dd20733c9fcca3725b9ec67e"
+    },
+    {
+      "name": "RiskConfig.setExposureProvider",
+      "hash": "0xcce615c9f82d914be9fb01f93dc0465b397fa621e5bc353e9afd77d5e8c66f60"
+    },
+    {
+      "name": "RiskConfig.requalifyMarket",
+      "hash": "0x11f13941662830d7bf3895c633b6496151bdcaad4633ced1708353ba48cd4156"
+    },
+    {
+      "name": "PerpEngine.setEconomicConfig",
+      "hash": "0x3b47393487cfd4d724a3cfba65d12d39f1091f5a1e1f300c01ed5a1177b5b09f"
+    },
+    {
+      "name": "PerpEngine.setMarketSideCaps",
+      "hash": "0x3cf88df51c10aa5ce4fc77460e7b6db145d367de5ccdba10ba426dc691c906d2"
+    },
+    {
+      "name": "PerpEngine.setSkewConfig",
+      "hash": "0xcb97d2384fd16bd13e14daefc576ea1d52b9c2eb02400857df590e7baabb1168"
+    },
+    {
+      "name": "USDC.approve(vault)",
+      "hash": "0xca290aa6f310954ee4510d67010ff4236924ec7fbe212836e721b72ab74fb242"
+    },
+    {
+      "name": "USDCMarginVault.fundProtocolBacking",
+      "hash": "0x9338c219f2627c396e96ae087b125149a3adb9428d1b52ea5de7339374fe483e"
+    },
+    {
+      "name": "USDC.approve(insurance)",
+      "hash": "0xf89519976e9e569f2d6d4607a341ff49ae73df714b995936482b62df066aab55"
+    },
+    {
+      "name": "InsuranceFund.fund",
+      "hash": "0x3a23e9d941364a59397f7005316452feb9670f6f45c4ea90b749d2a645952661"
+    }
   ],
   "postDeploymentConfigurationTransactions": {
     "oraclePolicyMinimumIndependentSources": "0xc2ecf9967937181a578d233845e40fc872e750a7371f97c84e8b9038295118fe",

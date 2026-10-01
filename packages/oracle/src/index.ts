@@ -94,6 +94,8 @@ export interface PriceObservation {
   readonly chain: SupportedChain;
   readonly source: string;
   readonly sourceFamily: OracleSourceFamily;
+  /** Canonical pool/feed identity. Aggregators over the same origin share it. */
+  readonly underlyingVenueId?: string | null;
   readonly rawPrice: bigint;
   readonly priceDecimals: number;
   readonly observedAt: bigint;
@@ -162,7 +164,7 @@ export function aggregatePriceObservations(
 ): AggregatedOracleResult {
   const decisions: OracleObservationDecision[] = [];
   const seenSources = new Set<string>();
-  const seenFamilies = new Set<OracleSourceFamily>();
+  const seenOrigins = new Set<string>();
   for (const observation of observations) {
     let reason: OracleRejectionReason | undefined;
     let normalizedPriceWad: bigint | null = null;
@@ -175,7 +177,7 @@ export function aggregatePriceObservations(
       reason = "INVALID_DECIMALS";
     } else if (observation.confidenceBps > BPS) reason = "INVALID_CONFIDENCE";
     else if (seenSources.has(observation.source)) reason = "DUPLICATE_SOURCE";
-    else if (seenFamilies.has(observation.sourceFamily)) reason = "CORRELATED_SOURCE_FAMILY";
+    else if (seenOrigins.has(sourceOriginKey(observation))) reason = "CORRELATED_SOURCE_FAMILY";
     else normalizedPriceWad = normalizePriceToWad(observation.rawPrice, observation.priceDecimals);
     const decision: OracleObservationDecision = reason
       ? { observation, normalizedPriceWad, accepted: false, reason }
@@ -183,7 +185,7 @@ export function aggregatePriceObservations(
     decisions.push(decision);
     if (!reason) {
       seenSources.add(observation.source);
-      seenFamilies.add(observation.sourceFamily);
+      seenOrigins.add(sourceOriginKey(observation));
     }
   }
 
@@ -235,8 +237,9 @@ export function aggregatePriceObservations(
               : minimumConfidence,
           BPS,
         );
-  const independentSourceCount = new Set(finalAccepted.map((item) => item.observation.sourceFamily))
-    .size;
+  const independentSourceCount = new Set(
+    finalAccepted.map((item) => sourceOriginKey(item.observation)),
+  ).size;
   const confidenceBand =
     confidenceBps === null
       ? null
@@ -273,6 +276,12 @@ export function aggregatePriceObservations(
     independentSourceCount,
     reasonCodes,
   };
+}
+
+function sourceOriginKey(observation: PriceObservation): string {
+  return observation.underlyingVenueId === null || observation.underlyingVenueId === undefined
+    ? `family:${observation.sourceFamily}`
+    : `venue:${observation.underlyingVenueId}`;
 }
 
 export interface SignedCompositeReport {

@@ -31,3 +31,11 @@ provider-pool optimistic failover, unjustified LP/system-wallet exclusions, unbo
 funding-graph traversal, competition self-offsetting, and live-adapter methods that previously
 returned empty placeholders. Unsupported capabilities now fail explicitly; durable workers and
 cross-component reconciliation remain open risks.
+
+# Gate 4D audit additions
+
+The audit also treats stale canonical passports, database/job recovery loss, LP NAV timing,
+withdrawal-queue manipulation, ADL target ordering, timelock replay, keeper duplicate execution,
+pre-trade-plan mutation, and provider-source correlation as threats. Local tests cover the
+implemented guards, but incomplete discovery readers, incomplete production worker/API wiring,
+and the changed-contract testnet redeployment remain blockers to a complete submission claim.

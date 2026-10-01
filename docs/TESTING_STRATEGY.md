@@ -20,3 +20,10 @@ Gate 4C adds Zod schema-boundary tests, SQLite persistence tests, checkpoint reo
 exactly-once event tests, provider-pool failover tests, launchpad-unavailable tests, holder/LP
 evidence tests, competition anti-gaming tests, and explicit unsupported-depth tests. Test-only
 HTTP fakes and local contract mocks are classified as fixtures and are not provider fallbacks.
+
+Gate 4D adds canonical passport/dual-gate tests, source-independence reconciliation, concentrated
+depth/LP-security tests, health/read-model/realtime tests, and local LP/ADL/timelock contract
+tests. The readiness command is intentionally a failing completeness check while planned
+continuous discovery, complete operational services, and remaining API projections are partial.
+Because LP/ADL/timelock changed the contracts, the old Arc Testnet deployment is not evidence for
+this source state; deterministic local tests pass, but `TESTNET_REDEPLOY_REQUIRED=YES`.

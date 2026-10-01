@@ -73,7 +73,7 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         uint256 maxPosition,
         uint256 maintenanceMarginBps,
         uint256 liquidationPenaltyBps
-    ) external onlyOwner {
+    ) external onlyEmergencyAdmin {
         Config storage current = _configs[marketId];
         if (current.maxOI == 0) revert ConfigMissing();
         if (
@@ -103,7 +103,7 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         emit RiskLimitsReduced(marketId, current);
     }
 
-    function emergencySetStatus(bytes32 marketId, MarketStatus status) external onlyOwner {
+    function emergencySetStatus(bytes32 marketId, MarketStatus status) external onlyEmergencyAdmin {
         Config storage current = _configs[marketId];
         if (current.maxOI == 0) revert ConfigMissing();
         if (status == MarketStatus.LIVE) revert QualificationMissing();

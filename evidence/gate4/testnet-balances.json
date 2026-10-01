@@ -1,11 +1,23 @@
 {
-  "network":"ARC_TESTNET",
-  "chainId":5042002,
-  "usdc":"0x3600000000000000000000000000000000000000",
-  "usdcDecimals":6,
-  "operationalBalancesBaseUnits":{"TESTNET_ADMIN":"12585287","KEEPER":"19853805","TRADER_LONG":"19817016","TRADER_SHORT":"19941176","LIQUIDATOR":"19982484"},
-  "operationalBalancesUsdc":{"TESTNET_ADMIN":"12.585287","KEEPER":"19.853805","TRADER_LONG":"19.817016","TRADER_SHORT":"19.941176","LIQUIDATOR":"19.982484"},
-  "reporterBalancesBaseUnits":{"REPORTER_1":"0","REPORTER_2":"0","REPORTER_3":"0"},
-  "reporterFunding":"NOT_REQUIRED_OFFCHAIN_EIP712_SIGNING",
-  "nativeBalancesReadOnly":true
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "usdc": "0x3600000000000000000000000000000000000000",
+  "usdcDecimals": 6,
+  "operationalBalancesBaseUnits": {
+    "TESTNET_ADMIN": "12585287",
+    "KEEPER": "19853805",
+    "TRADER_LONG": "19817016",
+    "TRADER_SHORT": "19941176",
+    "LIQUIDATOR": "19982484"
+  },
+  "operationalBalancesUsdc": {
+    "TESTNET_ADMIN": "12.585287",
+    "KEEPER": "19.853805",
+    "TRADER_LONG": "19.817016",
+    "TRADER_SHORT": "19.941176",
+    "LIQUIDATOR": "19.982484"
+  },
+  "reporterBalancesBaseUnits": { "REPORTER_1": "0", "REPORTER_2": "0", "REPORTER_3": "0" },
+  "reporterFunding": "NOT_REQUIRED_OFFCHAIN_EIP712_SIGNING",
+  "nativeBalancesReadOnly": true
 }
