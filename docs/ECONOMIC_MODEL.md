@@ -7,14 +7,15 @@ counterparty. Cross-margin, arbitrary collateral, and user-created markets are o
 
 `USDCMarginVault` separates raw cash, trader free/locked collateral, protocol backing,
 accrued fees, insurance reserve, pending positive/negative PnL, and protocol bad debt. Trader
-collateral is not protocol equity. Gate 4D adds a local public-LP accounting foundation with
-queued withdrawals and pending-liability inputs; it is not yet wired into a live deployed
-PerpEngine/vault configuration and therefore is not production LP evidence.
+collateral is not protocol equity. Gate 4E adds the public-LP share ledger, queued withdrawals,
+conservative pending-liability NAV, risk-budget hooks, and explicit custody reconciliation. The
+changed contract suite is a release candidate only; it requires the authorized Arc Testnet
+redeployment before it can provide new live deployment evidence.
 
 Fee destinations must be explicit: protocol, insurance, or vault. The current minimal
 engine exposes the accounting hooks and pure formulas; final production fee routing remains a
 configuration/governance decision.
 
-Automated ADL is likewise represented by a bounded, replay-protected local controller foundation.
-Its economics and full engine integration require a fresh testnet deployment and further
-independent audit before release.
+Automated ADL is represented by a bounded, replay-protected deterministic controller with
+candidate ordering and deficit limits. It is a last-resort release control and requires the
+changed suite's authorized deployment and independent audit before production use.

@@ -73,7 +73,7 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         domainChainId = block.chainid;
     }
 
-    function setUpdater(address updater, bool enabled) external onlyOwner {
+    function setUpdater(address updater, bool enabled) external onlyGovernanceExecutor {
         if (updater == address(0)) revert ZeroAddress();
         // The dedicated authorization event is emitted below for audit consumers.
         // forge-lint: disable-next-line(missing-events-access-control)
@@ -82,13 +82,16 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         emit UpdaterAuthorizationChanged(updater, enabled);
     }
 
-    function setReporter(address reporter, bool enabled) external onlyOwner {
+    function setReporter(address reporter, bool enabled) external onlyGovernanceExecutor {
         if (reporter == address(0)) revert ZeroAddress();
         isReporter[reporter] = enabled;
         emit ReporterSet(reporter, enabled);
     }
 
-    function setReporterThreshold(uint256 threshold, bytes32 version) external onlyOwner {
+    function setReporterThreshold(uint256 threshold, bytes32 version)
+        external
+        onlyGovernanceExecutor
+    {
         if (threshold == 0 || version == bytes32(0)) revert InvalidReporterSet();
         reporterThreshold = threshold;
         reporterSetVersion = version;
@@ -99,7 +102,7 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         uint64 maxStaleness_,
         uint256 minimumConfidenceBps_,
         uint256 minimumIndependentSources_
-    ) external onlyOwner {
+    ) external onlyGovernanceExecutor {
         if (maxStaleness_ == 0 || minimumConfidenceBps_ > 10_000) {
             revert InvalidConfidence();
         }

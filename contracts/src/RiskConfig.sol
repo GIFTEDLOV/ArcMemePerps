@@ -37,7 +37,7 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         qualificationRegistry = IQualificationRegistry(qualificationRegistry_);
     }
 
-    function setExposureProvider(address exposureProvider_) external onlyOwner {
+    function setExposureProvider(address exposureProvider_) external onlyGovernanceExecutor {
         if (exposureProvider_ == address(0)) revert ZeroAddress();
         exposureProvider = exposureProvider_;
         emit ExposureProviderSet(exposureProvider_);
@@ -50,7 +50,7 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         uint256 maxPosition,
         uint256 maintenanceMarginBps,
         uint256 liquidationPenaltyBps
-    ) external onlyOwner {
+    ) external onlyGovernanceExecutor {
         if (_configs[marketId].maxOI != 0) revert InvalidLimits();
         _validateLimits(
             maxLeverage, maxOI, maxPosition, maintenanceMarginBps, liquidationPenaltyBps
@@ -118,7 +118,7 @@ contract RiskConfig is AccessControlled, IRiskConfig {
         uint256 maxPosition,
         uint256 maintenanceMarginBps,
         uint256 liquidationPenaltyBps
-    ) external onlyOwner {
+    ) external onlyGovernanceExecutor {
         Config storage current = _configs[marketId];
         if (current.maxOI == 0) revert ConfigMissing();
         if (!qualificationRegistry.isApproved(marketId)) revert QualificationMissing();

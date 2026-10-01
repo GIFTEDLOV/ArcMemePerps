@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import { ADLController, IAdlEngine } from "../src/ADLController.sol";
+import { AccessControlled } from "../src/AccessControlled.sol";
 import { ProtocolTimelock } from "../src/ProtocolTimelock.sol";
 import { PublicLPVault } from "../src/PublicLPVault.sol";
 import { MockUSDC } from "./MockUSDC.sol";
@@ -13,10 +14,10 @@ interface VmGate4D {
     function expectRevert() external;
 }
 
-contract TimelockTarget {
+contract TimelockTarget is AccessControlled {
     uint256 public value;
 
-    function setValue(uint256 value_) external {
+    function setValue(uint256 value_) external onlyGovernanceExecutor {
         value = value_;
     }
 }
@@ -75,6 +76,18 @@ contract Gate4DCompletionTest {
         vault.deposit(1_000_000);
     }
 
+    function testPublicLpUnexpectedTransferIsSurplusNotNav() public {
+        MockUSDC usdc = new MockUSDC();
+        PublicLPVault vault = new PublicLPVault(address(usdc), 1);
+        usdc.mint(address(this), 1_000_000);
+        usdc.approve(address(vault), type(uint256).max);
+        vault.deposit(1_000_000);
+        usdc.mint(address(vault), 500_000);
+        require(vault.navAssets() == 1_000_000);
+        (PublicLPVault.CustodyStatus status,,, uint256 difference) = vault.custodyStatus();
+        require(status == PublicLPVault.CustodyStatus.SURPLUS && difference == 500_000);
+    }
+
     function testAdlBudgetAndReplayProtection() public {
         MockAdlEngine engine = new MockAdlEngine();
         ADLController controller = new ADLController(address(engine));
@@ -103,6 +116,7 @@ contract Gate4DCompletionTest {
     function testTimelockCannotExecuteBeforeEtaAndConsumesOperation() public {
         ProtocolTimelock timelock = new ProtocolTimelock(10);
         TimelockTarget target = new TimelockTarget();
+        target.setGovernanceExecutor(address(timelock));
         bytes memory data = abi.encodeCall(TimelockTarget.setValue, (42));
         bytes32 salt = keccak256("salt");
         timelock.queue(address(target), 0, data, salt);
@@ -116,5 +130,14 @@ contract Gate4DCompletionTest {
 
         vm.expectRevert();
         timelock.execute(address(target), 0, data, salt);
+    }
+
+    function testGovernanceExecutorCanCallNormalConfigurationPath() public {
+        TimelockTarget target = new TimelockTarget();
+        address executor = address(0xCAFE);
+        target.setGovernanceExecutor(executor);
+        vm.prank(executor);
+        target.setValue(7);
+        require(target.value() == 7);
     }
 }

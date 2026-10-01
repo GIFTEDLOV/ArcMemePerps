@@ -20,6 +20,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     uint256 public pendingTraderLiability;
     uint256 public insuranceReserve;
     uint256 public cumulativeBadDebt;
+    uint256 public marketRiskBudget;
     address public riskController;
     mapping(address account => uint256 shares) public shareBalance;
     mapping(address account => WithdrawalRequest request) public withdrawals;
@@ -36,6 +37,12 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error CooldownActive();
     error InsufficientLiquidity();
 
+    enum CustodyStatus {
+        MATCH,
+        SURPLUS,
+        DEFICIT
+    }
+
     event Deposited(address indexed account, uint256 assets, uint256 shares);
     event WithdrawalRequested(address indexed account, uint256 shares, uint64 availableAt);
     event Withdrawn(address indexed account, uint256 assets, uint256 shares);
@@ -43,6 +50,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     event BadDebtRecorded(uint256 amount);
     event InsuranceAccounted(uint256 amount);
     event RiskControllerSet(address indexed controller);
+    event ManagedAssetsReconciled(
+        uint256 managedAssets, uint256 actualCustody, CustodyStatus status
+    );
+    event MarketRiskBudgetSet(uint256 riskBudget);
 
     modifier onlyController() {
         if (msg.sender != riskController && msg.sender != owner) revert UnauthorizedController();
@@ -63,7 +74,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
 
     function navAssets() public view returns (uint256) {
         uint256 balance = asset.balanceOf(address(this));
-        uint256 liabilities = pendingTraderLiability + insuranceReserve;
+        uint256 liabilities = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
+        // managedAssets is the accounting source of truth. An unsolicited token
+        // transfer is reported as surplus and cannot mint LP NAV.
+        balance = managedAssets;
         return balance > liabilities ? balance - liabilities : 0;
     }
 
@@ -106,11 +120,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         // forge-lint: disable-next-line(block-timestamp)
         if (block.timestamp < request.availableAt) revert CooldownActive();
         assets = (request.shares * navAssets()) / totalShares;
-        uint256 available = asset.balanceOf(address(this));
-        if (
-            available < pendingTraderLiability || assets == 0
-                || assets > available - pendingTraderLiability
-        ) {
+        uint256 available = managedAssets;
+        uint256 reserved = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
+        if (available < reserved || assets == 0 || assets > available - reserved) {
             revert InsufficientLiquidity();
         }
         withdrawals[msg.sender] = WithdrawalRequest(0, 0);
@@ -124,6 +136,38 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function recordTraderLiability(uint256 pendingLiability) external onlyController {
         pendingTraderLiability = pendingLiability;
         emit TraderLiabilityUpdated(pendingLiability);
+    }
+
+    function recordManagedAssets(uint256 assets) external onlyController {
+        managedAssets = assets;
+        (CustodyStatus status,,,) = custodyStatus();
+        emit ManagedAssetsReconciled(assets, asset.balanceOf(address(this)), status);
+    }
+
+    function setMarketRiskBudget(uint256 riskBudget) external onlyController {
+        if (riskBudget > navAssets()) revert InsufficientLiquidity();
+        marketRiskBudget = riskBudget;
+        emit MarketRiskBudgetSet(riskBudget);
+    }
+
+    function actualCustodyUsdc() external view returns (uint256) {
+        return asset.balanceOf(address(this));
+    }
+
+    function expectedCustodyUsdc() external view returns (uint256) {
+        return managedAssets;
+    }
+
+    function custodyStatus()
+        public
+        view
+        returns (CustodyStatus status, uint256 actual, uint256 expected, uint256 difference)
+    {
+        actual = asset.balanceOf(address(this));
+        expected = managedAssets;
+        if (actual == expected) return (CustodyStatus.MATCH, actual, expected, 0);
+        if (actual > expected) return (CustodyStatus.SURPLUS, actual, expected, actual - expected);
+        return (CustodyStatus.DEFICIT, actual, expected, expected - actual);
     }
 
     function recordBadDebt(uint256 amount) external onlyController {

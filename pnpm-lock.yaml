@@ -111,6 +111,27 @@ importers:
         specifier: ^3.25.0
         version: 3.25.76
 
+  packages/backend-completion:
+    dependencies:
+      "@arcmemeperps/domain":
+        specifier: workspace:*
+        version: link:../domain
+      "@arcmemeperps/market-depth":
+        specifier: workspace:*
+        version: link:../market-depth
+      "@arcmemeperps/oracle":
+        specifier: workspace:*
+        version: link:../oracle
+      "@arcmemeperps/persistence":
+        specifier: workspace:*
+        version: link:../persistence
+      "@arcmemeperps/shared":
+        specifier: workspace:*
+        version: link:../shared
+      zod:
+        specifier: ^3.25.76
+        version: 3.25.76
+
   packages/backend-runtime:
     dependencies:
       "@arcmemeperps/chain-adapters":

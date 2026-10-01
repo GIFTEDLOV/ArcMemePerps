@@ -17,11 +17,14 @@ Implemented:
 - normalized live inspection CLI and separate live-read smoke command;
 - deterministic provider failure/disagreement tests and neutral snapshot corpus structure.
 
-Not implemented by design at the end of Gate 2:
+Historical Gate 2 scope boundaries were frontend, deployment, transactions, external paid
+resources, GitHub push, bridge/token custody, final economic formulas, governance, production
+thresholds, DEX quote simulation, and provider credentials. The current Gate 4E backend includes
+the deterministic and read-only implementations that can be built without deployment or paid
+credentials; unavailable evidence remains explicit and fail-closed.
 
-- frontend, deployment, transactions, external paid resources, GitHub push, bridge/token custody, final economic formulas, governance, production thresholds, DEX quote simulation, and provider credentials.
-
-Foundry is available in WSL Ubuntu for this checkout. Network smoke tests remain environment-dependent and are intentionally separate from deterministic CI.
+Foundry is available in WSL Ubuntu for this checkout. Network smoke tests remain environment-
+dependent and are intentionally separate from deterministic CI.
 
 # Gate 3 status
 
@@ -48,7 +51,7 @@ is a mechanics canary and is not a production safety claim.
 Gate 5 has not started. No Arc Mainnet write, GitHub remote, GitHub push, frontend, or production
 deployment exists.
 
-# Gate 4C backend audit status
+# Gate 4C backend audit status (historical)
 
 The Gate 4C audit branch adds the binding feature ledger at `docs/BACKEND_FEATURE_MATRIX.md`
 and the remaining-gap list at `docs/BACKEND_GAPS.md`. Canonical versioned Zod schemas, local
@@ -57,21 +60,29 @@ classification, explicit launchpad boundaries, LP/holder/funding/first-buyer/was
 trending/competition primitives, a read-only API/SSE boundary, keeper/reporter boundaries, and
 unified health records are present and tested.
 
-This audit does not claim full product completion. Continuous discovery, historical ingestion,
-venue-specific LP/depth readers, durable workers, production API wiring, and mainnet operations
-remain incomplete as listed in `docs/BACKEND_GAPS.md`. No blockchain write was performed in
-Gate 4C.
+This historical audit did not claim full product completion. The current Gate 4E completion
+ledger supersedes its partial findings. No blockchain write was performed in Gate 4C.
 
-# Gate 4D full-backend audit status
+# Gate 4D full-backend audit status (historical)
 
-Gate 4D adds and tests the canonical MarketPassport, separate qualification/execution gates,
+Gate 4D added and tested the canonical MarketPassport, separate qualification/execution gates,
 portable persistence interfaces, bounded worker/read-model/realtime foundations, source-family
 independence, LP-security/depth primitives, and local PublicLPVault, ADLController, and
-ProtocolTimelock foundations. The source audit remains truthful: 21 planned rows are still
-partial and are enumerated in `docs/BACKEND_GAPS.md`; `pnpm backend:frontend-readiness` therefore
-returns nonzero and frontend work must not start.
+ProtocolTimelock foundations. Its 21 partial rows were closed in Gate 4E; the current ledger is
+the authoritative status.
 
 Contracts changed materially. The previous Arc Testnet contracts remain mechanically valid for
 their historical evidence, but they do not validate the current LP/ADL/timelock source. A fresh
-testnet redeployment is required after explicit authorization. No Arc Testnet or Arc Mainnet
-write was performed in Gate 4D, and no Git remote exists.
+testnet redeployment is required after explicit authorization; this gate does not redeploy. No
+Arc Testnet or Arc Mainnet write was performed in Gate 4E, and no Git remote exists.
+
+# Gate 4E zero-partial backend completion
+
+Gate 4E closes the planned backend rows with durable discovery, normalized venue/depth/LP
+readers, canonical profile and competition projections, worker/recovery boundaries, LP share
+accounting, ADL selection, governance authorization semantics, reconciliation, and the frontend
+backend contract. Four.meme-specific lifecycle data remains externally blocked only where the
+official/onchain evidence path could not be verified; see `docs/EXTERNAL_BLOCKER_REVIEW.md`.
+
+The changed contract suite is frozen as a candidate only. `TESTNET_REDEPLOY_REQUIRED=YES` and
+`ARC_MAINNET_READY=NO`; no deployment or blockchain write is performed by Gate 4E.

@@ -13,6 +13,14 @@ import { RealtimeHub } from "./realtime.js";
 
 export interface ApiReadModel {
   listMarkets(): Promise<readonly MarketSnapshot[]>;
+  listMarketsWithOptions?(options: {
+    readonly chain?: string;
+    readonly lifecycle?: string;
+    readonly qualification?: string;
+    readonly limit?: number;
+    readonly offset?: number;
+  }): Promise<readonly MarketSnapshot[]>;
+  listTrending?(): Promise<readonly MarketSnapshot[]>;
   getMarket(marketId: string): Promise<MarketSnapshot | null>;
   getWallet(address: string): Promise<WalletSnapshot | null>;
   getProfile(address: string): Promise<UserProfile | null>;
@@ -67,14 +75,32 @@ async function handleRequest(
   const path = url.pathname.slice("/api/v1".length);
   try {
     if (path === "/markets" || path === "/markets/trending" || path === "/markets/fresh") {
+      const limit = parseLimit(url.searchParams.get("limit"));
+      const offset = parseOffset(url.searchParams.get("cursor"));
       const items =
-        path === "/markets/fresh" && options.readModel.listFreshMarkets
-          ? await options.readModel.listFreshMarkets()
-          : await options.readModel.listMarkets();
+        path === "/markets/trending" && options.readModel.listTrending
+          ? await options.readModel.listTrending()
+          : path === "/markets/fresh" && options.readModel.listFreshMarkets
+            ? await options.readModel.listFreshMarkets()
+            : options.readModel.listMarketsWithOptions
+              ? await options.readModel.listMarketsWithOptions({
+                  ...(url.searchParams.has("chain")
+                    ? { chain: url.searchParams.get("chain")! }
+                    : {}),
+                  ...(url.searchParams.has("lifecycle")
+                    ? { lifecycle: url.searchParams.get("lifecycle")! }
+                    : {}),
+                  ...(url.searchParams.has("qualification")
+                    ? { qualification: url.searchParams.get("qualification")! }
+                    : {}),
+                  limit,
+                  offset,
+                })
+              : await options.readModel.listMarkets();
       const body = MarketListResponseSchema.parse({
         schemaVersion: API_VERSION,
         items,
-        nextCursor: null,
+        nextCursor: nextCursorFor(items.length, limit, offset),
       });
       writeJson(response, 200, body);
       return;
@@ -88,7 +114,15 @@ async function handleRequest(
       writeJson(
         response,
         200,
-        MarketListResponseSchema.parse({ schemaVersion: API_VERSION, items, nextCursor: null }),
+        MarketListResponseSchema.parse({
+          schemaVersion: API_VERSION,
+          items,
+          nextCursor: nextCursorFor(
+            items.length,
+            parseLimit(url.searchParams.get("limit")),
+            parseOffset(url.searchParams.get("cursor")),
+          ),
+        }),
       );
       return;
     }
@@ -295,4 +329,22 @@ async function streamEvents(
 function writeJson(response: ServerResponse, status: number, body: unknown): void {
   response.writeHead(status, { "content-type": "application/json; charset=utf-8" });
   response.end(JSON.stringify(body));
+}
+
+function parseLimit(value: string | null): number {
+  if (value === null) return 100;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) throw new Error("INVALID_LIMIT");
+  return parsed;
+}
+
+function parseOffset(value: string | null): number {
+  if (value === null || value.length === 0) return 0;
+  const parsed = Number(value);
+  if (!Number.isInteger(parsed) || parsed < 0) throw new Error("INVALID_CURSOR");
+  return parsed;
+}
+
+function nextCursorFor(length: number, limit: number, offset: number): string | null {
+  return length === limit ? String(offset + length) : null;
 }

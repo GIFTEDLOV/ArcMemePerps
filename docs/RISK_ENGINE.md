@@ -13,7 +13,11 @@ Safe OI is conservatively bounded by depth, organic volume, manipulation cost, l
 
 No external API vendor is called by the engine. Adapter outputs are the only input boundary.
 
-Gate 2 adds explicit insufficient-evidence behavior: nullable security/activity/oracle facts and unknown LP lock status fail the evidence-completeness gate. A high market score cannot override an unknown or failed hard gate. Derivatives depth is `UNAVAILABLE` until quote simulation exists; total liquidity is not used as a fabricated depth estimate.
+Gate 2 added explicit insufficient-evidence behavior: nullable security/activity/oracle facts and
+unknown LP lock status fail the evidence-completeness gate. A high market score cannot override
+an unknown or failed hard gate. Gate 4E adds quote-based depth readers for supported venue and
+pool layouts; unsupported layouts remain `UNAVAILABLE`. Total liquidity is never used as a
+fabricated depth estimate.
 
 Activity analysis is explainable rather than a black-box score. It reports trader count, gross/net flow, round trips, repeated sizes/timing, wallet reuse, funding relationships, volume/liquidity ratio, holder growth, and trader concentration with `CLEAR`, `SUSPICIOUS`, `HIGH_RISK`, or `INSUFFICIENT_DATA`.
 
@@ -32,5 +36,6 @@ freshness, market state, oracle validity, OI/side caps, vault capacity, insuranc
 margin, order expiry, and the immutable pre-trade plan are execution inputs; they are not
 substitutes for token qualification.
 
-Public LP, ADL, and governance contracts added in Gate 4D are foundational and locally tested.
-They are not yet live on Arc Testnet and do not change the Gate 3/4B production-evidence claims.
+Public LP, ADL, and governance contracts added in Gate 4D and hardened in Gate 4E are locally
+tested. They are not yet live on Arc Testnet because the changed suite requires a separately
+authorized redeployment; they do not change the historical Gate 3/4B production-evidence claims.

@@ -12,12 +12,14 @@ abstract contract AccessControlled {
     bytes32 public constant KEEPER_ROLE = keccak256("KEEPER");
     bytes32 public constant INSURANCE_MANAGER_ROLE = keccak256("INSURANCE_MANAGER");
     mapping(bytes32 role => mapping(address account => bool enabled)) private _roles;
+    address public governanceExecutor;
 
     error NotOwner();
     error ZeroAddress();
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
     event RoleUpdated(bytes32 indexed role, address indexed account, bool enabled);
+    event GovernanceExecutorSet(address indexed executor);
 
     constructor() {
         owner = msg.sender;
@@ -41,6 +43,11 @@ abstract contract AccessControlled {
         _;
     }
 
+    modifier onlyGovernanceExecutor() {
+        if (msg.sender != owner && msg.sender != governanceExecutor) revert NotOwner();
+        _;
+    }
+
     function hasRole(bytes32 role, address account) external view returns (bool) {
         return _roles[role][account] || (role == GOVERNANCE_ADMIN_ROLE && account == owner);
     }
@@ -49,6 +56,12 @@ abstract contract AccessControlled {
         if (account == address(0)) revert ZeroAddress();
         _roles[role][account] = enabled;
         emit RoleUpdated(role, account, enabled);
+    }
+
+    function setGovernanceExecutor(address executor) external onlyOwner {
+        if (executor == address(0)) revert ZeroAddress();
+        governanceExecutor = executor;
+        emit GovernanceExecutorSet(executor);
     }
 
     function transferOwnership(address newOwner) external onlyOwner {

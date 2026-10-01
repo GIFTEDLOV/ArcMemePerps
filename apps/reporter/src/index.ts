@@ -51,3 +51,47 @@ export class ReporterService {
     };
   }
 }
+
+export interface ReporterProcessOptions {
+  readonly intervalMs?: number;
+  readonly sleep?: (milliseconds: number) => Promise<void>;
+}
+
+/** One process owns one signer; sequence/report persistence is injected. */
+export class ReporterProcess {
+  private stopped = false;
+  public constructor(
+    private readonly service: ReporterService,
+    private readonly options: ReporterProcessOptions = {},
+  ) {}
+
+  public async reportOnce(marketId: `0x${string}`): Promise<string> {
+    const result = await this.service.createSignedReport(marketId);
+    return result.report.marketId;
+  }
+
+  public async runUntilStopped(
+    markets: readonly `0x${string}`[],
+    maxCycles = Number.POSITIVE_INFINITY,
+  ): Promise<number> {
+    const sleep =
+      this.options.sleep ??
+      ((milliseconds) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds)));
+    let cycles = 0;
+    while (!this.stopped && cycles < maxCycles) {
+      for (const marketId of markets)
+        if (!this.stopped) await this.service.createSignedReport(marketId);
+      cycles += 1;
+      if (!this.stopped && cycles < maxCycles) await sleep(this.options.intervalMs ?? 5_000);
+    }
+    return cycles;
+  }
+
+  public stop(): void {
+    this.stopped = true;
+  }
+
+  public health(): HealthRecord {
+    return this.service.health();
+  }
+}

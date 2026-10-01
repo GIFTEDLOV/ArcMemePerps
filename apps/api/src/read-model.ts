@@ -21,6 +21,37 @@ export class PersistenceApiReadModel {
     return Promise.resolve(this.repository.listPassports().map(passportAsSnapshot));
   }
 
+  public listMarketsWithOptions(options: {
+    readonly chain?: string;
+    readonly lifecycle?: string;
+    readonly qualification?: string;
+    readonly limit?: number;
+    readonly offset?: number;
+  }): Promise<readonly MarketSnapshot[]> {
+    const limit = Math.min(Math.max(options.limit ?? 100, 1), 100);
+    const offset = Math.max(options.offset ?? 0, 0);
+    return Promise.resolve(
+      this.repository
+        .listPassports(options)
+        .slice(offset, offset + limit)
+        .map(passportAsSnapshot),
+    );
+  }
+
+  public listTrending(): Promise<readonly MarketSnapshot[]> {
+    return Promise.resolve(
+      [...this.repository.listPassports()]
+        .sort((left, right) => {
+          const volume =
+            BigInt(right.marketData.volume24hUsdWad ?? "0") -
+            BigInt(left.marketData.volume24hUsdWad ?? "0");
+          if (volume !== 0n) return volume > 0n ? 1 : -1;
+          return right.observedAt.localeCompare(left.observedAt);
+        })
+        .map(passportAsSnapshot),
+    );
+  }
+
   public getMarket(marketId: string): Promise<MarketSnapshot | null> {
     const passport = this.repository.getPassport(marketId);
     return Promise.resolve(passport === null ? null : passportAsSnapshot(passport));
@@ -97,12 +128,21 @@ export class PersistenceApiReadModel {
   }
 
   public getWalletIntelligence(address: string): Promise<WalletSnapshot | null> {
-    return this.getWallet(address);
+    const record = this.storage.get("wallet_analytics", address.toLowerCase());
+    if (record === null) return this.getWallet(address);
+    try {
+      return Promise.resolve(WalletSnapshotSchema.parse(record.payload));
+    } catch {
+      return Promise.resolve(null);
+    }
   }
 
   public getProfileStats(address: string): Promise<unknown> {
-    return this.getWallet(address).then(
-      (wallet) => wallet ?? { status: "UNAVAILABLE", reason: "WALLET_ANALYTICS_NOT_INDEXED" },
+    return Promise.resolve(
+      this.storage.get("wallet_analytics", address.toLowerCase())?.payload ?? {
+        status: "UNAVAILABLE",
+        reason: "WALLET_ANALYTICS_NOT_INDEXED",
+      },
     );
   }
 

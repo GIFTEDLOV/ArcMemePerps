@@ -29,6 +29,7 @@ export const API_ENDPOINTS = [
   "GET /competitions",
   "GET /competitions/:id",
   "GET /competitions/:id/leaderboard",
+  "GET /competitions/:id/account/:address",
   "GET /notifications/:address",
   "GET /attention/:address",
   "GET /protocol/status",

@@ -17,6 +17,6 @@
     "totalObservedLiquidityUsd": 1200,
     "depth1PctUsd": null,
     "depth2PctUsd": null,
-    "reason": "DEX quote simulation is not implemented in Gate 2"
+    "reason": "DIRECT_QUOTE_DEPTH_UNAVAILABLE_FOR_CAPTURED_FIXTURE"
   }
 }

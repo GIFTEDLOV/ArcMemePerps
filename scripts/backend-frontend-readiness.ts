@@ -10,9 +10,17 @@ const requiredPaths = [
   "apps/api/src/server.ts",
   "apps/keeper/src/index.ts",
   "apps/reporter/src/index.ts",
+  "packages/backend-completion/src/index.ts",
+  "packages/backend-completion/src/index.test.ts",
+  "docs/EXTERNAL_BLOCKER_REVIEW.md",
+  "docs/BACKEND_GAPS.md",
 ];
 
 const matrix = await readFile(matrixPath, "utf8");
+const persistenceSource = await readFile(
+  new URL("../packages/persistence/src/index.ts", import.meta.url),
+  "utf8",
+);
 const rows = matrix
   .split(/\r?\n/)
   .filter(
@@ -28,6 +36,7 @@ const allowed = new Set([
 ]);
 const incomplete: string[] = [];
 const malformed: string[] = [];
+const counts = new Map<string, number>();
 for (const row of rows) {
   const columns = row
     .split("|")
@@ -38,6 +47,7 @@ for (const row of rows) {
     continue;
   }
   const status = columns[2]!;
+  counts.set(status, (counts.get(status) ?? 0) + 1);
   if (!allowed.has(status)) malformed.push(row);
   if (status === "PARTIAL" || status === "NOT_IMPLEMENTED")
     incomplete.push(`${columns[0]} / ${columns[1]}`);
@@ -49,6 +59,11 @@ for (const row of rows) {
       `${columns[0]} / ${columns[1]} (external block lacks safe fallback explanation)`,
     );
 }
+if (matrix.includes("INTENTIONALLY_DEFERRED"))
+  malformed.push("INTENTIONALLY_DEFERRED is not an allowed Gate 4E status");
+if (!persistenceSource.includes("PERSISTENCE_SCHEMA_VERSION = 3"))
+  incomplete.push("persistence schema migration v3");
+if (!matrix.includes("EXTERNAL_BLOCKED")) malformed.push("ledger has no external classification");
 for (const requiredPath of requiredPaths) {
   try {
     await access(new URL(`../${requiredPath}`, import.meta.url));
@@ -64,5 +79,7 @@ if (malformed.length > 0) {
   for (const item of incomplete) console.error(`- ${item}`);
   process.exitCode = 1;
 } else {
-  console.log(`BACKEND_READINESS=PASS rows=${rows.length}`);
+  console.log(
+    `BACKEND_READINESS=PASS rows=${rows.length} implemented=${counts.get("IMPLEMENTED") ?? 0} external=${counts.get("EXTERNAL_BLOCKED") ?? 0} releaseOnly=${counts.get("RELEASE_ONLY") ?? 0}`,
+  );
 }

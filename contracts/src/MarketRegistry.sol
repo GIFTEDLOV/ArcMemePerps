@@ -95,20 +95,20 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
         emit MarketRegistered(marketId, keccak256(bytes("SOLANA")), abi.encodePacked(publicKey));
     }
 
-    function setLifecycle(bytes32 marketId, bytes32 lifecycle) external onlyOwner {
+    function setLifecycle(bytes32 marketId, bytes32 lifecycle) external onlyGovernanceExecutor {
         if (!_markets[marketId].exists) revert MarketNotFound();
         _markets[marketId].lifecycle = lifecycle;
         emit LifecycleUpdated(marketId, lifecycle);
     }
 
-    function activateMarket(bytes32 marketId) external onlyOwner {
+    function activateMarket(bytes32 marketId) external onlyGovernanceExecutor {
         if (!_markets[marketId].exists) revert MarketNotFound();
         if (!qualificationRegistry.isApproved(marketId)) revert QualificationMissing();
         _markets[marketId].state = MarketState.LIVE;
         emit MarketStateUpdated(marketId, MarketState.LIVE);
     }
 
-    function setState(bytes32 marketId, MarketState state) external onlyOwner {
+    function setState(bytes32 marketId, MarketState state) external onlyGovernanceExecutor {
         if (!_markets[marketId].exists) revert MarketNotFound();
         _markets[marketId].state = state;
         emit MarketStateUpdated(marketId, state);

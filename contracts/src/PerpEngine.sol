@@ -218,19 +218,19 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         });
     }
 
-    function setLiquidationKeeper(address keeper, bool enabled) external onlyOwner {
+    function setLiquidationKeeper(address keeper, bool enabled) external onlyGovernanceExecutor {
         if (keeper == address(0)) revert ZeroAddress();
         liquidationKeeper[keeper] = enabled;
         emit LiquidationKeeperSet(keeper, enabled);
     }
 
-    function setOrderKeeper(address keeper, bool enabled) external onlyOwner {
+    function setOrderKeeper(address keeper, bool enabled) external onlyGovernanceExecutor {
         if (keeper == address(0)) revert ZeroAddress();
         orderKeeper[keeper] = enabled;
         emit OrderKeeperSet(keeper, enabled);
     }
 
-    function setADLController(address controller) external onlyOwner {
+    function setADLController(address controller) external onlyGovernanceExecutor {
         if (controller == address(0)) revert ZeroAddress();
         adlController = controller;
         emit ADLControllerSet(controller);
@@ -257,7 +257,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         EconomicModel.BorrowConfig calldata borrow,
         FeeConfig calldata fees,
         uint256 liquidationRewardUsdc_
-    ) external onlyOwner {
+    ) external onlyGovernanceExecutor {
         if (
             funding.capPerSecondWad == 0 || funding.factorPerSecondWad > funding.capPerSecondWad
                 || borrow.maxRatePerSecondWad == 0 || borrow.kinkUtilizationWad > WAD
@@ -273,7 +273,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     function setMarketSideCaps(bytes32 marketId, uint256 maxLong, uint256 maxShort)
         external
-        onlyOwner
+        onlyGovernanceExecutor
     {
         IRiskConfig.Config memory config = riskConfig.getConfig(marketId);
         if (maxLong == 0 || maxShort == 0 || maxLong > config.maxOI || maxShort > config.maxOI) {

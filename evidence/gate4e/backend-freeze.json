@@ -1,0 +1,24 @@
+{
+  "gate": "4E",
+  "status": "BACKEND_RELEASE_CANDIDATE",
+  "startingHead": "67ca3e3456508a7da7d2f113ac8151ffa648d051",
+  "branch": "gate4e-zero-partial",
+  "featureLedger": {
+    "total": 84,
+    "implemented": 81,
+    "partial": 0,
+    "notImplemented": 0,
+    "externalBlocked": 1,
+    "releaseOnly": 2
+  },
+  "contractSourceSha256": "0x1575ff8f27b9aa44752c533079071bef97f0d07a3272963bec66fcf56d8e8a72",
+  "backendSourceSha256": "0x422912f8ae6c2823edb7bb03aa5ba2bc5ecd7c7b1c9fcf2f2ada3313f7a87e30",
+  "schemaVersion": "backend-completion/v1",
+  "riskRuleVersion": "0.1.0",
+  "qualificationProofVersion": "2",
+  "apiVersion": "v1",
+  "testnetRedeployRequired": true,
+  "testnetWritesPerformed": false,
+  "mainnetWritesPerformed": false,
+  "secretsIncluded": false
+}

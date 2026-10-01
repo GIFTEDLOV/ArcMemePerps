@@ -1,0 +1,75 @@
+{
+  "status": "CANDIDATE_ONLY_NOT_DEPLOYED",
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "rpcIdentity": "https://rpc.testnet.arc.io",
+  "explorer": "https://testnet.arcscan.app/",
+  "compiler": {
+    "solc": "0.8.24",
+    "optimizer": true,
+    "optimizerRuns": 200,
+    "viaIR": true
+  },
+  "contractSourceSha256": "0x1575ff8f27b9aa44752c533079071bef97f0d07a3272963bec66fcf56d8e8a72",
+  "backendSourceSha256": "0x422912f8ae6c2823edb7bb03aa5ba2bc5ecd7c7b1c9fcf2f2ada3313f7a87e30",
+  "collateral": {
+    "symbol": "USDC",
+    "address": "0x3600000000000000000000000000000000000000",
+    "interfaceDecimals": 6,
+    "custodyModel": "ERC20_BALANCE_ONLY"
+  },
+  "roles": {
+    "GOVERNANCE_ADMIN": "UNASSIGNED_RELEASE_ROLE",
+    "RISK_ADMIN": "UNASSIGNED_RELEASE_ROLE",
+    "EMERGENCY_ADMIN": "UNASSIGNED_RELEASE_ROLE",
+    "ORACLE_ADMIN": "UNASSIGNED_RELEASE_ROLE",
+    "QUALIFICATION_WRITER": "UNASSIGNED_RELEASE_ROLE",
+    "KEEPER": "UNASSIGNED_RELEASE_ROLE",
+    "INSURANCE_MANAGER": "UNASSIGNED_RELEASE_ROLE"
+  },
+  "timelock": {
+    "required": true,
+    "minimumDelaySeconds": "UNASSIGNED_RELEASE_PARAMETER"
+  },
+  "reporterSet": {
+    "threshold": "2-of-3",
+    "version": "UNASSIGNED_RELEASE_REPORTER_SET",
+    "addresses": [],
+    "signingMode": "OFFCHAIN_EIP712"
+  },
+  "riskRuleVersion": "0.1.0",
+  "riskSettings": {
+    "maxLeverageX": "2",
+    "maxOIBaseUnits": "1000000",
+    "maxOIUsdc": "1",
+    "maxLongOIBaseUnits": "500000",
+    "maxShortOIBaseUnits": "500000",
+    "maxPositionBaseUnits": "200000",
+    "maxPositionUsdc": "0.2",
+    "initialOpenInterestBaseUnits": "0",
+    "riskBudgetStatus": "RISK_BUDGET_SAFE"
+  },
+  "backingSettings": {
+    "protocolBackingBaseUnits": "5000000",
+    "protocolBackingUsdc": "5",
+    "insuranceBaseUnits": "2000000",
+    "insuranceUsdc": "2"
+  },
+  "lpSettings": {
+    "publicLpShares": true,
+    "withdrawalQueue": true,
+    "deploymentConfiguration": "REQUIRES_RELEASE_ROLE_CEREMONY"
+  },
+  "market": {
+    "testnetCanary": true,
+    "originChain": "UNASSIGNED_RELEASE_MARKET",
+    "originToken": "UNASSIGNED_RELEASE_MARKET",
+    "qualificationProofHash": "UNASSIGNED_RELEASE_PROOF"
+  },
+  "deployment": {
+    "broadcastAuthorized": false,
+    "deploymentTransactions": [],
+    "contractAddresses": {}
+  },
+  "secretsIncluded": false
+}

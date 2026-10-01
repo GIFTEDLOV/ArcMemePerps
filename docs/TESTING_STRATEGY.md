@@ -21,9 +21,13 @@ exactly-once event tests, provider-pool failover tests, launchpad-unavailable te
 evidence tests, competition anti-gaming tests, and explicit unsupported-depth tests. Test-only
 HTTP fakes and local contract mocks are classified as fixtures and are not provider fallbacks.
 
-Gate 4D adds canonical passport/dual-gate tests, source-independence reconciliation, concentrated
-depth/LP-security tests, health/read-model/realtime tests, and local LP/ADL/timelock contract
-tests. The readiness command is intentionally a failing completeness check while planned
-continuous discovery, complete operational services, and remaining API projections are partial.
+Gate 4D added canonical passport/dual-gate tests, source-independence reconciliation,
+concentrated depth/LP-security tests, health/read-model/realtime tests, and local
+LP/ADL/timelock contract tests. Gate 4E adds completion-boundary tests for discovery,
+persistence, provider failover, recovery, profiles, competitions, notifications, LP accounting,
+ADL, governance, and reconciliation. The readiness command now passes with zero partial or
+not-implemented rows; the single external blocker is documented and safely surfaced.
+
 Because LP/ADL/timelock changed the contracts, the old Arc Testnet deployment is not evidence for
-this source state; deterministic local tests pass, but `TESTNET_REDEPLOY_REQUIRED=YES`.
+this source state; deterministic local and Arc Forge tests pass, but
+`TESTNET_REDEPLOY_REQUIRED=YES`.

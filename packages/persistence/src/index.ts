@@ -8,7 +8,7 @@ import {
   type UserProfile,
 } from "@arcmemeperps/domain";
 
-export const PERSISTENCE_SCHEMA_VERSION = 2;
+export const PERSISTENCE_SCHEMA_VERSION = 3;
 export const PERSISTED_ENTITIES = [
   "markets",
   "tokens",
@@ -46,6 +46,14 @@ export const PERSISTED_ENTITIES = [
   "health_records",
   "reconciliation_snapshots",
   "reporter_sequences",
+  "discovery_events",
+  "discovery_sources",
+  "deployer_refreshes",
+  "reports",
+  "recovery_actions",
+  "lp_withdrawals",
+  "adl_episodes",
+  "reconciliation_failures",
 ] as const;
 export type PersistedEntity = (typeof PERSISTED_ENTITIES)[number];
 
@@ -488,23 +496,60 @@ export class BackendRepository {
     return record === null ? null : MarketPassportSchema.parse(record.payload);
   }
 
-  public listPassports(): readonly MarketPassport[] {
+  public listPassports(
+    options: {
+      readonly chain?: string;
+      readonly lifecycle?: string;
+      readonly qualification?: string;
+      readonly limit?: number;
+      readonly offset?: number;
+    } = {},
+  ): readonly MarketPassport[] {
     return this.storage
       .list("markets")
       .map((record) => MarketPassportSchema.parse(record.payload))
+      .filter(
+        (passport) => options.chain === undefined || passport.identity.chain === options.chain,
+      )
+      .filter(
+        (passport) =>
+          options.lifecycle === undefined || passport.lifecycle.status === options.lifecycle,
+      )
+      .filter(
+        (passport) =>
+          options.qualification === undefined ||
+          passport.riskResult.integrityStatus === options.qualification,
+      )
       .sort((left, right) => right.observedAt.localeCompare(left.observedAt));
   }
 
   public searchPassports(query: string, chain?: string): readonly MarketPassport[] {
-    const normalized = query.trim().toLowerCase();
+    const normalized = normalizeSearchQuery(query);
+    const exact = this.listPassports()
+      .filter(
+        (passport) =>
+          chain === undefined || chain.length === 0 || passport.identity.chain === chain,
+      )
+      .filter((passport) =>
+        [
+          passport.identity.marketId,
+          passport.identity.tokenAddress,
+          passport.identity.symbol,
+          passport.identity.name,
+        ].some((value) => value?.toLowerCase() === normalized),
+      );
+    if (exact.length > 0)
+      return exact.sort(
+        (left, right) => searchRank(left, normalized) - searchRank(right, normalized),
+      );
     return this.listPassports()
       .filter((passport) => {
         const identity = passport.identity;
         const matchesChain = chain === undefined || chain.length === 0 || identity.chain === chain;
         const matchesQuery =
           normalized.length === 0 ||
-          identity.marketId.toLowerCase() === normalized ||
-          identity.tokenAddress.toLowerCase() === normalized ||
+          identity.marketId.toLowerCase().includes(normalized) ||
+          identity.tokenAddress.toLowerCase().includes(normalized) ||
           identity.symbol?.toLowerCase().includes(normalized) === true ||
           identity.name?.toLowerCase().includes(normalized) === true;
         return matchesChain && matchesQuery;
@@ -573,6 +618,12 @@ export class BackendRepository {
   ): void {
     this.storage.put("wallet_events", id, payload, observedAt);
   }
+}
+
+function normalizeSearchQuery(query: string): string {
+  const normalized = query.normalize("NFKC").trim().toLowerCase();
+  if (normalized.length > 128) throw new Error("SEARCH_QUERY_TOO_LONG");
+  return normalized;
 }
 
 function decodeJob(payload: Readonly<Record<string, unknown>>): DurableJob {

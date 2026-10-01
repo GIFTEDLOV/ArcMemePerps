@@ -128,3 +128,50 @@ export class KeeperService {
     };
   }
 }
+
+export interface KeeperProcessOptions {
+  readonly intervalMs?: number;
+  readonly sleep?: (milliseconds: number) => Promise<void>;
+}
+
+/** Long-lived supervisor boundary. The contract call itself remains idempotent. */
+export class KeeperProcess {
+  private running = false;
+  private stopped = false;
+  public constructor(
+    private readonly service: KeeperService,
+    private readonly options: KeeperProcessOptions = {},
+  ) {}
+
+  public async runOne(): Promise<Awaited<ReturnType<KeeperService["executeCycle"]>>> {
+    return this.service.executeCycle();
+  }
+
+  public async runUntilStopped(maxCycles = Number.POSITIVE_INFINITY): Promise<number> {
+    this.running = true;
+    let cycles = 0;
+    const sleep =
+      this.options.sleep ??
+      ((milliseconds) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds)));
+    while (!this.stopped && cycles < maxCycles) {
+      await this.service.executeCycle();
+      cycles += 1;
+      if (!this.stopped && cycles < maxCycles) await sleep(this.options.intervalMs ?? 1_000);
+    }
+    this.running = false;
+    return cycles;
+  }
+
+  public stop(): void {
+    this.stopped = true;
+    this.service.stop();
+  }
+
+  public health(): HealthRecord {
+    const base = this.service.health();
+    return {
+      ...base,
+      state: this.running && base.state === "OPERATIONAL" ? "OPERATIONAL" : base.state,
+    };
+  }
+}

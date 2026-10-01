@@ -23,14 +23,17 @@ contract ADLController is AccessControlled, ReentrancyGuard {
 
     IAdlEngine public immutable engine;
     mapping(uint256 positionId => Candidate candidate) public candidates;
+    mapping(uint256 positionId => bytes32 episode) public candidateEpisode;
     mapping(bytes32 episode => uint256 remaining) public remainingDeficit;
     mapping(bytes32 episode => bool finalized) public episodeFinalized;
+    mapping(bytes32 episode => uint256 lastRankingScore) public lastRankingScore;
     address public keeper;
 
     error UnauthorizedKeeper();
     error InvalidEpisode();
     error CandidateUnavailable();
     error ReductionExceedsDeficit();
+    error CandidateOrderInvalid();
 
     event CandidateRegistered(bytes32 indexed episode, uint256 indexed positionId, uint256 score);
     event ADLExecuted(
@@ -60,6 +63,7 @@ contract ADLController is AccessControlled, ReentrancyGuard {
             revert InvalidEpisode();
         }
         remainingDeficit[episode] = deficit;
+        lastRankingScore[episode] = type(uint256).max;
     }
 
     function registerCandidate(
@@ -71,7 +75,13 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         if (remainingDeficit[episode] == 0 || positionId == 0 || size == 0) {
             revert InvalidEpisode();
         }
+        if (candidates[positionId].positionId != 0 && !candidates[positionId].used) {
+            revert CandidateUnavailable();
+        }
+        if (rankingScore > lastRankingScore[episode]) revert CandidateOrderInvalid();
         candidates[positionId] = Candidate(positionId, size, rankingScore, false);
+        candidateEpisode[positionId] = episode;
+        lastRankingScore[episode] = rankingScore;
         emit CandidateRegistered(episode, positionId, rankingScore);
     }
 
@@ -84,7 +94,7 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         Candidate storage candidate = candidates[positionId];
         if (
             remaining == 0 || episodeFinalized[episode] || candidate.positionId == 0
-                || candidate.used
+                || candidateEpisode[positionId] != episode || candidate.used
         ) {
             revert CandidateUnavailable();
         }
