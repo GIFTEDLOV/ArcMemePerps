@@ -59,3 +59,39 @@ export class LifecycleEngine {
     return { from, to, observedAt, reason };
   }
 }
+
+export interface LifecycleEvidence {
+  readonly platform: string;
+  readonly stage: LifecycleStatus;
+  readonly evidenceIds: readonly string[];
+  readonly observedAt: string;
+  readonly confidenceBps: number;
+}
+
+export interface ProvenLifecycle {
+  readonly status: LifecycleStatus;
+  readonly evidenceIds: readonly string[];
+  readonly reasonCodes: readonly string[];
+}
+
+/** A lifecycle state is proven only by stage-specific evidence, never by market cap alone. */
+export function classifyProvenLifecycle(
+  platform: MarketObservation["token"]["originPlatform"],
+  evidence: readonly LifecycleEvidence[],
+): ProvenLifecycle {
+  const path = lifecyclePathForPlatform(platform);
+  const matching = evidence.filter(
+    (item) =>
+      item.platform === platform && item.evidenceIds.length > 0 && path.includes(item.stage),
+  );
+  if (matching.length === 0)
+    return {
+      status: "DISCOVERED",
+      evidenceIds: [],
+      reasonCodes: ["LIFECYCLE_EVIDENCE_UNAVAILABLE"],
+    };
+  const selected = [...matching].sort(
+    (left, right) => path.indexOf(right.stage) - path.indexOf(left.stage),
+  )[0]!;
+  return { status: selected.stage, evidenceIds: [...selected.evidenceIds].sort(), reasonCodes: [] };
+}

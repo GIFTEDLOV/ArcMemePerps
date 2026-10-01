@@ -20,6 +20,7 @@ import {
   GoPlusProvider,
   HeliusProvider,
   SolanaRpcProvider,
+  ProviderPool,
   unavailableEvidence,
   type BubblemapsObservation,
   type DexAggregate,
@@ -29,7 +30,7 @@ import {
   type RpcTokenEvidence,
   type SolanaMintEvidence,
 } from "@arcmemeperps/providers";
-import type { EvmNetworkConfig, SolanaNetworkConfig } from "@arcmemeperps/shared";
+import type { EvmNetworkConfig, SolanaNetworkConfig, SupportedChain } from "@arcmemeperps/shared";
 import type {
   ChainAdapter,
   DeployerHistoryRecord,
@@ -49,6 +50,7 @@ import type {
 export interface LiveAdapterOptions {
   readonly noEnrichment?: boolean;
   readonly rpcUrl?: string;
+  readonly rpcUrls?: readonly string[];
   readonly goPlusApiKey?: string;
   readonly heliusApiKey?: string;
   readonly bubbleMapsApiKey?: string;
@@ -61,9 +63,20 @@ export interface LiveInspectionAdapter extends ChainAdapter {
   ): Promise<MarketIntelligenceRecord>;
 }
 
+export class CapabilityUnavailableError extends Error {
+  public constructor(
+    public readonly chain: string,
+    public readonly capability: string,
+  ) {
+    super(`UNAVAILABLE:${chain}:${capability}`);
+    this.name = "CapabilityUnavailableError";
+  }
+}
+
 export class GenericEvmChainAdapter implements LiveInspectionAdapter {
   public readonly chain: EvmNetworkConfig["chain"];
-  private readonly rpc: EvmRpcProvider;
+  private readonly rpcUrls: readonly string[];
+  private readonly rpcPool: ProviderPool<ProviderResult<RpcTokenEvidence>, RpcReadContext>;
   private readonly dex: DexScreenerProvider;
   private readonly goPlus: GoPlusProvider;
   private readonly bubbles: BubblemapsProvider;
@@ -76,7 +89,26 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
     this.chain = network.chain;
     this.options = options;
     const rpcUrl = options.rpcUrl ?? network.defaultRpcUrl;
-    this.rpc = new EvmRpcProvider(network, rpcUrl);
+    this.rpcUrls =
+      options.rpcUrls === undefined || options.rpcUrls.length === 0
+        ? [rpcUrl]
+        : [...options.rpcUrls];
+    this.rpcPool = new ProviderPool(
+      this.rpcUrls.map((url, index) => ({
+        id: `evm-rpc-${index + 1}`,
+        priority: index,
+        read: async (context: RpcReadContext) => {
+          const result = await new EvmRpcProvider(network, url).readToken(
+            context.tokenAddress,
+            context.fetchedAt,
+          );
+          if (result.status !== "AVAILABLE")
+            throw new Error(result.error ?? result.reason ?? "RPC_UNAVAILABLE");
+          return result;
+        },
+      })),
+      { maxAttempts: this.rpcUrls.length },
+    );
     this.dex = new DexScreenerProvider(network);
     this.goPlus = new GoPlusProvider(
       network,
@@ -95,7 +127,12 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
     const normalized = normalizeTokenAddress(this.chain, tokenAddress);
     const fetchedAt = new Date().toISOString();
     const noEnrichment = options.noEnrichment ?? this.options.noEnrichment ?? false;
-    const rpc = await this.rpc.readToken(normalized, fetchedAt);
+    const rpc = await readRpcPool(
+      this.rpcPool,
+      { tokenAddress: normalized, fetchedAt },
+      this.chain,
+      this.network.name,
+    );
     const dex = await this.dex.readToken(normalized, fetchedAt);
     const goPlus = noEnrichment
       ? unavailableResult(this.chain, this.network.name, "goplus", "NO_ENRICHMENT")
@@ -108,7 +145,7 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
 
   public discoverTokens(query?: DiscoverTokensQuery): Promise<readonly TokenIdentity[]> {
     void query;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "discovery");
   }
   public async getTokenMetadata(tokenAddress: string): Promise<TokenMetadata> {
     return (await this.inspectToken(tokenAddress)).token;
@@ -118,29 +155,23 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
   }
   public getHolders(tokenAddress: string): Promise<readonly HolderRecord[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "holders");
   }
   public async getLiquidity(tokenAddress: string): Promise<LiquidityState> {
     return (await this.inspectToken(tokenAddress)).liquidity;
   }
   public getLiquidityLocks(tokenAddress: string): Promise<readonly LiquidityLock[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "liquidity-lock-security");
   }
-  public async getPools(tokenAddress: string): Promise<readonly PoolSnapshot[]> {
-    return (await this.inspectToken(tokenAddress)).liquidity.liquidityVenues.map((venue) => ({
-      venue,
-      poolAddress: "UNKNOWN",
-      tokenReserve: 0,
-      quoteReserveUsd: 0,
-      liquidityUsd: 0,
-      feeBps: 0,
-    }));
+  public getPools(tokenAddress: string): Promise<readonly PoolSnapshot[]> {
+    void tokenAddress;
+    throw new CapabilityUnavailableError(this.chain, "pool-reserves");
   }
   public getTrades(tokenAddress: string, since?: string): Promise<readonly TradeRecord[]> {
     void tokenAddress;
     void since;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "trades");
   }
   public async getPrice(tokenAddress: string): Promise<PricePoint> {
     const record = await this.inspectToken(tokenAddress);
@@ -156,6 +187,8 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
     return [
       {
         source: "dexscreener",
+        sourceFamily: "DEXSCREENER_AGGREGATION",
+        underlyingVenueId: null,
         priceUsd: record.oracle.priceUsd,
         observedAt: record.oracle.observedAt,
         confidenceBps: record.oracle.confidenceBps,
@@ -167,31 +200,18 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
   }
   public getDeployerHistory(tokenAddress: string): Promise<readonly DeployerHistoryRecord[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "deployer-history");
   }
   public async getAuthorities(tokenAddress: string): Promise<AuthorityState> {
     return (await this.inspectToken(tokenAddress)).authorities;
   }
-  public async getTokenPermissions(tokenAddress: string): Promise<TokenPermissions> {
-    const record = await this.inspectToken(tokenAddress);
-    return {
-      mintAuthority: null,
-      freezeAuthority: null,
-      owner: null,
-      admin: null,
-      proxyImplementation: record.authorities.upgradeAuthority,
-      transferRestrictions: [],
-    };
+  public getTokenPermissions(tokenAddress: string): Promise<TokenPermissions> {
+    void tokenAddress;
+    throw new CapabilityUnavailableError(this.chain, "token-permissions");
   }
   public getLaunchData(tokenAddress: string): Promise<LaunchData> {
     void tokenAddress;
-    return Promise.resolve({
-      platform: "UNKNOWN",
-      launchAt: "UNKNOWN",
-      bundleCount: 0,
-      initialBuyerCount: 0,
-      initialLiquidityUsd: 0,
-    });
+    throw new CapabilityUnavailableError(this.chain, "launch-data");
   }
   public getTransactionHistory(
     tokenAddress: string,
@@ -199,13 +219,14 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
   ): Promise<readonly TransactionRecord[]> {
     void tokenAddress;
     void since;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "transaction-history");
   }
 }
 
 export class SolanaChainAdapter implements LiveInspectionAdapter {
   public readonly chain = "SOLANA" as const;
-  private readonly rpc: SolanaRpcProvider;
+  private readonly rpcUrls: readonly string[];
+  private readonly rpcPool: ProviderPool<ProviderResult<SolanaMintEvidence>, RpcReadContext>;
   private readonly dex: DexScreenerProvider;
   private readonly goPlus: GoPlusProvider;
   private readonly bubbles: BubblemapsProvider;
@@ -217,7 +238,26 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
     options: LiveAdapterOptions = {},
   ) {
     this.options = options;
-    this.rpc = new SolanaRpcProvider(network, options.rpcUrl ?? network.defaultRpcUrl);
+    this.rpcUrls =
+      options.rpcUrls === undefined || options.rpcUrls.length === 0
+        ? [options.rpcUrl ?? network.defaultRpcUrl]
+        : [...options.rpcUrls];
+    this.rpcPool = new ProviderPool(
+      this.rpcUrls.map((url, index) => ({
+        id: `solana-rpc-${index + 1}`,
+        priority: index,
+        read: async (context: RpcReadContext) => {
+          const result = await new SolanaRpcProvider(network, url).readMint(
+            context.tokenAddress,
+            context.fetchedAt,
+          );
+          if (result.status !== "AVAILABLE")
+            throw new Error(result.error ?? result.reason ?? "RPC_UNAVAILABLE");
+          return result;
+        },
+      })),
+      { maxAttempts: this.rpcUrls.length },
+    );
     this.dex = new DexScreenerProvider(network);
     this.goPlus = new GoPlusProvider(
       network,
@@ -241,7 +281,12 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
     const fetchedAt = new Date().toISOString();
     const noEnrichment = options.noEnrichment ?? this.options.noEnrichment ?? false;
     const [rpc, dex] = await Promise.all([
-      this.rpc.readMint(normalized, fetchedAt),
+      readRpcPool(
+        this.rpcPool,
+        { tokenAddress: normalized, fetchedAt },
+        "SOLANA",
+        this.network.name,
+      ),
       this.dex.readToken(normalized, fetchedAt),
     ]);
     const goPlus = noEnrichment
@@ -267,7 +312,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
 
   public discoverTokens(query?: DiscoverTokensQuery): Promise<readonly TokenIdentity[]> {
     void query;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "discovery");
   }
   public async getTokenMetadata(tokenAddress: string): Promise<TokenMetadata> {
     return (await this.inspectToken(tokenAddress)).token;
@@ -277,23 +322,23 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
   }
   public getHolders(tokenAddress: string): Promise<readonly HolderRecord[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "holders");
   }
   public async getLiquidity(tokenAddress: string): Promise<LiquidityState> {
     return (await this.inspectToken(tokenAddress)).liquidity;
   }
   public getLiquidityLocks(tokenAddress: string): Promise<readonly LiquidityLock[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "liquidity-lock-security");
   }
   public getPools(tokenAddress: string): Promise<readonly PoolSnapshot[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "pool-reserves");
   }
   public getTrades(tokenAddress: string, since?: string): Promise<readonly TradeRecord[]> {
     void tokenAddress;
     void since;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "trades");
   }
   public async getPrice(tokenAddress: string): Promise<PricePoint> {
     const record = await this.inspectToken(tokenAddress);
@@ -317,45 +362,22 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
   }
   public getDeployer(tokenAddress: string): Promise<string | null> {
     void tokenAddress;
-    return Promise.resolve(null);
+    throw new CapabilityUnavailableError(this.chain, "deployer");
   }
   public getDeployerHistory(tokenAddress: string): Promise<readonly DeployerHistoryRecord[]> {
     void tokenAddress;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "deployer-history");
   }
   public async getAuthorities(tokenAddress: string): Promise<AuthorityState> {
     return (await this.inspectToken(tokenAddress)).authorities;
   }
-  public async getTokenPermissions(tokenAddress: string): Promise<TokenPermissions> {
-    const record = await this.inspectToken(tokenAddress);
-    return {
-      mintAuthority:
-        record.authorities.mintAuthorityActive === null
-          ? null
-          : record.authorities.mintAuthorityActive
-            ? "ACTIVE"
-            : null,
-      freezeAuthority:
-        record.authorities.freezeAuthorityActive === null
-          ? null
-          : record.authorities.freezeAuthorityActive
-            ? "ACTIVE"
-            : null,
-      owner: null,
-      admin: null,
-      proxyImplementation: null,
-      transferRestrictions: [],
-    };
+  public getTokenPermissions(tokenAddress: string): Promise<TokenPermissions> {
+    void tokenAddress;
+    throw new CapabilityUnavailableError(this.chain, "token-permissions");
   }
   public getLaunchData(tokenAddress: string): Promise<LaunchData> {
     void tokenAddress;
-    return Promise.resolve({
-      platform: "UNKNOWN",
-      launchAt: "UNKNOWN",
-      bundleCount: 0,
-      initialBuyerCount: 0,
-      initialLiquidityUsd: 0,
-    });
+    throw new CapabilityUnavailableError(this.chain, "launch-data");
   }
   public getTransactionHistory(
     tokenAddress: string,
@@ -363,8 +385,29 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
   ): Promise<readonly TransactionRecord[]> {
     void tokenAddress;
     void since;
-    return Promise.resolve([]);
+    throw new CapabilityUnavailableError(this.chain, "transaction-history");
   }
+}
+
+interface RpcReadContext {
+  readonly tokenAddress: string;
+  readonly fetchedAt: string;
+}
+
+async function readRpcPool<T, TContext>(
+  pool: ProviderPool<ProviderResult<T>, TContext>,
+  context: TContext,
+  chain: SupportedChain,
+  network: string,
+): Promise<ProviderResult<T>> {
+  const outcome = await pool.read(context);
+  if (outcome.value !== null) return outcome.value;
+  return unavailableResult(
+    chain,
+    network,
+    "canonical-rpc-pool",
+    `RPC_POOL_UNAVAILABLE:${outcome.errors.map((item) => `${item.provider}=${item.message}`).join("|")}`,
+  );
 }
 
 function buildEvmRecord(
@@ -383,11 +426,11 @@ function buildEvmRecord(
   const token: TokenIdentity = {
     chain: network.chain,
     tokenAddress,
-    symbol: r?.symbol ?? "UNKNOWN",
-    name: r?.name ?? "UNKNOWN",
-    decimals: r?.decimals ?? 0,
+    symbol: r?.symbol ?? null,
+    name: r?.name ?? null,
+    decimals: r?.decimals ?? null,
     deployer: s?.creatorAddress ?? null,
-    createdAt: "UNKNOWN",
+    createdAt: null,
     originPlatform: d !== null && d.pairs.length > 0 ? "DIRECT_DEX" : "UNKNOWN",
   };
   const lifecycle = lifecycleSnapshot(network.chain, d !== null && d.pairs.length > 0, fetchedAt);
@@ -457,11 +500,11 @@ function buildSolanaRecord(
   const token: TokenIdentity = {
     chain: "SOLANA",
     tokenAddress,
-    symbol: h?.symbol ?? "UNKNOWN",
-    name: h?.name ?? "UNKNOWN",
-    decimals: r?.decimals ?? 0,
+    symbol: h?.symbol ?? null,
+    name: h?.name ?? null,
+    decimals: r?.decimals ?? null,
     deployer: null,
-    createdAt: "UNKNOWN",
+    createdAt: null,
     originPlatform: "UNKNOWN",
   };
   const lifecycle = lifecycleSnapshot("SOLANA", d !== null && d.pairs.length > 0, fetchedAt);

@@ -204,7 +204,8 @@ function decodeBase58PublicKey(value: string): Uint8Array {
   return decoded;
 }
 
-export { NETWORK_CONFIGS, rpcUrlForNetwork } from "./networks.js";
+export { NETWORK_CONFIGS, rpcUrlForNetwork, rpcUrlsForNetwork } from "./networks.js";
 export type { EvmNetworkConfig, SolanaNetworkConfig, SupportedNetworkConfig } from "./networks.js";
 export * from "./math.js";
 export * from "./arc-usdc.js";
+export * from "./health.js";

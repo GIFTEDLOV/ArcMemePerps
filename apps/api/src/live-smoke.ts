@@ -1,5 +1,5 @@
 import { GenericEvmChainAdapter, SolanaChainAdapter } from "@arcmemeperps/chain-adapters";
-import { NETWORK_CONFIGS, type SupportedChain } from "@arcmemeperps/shared";
+import { NETWORK_CONFIGS, rpcUrlsForNetwork, type SupportedChain } from "@arcmemeperps/shared";
 
 const SMOKE_TOKENS: Readonly<Record<SupportedChain, string>> = {
   ARC: "0x3600000000000000000000000000000000000000",
@@ -18,10 +18,13 @@ async function main(): Promise<void> {
       const config = NETWORK_CONFIGS[chain];
       const adapter =
         chain === "SOLANA"
-          ? new SolanaChainAdapter(NETWORK_CONFIGS.SOLANA, { noEnrichment: true })
+          ? new SolanaChainAdapter(NETWORK_CONFIGS.SOLANA, {
+              noEnrichment: true,
+              rpcUrls: rpcUrlsForNetwork(NETWORK_CONFIGS.SOLANA),
+            })
           : new GenericEvmChainAdapter(
               config as Extract<(typeof NETWORK_CONFIGS)[SupportedChain], { kind: "EVM" }>,
-              { noEnrichment: true },
+              { noEnrichment: true, rpcUrls: rpcUrlsForNetwork(config) },
             );
       const record = await adapter.inspectToken(SMOKE_TOKENS[chain], { noEnrichment: true });
       results.push({

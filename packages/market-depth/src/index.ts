@@ -174,6 +174,79 @@ export class UnavailableSolanaDepthAdapter implements SolanaDepthAdapter {
   }
 }
 
+export type EvmVenueModel =
+  "UNISWAP_V2" | "PANCAKESWAP_V2" | "UNISWAP_V3" | "PANCAKESWAP_V3" | "AERODROME";
+
+export interface ReadOnlyDepthQuoteAdapter {
+  readonly venue: string;
+  readonly model: EvmVenueModel | "PUMPSWAP" | "RAYDIUM" | "METEORA";
+  quote(): Promise<MarketDepth>;
+}
+
+/**
+ * Quote infrastructure boundary. V2 is implemented by calculateConstantProductDepth;
+ * concentrated-liquidity and Solana venues must supply executable read-only quote logic
+ * before they can report depth. No TVL-to-depth estimate is permitted here.
+ */
+export class UnavailableQuoteAdapter implements ReadOnlyDepthQuoteAdapter {
+  public constructor(
+    public readonly venue: string,
+    public readonly model: ReadOnlyDepthQuoteAdapter["model"],
+    private readonly reason: string,
+  ) {}
+  public quote(): Promise<MarketDepth> {
+    return Promise.resolve({
+      status: "UNAVAILABLE",
+      observedAt: new Date().toISOString(),
+      buyDepth1PctUsdWad: null,
+      sellDepth1PctUsdWad: null,
+      buyDepth2PctUsdWad: null,
+      sellDepth2PctUsdWad: null,
+      venueBreakdown: [],
+      reason: this.reason,
+    });
+  }
+}
+
+export async function aggregateReadOnlyVenueDepth(
+  adapters: readonly ReadOnlyDepthQuoteAdapter[],
+): Promise<MarketDepth> {
+  const results = await Promise.all(adapters.map((adapter) => adapter.quote()));
+  const available = results.filter((result) => result.status === "AVAILABLE");
+  if (available.length !== results.length || available.length === 0) {
+    return {
+      status: "UNAVAILABLE",
+      observedAt: new Date().toISOString(),
+      buyDepth1PctUsdWad: null,
+      sellDepth1PctUsdWad: null,
+      buyDepth2PctUsdWad: null,
+      sellDepth2PctUsdWad: null,
+      venueBreakdown: [],
+      reason:
+        available.length === 0
+          ? "NO_READ_ONLY_QUOTE_AVAILABLE"
+          : "ONE_OR_MORE_VENUE_QUOTES_UNAVAILABLE",
+    };
+  }
+  return {
+    status: "AVAILABLE",
+    observedAt: new Date().toISOString(),
+    buyDepth1PctUsdWad: available.every((item) => item.buyDepth1PctUsdWad !== null)
+      ? available.reduce((sum, item) => sum + item.buyDepth1PctUsdWad!, 0n)
+      : null,
+    sellDepth1PctUsdWad: available.every((item) => item.sellDepth1PctUsdWad !== null)
+      ? available.reduce((sum, item) => sum + item.sellDepth1PctUsdWad!, 0n)
+      : null,
+    buyDepth2PctUsdWad: available.every((item) => item.buyDepth2PctUsdWad !== null)
+      ? available.reduce((sum, item) => sum + item.buyDepth2PctUsdWad!, 0n)
+      : null,
+    sellDepth2PctUsdWad: available.every((item) => item.sellDepth2PctUsdWad !== null)
+      ? available.reduce((sum, item) => sum + item.sellDepth2PctUsdWad!, 0n)
+      : null,
+    venueBreakdown: available.flatMap((item) => item.venueBreakdown),
+  };
+}
+
 function isqrt(value: bigint): bigint {
   if (value < 0n) throw new Error("square root of negative");
   if (value < 2n) return value;

@@ -163,7 +163,7 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
     address: "0x0000000000000000000000000000000000000010",
     balancePct: observation.holders.topHolderPct,
     connectedClusterId: "cluster-1",
-    firstSeenAt: observation.token.createdAt,
+    firstSeenAt: observation.token.createdAt ?? ASSESSED_AT,
     fundingSource: "funding-1",
   };
   const lock: LiquidityLock = {
@@ -200,7 +200,7 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
   };
   const launchData: LaunchData = {
     platform: observation.token.originPlatform,
-    launchAt: observation.token.createdAt,
+    launchAt: observation.token.createdAt ?? ASSESSED_AT,
     bundleCount: observation.activity.bundledLaunchDetected ? 10 : 1,
     initialBuyerCount: 100,
     initialLiquidityUsd: observation.liquidity.totalLiquidityUsd,
@@ -229,7 +229,7 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
     from: observation.deployer.deployerAddress ?? "fixture-deployer",
     to: observation.token.tokenAddress,
     valueUsd: observation.liquidity.totalLiquidityUsd,
-    timestamp: observation.token.createdAt,
+    timestamp: observation.token.createdAt ?? ASSESSED_AT,
     method: "create",
   };
   return {

@@ -63,6 +63,9 @@ export interface PricePoint {
 
 export interface PriceSource {
   readonly source: string;
+  /** Underlying price origin, used to prevent correlated providers counting twice. */
+  readonly sourceFamily?: string;
+  readonly underlyingVenueId?: string | null;
   readonly priceUsd: number;
   readonly observedAt: string;
   readonly confidenceBps: number;
@@ -260,3 +263,4 @@ export interface AdapterObservation {
 }
 
 export * from "./live.js";
+export * from "./discovery.js";

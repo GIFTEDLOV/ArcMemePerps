@@ -156,19 +156,37 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         bytes32 digest = _reportDigest(report);
         address[] memory signers = new address[](signatures.length);
         uint256 validSigners = 0;
+        bool invalidSignature = false;
+        bool unauthorizedReporter = false;
+        bool duplicateSigner = false;
         for (uint256 index = 0; index < signatures.length; index++) {
             // Signature parsing is fail-closed; malformed data must abort the whole batch.
-            // forge-lint: disable-next-line(require-revert-in-loop)
             address signer = _recover(digest, signatures[index]);
-            // forge-lint: disable-next-line(require-revert-in-loop)
-            if (!isReporter[signer]) revert UnauthorizedReporter();
+            if (signer == address(0)) {
+                invalidSignature = true;
+                continue;
+            }
+            if (!isReporter[signer]) {
+                unauthorizedReporter = true;
+                continue;
+            }
+            bool alreadySeen = false;
             for (uint256 previous = 0; previous < validSigners; previous++) {
-                // forge-lint: disable-next-line(require-revert-in-loop)
-                if (signers[previous] == signer) revert DuplicateSigner();
+                if (signers[previous] == signer) {
+                    alreadySeen = true;
+                    break;
+                }
+            }
+            if (alreadySeen) {
+                duplicateSigner = true;
+                continue;
             }
             signers[validSigners] = signer;
             validSigners++;
         }
+        if (invalidSignature) revert InvalidSignature();
+        if (unauthorizedReporter) revert UnauthorizedReporter();
+        if (duplicateSigner) revert DuplicateSigner();
         if (validSigners < reporterThreshold) revert InsufficientReporterThreshold();
         _validateReport(report);
         if (report.sequence <= latestSequence[report.marketId]) revert NonMonotonicSequence();
@@ -316,8 +334,7 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         pure
         returns (address signer)
     {
-        // forge-lint: disable-next-line(require-revert-in-loop)
-        if (signature.length != 65) revert InvalidSignature();
+        if (signature.length != 65) return address(0);
         bytes32 r;
         bytes32 s;
         uint8 v;
@@ -327,14 +344,10 @@ contract OracleRouter is AccessControlled, IOracleRouter {
             v := byte(0, calldataload(add(signature.offset, 64)))
         }
         if (v < 27) v += 27;
-        // forge-lint: disable-next-line(require-revert-in-loop)
-        if (v != 27 && v != 28) revert InvalidSignature();
+        if (v != 27 && v != 28) return address(0);
         if (uint256(s) > 0x7fffffffffffffffffffffffffffffff5d576e7357a4501ddfe92f46681b20a0) {
-            // forge-lint: disable-next-line(require-revert-in-loop)
-            revert InvalidSignature();
+            return address(0);
         }
         signer = ecrecover(digest, v, r, s);
-        // forge-lint: disable-next-line(require-revert-in-loop)
-        if (signer == address(0)) revert InvalidSignature();
     }
 }

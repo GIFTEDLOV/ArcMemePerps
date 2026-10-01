@@ -24,7 +24,12 @@
       "@arcmemeperps/qualification-proof": ["packages/qualification-proof/src/index.ts"],
       "@arcmemeperps/providers": ["packages/providers/src/index.ts"],
       "@arcmemeperps/simulator": ["packages/simulator/src/index.ts"],
-      "@arcmemeperps/market-depth": ["packages/market-depth/src/index.ts"]
+      "@arcmemeperps/market-depth": ["packages/market-depth/src/index.ts"],
+      "@arcmemeperps/persistence": ["packages/persistence/src/index.ts"],
+      "@arcmemeperps/intelligence": ["packages/intelligence/src/index.ts"],
+      "@arcmemeperps/api-contracts": ["packages/api-contracts/src/index.ts"],
+      "@arcmemeperps/keeper": ["apps/keeper/src/index.ts"],
+      "@arcmemeperps/reporter": ["apps/reporter/src/index.ts"]
     }
   },
   "include": [

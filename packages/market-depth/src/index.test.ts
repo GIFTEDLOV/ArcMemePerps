@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { calculateConstantProductDepth, quoteConstantProduct } from "./index.js";
+import {
+  UnavailableQuoteAdapter,
+  aggregateReadOnlyVenueDepth,
+  calculateConstantProductDepth,
+  quoteConstantProduct,
+} from "./index.js";
 
 describe("quote-based market depth", () => {
   it("quotes without using total liquidity as a depth proxy", () => {
@@ -23,5 +28,13 @@ describe("quote-based market depth", () => {
 
   it("returns explicit unavailable for missing quote pools", () => {
     expect(calculateConstantProductDepth([]).reason).toBe("NO_QUOTE_POOLS");
+  });
+
+  it("does not fabricate depth for unsupported venue models", async () => {
+    const result = await aggregateReadOnlyVenueDepth([
+      new UnavailableQuoteAdapter("raydium", "RAYDIUM", "QUOTE_INFRASTRUCTURE_NOT_CONFIGURED"),
+    ]);
+    expect(result.status).toBe("UNAVAILABLE");
+    expect(result.buyDepth1PctUsdWad).toBeNull();
   });
 });

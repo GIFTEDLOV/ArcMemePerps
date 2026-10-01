@@ -16,3 +16,9 @@ No external API vendor is called by the engine. Adapter outputs are the only inp
 Gate 2 adds explicit insufficient-evidence behavior: nullable security/activity/oracle facts and unknown LP lock status fail the evidence-completeness gate. A high market score cannot override an unknown or failed hard gate. Derivatives depth is `UNAVAILABLE` until quote simulation exists; total liquidity is not used as a fabricated depth estimate.
 
 Activity analysis is explainable rather than a black-box score. It reports trader count, gross/net flow, round trips, repeated sizes/timing, wallet reuse, funding relationships, volume/liquidity ratio, holder growth, and trader concentration with `CLEAR`, `SUSPICIOUS`, `HIGH_RISK`, or `INSUFFICIENT_DATA`.
+
+Gate 4C keeps lifecycle, integrity, derivatives, and tradability separate in the versioned
+`MarketSnapshot`. Holder exclusions require classification evidence; unknown wallets remain in
+concentration totals. LP security has its own `LOCKED`, `BURNED`, `PROTOCOL_CONTROLLED`,
+`WITHDRAWABLE`, and `UNKNOWN` states. Missing launchpad, graph, depth, or provider evidence is
+preserved as unavailable and cannot become qualification.

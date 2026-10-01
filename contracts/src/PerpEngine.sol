@@ -691,7 +691,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 fee = _feeUsdc(position.size, feeConfig.closeFeeRateWad);
         _removePosition(positionId, position);
         // State and OI are already removed before settlement.
-        // forge-lint: disable-next-line(reentrancy-no-eth,unused-return)
+        // forge-lint: disable-next-line(reentrancy-no-eth)
         badDebt = marginVault.settlePositionWad(account, position.collateral, netPnl, fee);
         if (badDebt > 0) _coverBadDebt(badDebt);
         // forge-lint: disable-next-line(reentrancy-events)

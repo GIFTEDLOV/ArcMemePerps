@@ -99,3 +99,20 @@ export function rpcUrlForNetwork(
 ): string {
   return environment[network.rpcEnvVar]?.trim() || network.defaultRpcUrl;
 }
+
+/**
+ * Returns an ordered, de-duplicated RPC pool. The primary URL uses the existing
+ * network variable; optional comma-separated fallbacks use `<RPC_ENV_VAR>_FALLBACKS`.
+ */
+export function rpcUrlsForNetwork(
+  network: SupportedNetworkConfig,
+  environment: NodeJS.ProcessEnv = process.env,
+): readonly string[] {
+  const primary = rpcUrlForNetwork(network, environment);
+  const fallbackKey = `${network.rpcEnvVar}_FALLBACKS`;
+  const fallbacks = (environment[fallbackKey] ?? "")
+    .split(",")
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+  return [...new Set([primary, ...fallbacks])];
+}

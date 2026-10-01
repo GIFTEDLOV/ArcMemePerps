@@ -46,3 +46,16 @@ Gate 3 adds fixed-point math, an oracle report boundary, two-phase order intent 
 quote-based depth, conservative manipulation estimates, capacity bounds, and deterministic
 economic simulation. Origin-chain assets remain off Arc; only USDC collateral and normalized
 oracle/evidence state are consumed by the Arc execution layer.
+
+# Gate 4C backend boundary
+
+`MarketSnapshotSchema` in `packages/domain` is the versioned market read contract intended for
+the API, notifications, competitions, agents, and future frontend. `packages/persistence`
+provides durable local SQLite storage; `apps/indexer` adds checkpoint hash/slot guards and
+canonical protocol-event identities. Reorg mismatches are explicit errors, not optimistic
+continuations.
+
+Launchpad discovery is a plugin boundary. Missing platform adapters remain unavailable and do
+not synthesize lifecycle stages. LP-control evidence, holder/funding graphs, first-buyer signals,
+wallet analytics, trending, competition, keeper, reporter, and realtime delivery are separate
+deterministic boundaries and do not make qualification or liquidation decisions through heuristics.

@@ -8,6 +8,7 @@ import type {
 } from "./provenance.js";
 
 export * from "./provenance.js";
+export * from "./canonical.js";
 
 export type { ChainId, Hex, SupportedChain };
 
@@ -47,11 +48,11 @@ export type OriginPlatform = (typeof ORIGIN_PLATFORMS)[number];
 export interface TokenIdentity {
   readonly chain: SupportedChain;
   readonly tokenAddress: string;
-  readonly symbol: string;
-  readonly name: string;
-  readonly decimals: number;
+  readonly symbol: string | null;
+  readonly name: string | null;
+  readonly decimals: number | null;
   readonly deployer: string | null;
-  readonly createdAt: string;
+  readonly createdAt: string | null;
   readonly originPlatform: OriginPlatform;
 }
 
@@ -72,7 +73,7 @@ export interface AuthorityState {
   readonly honeypotDetected: boolean | null;
 }
 
-export type LpLockStatus = "LOCKED" | "BURNED" | "WITHDRAWABLE" | "UNKNOWN";
+export type LpLockStatus = "LOCKED" | "BURNED" | "PROTOCOL_CONTROLLED" | "WITHDRAWABLE" | "UNKNOWN";
 
 export interface LiquidityState {
   readonly totalLiquidityUsd: number;

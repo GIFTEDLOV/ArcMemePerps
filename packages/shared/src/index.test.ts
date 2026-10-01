@@ -7,6 +7,8 @@ import {
   marketIdForSolanaToken,
   marketIdForToken,
   normalizeTokenAddress,
+  NETWORK_CONFIGS,
+  rpcUrlsForNetwork,
 } from "./index.js";
 
 describe("shared canonical identity helpers", () => {
@@ -58,5 +60,14 @@ describe("shared canonical identity helpers", () => {
     expect(marketIdForToken("BASE", "0x0000000000000000000000000000000000000001")).not.toBe(
       marketIdForToken("BASE", "0x0000000000000000000000000000000000000002"),
     );
+  });
+
+  it("builds an ordered de-duplicated RPC pool from environment configuration", () => {
+    expect(
+      rpcUrlsForNetwork(NETWORK_CONFIGS.SOLANA, {
+        SOLANA_RPC_URL: "https://primary.example",
+        SOLANA_RPC_URL_FALLBACKS: "https://secondary.example, https://primary.example",
+      }),
+    ).toEqual(["https://primary.example", "https://secondary.example"]);
   });
 });

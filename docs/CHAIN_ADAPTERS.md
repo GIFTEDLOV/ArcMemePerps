@@ -26,3 +26,8 @@ Robinhood’s chain ID and RPC are checked against the [Robinhood Chain connecti
 The EVM adapter reads chain ID, latest block/timestamp, bytecode existence, and ERC-20 metadata through viem. Deployer history, ownership semantics, LP security, and proxy implementation are not inferred from bytecode alone. Solana reads account ownership, SPL/Token-2022 mint layout, supply, authorities, largest accounts, and slot provenance. Helius enrichment is optional.
 
 Lifecycle classification only marks `DEX_LIVE` when a normalized DEX pair is observed. Bonding, graduation, and launchpad-specific stages require a future platform plugin; generic token records do not guess them.
+
+Gate 4C adds `DiscoveryCoordinator` and platform-plugin boundaries for Pump.fun/PumpSwap,
+Raydium, Meteora, Four.meme, Flaunch, Aerodrome, Arc-native venues, and documented Robinhood
+DEXs. The catalog is not a claim that those plugins are live. A missing plugin is `UNAVAILABLE`,
+and unsupported methods on a live adapter raise `CapabilityUnavailableError`.

@@ -5,6 +5,8 @@
   "type": "module",
   "dependencies": {
     "@arcmemeperps/chain-adapters": "workspace:*",
-    "@arcmemeperps/domain": "workspace:*"
+    "@arcmemeperps/domain": "workspace:*",
+    "@arcmemeperps/persistence": "workspace:*",
+    "@arcmemeperps/shared": "workspace:*"
   }
 }

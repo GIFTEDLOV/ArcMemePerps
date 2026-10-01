@@ -8,7 +8,7 @@ import {
   qualificationProofHash,
 } from "@arcmemeperps/qualification-proof";
 import { assessRisk, RISK_RULE_VERSION } from "@arcmemeperps/risk-engine";
-import { NETWORK_CONFIGS, type SupportedChain } from "@arcmemeperps/shared";
+import { NETWORK_CONFIGS, rpcUrlsForNetwork, type SupportedChain } from "@arcmemeperps/shared";
 
 interface CliOptions {
   readonly chain: SupportedChain;
@@ -32,9 +32,13 @@ async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
   const adapter =
     options.chain === "SOLANA"
-      ? new SolanaChainAdapter(NETWORK_CONFIGS.SOLANA, { noEnrichment: options.noEnrichment })
+      ? new SolanaChainAdapter(NETWORK_CONFIGS.SOLANA, {
+          noEnrichment: options.noEnrichment,
+          rpcUrls: rpcUrlsForNetwork(NETWORK_CONFIGS.SOLANA),
+        })
       : new GenericEvmChainAdapter(NETWORK_CONFIGS[options.chain], {
           noEnrichment: options.noEnrichment,
+          rpcUrls: rpcUrlsForNetwork(NETWORK_CONFIGS[options.chain]),
         });
   const record = await adapter.inspectToken(options.token, { noEnrichment: options.noEnrichment });
   const assessment = assessRisk(record, { assessedAt: new Date().toISOString() });
@@ -141,8 +145,8 @@ function humanReport(report: {
     readonly marketId: string;
     readonly chain: string;
     readonly tokenAddress: string;
-    readonly symbol: string;
-    readonly name: string;
+    readonly symbol: string | null;
+    readonly name: string | null;
   };
   readonly lifecycle: { readonly status: string };
   readonly integrityAssessment: { readonly status: string };

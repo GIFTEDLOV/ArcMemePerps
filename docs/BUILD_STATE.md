@@ -47,3 +47,17 @@ is a mechanics canary and is not a production safety claim.
 
 Gate 5 has not started. No Arc Mainnet write, GitHub remote, GitHub push, frontend, or production
 deployment exists.
+
+# Gate 4C backend audit status
+
+The Gate 4C audit branch adds the binding feature ledger at `docs/BACKEND_FEATURE_MATRIX.md`
+and the remaining-gap list at `docs/BACKEND_GAPS.md`. Canonical versioned Zod schemas, local
+SQLite persistence, reorg/idempotency primitives, bounded provider pools, lifecycle evidence
+classification, explicit launchpad boundaries, LP/holder/funding/first-buyer/wash/wallet/
+trending/competition primitives, a read-only API/SSE boundary, keeper/reporter boundaries, and
+unified health records are present and tested.
+
+This audit does not claim full product completion. Continuous discovery, historical ingestion,
+venue-specific LP/depth readers, durable workers, production API wiring, and mainnet operations
+remain incomplete as listed in `docs/BACKEND_GAPS.md`. No blockchain write was performed in
+Gate 4C.

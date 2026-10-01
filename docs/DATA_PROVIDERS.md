@@ -20,3 +20,18 @@ source-family labels prevent false oracle independence, and disagreement is reta
 material data-quality state. Timeouts, rate limits, malformed responses, wrong-chain/token
 responses, missing credentials, and unsupported fields degrade explicitly to unavailable or
 error. No adapter invents a security or depth result.
+
+# Gate 4C redundancy and canonicality
+
+`ProviderPool` applies bounded priority failover, timeout handling, circuit opening, and
+explicit `OPERATIONAL`/`DEGRADED`/`UNAVAILABLE` state. It selects a successful provider; it does
+not average contradictory security facts. Security-critical reconciliation remains fail-closed.
+
+RPC pools are configured without credentials in code: the primary endpoint uses the existing
+`<CHAIN>_RPC_URL` variable and optional comma-separated fallbacks use
+`<CHAIN>_RPC_URL_FALLBACKS`. The pool retains health/circuit state across reads for one adapter
+instance and never treats an exhausted pool as a zero-valued observation.
+
+Provider state is part of the canonical snapshot boundary. HTTP 200 from one endpoint cannot
+erase a failed or stale result from another source, and an unavailable optional provider is not
+represented as zero evidence.

@@ -36,3 +36,14 @@ contract write path is used.
 GoPlus, Bubblemaps, and Helius were explicitly unavailable because enrichment was disabled and
 no API credentials were supplied. These statuses remain unavailable/unknown to the risk engine;
 they are never treated as passing evidence.
+
+# Gate 4C read-only smoke (2026-10-01)
+
+The smoke was rerun after provider-pool wiring. Arc, Ethereum, Base, BNB, and Robinhood returned
+canonical EVM block plus ERC-20 metadata evidence and DexScreener market evidence. The public
+Solana RPC again returned HTTP 429; the normalized result is `UNAVAILABLE` with the provider
+error preserved, while DexScreener remained available. No transaction, signing, approval, or
+other write method was invoked.
+
+The RPC pool accepts `<CHAIN>_RPC_URL_FALLBACKS`; no fallback endpoint was configured for this
+run, so this result is intentionally not presented as Solana health.

@@ -15,3 +15,8 @@ funding/borrow/skew/liquidation properties, capacity bounds, and 2,000 seeded si
 scenarios. Foundry covers the same PnL/funding/borrow vectors, a PnL fuzz property, existing
 Gate 1 invariants, and `forge lint` safety checks. Live reads remain separate from deterministic
 CI and no test submits a transaction.
+
+Gate 4C adds Zod schema-boundary tests, SQLite persistence tests, checkpoint reorg tests,
+exactly-once event tests, provider-pool failover tests, launchpad-unavailable tests, holder/LP
+evidence tests, competition anti-gaming tests, and explicit unsupported-depth tests. Test-only
+HTTP fakes and local contract mocks are classified as fixtures and are not provider fallbacks.

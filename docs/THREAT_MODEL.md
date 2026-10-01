@@ -23,3 +23,11 @@ delay, insurance depletion, bad debt, vault withdrawal races, reentrancy, unsafe
 and non-standard collateral behavior as active threats. Mitigations are conservative oracle
 bands, source-family independence, bounded limits, isolated margin, checked transfers/casts,
 state-before-interaction ordering, explicit bad-debt accounting, and emergency risk reduction.
+
+# Gate 4C backend threats
+
+Gate 4C adds stale canonical snapshots, duplicate/replayed indexer events, checkpoint reorgs,
+provider-pool optimistic failover, unjustified LP/system-wallet exclusions, unbounded
+funding-graph traversal, competition self-offsetting, and live-adapter methods that previously
+returned empty placeholders. Unsupported capabilities now fail explicitly; durable workers and
+cross-component reconciliation remain open risks.
