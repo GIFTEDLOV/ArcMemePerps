@@ -135,9 +135,11 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     error InvalidEconomicConfig();
     error InvalidSideCaps();
     error SkewCapExceeded();
+    error InsufficientVaultCapacity();
     error LegacyPathDisabled();
     error InvalidSettlementOutcome();
     error UnauthorizedADLController();
+    error InvalidADLPrice();
 
     event PositionOpened(
         uint256 indexed positionId,
@@ -152,6 +154,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     event PositionReduced(
         uint256 indexed positionId, uint256 collateralReleased, uint256 sizeReduced
     );
+    event PositionClosed(uint256 indexed positionId, int256 pnl, uint256 badDebt);
     event PositionLiquidated(uint256 indexed positionId, int256 pnl, uint256 badDebt);
     event LiquidationKeeperSet(address indexed keeper, bool enabled);
     event OrderKeeperSet(address indexed keeper, bool enabled);
@@ -176,12 +179,16 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     );
 
     modifier onlyKeeper() {
-        if (!liquidationKeeper[msg.sender] && msg.sender != owner) revert UnauthorizedKeeper();
+        if (!liquidationKeeper[msg.sender] && !(!bootstrapFinalized && msg.sender == owner)) {
+            revert UnauthorizedKeeper();
+        }
         _;
     }
 
     modifier onlyOrderKeeper() {
-        if (!orderKeeper[msg.sender] && msg.sender != owner) revert UnauthorizedOrderKeeper();
+        if (!orderKeeper[msg.sender] && !(!bootstrapFinalized && msg.sender == owner)) {
+            revert UnauthorizedOrderKeeper();
+        }
         _;
     }
 
@@ -245,10 +252,14 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         if (!position.open || sizeReduced == 0 || sizeReduced > position.size) {
             revert InvalidPosition();
         }
+        // ADL is an emergency path, but it may not turn a controller-supplied price
+        // into discretionary value transfer. The engine owns the canonical conservative
+        // oracle boundary and requires the controller input to match it exactly.
+        uint256 canonicalPrice = _executionPrice(position.marketId, position.isLong, false);
+        if (executionPrice != canonicalPrice) revert InvalidADLPrice();
         uint256 collateralReleased = sizeReduced == position.size ? position.collateral : 0;
         _reduceFor(positionId, sizeReduced, collateralReleased, executionPrice);
         // _reduceFor finalizes OI and position state before guarded settlement calls.
-        // forge-lint: disable-next-line(reentrancy-events)
         emit ADLPositionReduced(positionId, sizeReduced, executionPrice);
     }
 
@@ -285,7 +296,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     function setSkewConfig(uint256 maxSkewRatioWad_, uint256 worseningFeeRateWad_)
         external
-        onlyOwner
+        onlyGovernanceExecutor
     {
         if (maxSkewRatioWad_ > WAD || worseningFeeRateWad_ > WAD) {
             revert InvalidEconomicConfig();
@@ -343,12 +354,10 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         _removePosition(positionId, position);
         emit PositionLiquidated(positionId, settlementPnl, 0);
         // State is complete and the public entrypoint holds ReentrancyGuard.
-        // forge-lint: disable-next-item(reentrancy-no-eth)
         uint256 badDebt =
             marginVault.settlePosition(position.trader, position.collateral, settlementPnl);
         if (badDebt > 0) {
             // Compatibility path is retained for deterministic Gate 1 accounting tests.
-            // forge-lint: disable-next-line(reentrancy-no-eth)
             insuranceFund.recordBadDebt(badDebt);
         }
     }
@@ -380,14 +389,11 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         _removePosition(positionId, position);
         // State and OI are already removed before settlement.
         // State is complete and the public entrypoint holds ReentrancyGuard.
-        // forge-lint: disable-next-item(reentrancy-no-eth)
         (uint256 badDebt, uint256 reward, uint256 residual) = marginVault.settleLiquidationWad(
             position.trader, position.collateral, netPnl, liquidationRewardUsdc, msg.sender
         );
         if (badDebt > 0) _coverBadDebt(badDebt);
-        // forge-lint: disable-next-line(reentrancy-events)
         emit LiquidationOutcome(positionId, reward, residual);
-        // forge-lint: disable-next-line(reentrancy-events)
         emit PositionLiquidated(positionId, netPnl, badDebt);
     }
 
@@ -524,6 +530,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         IRiskConfig.Config memory config = riskConfig.getConfig(marketId);
         if (size > config.maxPosition) revert MaxPositionExceeded();
         _enforceExposure(marketId, isLong, size, config.maxOI);
+        _requireVaultCapacity(marketId, size);
         _assertLeverage(size, collateral, config.maxLeverage);
         _updateMarketAccrual(marketId);
         uint256 fee = _feeUsdc(size, feeConfig.openFeeRateWad);
@@ -554,9 +561,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         emit PositionOpened(positionId, account, marketId, isLong, collateral, size, price);
         if (skewFee > 0) emit SkewFeeCharged(positionId, skewFee);
         // State is finalized before the guarded external vault interactions.
-        // forge-lint: disable-next-line(reentrancy-no-eth)
         marginVault.lockCollateral(account, collateral);
-        // forge-lint: disable-next-line(reentrancy-no-eth)
         marginVault.collectFee(account, fee);
         if (fee > 0) _routeFee(fee);
     }
@@ -580,6 +585,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 newCollateral = accruedCollateral + collateralAdded;
         if (newSize > config.maxPosition) revert MaxPositionExceeded();
         _enforceExposure(position.marketId, position.isLong, sizeAdded, config.maxOI);
+        _requireVaultCapacity(position.marketId, sizeAdded);
         _assertLeverage(newSize, newCollateral, config.maxLeverage);
         uint256 fee = _feeUsdc(sizeAdded, feeConfig.openFeeRateWad);
         uint256 skewFee = _worseningSkewFee(position.marketId, position.isLong, sizeAdded);
@@ -605,15 +611,12 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         // Position/OI state is final before any external vault call. The returned value is
         // checked against the independently computed fixed-point result.
         // State is complete and the public entrypoint holds ReentrancyGuard.
-        // forge-lint: disable-next-item(reentrancy-no-eth)
         (uint256 vaultCollateral, uint256 accruedBadDebt) =
             marginVault.settleAccruedWad(position.trader, previousCollateral, accruedCost);
         if (accruedBadDebt > 0 || vaultCollateral != accruedCollateral) {
             revert AccruedCostExceedsCollateral();
         }
-        // forge-lint: disable-next-line(reentrancy-no-eth)
         marginVault.lockCollateral(position.trader, collateralAdded);
-        // forge-lint: disable-next-line(reentrancy-no-eth)
         marginVault.collectFee(position.trader, fee);
         if (fee > 0) _routeFee(fee);
     }
@@ -666,7 +669,6 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         emit PositionReduced(positionId, collateralReleased, sizeReduced);
         // The vault emits the settlement event; this engine emits the canonical position mutation.
         // State is complete and the public entrypoint holds ReentrancyGuard.
-        // forge-lint: disable-next-item(reentrancy-no-eth)
         (uint256 payout, uint256 badDebt, uint256 remainingCollateral) = marginVault.settlePartialWad(
             position.trader, position.collateral, collateralReleased, netPnl, fee
         );
@@ -674,7 +676,6 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
             payout != expectedPayout || badDebt != expectedBadDebt
                 || remainingCollateral != expectedRemaining
         ) revert InvalidSettlementOutcome();
-        // forge-lint: disable-next-line(reentrancy-events)
         emit PartialSettlementOutcome(positionId, payout, badDebt);
         if (badDebt > 0) _coverBadDebt(badDebt);
     }
@@ -724,11 +725,9 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 fee = _feeUsdc(position.size, feeConfig.closeFeeRateWad);
         _removePosition(positionId, position);
         // State and OI are already removed before settlement.
-        // forge-lint: disable-next-line(reentrancy-no-eth)
         badDebt = marginVault.settlePositionWad(account, position.collateral, netPnl, fee);
         if (badDebt > 0) _coverBadDebt(badDebt);
-        // forge-lint: disable-next-line(reentrancy-events)
-        emit PositionLiquidated(positionId, netPnl, badDebt);
+        emit PositionClosed(positionId, netPnl, badDebt);
     }
 
     function _removePosition(uint256 positionId, Position memory position) private {
@@ -821,22 +820,18 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     function _coverBadDebt(uint256 badDebt) private {
         // State is complete and this call is reached only under ReentrancyGuard.
-        // forge-lint: disable-next-item(reentrancy-no-eth)
         (uint256 covered, uint256 uncovered) =
             insuranceFund.coverBadDebt(address(marginVault), badDebt);
         if (covered > 0) {
             // The insurance transfer and this custody update are atomic in the guarded call path.
-            // forge-lint: disable-next-item(reentrancy-no-eth)
             marginVault.receiveInsuranceCoverage(covered);
         }
-        // forge-lint: disable-next-line(reentrancy-events)
         emit BadDebtCoverageApplied(badDebt, covered, uncovered);
     }
 
     function _routeFee(uint256 fee) private {
         uint256 insuranceShare = (fee * feeConfig.insuranceShareBps) / 10_000;
         if (insuranceShare > 0) {
-            // forge-lint: disable-next-line(reentrancy-no-eth)
             marginVault.accrueInsuranceReserve(insuranceShare);
         }
     }
@@ -901,6 +896,17 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 afterSkew = nextLong >= nextShort ? nextLong - nextShort : nextShort - nextLong;
         if (afterSkew <= beforeSkew) return 0;
         return _feeUsdc(size, worseningSkewFeeRateWad);
+    }
+
+    function _requireVaultCapacity(bytes32 marketId, uint256 sizeAdded) private view {
+        // The legacy no-token harness is retained for historical accounting tests. The
+        // production ERC-20 path reserves market notional against actual free backing so a
+        // configured OI cap cannot outlive the vault that settles it.
+        if (marginVault.collateralToken() == address(0)) return;
+        uint256 availableBacking = marginVault.withdrawableLiquidity();
+        if (totalOpenInterest[marketId] + sizeAdded > availableBacking) {
+            revert InsufficientVaultCapacity();
+        }
     }
 
     function _assertLeverage(uint256 size, uint256 collateral, uint256 maxLeverage) private pure {

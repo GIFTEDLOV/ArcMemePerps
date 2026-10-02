@@ -25,7 +25,7 @@ contract ProtocolTimelock is AccessControlled, ReentrancyGuard {
 
     function queue(address target, uint256 value, bytes calldata data, bytes32 salt)
         external
-        onlyOwner
+        onlyRole(GOVERNANCE_ADMIN_ROLE)
         returns (bytes32 operationId)
     {
         if (target == address(0)) revert ZeroAddress();
@@ -41,7 +41,7 @@ contract ProtocolTimelock is AccessControlled, ReentrancyGuard {
         emit OperationQueuedEvent(operationId, target, eta);
     }
 
-    function cancel(bytes32 operationId) external onlyOwner {
+    function cancel(bytes32 operationId) external onlyRole(GOVERNANCE_ADMIN_ROLE) {
         if (queuedAt[operationId] == 0) revert OperationMissing();
         delete queuedAt[operationId];
         emit OperationCancelled(operationId);
@@ -51,7 +51,6 @@ contract ProtocolTimelock is AccessControlled, ReentrancyGuard {
         external
         payable
         nonReentrant
-        onlyOwner
         returns (bytes memory result)
     {
         if (target == address(0)) revert ZeroAddress();
@@ -64,7 +63,6 @@ contract ProtocolTimelock is AccessControlled, ReentrancyGuard {
         (bool success, bytes memory returned) = target.call{ value: value }(data);
         if (!success) revert CallFailed();
         // Queue state is finalized before the atomic external call.
-        // forge-lint: disable-next-line(reentrancy-events)
         emit OperationExecuted(operationId, target);
         return returned;
     }

@@ -30,7 +30,7 @@ contract QualificationRegistry is AccessControlled, IQualificationRegistry {
         uint256 maxOI,
         uint256 maxPosition,
         uint64 expiresAt
-    ) external onlyGovernanceExecutor {
+    ) external onlyRole(QUALIFICATION_WRITER_ROLE) {
         if (proofHash == bytes32(0) || ruleVersion == bytes32(0)) {
             revert InvalidProof();
         }
@@ -55,7 +55,7 @@ contract QualificationRegistry is AccessControlled, IQualificationRegistry {
         );
     }
 
-    function revokeQualification(bytes32 marketId) external onlyGovernanceExecutor {
+    function revokeQualification(bytes32 marketId) external onlyRole(QUALIFICATION_WRITER_ROLE) {
         Qualification storage qualification = _qualifications[marketId];
         qualification.approved = false;
         emit QualificationRevoked(marketId, qualification.proofHash);

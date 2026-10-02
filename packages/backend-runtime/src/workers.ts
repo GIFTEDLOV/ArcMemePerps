@@ -73,7 +73,7 @@ export class BackendWorkerService {
     const handler = this.handlers.get(job.type);
     if (handler === undefined) {
       const error = `NO_HANDLER:${job.type}`;
-      this.queue.fail(job.id, error, null);
+      this.queue.fail(job.id, error, null, job.leaseId);
       return this.record({
         jobId: job.id,
         type: job.type,
@@ -85,7 +85,7 @@ export class BackendWorkerService {
     }
     try {
       await handler(job);
-      this.queue.succeed(job.id);
+      this.queue.succeed(job.id, new Date().toISOString(), job.leaseId);
       return this.record({
         jobId: job.id,
         type: job.type,
@@ -96,7 +96,7 @@ export class BackendWorkerService {
       });
     } catch (error) {
       const message = error instanceof Error ? error.message : "worker failure";
-      this.queue.fail(job.id, message, null);
+      this.queue.fail(job.id, message, null, job.leaseId);
       return this.record({
         jobId: job.id,
         type: job.type,

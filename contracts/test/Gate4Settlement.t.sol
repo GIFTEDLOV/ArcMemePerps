@@ -41,6 +41,9 @@ contract Gate4SettlementTest {
         qualification = new QualificationRegistry();
         registry = new MarketRegistry(address(qualification));
         oracle = new OracleRouter(120, 8_500);
+        // The settlement unit tests use the explicit legacy updater hook. Production
+        // configuration remains two independent sources by default.
+        oracle.setPolicy(120, 8_500, 1);
         risk = new RiskConfig(address(qualification));
         vault = new USDCMarginVault();
         insurance = new InsuranceFund();

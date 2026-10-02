@@ -36,6 +36,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error InsufficientShares();
     error CooldownActive();
     error InsufficientLiquidity();
+    error CustodyDeltaMismatch();
 
     enum CustodyStatus {
         MATCH,
@@ -56,7 +57,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     event MarketRiskBudgetSet(uint256 riskBudget);
 
     modifier onlyController() {
-        if (msg.sender != riskController && msg.sender != owner) revert UnauthorizedController();
+        if (msg.sender != riskController && !(!bootstrapFinalized && msg.sender == owner)) {
+            revert UnauthorizedController();
+        }
         _;
     }
 
@@ -66,7 +69,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         withdrawalCooldown = withdrawalCooldown_;
     }
 
-    function setRiskController(address controller) external onlyOwner {
+    function setRiskController(address controller) external onlyGovernanceExecutor {
         if (controller == address(0)) revert ZeroAddress();
         riskController = controller;
         emit RiskControllerSet(controller);
@@ -92,7 +95,12 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (totalShares != 0 && navBefore == 0) revert InsufficientLiquidity();
         shares = totalShares == 0 ? assets : (assets * totalShares) / navBefore;
         if (shares == 0) revert InvalidAmount();
+        uint256 beforeBalance = asset.balanceOf(address(this));
         asset.safeTransferFrom(msg.sender, address(this), assets);
+        uint256 afterBalance = asset.balanceOf(address(this));
+        if (afterBalance < beforeBalance || afterBalance - beforeBalance != assets) {
+            revert CustodyDeltaMismatch();
+        }
         shareBalance[msg.sender] += shares;
         totalShares += shares;
         managedAssets += assets;
@@ -129,7 +137,12 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         shareBalance[msg.sender] -= request.shares;
         totalShares -= request.shares;
         managedAssets = managedAssets > assets ? managedAssets - assets : 0;
+        uint256 beforeBalance = asset.balanceOf(address(this));
         asset.safeTransfer(msg.sender, assets);
+        uint256 afterBalance = asset.balanceOf(address(this));
+        if (beforeBalance < afterBalance || beforeBalance - afterBalance != assets) {
+            revert CustodyDeltaMismatch();
+        }
         emit Withdrawn(msg.sender, assets, request.shares);
     }
 
@@ -139,6 +152,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     }
 
     function recordManagedAssets(uint256 assets) external onlyController {
+        if (assets > asset.balanceOf(address(this))) revert InsufficientLiquidity();
         managedAssets = assets;
         (CustodyStatus status,,,) = custodyStatus();
         emit ManagedAssetsReconciled(assets, asset.balanceOf(address(this)), status);

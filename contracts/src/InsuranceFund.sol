@@ -19,6 +19,7 @@ contract InsuranceFund is AccessControlled, IInsuranceFund, ReentrancyGuard {
     error UnauthorizedEngine();
     error InvalidCollateralToken();
     error InsufficientCapital();
+    error CustodyDeltaMismatch();
 
     event EngineSet(address indexed engine);
     event CollateralTokenSet(address indexed token);
@@ -30,14 +31,17 @@ contract InsuranceFund is AccessControlled, IInsuranceFund, ReentrancyGuard {
         _;
     }
 
-    function setEngine(address engine_) external onlyOwner {
+    function setEngine(address engine_) external onlyGovernanceExecutor {
         if (engine_ == address(0)) revert ZeroAddress();
         engine = engine_;
         emit EngineSet(engine_);
     }
 
-    function setCollateralToken(address token) external onlyOwner {
+    function setCollateralToken(address token) external onlyGovernanceExecutor {
         if (token == address(0) || token.code.length == 0) revert InvalidCollateralToken();
+        if (address(collateralToken) != address(0) && address(collateralToken) != token) {
+            revert InvalidCollateralToken();
+        }
         (bool success, bytes memory data) = token.staticcall(abi.encodeWithSignature("decimals()"));
         if (!success || data.length < 32 || abi.decode(data, (uint256)) != 6) {
             revert InvalidCollateralToken();
@@ -49,10 +53,14 @@ contract InsuranceFund is AccessControlled, IInsuranceFund, ReentrancyGuard {
     /**
      * Gate 1 accounting hook; asset custody and funding flows are deferred.
      */
-    function fund(uint256 amount) external nonReentrant onlyOwner {
+    function fund(uint256 amount) external nonReentrant onlyRole(INSURANCE_MANAGER_ROLE) {
         if (amount == 0) revert InsufficientCapital();
-        if (address(collateralToken) != address(0)) {
-            collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        if (address(collateralToken) == address(0)) revert InvalidCollateralToken();
+        uint256 beforeBalance = collateralToken.balanceOf(address(this));
+        collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        uint256 afterBalance = collateralToken.balanceOf(address(this));
+        if (afterBalance < beforeBalance || afterBalance - beforeBalance != amount) {
+            revert CustodyDeltaMismatch();
         }
         availableCapital += amount;
         emit CapitalFunded(amount);
@@ -79,11 +87,16 @@ contract InsuranceFund is AccessControlled, IInsuranceFund, ReentrancyGuard {
         availableCapital -= covered;
         badDebtCovered += covered;
         uncoveredBadDebt += uncovered;
-        if (covered > 0 && address(collateralToken) != address(0)) {
+        if (covered > 0) {
+            if (address(collateralToken) == address(0)) revert InvalidCollateralToken();
+            uint256 beforeBalance = collateralToken.balanceOf(address(this));
             collateralToken.safeTransfer(vault, covered);
+            uint256 afterBalance = collateralToken.balanceOf(address(this));
+            if (beforeBalance < afterBalance || beforeBalance - afterBalance != covered) {
+                revert CustodyDeltaMismatch();
+            }
         }
         // State is complete before the token transfer and vault callback above.
-        // forge-lint: disable-next-line(reentrancy-events)
         emit BadDebtRecorded(amount, covered, uncovered);
     }
 

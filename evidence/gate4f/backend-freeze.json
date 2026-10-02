@@ -1,0 +1,36 @@
+{
+  "gate": "4F",
+  "status": "SECURITY_AUDITED_CANDIDATE",
+  "supersedes": {
+    "gate": "4E",
+    "contractSourceSha256": "0x1575ff8f27b9aa44752c533079071bef97f0d07a3272963bec66fcf56d8e8a72",
+    "backendSourceSha256": "0x422912f8ae6c2823edb7bb03aa5ba2bc5ecd7c7b1c9fcf2f2ada3313f7a87e30"
+  },
+  "supersededPriorGate4fCandidate": {
+    "contractSourceSha256": "0x4541e3393e37a87bb25600589074089eb58a842ae37e356003c1d6ea147c30c1",
+    "backendSourceSha256": "0x81332540a4d4580e47e17d126c009ad2234b99c73f0c7455224160a3a36c3f44"
+  },
+  "contractSourceSha256": "0x656072107c766ec8062c3e708d6e800aab1c208d59de657b9ba3f86436bd0b3a",
+  "backendSourceSha256": "0x2ce802b94cbd404587a6e7a7a7c7672174fa45b4387fb5404ca7323757fb94bb",
+  "schemaVersion": "backend-completion/v1",
+  "riskRuleVersion": "0.1.0",
+  "qualificationProofVersion": "2",
+  "apiVersion": "v1",
+  "testnetRedeployRequired": true,
+  "testnetWritesPerformed": false,
+  "mainnetWritesPerformed": false,
+  "contractsChangedDuringAudit": true,
+  "attackCases": 38,
+  "propertyScenarios": 10000,
+  "invariantCalls": 512000,
+  "fuzzRunsPerProperty": 256,
+  "securityAudit": {
+    "scope": "hostile internal audit",
+    "criticalOpen": 0,
+    "highOpen": 0,
+    "mediumOpen": 0,
+    "externalAuditPending": true,
+    "publicLpActivationRequiresReviewedBackingRoute": true
+  },
+  "secretsIncluded": false
+}

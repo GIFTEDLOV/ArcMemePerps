@@ -31,6 +31,30 @@ describe("dual deterministic gates", () => {
     expect(result).toEqual({ decision: "REFUSE", reasonCodes: ["MARKET_PAUSED"] });
   });
 
+  it("keeps exposure-reducing actions available during an oracle/insurance outage", () => {
+    const result = evaluateExecutionGate({
+      qualificationFresh: false,
+      marketState: "BLOCKED",
+      riskIncreasing: false,
+      oracleFresh: false,
+      oracleConfidenceBps: 0,
+      requiredOracleConfidenceBps: 8_500,
+      currentOIUsdWad: 100n,
+      sideOIUsdWad: 100n,
+      sizeDeltaUsdWad: 10n,
+      maxOIUsdWad: 1n,
+      maxSideOIUsdWad: 1n,
+      maxPositionUsdWad: 1n,
+      currentPositionUsdWad: 100n,
+      vaultCapacityUsdWad: 0n,
+      insuranceHealthy: false,
+      marginSufficient: false,
+      orderUnexpired: true,
+      preTradePlanHashMatches: true,
+    });
+    expect(result).toEqual({ decision: "ALLOW", reasonCodes: [] });
+  });
+
   it("never turns missing qualification evidence into approval", () => {
     const result = evaluateQualificationGate({
       passport: {

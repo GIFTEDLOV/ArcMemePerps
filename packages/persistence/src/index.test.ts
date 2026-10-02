@@ -3,6 +3,7 @@ import {
   BackendRepository,
   InMemoryPersistence,
   PostgresPersistence,
+  PersistentJobQueue,
   SQLitePersistence,
   type PostgresQueryClient,
 } from "./index.js";
@@ -67,6 +68,31 @@ describe("persistence", () => {
       repository.markNotificationRead("notification-1", "2026-01-01T00:00:02.000Z").readAt,
     ).toBe("2026-01-01T00:00:02.000Z");
     expect(repository.listNotifications("0xabc")[0]?.sourceEventId).toBe("protocol-event-1");
+    storage.close();
+  });
+
+  it("does not re-claim a live lease and rejects stale-worker completion", () => {
+    const storage = new SQLitePersistence(":memory:");
+    const firstWorker = new PersistentJobQueue(storage, 1_000);
+    const secondWorker = new PersistentJobQueue(storage, 1_000);
+    firstWorker.enqueue({
+      id: "job-1",
+      type: "RECONCILIATION",
+      dedupeKey: "reconcile-1",
+      payload: { check: "vault" },
+      availableAt: "2026-10-01T00:00:00.000Z",
+    });
+    const first = firstWorker.claim("2026-10-01T00:00:00.000Z");
+    expect(first?.leaseId).toMatch(/[0-9a-f-]{36}/);
+    expect(secondWorker.claim("2026-10-01T00:00:00.500Z")).toBeNull();
+
+    const recovered = secondWorker.claim("2026-10-01T00:00:01.001Z");
+    expect(recovered?.leaseId).not.toBe(first?.leaseId);
+    expect(() => firstWorker.succeed("job-1", undefined, first?.leaseId ?? null)).toThrow(
+      "JOB_LEASE_LOST",
+    );
+    secondWorker.succeed("job-1", "2026-10-01T00:00:01.002Z", recovered?.leaseId ?? null);
+    expect(secondWorker.get("job-1")?.status).toBe("SUCCEEDED");
     storage.close();
   });
 });

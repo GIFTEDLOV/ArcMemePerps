@@ -1,4 +1,5 @@
 import { DatabaseSync } from "node:sqlite";
+import { randomUUID } from "node:crypto";
 import {
   MarketPassportSchema,
   NotificationEventSchema,
@@ -366,6 +367,7 @@ export interface DurableJob {
   readonly maxAttempts: number;
   readonly availableAt: string;
   readonly lockedAt: string | null;
+  readonly leaseId: string | null;
   readonly completedAt: string | null;
   readonly lastError: string | null;
 }
@@ -375,9 +377,26 @@ export interface DurableJob {
  * workers never depend on an in-memory queue or unbounded retries.
  */
 export class PersistentJobQueue {
-  public constructor(private readonly storage: PersistenceStore) {}
+  public constructor(
+    private readonly storage: PersistenceStore,
+    private readonly leaseMs = 60_000,
+  ) {}
 
   public enqueue(input: {
+    readonly id: string;
+    readonly type: string;
+    readonly dedupeKey: string;
+    readonly payload: Readonly<Record<string, unknown>>;
+    readonly maxAttempts?: number;
+    readonly availableAt?: string;
+  }): DurableJob {
+    if (isTransactionalStore(this.storage)) {
+      return this.storage.transaction(() => this.enqueueUnsafe(input));
+    }
+    return this.enqueueUnsafe(input);
+  }
+
+  private enqueueUnsafe(input: {
     readonly id: string;
     readonly type: string;
     readonly dedupeKey: string;
@@ -399,6 +418,7 @@ export class PersistentJobQueue {
       maxAttempts: input.maxAttempts ?? 3,
       availableAt: input.availableAt ?? new Date().toISOString(),
       lockedAt: null,
+      leaseId: null,
       completedAt: null,
       lastError: null,
     };
@@ -412,13 +432,25 @@ export class PersistentJobQueue {
   }
 
   public claim(now = new Date().toISOString()): DurableJob | null {
+    if (isTransactionalStore(this.storage)) {
+      return this.storage.transaction(() => this.claimUnsafe(now));
+    }
+    return this.claimUnsafe(now);
+  }
+
+  private claimUnsafe(now: string): DurableJob | null {
+    const nowMs = Date.parse(now);
     const candidate = this.storage
       .list("jobs")
       .map((record) => decodeJob(record.payload))
       .filter(
         (job) =>
-          (job.status === "QUEUED" || job.status === "RUNNING") &&
-          job.availableAt <= now &&
+          ((job.status === "QUEUED" && job.availableAt <= now) ||
+            (job.status === "RUNNING" &&
+              job.lockedAt !== null &&
+              Number.isFinite(nowMs) &&
+              Number.isFinite(Date.parse(job.lockedAt)) &&
+              nowMs - Date.parse(job.lockedAt) >= this.leaseMs)) &&
           job.attempts < job.maxAttempts,
       )
       .sort((left, right) => left.availableAt.localeCompare(right.availableAt))[0];
@@ -428,6 +460,7 @@ export class PersistentJobQueue {
       status: "RUNNING",
       attempts: candidate.attempts + 1,
       lockedAt: now,
+      leaseId: randomUUID(),
     };
     this.storage.put(
       "jobs",
@@ -438,26 +471,33 @@ export class PersistentJobQueue {
     return claimed;
   }
 
-  public succeed(id: string, completedAt = new Date().toISOString()): void {
+  public succeed(
+    id: string,
+    completedAt = new Date().toISOString(),
+    leaseId: string | null = null,
+  ): void {
     const job = this.get(id);
     if (job === null) throw new Error(`job not found: ${id}`);
+    if (job.status !== "RUNNING" || job.leaseId !== leaseId) throw new Error("JOB_LEASE_LOST");
     this.storage.put(
       "jobs",
       id,
-      { ...job, status: "SUCCEEDED", completedAt, lockedAt: null },
+      { ...job, status: "SUCCEEDED", completedAt, lockedAt: null, leaseId: null },
       completedAt,
     );
   }
 
-  public fail(id: string, error: string, retryAt: string | null): void {
+  public fail(id: string, error: string, retryAt: string | null, leaseId: string | null = null): void {
     const job = this.get(id);
     if (job === null) throw new Error(`job not found: ${id}`);
+    if (job.status !== "RUNNING" || job.leaseId !== leaseId) throw new Error("JOB_LEASE_LOST");
     const terminal = retryAt === null || job.attempts >= job.maxAttempts;
     const failed: DurableJob = {
       ...job,
       status: terminal ? "FAILED" : "QUEUED",
       availableAt: retryAt ?? job.availableAt,
       lockedAt: null,
+      leaseId: null,
       lastError: error,
     };
     this.storage.put(
@@ -641,7 +681,17 @@ function decodeJob(payload: Readonly<Record<string, unknown>>): DurableJob {
     typeof payload.availableAt !== "string"
   )
     throw new Error("invalid durable job payload");
-  return payload as unknown as DurableJob;
+  return {
+    ...(payload as unknown as DurableJob),
+    lockedAt: typeof payload.lockedAt === "string" ? payload.lockedAt : null,
+    leaseId: typeof payload.leaseId === "string" ? payload.leaseId : null,
+    completedAt: typeof payload.completedAt === "string" ? payload.completedAt : null,
+    lastError: typeof payload.lastError === "string" ? payload.lastError : null,
+  };
+}
+
+function isTransactionalStore(storage: PersistenceStore): storage is PersistenceTransaction {
+  return "transaction" in storage && typeof storage.transaction === "function";
 }
 
 function searchRank(passport: MarketPassport, query: string): number {

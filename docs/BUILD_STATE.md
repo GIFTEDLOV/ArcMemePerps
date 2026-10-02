@@ -51,6 +51,14 @@ is a mechanics canary and is not a production safety claim.
 Gate 5 has not started. No Arc Mainnet write, GitHub remote, GitHub push, frontend, or production
 deployment exists.
 
+# Gate 4F security-audit state
+
+Gate 4F is a hostile internal audit of the Gate 4E candidate. It adds custody-delta checks,
+uncovered-bad-debt backing reservations, finalized bootstrap authority removal, governance-executor
+timelock enforcement for sensitive configuration, finalized signed-oracle enforcement, reporter-set
+rollback protection, and distinct close/liquidation protocol events. The exact attack corpus and
+superseding source hashes are recorded in `evidence/gate4f/`; no blockchain writes were performed.
+
 # Gate 4C backend audit status (historical)
 
 The Gate 4C audit branch adds the binding feature ledger at `docs/BACKEND_FEATURE_MATRIX.md`

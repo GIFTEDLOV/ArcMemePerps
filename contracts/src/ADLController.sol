@@ -43,7 +43,9 @@ contract ADLController is AccessControlled, ReentrancyGuard {
     event KeeperSet(address indexed keeper, bool enabled);
 
     modifier onlyKeeper() {
-        if (msg.sender != keeper && msg.sender != owner) revert UnauthorizedKeeper();
+        if (msg.sender != keeper && !(!bootstrapFinalized && msg.sender == owner)) {
+            revert UnauthorizedKeeper();
+        }
         _;
     }
 
@@ -52,13 +54,13 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         engine = IAdlEngine(engine_);
     }
 
-    function setKeeper(address keeper_) external onlyOwner {
+    function setKeeper(address keeper_) external onlyGovernanceExecutor {
         if (keeper_ == address(0)) revert ZeroAddress();
         keeper = keeper_;
         emit KeeperSet(keeper_, true);
     }
 
-    function openEpisode(bytes32 episode, uint256 deficit) external onlyOwner {
+    function openEpisode(bytes32 episode, uint256 deficit) external onlyGovernanceExecutor {
         if (episode == bytes32(0) || deficit == 0 || episodeFinalized[episode]) {
             revert InvalidEpisode();
         }
@@ -71,7 +73,7 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         uint256 positionId,
         uint256 size,
         uint256 rankingScore
-    ) external onlyOwner {
+    ) external onlyGovernanceExecutor {
         if (remainingDeficit[episode] == 0 || positionId == 0 || size == 0) {
             revert InvalidEpisode();
         }
@@ -104,9 +106,7 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         candidate.used = true;
         remainingDeficit[episode] = remaining - reduction;
         // Candidate is consumed and the deficit budget reduced before the engine call.
-        // forge-lint: disable-next-line(reentrancy-no-eth)
         engine.adlReducePosition(positionId, reduction, executionPrice);
-        // forge-lint: disable-next-line(reentrancy-events)
         emit ADLExecuted(episode, positionId, reduction, remainingDeficit[episode]);
     }
 

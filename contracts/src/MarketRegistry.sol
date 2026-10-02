@@ -28,6 +28,7 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
     error MarketAlreadyExists();
     error MarketNotFound();
     error QualificationMissing();
+    error InvalidMarketIdentity();
 
     event MarketRegistered(
         bytes32 indexed marketId, bytes32 indexed originChain, bytes originToken
@@ -61,9 +62,10 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
 
     function registerEvmMarket(uint256 chainId, address token, bytes32 lifecycle)
         external
-        onlyOwner
+        onlyRole(QUALIFICATION_WRITER_ROLE)
         returns (bytes32 marketId)
     {
+        if (chainId == 0 || token == address(0)) revert InvalidMarketIdentity();
         marketId = computeEvmMarketId(chainId, token);
         if (_markets[marketId].exists) revert MarketAlreadyExists();
         _markets[marketId] = Market({
@@ -79,9 +81,10 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
 
     function registerSolanaMarket(bytes32 publicKey, bytes32 lifecycle)
         external
-        onlyOwner
+        onlyRole(QUALIFICATION_WRITER_ROLE)
         returns (bytes32 marketId)
     {
+        if (publicKey == bytes32(0)) revert InvalidMarketIdentity();
         marketId = computeSolanaMarketId(publicKey);
         if (_markets[marketId].exists) revert MarketAlreadyExists();
         _markets[marketId] = Market({
@@ -110,6 +113,9 @@ contract MarketRegistry is AccessControlled, IMarketRegistry {
 
     function setState(bytes32 marketId, MarketState state) external onlyGovernanceExecutor {
         if (!_markets[marketId].exists) revert MarketNotFound();
+        if (state == MarketState.LIVE && !qualificationRegistry.isApproved(marketId)) {
+            revert QualificationMissing();
+        }
         _markets[marketId].state = state;
         emit MarketStateUpdated(marketId, state);
     }

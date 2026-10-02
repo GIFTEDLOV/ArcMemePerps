@@ -102,24 +102,24 @@ export interface ExecutionGateResult {
 
 export function evaluateExecutionGate(input: ExecutionGateInput): ExecutionGateResult {
   const reasons: string[] = [];
-  if (!input.qualificationFresh) reasons.push("QUALIFICATION_STALE");
-  if (!input.oracleFresh) reasons.push("ORACLE_STALE");
-  if (input.oracleConfidenceBps < input.requiredOracleConfidenceBps)
+  if (input.riskIncreasing && !input.qualificationFresh) reasons.push("QUALIFICATION_STALE");
+  if (input.riskIncreasing && !input.oracleFresh) reasons.push("ORACLE_STALE");
+  if (input.riskIncreasing && input.oracleConfidenceBps < input.requiredOracleConfidenceBps)
     reasons.push("ORACLE_CONFIDENCE_LOW");
   if (!input.orderUnexpired) reasons.push("ORDER_EXPIRED");
   if (!input.preTradePlanHashMatches) reasons.push("PRETRADE_PLAN_MISMATCH");
-  if (!input.marginSufficient) reasons.push("MARGIN_INSUFFICIENT");
-  if (!input.insuranceHealthy) reasons.push("INSURANCE_DEGRADED");
-  if (input.currentOIUsdWad + input.sizeDeltaUsdWad > input.maxOIUsdWad) reasons.push("OI_CAP");
-  if (input.sideOIUsdWad + input.sizeDeltaUsdWad > input.maxSideOIUsdWad)
+  if (input.riskIncreasing && !input.marginSufficient) reasons.push("MARGIN_INSUFFICIENT");
+  if (input.riskIncreasing && !input.insuranceHealthy) reasons.push("INSURANCE_DEGRADED");
+  if (input.riskIncreasing && input.currentOIUsdWad + input.sizeDeltaUsdWad > input.maxOIUsdWad)
+    reasons.push("OI_CAP");
+  if (input.riskIncreasing && input.sideOIUsdWad + input.sizeDeltaUsdWad > input.maxSideOIUsdWad)
     reasons.push("SIDE_OI_CAP");
-  if (input.currentPositionUsdWad + input.sizeDeltaUsdWad > input.maxPositionUsdWad)
+  if (input.riskIncreasing && input.currentPositionUsdWad + input.sizeDeltaUsdWad > input.maxPositionUsdWad)
     reasons.push("POSITION_CAP");
-  if (input.sizeDeltaUsdWad > input.vaultCapacityUsdWad) reasons.push("VAULT_CAPACITY");
+  if (input.riskIncreasing && input.sizeDeltaUsdWad > input.vaultCapacityUsdWad)
+    reasons.push("VAULT_CAPACITY");
   if (input.riskIncreasing && input.marketState !== "LIVE")
     reasons.push(`MARKET_${input.marketState}`);
-  if (!input.riskIncreasing && input.marketState === "BLOCKED")
-    reasons.push("MARKET_BLOCKED_CLOSE_POLICY");
   return reasons.length === 0
     ? { decision: "ALLOW", reasonCodes: [] }
     : { decision: "REFUSE", reasonCodes: unique(reasons) };
@@ -483,7 +483,7 @@ export class SnapshotIngestionWorker {
           evidence as unknown as Readonly<Record<string, unknown>>,
           observedAt,
         );
-      this.jobs.succeed(job.id);
+      this.jobs.succeed(job.id, new Date().toISOString(), job.leaseId);
       return {
         passport,
         snapshotId: `${passport.identity.marketId}:${observedAt}`,
@@ -494,6 +494,7 @@ export class SnapshotIngestionWorker {
         job.id,
         error instanceof Error ? error.message : "market refresh failed",
         null,
+        job.leaseId,
       );
       throw error;
     }

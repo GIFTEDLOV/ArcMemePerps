@@ -29,6 +29,7 @@ contract OracleRouter is AccessControlled, IOracleRouter {
     mapping(bytes32 marketId => StoredReport report) private _reports;
     mapping(address updater => bool enabled) public isUpdater;
     mapping(address reporter => bool enabled) public isReporter;
+    mapping(bytes32 version => bool retired) public retiredReporterSetVersion;
     mapping(bytes32 marketId => uint64 sequence) public latestSequence;
     uint64 public maxStaleness;
     uint256 public minimumConfidenceBps;
@@ -47,12 +48,15 @@ contract OracleRouter is AccessControlled, IOracleRouter {
     error InsufficientIndependentSources();
     error NonMonotonicSequence();
     error InvalidReportBand();
+    error InvalidSourceCounts();
     error InvalidReporterSet();
     error InvalidSignature();
     error DuplicateSigner();
     error UnauthorizedReporter();
     error InsufficientReporterThreshold();
     error ReporterSetVersionMismatch();
+    error ReporterSetVersionRetired();
+    error LegacyPathDisabled();
 
     event UpdaterSet(address indexed updater, bool enabled);
     event UpdaterAuthorizationChanged(address indexed updater, bool enabled);
@@ -70,13 +74,17 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         if (maxStaleness_ == 0 || minimumConfidenceBps_ > 10_000) revert InvalidConfidence();
         maxStaleness = maxStaleness_;
         minimumConfidenceBps = minimumConfidenceBps_;
+        // Long-tail markets must not become executable on a single updater/source by
+        // default. A deployment may choose a stricter policy, while compatibility tests
+        // that intentionally exercise the legacy single-source hook must opt down
+        // explicitly through setPolicy before publishing a usable price.
+        minimumIndependentSources = 2;
         domainChainId = block.chainid;
     }
 
     function setUpdater(address updater, bool enabled) external onlyGovernanceExecutor {
         if (updater == address(0)) revert ZeroAddress();
         // The dedicated authorization event is emitted below for audit consumers.
-        // forge-lint: disable-next-line(missing-events-access-control)
         isUpdater[updater] = enabled;
         emit UpdaterSet(updater, enabled);
         emit UpdaterAuthorizationChanged(updater, enabled);
@@ -93,6 +101,10 @@ contract OracleRouter is AccessControlled, IOracleRouter {
         onlyGovernanceExecutor
     {
         if (threshold == 0 || version == bytes32(0)) revert InvalidReporterSet();
+        if (retiredReporterSetVersion[version]) revert ReporterSetVersionRetired();
+        if (reporterSetVersion != bytes32(0)) {
+            retiredReporterSetVersion[reporterSetVersion] = true;
+        }
         reporterThreshold = threshold;
         reporterSetVersion = version;
         emit ReporterThresholdSet(threshold, version);
@@ -115,6 +127,7 @@ contract OracleRouter is AccessControlled, IOracleRouter {
     function setPrice(bytes32 marketId, uint256 price, uint64 observedAt, uint256 confidenceBps)
         external
     {
+        if (bootstrapFinalized) revert LegacyPathDisabled();
         if (!isUpdater[msg.sender]) revert UnauthorizedUpdater();
         if (price == 0) revert InvalidPrice();
         if (confidenceBps > 10_000) revert InvalidConfidence();
@@ -144,6 +157,7 @@ contract OracleRouter is AccessControlled, IOracleRouter {
     }
 
     function setReport(OracleReport calldata report) external {
+        if (bootstrapFinalized) revert LegacyPathDisabled();
         if (!isUpdater[msg.sender]) revert UnauthorizedUpdater();
         _validateReport(report);
         uint64 previousSequence = latestSequence[report.marketId];
@@ -260,6 +274,10 @@ contract OracleRouter is AccessControlled, IOracleRouter {
                 || report.maxPrice == 0 || report.minPrice > report.midPrice
                 || report.midPrice > report.maxPrice
         ) revert InvalidReportBand();
+        if (
+            report.sourceCount == 0 || report.independentSourceCount == 0
+                || report.independentSourceCount > report.sourceCount
+        ) revert InvalidSourceCounts();
         if (report.arcChainId != domainChainId) revert InvalidReportBand();
         if (report.confidenceBps > 10_000) revert InvalidConfidence();
         uint256 currentTime = _clock();
@@ -288,7 +306,6 @@ contract OracleRouter is AccessControlled, IOracleRouter {
 
     function _emitReportUpdated(OracleReport calldata report) private {
         // This helper performs no external call; callers emit only after validation.
-        // forge-lint: disable-next-line(reentrancy-events)
         emit ReportUpdated(report.marketId, report.sequence);
     }
 

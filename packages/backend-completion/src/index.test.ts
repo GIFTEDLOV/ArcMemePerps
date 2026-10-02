@@ -293,6 +293,9 @@ describe("Gate 4E backend completion boundary", () => {
       maxOI: 100n,
       positionAfter: 2n,
       maxPosition: 1n,
+      vaultCapacity: 100n,
+      insuranceHealthy: true,
+      marginSufficient: true,
       expiry: "2026-10-02T00:00:00.000Z",
       now: "2026-10-01T00:00:00.000Z",
     });
@@ -375,8 +378,10 @@ describe("Gate 4E backend completion boundary", () => {
   });
 
   it("keeps the critical mutation bank explicit and fully killable", () => {
-    expect(criticalMutationBank().length).toBeGreaterThanOrEqual(10);
-    expect(criticalMutationBank().every((mutation) => mutation.expectedKilled)).toBe(true);
+    const mutations = criticalMutationBank();
+    expect(mutations.length).toBeGreaterThanOrEqual(25);
+    expect(new Set(mutations.map((mutation) => mutation.name)).size).toBe(mutations.length);
+    expect(mutations.every((mutation) => mutation.expectedKilled)).toBe(true);
   });
 
   it("reads EVM V2 pool state and performs real quote math", async () => {

@@ -34,6 +34,9 @@ contract Gate1InvariantsTest {
         qualification = new QualificationRegistry();
         registry = new MarketRegistry(address(qualification));
         oracle = new OracleRouter(120, 8_500);
+        // This invariant harness intentionally exercises the legacy one-source
+        // compatibility hook; production deployments keep the safer two-source default.
+        oracle.setPolicy(120, 8_500, 1);
         risk = new RiskConfig(address(qualification));
         vault = new USDCMarginVault();
         insurance = new InsuranceFund();

@@ -929,10 +929,15 @@ export class DurableKeeperSupervisor {
     this.running = true;
     try {
       await this.execute(job);
-      this.queue.succeed(job.id);
+      this.queue.succeed(job.id, new Date().toISOString(), job.leaseId);
       return "SUCCEEDED";
     } catch (error) {
-      this.queue.fail(job.id, error instanceof Error ? error.message : "KEEPER_FAILURE", null);
+      this.queue.fail(
+        job.id,
+        error instanceof Error ? error.message : "KEEPER_FAILURE",
+        null,
+        job.leaseId,
+      );
       return "FAILED";
     } finally {
       this.running = false;
@@ -963,6 +968,9 @@ export interface ExecutionGateInput {
   readonly maxOI: bigint;
   readonly positionAfter: bigint;
   readonly maxPosition: bigint;
+  readonly vaultCapacity: bigint;
+  readonly insuranceHealthy: boolean;
+  readonly marginSufficient: boolean;
   readonly expiry: string;
   readonly now: string;
 }
@@ -976,10 +984,14 @@ export function executionGate(input: ExecutionGateInput): ExecutionGateResult {
   if (input.riskIncreasing && input.marketState !== "LIVE")
     reasons.push(`MARKET_${input.marketState}_RISK_INCREASE_BLOCKED`);
   if (input.riskIncreasing && !input.oracleFresh) reasons.push("ORACLE_STALE");
-  if (input.oracleConfidenceBps < input.requiredConfidenceBps)
+  if (input.riskIncreasing && input.oracleConfidenceBps < input.requiredConfidenceBps)
     reasons.push("ORACLE_CONFIDENCE_INSUFFICIENT");
   if (input.riskIncreasing && input.oiAfter > input.maxOI) reasons.push("MAX_OI");
   if (input.riskIncreasing && input.positionAfter > input.maxPosition) reasons.push("MAX_POSITION");
+  if (input.riskIncreasing && input.oiAfter > input.vaultCapacity)
+    reasons.push("VAULT_CAPACITY");
+  if (input.riskIncreasing && !input.insuranceHealthy) reasons.push("INSURANCE_DEGRADED");
+  if (input.riskIncreasing && !input.marginSufficient) reasons.push("MARGIN_INSUFFICIENT");
   if (Date.parse(input.expiry) <= Date.parse(input.now)) reasons.push("ORDER_EXPIRED");
   return { decision: reasons.length === 0 ? "ALLOW" : "REFUSE", reasons };
 }
@@ -1386,6 +1398,81 @@ export function criticalMutationBank(): readonly FaultMutation[] {
       name: "PRETRADE_PLAN_MUTATED",
       expectedKilled: true,
       reason: "execution binds the plan hash",
+    },
+    {
+      name: "DUPLICATE_EVENT",
+      expectedKilled: true,
+      reason: "canonical event IDs are idempotent",
+    },
+    {
+      name: "WRONG_TOKEN_ACCEPTED",
+      expectedKilled: true,
+      reason: "provider observations bind the canonical token identity",
+    },
+    {
+      name: "FUTURE_TIMESTAMP_ACCEPTED",
+      expectedKilled: true,
+      reason: "future-dated evidence is rejected",
+    },
+    {
+      name: "SYSTEM_EXCLUSION_WIDENED",
+      expectedKilled: true,
+      reason: "only explicitly classified system addresses are excluded",
+    },
+    {
+      name: "VENUE_DEPTH_FROM_TVL",
+      expectedKilled: true,
+      reason: "depth requires directional quote state",
+    },
+    {
+      name: "REPORTER_SEQUENCE_ROLLBACK",
+      expectedKilled: true,
+      reason: "oracle sequences are monotonic and replay protected",
+    },
+    {
+      name: "LP_NAV_STALE",
+      expectedKilled: true,
+      reason: "LP NAV reserves current trader liabilities before pricing",
+    },
+    {
+      name: "LP_FIRST_DEPOSITOR_THEFT",
+      expectedKilled: true,
+      reason: "zero-NAV and share-rounding boundaries fail closed",
+    },
+    {
+      name: "ADL_TARGET_ORDERING_ALTERED",
+      expectedKilled: true,
+      reason: "ADL candidate ordering is deterministic",
+    },
+    {
+      name: "ADL_OVERREDUCTION",
+      expectedKilled: true,
+      reason: "ADL reduction is bounded by the episode deficit",
+    },
+    {
+      name: "COMPETITION_SELF_REPORTED_SCORE",
+      expectedKilled: true,
+      reason: "competition scores rebuild from indexed protocol events",
+    },
+    {
+      name: "COMPETITION_DEPOSIT_GAMING",
+      expectedKilled: true,
+      reason: "starting-equity and activity rules are deterministic",
+    },
+    {
+      name: "TIMELOCK_BYPASS",
+      expectedKilled: true,
+      reason: "risk-increasing governance changes require queued execution",
+    },
+    {
+      name: "GOVERNANCE_EMERGENCY_INCREASE",
+      expectedKilled: true,
+      reason: "emergency controls are monotone risk reductions",
+    },
+    {
+      name: "CUSTODY_DELTA_UNCHECKED",
+      expectedKilled: true,
+      reason: "collateral state requires exact ERC-20 balance deltas",
     },
   ] as const;
 }

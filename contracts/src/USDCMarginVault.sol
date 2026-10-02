@@ -47,6 +47,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     error TokenDecimalsUnavailable();
     error RealCustodyRequired();
     error InvalidSettlement();
+    error CustodyDeltaMismatch();
 
     event EngineSet(address indexed engine);
     event CollateralTokenSet(address indexed token, uint8 decimals);
@@ -83,7 +84,9 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     }
 
     modifier onlyEngineOrOwner() {
-        if (msg.sender != engine && msg.sender != owner) revert UnauthorizedEngine();
+        if (msg.sender != engine && !(!bootstrapFinalized && msg.sender == owner)) {
+            revert UnauthorizedEngine();
+        }
         _;
     }
 
@@ -91,8 +94,11 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         return address(_collateralToken);
     }
 
-    function setCollateralToken(address token) external onlyOwner {
+    function setCollateralToken(address token) external onlyGovernanceExecutor {
         if (token == address(0) || token.code.length == 0) revert InvalidCollateralToken();
+        if (address(_collateralToken) != address(0) && address(_collateralToken) != token) {
+            revert InvalidCollateralToken();
+        }
         (bool success, bytes memory data) = token.staticcall(abi.encodeWithSignature("decimals()"));
         if (!success || data.length < 32) revert TokenDecimalsUnavailable();
         uint256 decimals = abi.decode(data, (uint256));
@@ -101,7 +107,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit CollateralTokenSet(token, 6);
     }
 
-    function setEngine(address engine_) external onlyOwner {
+    function setEngine(address engine_) external onlyGovernanceExecutor {
         if (engine_ == address(0)) revert ZeroAddress();
         engine = engine_;
         emit EngineSet(engine_);
@@ -112,7 +118,12 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
             revert InvalidCollateralToken();
         }
         // The guard is held while calling an untrusted ERC-20 implementation.
+        uint256 beforeBalance = _collateralToken.balanceOf(address(this));
         _collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        uint256 afterBalance = _collateralToken.balanceOf(address(this));
+        if (afterBalance < beforeBalance || afterBalance - beforeBalance != amount) {
+            revert CustodyDeltaMismatch();
+        }
         freeCollateral[msg.sender] += amount;
         totalFreeCollateral += amount;
         rawCash += amount;
@@ -129,7 +140,12 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         freeCollateral[msg.sender] -= amount;
         totalFreeCollateral -= amount;
         rawCash -= amount;
+        uint256 beforeBalance = _collateralToken.balanceOf(address(this));
         _collateralToken.safeTransfer(msg.sender, amount);
+        uint256 afterBalance = _collateralToken.balanceOf(address(this));
+        if (beforeBalance < afterBalance || beforeBalance - afterBalance != amount) {
+            revert CustodyDeltaMismatch();
+        }
         emit CollateralWithdrawn(msg.sender, amount);
     }
 
@@ -144,10 +160,14 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit AccountingCredit(trader, amount);
     }
 
-    function fundProtocolBacking(uint256 amount) external onlyOwner {
+    function fundProtocolBacking(uint256 amount) external onlyGovernanceExecutor {
         if (amount == 0) revert InvalidSettlement();
-        if (address(_collateralToken) != address(0)) {
-            _collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        if (address(_collateralToken) == address(0)) revert RealCustodyRequired();
+        uint256 beforeBalance = _collateralToken.balanceOf(address(this));
+        _collateralToken.safeTransferFrom(msg.sender, address(this), amount);
+        uint256 afterBalance = _collateralToken.balanceOf(address(this));
+        if (afterBalance < beforeBalance || afterBalance - beforeBalance != amount) {
+            revert CustodyDeltaMismatch();
         }
         protocolBacking += amount;
         rawCash += amount;
@@ -437,6 +457,10 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
 
     function receiveInsuranceCoverage(uint256 amount) external onlyEngine {
         if (amount == 0) return;
+        if (address(_collateralToken) == address(0)) revert RealCustodyRequired();
+        if (_collateralToken.balanceOf(address(this)) < rawCash + amount) {
+            revert CustodyDeltaMismatch();
+        }
         rawCash += amount;
         insuranceCoveredBadDebt += amount;
         pendingNegativePnl = pendingNegativePnl > amount ? pendingNegativePnl - amount : 0;
@@ -444,7 +468,11 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     }
 
     function withdrawableLiquidity() public view returns (uint256) {
-        uint256 liabilities = totalFreeCollateral + totalLockedCollateral + pendingPositivePnl;
+        uint256 uncoveredBadDebt = protocolBadDebt > insuranceCoveredBadDebt
+            ? protocolBadDebt - insuranceCoveredBadDebt
+            : 0;
+        uint256 liabilities =
+            totalFreeCollateral + totalLockedCollateral + pendingPositivePnl + uncoveredBadDebt;
         if (rawCash <= liabilities) return 0;
         return rawCash - liabilities;
     }

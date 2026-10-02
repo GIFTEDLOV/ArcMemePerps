@@ -1,6 +1,6 @@
 {
   "gate": "4E",
-  "status": "BACKEND_RELEASE_CANDIDATE",
+  "status": "SUPERSEDED_BY_GATE4F",
   "startingHead": "67ca3e3456508a7da7d2f113ac8151ffa648d051",
   "branch": "gate4e-zero-partial",
   "featureLedger": {
