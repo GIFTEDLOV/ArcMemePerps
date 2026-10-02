@@ -36,6 +36,8 @@ freshness, market state, oracle validity, OI/side caps, vault capacity, insuranc
 margin, order expiry, and the immutable pre-trade plan are execution inputs; they are not
 substitutes for token qualification.
 
-Public LP, ADL, and governance contracts added in Gate 4D and hardened in Gate 4E are locally
-tested. They are not yet live on Arc Testnet because the changed suite requires a separately
-authorized redeployment; they do not change the historical Gate 3/4B production-evidence claims.
+Public LP, ADL, and governance contracts added in Gate 4D and hardened in Gate 4E/4F.1 are
+locally tested. Public LP activation is an explicit governance ceremony with fail-closed NAV and
+custody checks; ADL has an explicit unresolved-deficit terminal policy. They are not yet live on
+Arc Testnet because the changed suite requires a separately authorized redeployment; they do not
+change the historical Gate 3/4B production-evidence claims.

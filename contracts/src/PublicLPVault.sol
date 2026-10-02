@@ -22,6 +22,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     uint256 public cumulativeBadDebt;
     uint256 public marketRiskBudget;
     address public riskController;
+    bool public publicLpActive;
     mapping(address account => uint256 shares) public shareBalance;
     mapping(address account => WithdrawalRequest request) public withdrawals;
 
@@ -37,6 +38,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error CooldownActive();
     error InsufficientLiquidity();
     error CustodyDeltaMismatch();
+    error PublicLPInactive();
+    error ActivationUnsafe();
+    error InvalidActivationState();
 
     enum CustodyStatus {
         MATCH,
@@ -55,6 +59,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         uint256 managedAssets, uint256 actualCustody, CustodyStatus status
     );
     event MarketRiskBudgetSet(uint256 riskBudget);
+    event PublicLPActivationSet(bool active, address indexed actor);
 
     modifier onlyController() {
         if (msg.sender != riskController && !(!bootstrapFinalized && msg.sender == owner)) {
@@ -75,6 +80,40 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit RiskControllerSet(controller);
     }
 
+    /**
+     * Public LP deposits are disabled until the release ceremony has assigned
+     * the controller and reconciled custody. The governance executor is the
+     * only authority that may enable or re-enable deposits.
+     */
+    function setPublicLpActive(bool active) external onlyGovernanceExecutor {
+        if (publicLpActive == active) revert InvalidActivationState();
+        if (active) {
+            if (!bootstrapFinalized || riskController == address(0)) revert ActivationUnsafe();
+            (CustodyStatus status,,,) = custodyStatus();
+            if (status != CustodyStatus.MATCH) revert ActivationUnsafe();
+            if (cumulativeBadDebt != 0) revert ActivationUnsafe();
+            uint256 nav = navAssets();
+            if (
+                (managedAssets != 0 || pendingTraderLiability != 0 || insuranceReserve != 0)
+                    && nav == 0
+            ) revert ActivationUnsafe();
+            if (totalShares != 0 && nav == 0) revert ActivationUnsafe();
+            if (marketRiskBudget > nav) revert ActivationUnsafe();
+        }
+        publicLpActive = active;
+        emit PublicLPActivationSet(active, msg.sender);
+    }
+
+    /**
+     * Emergency control only turns public deposits off. Withdrawals and claims
+     * remain available subject to the existing queue, NAV, and liquidity checks.
+     */
+    function emergencyPausePublicLp() external onlyEmergencyAdmin {
+        if (!publicLpActive) revert InvalidActivationState();
+        publicLpActive = false;
+        emit PublicLPActivationSet(false, msg.sender);
+    }
+
     function navAssets() public view returns (uint256) {
         uint256 balance = asset.balanceOf(address(this));
         uint256 liabilities = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
@@ -90,6 +129,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     }
 
     function deposit(uint256 assets) external nonReentrant returns (uint256 shares) {
+        if (!publicLpActive) revert PublicLPInactive();
         if (assets == 0) revert InvalidAmount();
         uint256 navBefore = navAssets();
         if (totalShares != 0 && navBefore == 0) revert InsufficientLiquidity();

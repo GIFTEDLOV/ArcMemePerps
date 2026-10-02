@@ -32,7 +32,11 @@ export function assertLifecycleTransition(from: LifecycleStatus, to: LifecycleSt
 export function lifecyclePathForPlatform(
   originPlatform: MarketObservation["token"]["originPlatform"],
 ): readonly LifecycleStatus[] {
-  if (originPlatform === "PUMP_STYLE" || originPlatform === "RAYDIUM_STYLE") {
+  if (
+    originPlatform === "PUMP_STYLE" ||
+    originPlatform === "FOUR_MEME_STYLE" ||
+    originPlatform === "RAYDIUM_STYLE"
+  ) {
     return ["DISCOVERED", "BONDING", "GRADUATED", "DEX_LIVE", "ESTABLISHED"];
   }
   return ["DISCOVERED", "DEX_LIVE", "ESTABLISHED"];

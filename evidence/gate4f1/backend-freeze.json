@@ -1,0 +1,39 @@
+{
+  "gate": "4F.1",
+  "status": "SECURITY_CLOSURE_CANDIDATE",
+  "externalBlockerRows": 0,
+  "supersedes": {
+    "gate": "4F",
+    "contractSourceSha256": "0x656072107c766ec8062c3e708d6e800aab1c208d59de657b9ba3f86436bd0b3a",
+    "backendSourceSha256": "0x2ce802b94cbd404587a6e7a7a7c7672174fa45b4387fb5404ca7323757fb94bb"
+  },
+  "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "backendSourceSha256": "0x5abad2607dbf5409dcf54ee7d60f6981712abedb2f741849fe6d18a46fddb978",
+  "schemaVersion": "backend-completion/v1",
+  "riskRuleVersion": "0.1.0",
+  "qualificationProofVersion": "2",
+  "apiVersion": "v1",
+  "testnetRedeployRequired": true,
+  "testnetWritesPerformed": false,
+  "mainnetWritesPerformed": false,
+  "contractsChangedDuringGate4f1": true,
+  "publicLpActivationGuard": "GOVERNANCE_EXECUTOR_AFTER_BOOTSTRAP_CUSTODY_NAV_BAD_DEBT_AND_RISK_BUDGET_CHECKS",
+  "publicLpEmergencyAction": "DEACTIVATE_ONLY",
+  "adlTerminalPolicy": "PRESERVE_RESIDUAL_AND_SET_SOLVENCY_BLOCKED",
+  "attackCases": 49,
+  "solidityTests": 52,
+  "typescriptTests": 141,
+  "propertyScenarios": 10000,
+  "invariantCalls": 512000,
+  "fuzzRunsPerProperty": 256,
+  "securityAudit": {
+    "criticalOpen": 0,
+    "highOpen": 0,
+    "mediumOpen": 0,
+    "lpShareAudit": "PASS",
+    "solvencyWaterfallAudit": "PASS_WITH_EXPLICIT_TERMINAL_POLICY",
+    "adlAudit": "PASS",
+    "externalAuditPending": true
+  },
+  "secretsIncluded": false
+}

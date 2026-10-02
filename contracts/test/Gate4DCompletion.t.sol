@@ -26,13 +26,20 @@ contract MockAdlEngine is IAdlEngine {
     uint256 public lastPositionId;
     uint256 public lastReduction;
     uint256 public lastPrice;
+    bool public terminalStateEntered;
 
     function adlReducePosition(uint256 positionId, uint256 sizeReduced, uint256 executionPrice)
         external
+        returns (uint256 economicReduction)
     {
         lastPositionId = positionId;
         lastReduction = sizeReduced;
         lastPrice = executionPrice;
+        return sizeReduced;
+    }
+
+    function enterTerminalInsolvencyState() external {
+        terminalStateEntered = true;
     }
 }
 
@@ -43,6 +50,7 @@ contract Gate4DCompletionTest {
     function testPublicLpQueueAndLiabilitySafeNav() public {
         MockUSDC usdc = new MockUSDC();
         PublicLPVault vault = new PublicLPVault(address(usdc), 10);
+        _activate(vault);
         usdc.mint(address(this), 1_000_000);
         usdc.approve(address(vault), type(uint256).max);
 
@@ -68,6 +76,7 @@ contract Gate4DCompletionTest {
     function testPublicLpCannotMintAgainstZeroNav() public {
         MockUSDC usdc = new MockUSDC();
         PublicLPVault vault = new PublicLPVault(address(usdc), 1);
+        _activate(vault);
         usdc.mint(address(this), 2_000_000);
         usdc.approve(address(vault), type(uint256).max);
         vault.deposit(1_000_000);
@@ -79,6 +88,7 @@ contract Gate4DCompletionTest {
     function testPublicLpUnexpectedTransferIsSurplusNotNav() public {
         MockUSDC usdc = new MockUSDC();
         PublicLPVault vault = new PublicLPVault(address(usdc), 1);
+        _activate(vault);
         usdc.mint(address(this), 1_000_000);
         usdc.approve(address(vault), type(uint256).max);
         vault.deposit(1_000_000);
@@ -139,5 +149,14 @@ contract Gate4DCompletionTest {
         vm.prank(executor);
         target.setValue(7);
         require(target.value() == 7);
+    }
+
+    function _activate(PublicLPVault vault) private {
+        address executor = address(0xCAFE);
+        vault.setGovernanceExecutor(executor);
+        vault.setRiskController(address(this));
+        vault.finalizeBootstrap();
+        vm.prank(executor);
+        vault.setPublicLpActive(true);
     }
 }

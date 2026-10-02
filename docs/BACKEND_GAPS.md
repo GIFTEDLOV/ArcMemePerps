@@ -8,11 +8,10 @@ candidate.
 
 ## EXTERNAL_BLOCKED
 
-- Four.meme-specific bonding/graduation lifecycle evidence: no stable,
-  versioned official API, SDK, or sufficiently verified public contract path was
-  available for a reproducible adapter. BNB discovery remains available through
-  generic factory and PancakeSwap readers. See
-  [EXTERNAL_BLOCKER_REVIEW.md](./EXTERNAL_BLOCKER_REVIEW.md).
+There are no planned submission features currently classified as
+`EXTERNAL_BLOCKED`. Optional Helius, GoPlus, and Bubblemaps enrichment remains
+credential-dependent, but the core adapters fail closed and do not require
+those vendors for ordinary reads or safe qualification decisions.
 
 Credentialed Helius, GoPlus, and Bubblemaps enrichment is optional external
 input. When absent, the backend explicitly reports unavailable evidence and

@@ -1,6 +1,7 @@
 {
   "gate": "4F",
-  "status": "SECURITY_AUDITED_CANDIDATE",
+  "status": "SUPERSEDED_BY_GATE4F1",
+  "supersededBy": "evidence/gate4f1/backend-freeze.json",
   "supersedes": {
     "gate": "4E",
     "contractSourceSha256": "0x1575ff8f27b9aa44752c533079071bef97f0d07a3272963bec66fcf56d8e8a72",
@@ -30,7 +31,8 @@
     "highOpen": 0,
     "mediumOpen": 0,
     "externalAuditPending": true,
-    "publicLpActivationRequiresReviewedBackingRoute": true
+    "publicLpActivationRequiresReviewedBackingRoute": true,
+    "gate4f1Closure": "SUPERSEDED_BY_GATE4F1"
   },
   "secretsIncluded": false
 }

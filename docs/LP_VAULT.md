@@ -15,5 +15,17 @@ withdraw-request, and claim semantics for rebuildable off-chain projections.
 
 The controller hooks are intentionally explicit: PerpEngine or a reconciliation worker must
 record managed assets, pending liability, insurance, bad debt, and the market risk budget before
-any release deployment. This changed source is locally validated but is not yet the deployed
-Arc Testnet suite; no public LP deployment is authorized from this gate.
+any release deployment. `PublicLPVault` is not silently treated as
+`USDCMarginVault` custody; the LP-to-margin backing route must be explicitly
+configured and reconciled before LP capital is used as economic backing. The
+release guard makes that boundary auditable.
+
+Public deposits are release-guarded by `publicLpActive`. The governance
+executor can activate only after bootstrap, controller assignment, exact
+custody reconciliation, zero cumulative bad debt, non-zero NAV for any
+non-empty accounting state, and a risk budget no greater than NAV. Emergency
+authority can deactivate deposits but cannot activate them; queued withdrawals
+and claims remain subject to cooldown, NAV, reserved liabilities, and custody
+checks. In a release deployment the governance executor is the timelock, so
+activation is a documented governance action rather than an operational-role
+bypass.

@@ -157,3 +157,58 @@ export function fundingConservationExample() {
   });
   return update.longPaymentUsdWad + update.shortPaymentUsdWad;
 }
+
+export interface SolvencyWaterfallInput {
+  readonly deficitUsdc: bigint;
+  readonly positionCollateralUsdc: bigint;
+  readonly insuranceAvailableUsdc: bigint;
+  readonly vaultBackstopUsdc: bigint;
+  readonly profitableAdlClaimsUsdc: bigint;
+}
+
+export interface SolvencyWaterfallResult {
+  readonly collateralRecoveredUsdc: bigint;
+  readonly insuranceUsedUsdc: bigint;
+  readonly vaultBackstopUsedUsdc: bigint;
+  readonly adlReductionUsdc: bigint;
+  readonly residualDeficitUsdc: bigint;
+  readonly terminalInsolvency: boolean;
+  readonly accountingReconciles: boolean;
+}
+
+/**
+ * Explicit off-chain model of the contract loss waterfall. Every step is
+ * bounded by the remaining deficit; an unresolved remainder is terminal and
+ * remains visible instead of being clamped away.
+ */
+export function resolveSolvencyWaterfall(
+  input: SolvencyWaterfallInput,
+): SolvencyWaterfallResult {
+  for (const [name, value] of Object.entries(input)) {
+    if (value < 0n) throw new Error(`negative waterfall input: ${name}`);
+  }
+  let remaining = input.deficitUsdc;
+  const collateralRecoveredUsdc = minBigInt(remaining, input.positionCollateralUsdc);
+  remaining -= collateralRecoveredUsdc;
+  const insuranceUsedUsdc = minBigInt(remaining, input.insuranceAvailableUsdc);
+  remaining -= insuranceUsedUsdc;
+  const vaultBackstopUsedUsdc = minBigInt(remaining, input.vaultBackstopUsdc);
+  remaining -= vaultBackstopUsedUsdc;
+  const adlReductionUsdc = minBigInt(remaining, input.profitableAdlClaimsUsdc);
+  remaining -= adlReductionUsdc;
+  const covered =
+    collateralRecoveredUsdc + insuranceUsedUsdc + vaultBackstopUsedUsdc + adlReductionUsdc;
+  return {
+    collateralRecoveredUsdc,
+    insuranceUsedUsdc,
+    vaultBackstopUsedUsdc,
+    adlReductionUsdc,
+    residualDeficitUsdc: remaining,
+    terminalInsolvency: remaining > 0n,
+    accountingReconciles: covered + remaining === input.deficitUsdc,
+  };
+}
+
+function minBigInt(left: bigint, right: bigint): bigint {
+  return left < right ? left : right;
+}

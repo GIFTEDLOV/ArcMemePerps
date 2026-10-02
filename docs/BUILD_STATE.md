@@ -89,8 +89,24 @@ Arc Testnet or Arc Mainnet write was performed in Gate 4E, and no Git remote exi
 Gate 4E closes the planned backend rows with durable discovery, normalized venue/depth/LP
 readers, canonical profile and competition projections, worker/recovery boundaries, LP share
 accounting, ADL selection, governance authorization semantics, reconciliation, and the frontend
-backend contract. Four.meme-specific lifecycle data remains externally blocked only where the
-official/onchain evidence path could not be verified; see `docs/EXTERNAL_BLOCKER_REVIEW.md`.
+backend contract. The later Gate 4F.1 review added the documented Four.meme public-query and
+TokenManager2 event readers; no planned feature remains externally blocked.
 
 The changed contract suite is frozen as a candidate only. `TESTNET_REDEPLOY_REQUIRED=YES` and
 `ARC_MAINNET_READY=NO`; no deployment or blockchain write is performed by Gate 4E.
+
+# Gate 4F.1 release-guard and solvency closure
+
+Gate 4F.1 changes the contract candidate after the Gate 4F freeze. Public LP
+deposits now start inactive and require a governance-executor activation after
+bootstrap, custody, NAV, bad-debt, and risk-budget checks; emergency authority
+can only deactivate deposits. ADL now applies engine-reported positive economic
+reductions to recorded uncovered bad debt, rejects episode reopening and
+post-terminal candidate registration, and preserves an unresolved residual
+while setting the engine's terminal `solvencyBlocked` state. The explicit
+trader/LP claim boundary is in `docs/SOLVENCY_LIMITATIONS.md`.
+
+Gate 4F.1 performed no blockchain writes. The prior Gate 4F hashes are
+superseded by the Gate 4F.1 hashes and a fresh Arc Testnet V2 redeployment is
+still required; the active LP lifecycle and terminal insolvency policy must be
+canaried before release.

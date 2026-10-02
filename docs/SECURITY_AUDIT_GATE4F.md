@@ -175,15 +175,47 @@ deployments accept the threshold-checked typed report path only.
 Reporter-set versions are also retired on rotation and cannot be rolled back,
 so an old signed report domain cannot be reactivated by configuration reuse.
 
+### G4F1-001 — public LP activation before release checks (HIGH, fixed)
+
+The frozen candidate exposed the public-LP accounting component without an
+onchain activation ceremony. A deployment could therefore be ambiguous about
+whether deposits were live and whether custody/NAV checks had been completed.
+
+Fix: `PublicLPVault` starts inactive. Governance activation requires finalized
+bootstrap, a configured controller, exact custody match, no cumulative bad
+debt, non-zero NAV for a non-empty accounting state, and a risk budget within
+NAV. Emergency authority can only deactivate deposits. The activation and
+active lifecycle regressions are in `Gate4F1Closure.t.sol`.
+
+### G4F1-002 — ADL episode reset/terminal registration (HIGH, fixed)
+
+The first Gate 4F.1 implementation allowed a governance executor to reopen an
+active episode by overwriting its remaining deficit and allowed candidate
+registration after terminalization. Neither path paid assets directly, but it
+could invalidate deficit progress and make the terminal state ambiguous.
+
+Fix: active episodes cannot be reopened; terminalized episodes cannot accept
+new candidates; ADL decrements by the engine-reported positive economic
+reduction; and unresolved residuals remain recorded while the engine enters
+`solvencyBlocked`. Regression coverage includes 100 candidates, unresolved
+termination, and replay/registration rejection.
+
+### G4F1-003 — compatibility settlement conservation regression (MEDIUM, fixed)
+
+The compatibility settlement path was specifically audited for a potential
+double-credit of global free collateral. The Gate 4F.1 regression proves that
+a 100-unit collateral / 10-unit loss leaves both trader and global free
+collateral at 90. No duplicate credit remains in the current source.
+
 ## Residual release risks
 
-The public LP vault remains a separate custody/accounting component in this
-candidate. Its own share/NAV/queue invariants are tested, but this audit does
-not claim that an eventual production LP funding route is safe merely because
-the standalone share contract is safe. A release deployment must either wire
-the LP component to the margin vault through a reviewed backing-transfer path
-or keep public LP participation disabled. This is a release blocker for
-public LP activation, not a reason to treat unsolicited transfers as LP NAV.
+The public LP vault is an explicitly release-guarded custody/accounting
+component. Activation is safe only through the documented governance path and
+does not silently make LP assets margin-vault backing. A release deployment
+must configure and reconcile that backing route before treating LP capital as
+economic counterparty capacity. This is an explicit deployment configuration
+boundary, not an inactive-code claim; the Gate 4F.1 canary plan requires the
+active LP lifecycle to be exercised.
 
 Optional Helius, GoPlus, and Bubblemaps enrichment remains unavailable without
 credentials. Core reads fail closed when a risk tier requires missing evidence.

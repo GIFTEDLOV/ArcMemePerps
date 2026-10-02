@@ -14,8 +14,11 @@ the Gate 4F hashes and deployed once only after the release role ceremony.
 5. Verify the timelock ETA, reporter-set version, risk rule version, and zero
    initial OI.
 6. Fund protocol backing and insurance through exact ERC-20 custody paths.
-7. Keep public LP activation disabled unless the margin-vault backing route has
-   been independently reviewed and reconciled.
+7. Deploy the public LP vault in its safe initial inactive state. Confirm that
+   unauthorized emergency, keeper, oracle, and qualification accounts cannot
+   activate it. Queue and execute the documented governance activation through
+   the configured timelock only after custody reconciliation, NAV, bad-debt,
+   and risk-budget checks pass.
 
 ## Ordered canaries
 
@@ -31,8 +34,14 @@ the Gate 4F hashes and deployed once only after the release role ceremony.
   conservative price; reconcile PnL, fees, OI, and custody.
 - Repeat for short at a lower conservative price.
 - Exercise partial close and full close.
-- Request/claim LP withdrawal only if the reviewed backing route is enabled;
-  test share mint, NAV, queue ordering, liabilities, and actual custody.
+- With public LP active, deposit real testnet USDC from two dedicated LP
+  accounts; verify share minting, active state, and actual custody. Execute
+  trader activity and controller settlement hooks that change pending trader
+  liability/NAV, request a withdrawal, pause new LP deposits through emergency
+  control, and claim after cooldown. Verify queue ordering, liabilities, and
+  actual custody. The canary must separately prove that the margin vault does
+  not count LP assets as backing unless the explicitly configured reviewed
+  backing route is enabled.
 - Open an intentionally liquidatable position; verify maintenance threshold,
   bounded reward, residual, insurance, bad debt, and OI removal.
 - Exercise insurance coverage and a bounded uncovered bad-debt case.

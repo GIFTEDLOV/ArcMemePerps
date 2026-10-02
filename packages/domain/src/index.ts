@@ -39,6 +39,7 @@ export type DerivativesStatus = (typeof DERIVATIVES_STATUSES)[number];
 
 export const ORIGIN_PLATFORMS = [
   "PUMP_STYLE",
+  "FOUR_MEME_STYLE",
   "UNISWAP_STYLE",
   "RAYDIUM_STYLE",
   "DIRECT_DEX",

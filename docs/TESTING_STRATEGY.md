@@ -26,7 +26,9 @@ concentrated depth/LP-security tests, health/read-model/realtime tests, and loca
 LP/ADL/timelock contract tests. Gate 4E adds completion-boundary tests for discovery,
 persistence, provider failover, recovery, profiles, competitions, notifications, LP accounting,
 ADL, governance, and reconciliation. The readiness command now passes with zero partial or
-not-implemented rows; the single external blocker is documented and safely surfaced.
+not-implemented rows; Gate 4F.1 also closed the former Four.meme blocker with
+documented REST and TokenManager2 read paths, so no planned feature is
+currently externally blocked.
 
 Because LP/ADL/timelock changed the contracts, the old Arc Testnet deployment is not evidence for
 this source state; deterministic local and Arc Forge tests pass, but

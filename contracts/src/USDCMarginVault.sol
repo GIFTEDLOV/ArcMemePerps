@@ -37,6 +37,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     uint256 public pendingNegativePnl;
     uint256 public protocolBadDebt;
     uint256 public insuranceCoveredBadDebt;
+    uint256 public adlCoveredBadDebt;
     address public engine;
 
     error UnauthorizedEngine();
@@ -77,6 +78,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     event InsuranceReserveAccrued(uint256 amount);
     event PendingPositivePnlUpdated(uint256 amount);
     event InsuranceCoverageReceived(uint256 amount);
+    event ADLResolutionApplied(uint256 amount, uint256 remainingBadDebt);
 
     modifier onlyEngine() {
         if (msg.sender != engine) revert UnauthorizedEngine();
@@ -465,6 +467,23 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         insuranceCoveredBadDebt += amount;
         pendingNegativePnl = pendingNegativePnl > amount ? pendingNegativePnl - amount : 0;
         emit InsuranceCoverageReceived(amount);
+    }
+
+    /**
+     * ADL resolves an outstanding uncovered deficit by removing an equivalent
+     * amount of profitable trader claim. It is not a cash transfer and cannot
+     * exceed the currently uncovered recorded bad debt.
+     */
+    function applyADLResolution(uint256 amount) external onlyEngine {
+        if (amount == 0) revert InvalidSettlement();
+        uint256 uncovered = protocolBadDebt > insuranceCoveredBadDebt
+            ? protocolBadDebt - insuranceCoveredBadDebt
+            : 0;
+        if (amount > uncovered || pendingNegativePnl < amount) revert InvalidSettlement();
+        protocolBadDebt -= amount;
+        pendingNegativePnl -= amount;
+        adlCoveredBadDebt += amount;
+        emit ADLResolutionApplied(amount, protocolBadDebt);
     }
 
     function withdrawableLiquidity() public view returns (uint256) {

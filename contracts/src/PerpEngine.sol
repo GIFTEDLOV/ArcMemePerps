@@ -112,6 +112,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     uint256 public liquidationRewardUsdc;
     uint256 public maxSkewRatioWad = WAD;
     uint256 public worseningSkewFeeRateWad;
+    bool public solvencyBlocked;
 
     error MarketCannotIncreaseExposure();
     error MarketCannotReduceExposure();
@@ -140,6 +141,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     error InvalidSettlementOutcome();
     error UnauthorizedADLController();
     error InvalidADLPrice();
+    error ADLNotProfitable();
 
     event PositionOpened(
         uint256 indexed positionId,
@@ -175,8 +177,12 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     event PartialSettlementOutcome(uint256 indexed positionId, uint256 payout, uint256 badDebt);
     event ADLControllerSet(address indexed controller);
     event ADLPositionReduced(
-        uint256 indexed positionId, uint256 sizeReduced, uint256 executionPrice
+        uint256 indexed positionId,
+        uint256 sizeReduced,
+        uint256 economicReduction,
+        uint256 executionPrice
     );
+    event TerminalInsolvencyStateEntered();
 
     modifier onlyKeeper() {
         if (!liquidationKeeper[msg.sender] && !(!bootstrapFinalized && msg.sender == owner)) {
@@ -247,6 +253,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         external
         nonReentrant
         onlyADLController
+        returns (uint256 economicReduction)
     {
         Position memory position = positions[positionId];
         if (!position.open || sizeReduced == 0 || sizeReduced > position.size) {
@@ -257,10 +264,13 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         // oracle boundary and requires the controller input to match it exactly.
         uint256 canonicalPrice = _executionPrice(position.marketId, position.isLong, false);
         if (executionPrice != canonicalPrice) revert InvalidADLPrice();
-        uint256 collateralReleased = sizeReduced == position.size ? position.collateral : 0;
-        _reduceFor(positionId, sizeReduced, collateralReleased, executionPrice);
-        // _reduceFor finalizes OI and position state before guarded settlement calls.
-        emit ADLPositionReduced(positionId, sizeReduced, executionPrice);
+        economicReduction = _adlReduceFor(positionId, sizeReduced, executionPrice);
+        emit ADLPositionReduced(positionId, sizeReduced, economicReduction, executionPrice);
+    }
+
+    function enterTerminalInsolvencyState() external onlyADLController {
+        solvencyBlocked = true;
+        emit TerminalInsolvencyStateEntered();
     }
 
     function setEconomicConfig(
@@ -854,9 +864,46 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     function _requireCanIncrease(bytes32 marketId) private view {
         if (
-            !marketRegistry.canIncreaseExposure(marketId)
+            solvencyBlocked || !marketRegistry.canIncreaseExposure(marketId)
                 || !riskConfig.canIncreaseExposure(marketId)
         ) revert MarketCannotIncreaseExposure();
+    }
+
+    function _adlReduceFor(uint256 positionId, uint256 sizeReduced, uint256 price)
+        private
+        returns (uint256 economicReduction)
+    {
+        Position memory position = positions[positionId];
+        _updateMarketAccrual(position.marketId);
+        PositionState memory state = positionStates[positionId];
+        state.sizeUsdWad = FixedPointMath.usdcToUsdWad(sizeReduced);
+        int256 slicePnl = _netPnl(state, price);
+        if (slicePnl <= 0) revert ADLNotProfitable();
+        economicReduction = FixedPointMath.usdWadToUsdcDown(SafeCast.toUint256(slicePnl));
+        if (economicReduction == 0) revert ADLNotProfitable();
+
+        // ADL is a claimant haircut, not a payout. The profitable slice is
+        // removed at the conservative oracle price and its positive claim is
+        // applied directly to the outstanding uncovered bad debt.
+        marginVault.applyADLResolution(economicReduction);
+        uint256 remainingSize = position.size - sizeReduced;
+        positions[positionId].size = remainingSize;
+        positionStates[positionId].sizeUsdWad -= state.sizeUsdWad;
+        positionStates[positionId].entryFundingIndex =
+        marketAccrual[position.marketId].fundingIndexWad;
+        positionStates[positionId].entryBorrowIndex =
+        marketAccrual[position.marketId].borrowIndexWad;
+        totalOpenInterest[position.marketId] -= sizeReduced;
+        if (position.isLong) longOpenInterest[position.marketId] -= sizeReduced;
+        else shortOpenInterest[position.marketId] -= sizeReduced;
+        if (remainingSize == 0) {
+            positions[positionId].open = false;
+            activePosition[_accountMarket(position.trader, position.marketId)] = 0;
+            positionStates[positionId].sizeUsdWad = 0;
+            positionStates[positionId].collateralUsdc = 0;
+            marginVault.unlockCollateral(position.trader, position.collateral);
+            positions[positionId].collateral = 0;
+        }
     }
 
     function _enforceExposure(bytes32 marketId, bool isLong, uint256 size, uint256 maxOI)

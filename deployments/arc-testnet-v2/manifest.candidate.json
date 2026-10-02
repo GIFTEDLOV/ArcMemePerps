@@ -10,8 +10,8 @@
     "optimizerRuns": 200,
     "viaIR": true
   },
-  "contractSourceSha256": "0x656072107c766ec8062c3e708d6e800aab1c208d59de657b9ba3f86436bd0b3a",
-  "backendSourceSha256": "0x2ce802b94cbd404587a6e7a7a7c7672174fa45b4387fb5404ca7323757fb94bb",
+  "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "backendSourceSha256": "0x5abad2607dbf5409dcf54ee7d60f6981712abedb2f741849fe6d18a46fddb978",
   "collateral": {
     "symbol": "USDC",
     "address": "0x3600000000000000000000000000000000000000",
@@ -58,7 +58,10 @@
   "lpSettings": {
     "publicLpShares": true,
     "withdrawalQueue": true,
-    "deploymentConfiguration": "REQUIRES_RELEASE_ROLE_CEREMONY_AND_REVIEWED_MARGIN_BACKING_ROUTE"
+    "initialActive": false,
+    "activationPath": "GOVERNANCE_EXECUTOR_OR_PROTOCOL_TIMELOCK_AFTER_CUSTODY_NAV_BAD_DEBT_AND_RISK_BUDGET_CHECKS",
+    "emergencyPause": "EMERGENCY_ADMIN_DEACTIVATION_ONLY",
+    "deploymentConfiguration": "ACTIVE_CANARY_REQUIRED; LP_TO_MARGIN_BACKING_MUST_BE_EXPLICITLY_CONFIGURED_AND_RECONCILED"
   },
   "market": {
     "testnetCanary": true,

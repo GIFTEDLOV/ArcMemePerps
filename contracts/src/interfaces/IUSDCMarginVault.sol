@@ -55,6 +55,8 @@ interface IUSDCMarginVault {
 
     function receiveInsuranceCoverage(uint256 amount) external;
 
+    function applyADLResolution(uint256 amount) external;
+
     function withdrawableLiquidity() external view returns (uint256);
 
     function actualCustodyUsdc() external view returns (uint256);

@@ -25,6 +25,7 @@ const LIFECYCLE = [
 ] as const;
 const ORIGIN_PLATFORMS = [
   "PUMP_STYLE",
+  "FOUR_MEME_STYLE",
   "UNISWAP_STYLE",
   "RAYDIUM_STYLE",
   "DIRECT_DEX",

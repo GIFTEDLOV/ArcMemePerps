@@ -25,7 +25,9 @@ Robinhood’s chain ID and RPC are checked against the [Robinhood Chain connecti
 
 The EVM adapter reads chain ID, latest block/timestamp, bytecode existence, and ERC-20 metadata through viem. Deployer history, ownership semantics, LP security, and proxy implementation are not inferred from bytecode alone. Solana reads account ownership, SPL/Token-2022 mint layout, supply, authorities, largest accounts, and slot provenance. Helius enrichment is optional.
 
-Lifecycle classification only marks `DEX_LIVE` when a normalized DEX pair is observed. Bonding, graduation, and launchpad-specific stages require a future platform plugin; generic token records do not guess them.
+Lifecycle classification only marks `DEX_LIVE` when a normalized DEX pair is observed. Bonding and
+graduation remain platform-specific. The Four.meme plugin consumes explicit TokenManager2/API
+graduation evidence and does not infer it from price, market cap, or a generic token record.
 
 Gate 4C adds `DiscoveryCoordinator` and platform-plugin boundaries for Pump.fun/PumpSwap,
 Raydium, Meteora, Four.meme, Flaunch, Aerodrome, Arc-native venues, and documented Robinhood
@@ -33,7 +35,7 @@ DEXs. The catalog is not a claim that those plugins are live. A missing plugin i
 and unsupported methods on a live adapter raise `CapabilityUnavailableError`.
 
 Gate 4D keeps these boundaries explicit in the feature ledger. Generic EVM and Solana token reads
-and DexScreener normalization are live-read capabilities; continuous launchpad discovery and
-venue-specific PumpSwap/Raydium/Meteora/Pancake/Uniswap/Aerodrome depth or LP-control readers
-remain partial or externally blocked where no verified implementation is present. The adapter
-must return provenance-bearing `UNAVAILABLE`, never synthetic lifecycle or depth evidence.
+and DexScreener normalization are live-read capabilities; venue-specific readers are bounded by
+their supported pool generations. The adapter must return provenance-bearing `UNAVAILABLE`, never
+synthetic lifecycle or depth evidence. Gate 4F.1 adds a read-only Four.meme public-query adapter
+and TokenManager2 event reader with resumable BSC cursors.
