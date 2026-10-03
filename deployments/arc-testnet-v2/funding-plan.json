@@ -1,0 +1,31 @@
+{
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "rpc": "https://rpc.testnet.arc.io",
+  "collateralToken": "0x3600000000000000000000000000000000000000",
+  "accounting": {
+    "nativeGasBalanceUnits": "18-decimal native USDC representation",
+    "erc20CollateralBalanceUnits": "6-decimal ERC-20 USDC interface",
+    "rule": "never sum native and ERC-20 balances"
+  },
+  "observedAt": "2026-10-03T00:00:00Z",
+  "requirements": [
+    { "role": "V2_DEPLOYER", "address": "0x72A9481F17d133fF1B4d9782C5b541E56705b5dC", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "7000000", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "7000000" },
+    { "role": "GOVERNANCE_ADMIN", "address": "0xCb097f1dd26bBa2D3Ee5a801E412C98aF972D88D", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "RISK_ADMIN", "address": "0x3BaF6Aa1036c11B76A7b3927b45DD814ca7c8CBc", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "EMERGENCY_ADMIN", "address": "0x0587ef50fD8ec47FbD03B5Dd7b1c297303670fCD", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "ORACLE_ADMIN", "address": "0xf27C7c23c06ED8d71289aBd63b8d9AD0692Db57C", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "QUALIFICATION_WRITER", "address": "0x4Dee27e3cc99d7fFE2461a9f348291A6B0bE0025", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "KEEPER", "address": "0xBD345eBb365AE634f4c14765368238EB0f6A8f3f", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "INSURANCE_MANAGER", "address": "0x8db8f45AB953833b83ddeC430A9Edd80bBEC7043", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "REPORTER_1", "address": "0x85d69C3C62cCcF5597CbE22039b4f8c9b8C233Ce", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "0", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "0", "erc20DeficitBaseUnits": "0" },
+    { "role": "REPORTER_2", "address": "0x525f0436668b2F1A48205cEEAb3b76CD55404891", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "0", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "0", "erc20DeficitBaseUnits": "0" },
+    { "role": "REPORTER_3", "address": "0x3cc778709E6e15A38Ca14B68fd0dA36f7e1Eb106", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "0", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "0", "erc20DeficitBaseUnits": "0" },
+    { "role": "TRADER_LONG", "address": "0xBFdA4980f72d598e453058605372B9E593Fe61f9", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "500000", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "500000" },
+    { "role": "TRADER_SHORT", "address": "0x4C9aBb052B6dDC0967D117d86183Dc946c9aed16", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "500000", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "500000" },
+    { "role": "LIQUIDATOR", "address": "0x781B05d55eb093aB98C0Ccae24F80de9Cc24d9c6", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "0", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "0" },
+    { "role": "LP_1", "address": "0xCF884330e32a1071471512d1271D02497996DA15", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "1000000", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "1000000" },
+    { "role": "LP_2", "address": "0xc1f43E5D64803B12BEeB569dFB3518BaD69FBb9C", "nativeBalanceBaseUnits": "0", "erc20BalanceBaseUnits": "0", "nativeRequiredBaseUnits": "1000000000000000000", "erc20RequiredBaseUnits": "1000000", "nativeDeficitBaseUnits": "1000000000000000000", "erc20DeficitBaseUnits": "1000000" }
+  ],
+  "observations": "Filled by pnpm arc:testnet-v2:preflight; no faucet request is made by Gate 4G.0."
+}

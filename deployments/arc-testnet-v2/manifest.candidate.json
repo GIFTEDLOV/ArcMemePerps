@@ -4,40 +4,73 @@
   "chainId": 5042002,
   "rpcIdentity": "https://rpc.testnet.arc.io",
   "explorer": "https://testnet.arcscan.app/",
+  "sourceHead": "c87379c3f53346812c28c72bdb9188ea36e60a7d",
+  "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "backendSourceSha256": "0xb65fc781b5f77e0c2bfa2434696ab047558bdce64bc2811d11e33a9d1b6ba93c",
   "compiler": {
     "solc": "0.8.24",
     "optimizer": true,
     "optimizerRuns": 200,
-    "viaIR": true
+    "viaIR": true,
+    "evmVersion": "default"
   },
-  "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
-  "backendSourceSha256": "0x5abad2607dbf5409dcf54ee7d60f6981712abedb2f741849fe6d18a46fddb978",
   "collateral": {
     "symbol": "USDC",
     "address": "0x3600000000000000000000000000000000000000",
     "interfaceDecimals": 6,
-    "custodyModel": "ERC20_BALANCE_ONLY"
+    "custodyModel": "ERC20_BALANCE_ONLY",
+    "nativeBalanceRule": "native gas representation is never added to ERC20 custody"
   },
-  "roles": {
-    "GOVERNANCE_ADMIN": "TIMELOCK_OR_GOVERNANCE_MULTISIG_REQUIRED",
-    "RISK_ADMIN": "TIMELOCK_OR_GOVERNANCE_MULTISIG_REQUIRED",
-    "EMERGENCY_ADMIN": "DEDICATED_EMERGENCY_ROLE_REQUIRED",
-    "ORACLE_ADMIN": "DEDICATED_ORACLE_ADMIN_REQUIRED",
-    "QUALIFICATION_WRITER": "DEDICATED_QUALIFICATION_WRITER_REQUIRED",
-    "KEEPER": "DEDICATED_KEEPER_REQUIRED",
-    "INSURANCE_MANAGER": "DEDICATED_INSURANCE_MANAGER_REQUIRED"
+  "deploymentOrder": [
+    "QualificationRegistry",
+    "MarketRegistry",
+    "OracleRouter",
+    "RiskConfig",
+    "USDCMarginVault",
+    "InsuranceFund",
+    "PerpEngine",
+    "PublicLPVault",
+    "ADLController",
+    "ProtocolTimelock"
+  ],
+  "constructorArguments": {
+    "QualificationRegistry": [],
+    "MarketRegistry": ["QualificationRegistry"],
+    "OracleRouter": [120, 8500],
+    "RiskConfig": ["QualificationRegistry"],
+    "USDCMarginVault": [],
+    "InsuranceFund": [],
+    "PerpEngine": ["MarketRegistry", "RiskConfig", "OracleRouter", "USDCMarginVault", "InsuranceFund"],
+    "PublicLPVault": ["USDC", 60],
+    "ADLController": ["PerpEngine"],
+    "ProtocolTimelock": [60]
   },
-  "timelock": {
-    "required": true,
-    "minimumDelaySeconds": "UNASSIGNED_RELEASE_PARAMETER"
+  "rolePlan": {
+    "governanceExecutor": "ProtocolTimelock",
+    "GOVERNANCE_ADMIN": "GOVERNANCE_ADMIN",
+    "RISK_ADMIN": "RISK_ADMIN",
+    "EMERGENCY_ADMIN": "EMERGENCY_ADMIN",
+    "ORACLE_ADMIN": "ORACLE_ADMIN",
+    "QUALIFICATION_WRITER": "QUALIFICATION_WRITER",
+    "KEEPER": "KEEPER",
+    "INSURANCE_MANAGER": "INSURANCE_MANAGER",
+    "LP_RISK_CONTROLLER": "RISK_ADMIN",
+    "deployerFinalization": "V2_DEPLOYER"
   },
   "reporterSet": {
     "threshold": "2-of-3",
-    "version": "UNASSIGNED_RELEASE_REPORTER_SET",
-    "addresses": [],
+    "version": "testnet-reporters-v2",
+    "addressesSource": "deployments/arc-testnet-v2/actors.candidate.json",
     "signingMode": "OFFCHAIN_EIP712"
   },
+  "governance": {
+    "minimumDelaySeconds": 60,
+    "bootstrapFinalization": true,
+    "emergencyRiskDecrease": true,
+    "emergencyRiskIncrease": false
+  },
   "riskRuleVersion": "0.1.0",
+  "qualificationProofVersion": "2",
   "riskSettings": {
     "maxLeverageX": "2",
     "maxOIBaseUnits": "1000000",
@@ -47,6 +80,8 @@
     "maxPositionBaseUnits": "200000",
     "maxPositionUsdc": "0.2",
     "initialOpenInterestBaseUnits": "0",
+    "maintenanceMarginBps": "2500",
+    "liquidationPenaltyBps": "500",
     "riskBudgetStatus": "RISK_BUDGET_SAFE"
   },
   "backingSettings": {
@@ -58,16 +93,27 @@
   "lpSettings": {
     "publicLpShares": true,
     "withdrawalQueue": true,
+    "withdrawalCooldownSeconds": 60,
     "initialActive": false,
-    "activationPath": "GOVERNANCE_EXECUTOR_OR_PROTOCOL_TIMELOCK_AFTER_CUSTODY_NAV_BAD_DEBT_AND_RISK_BUDGET_CHECKS",
-    "emergencyPause": "EMERGENCY_ADMIN_DEACTIVATION_ONLY",
-    "deploymentConfiguration": "ACTIVE_CANARY_REQUIRED; LP_TO_MARGIN_BACKING_MUST_BE_EXPLICITLY_CONFIGURED_AND_RECONCILED"
+    "activationPath": "PROTOCOL_TIMELOCK_AFTER_CUSTODY_NAV_BAD_DEBT_AND_RISK_BUDGET_CHECKS",
+    "emergencyPause": "EMERGENCY_ADMIN_DEACTIVATION_ONLY"
+  },
+  "adlSettings": {
+    "linkedEngine": "PerpEngine",
+    "keeperRole": "KEEPER",
+    "terminalState": "ENGINE_SOLVENCY_BLOCKED_WITH_UNRESOLVED_DEFICIT_RECORDED"
   },
   "market": {
     "testnetCanary": true,
-    "originChain": "UNASSIGNED_RELEASE_MARKET",
-    "originToken": "UNASSIGNED_RELEASE_MARKET",
-    "qualificationProofHash": "UNASSIGNED_RELEASE_PROOF"
+    "originChain": "BASE",
+    "originChainId": 8453,
+    "originToken": "0x0000000000000000000000000000000000000001",
+    "qualificationProofHash": "ARCMEMEPERPS_TESTNET_CANARY_PROOF_V2",
+    "lifecycle": "TESTNET_CANARY_V2"
+  },
+  "progress": {
+    "path": "deployments/arc-testnet-v2/progress.json",
+    "resumeRule": "reuse only addresses with non-empty runtime bytecode and matching expected artifact; never blind-redeploy"
   },
   "deployment": {
     "broadcastAuthorized": false,

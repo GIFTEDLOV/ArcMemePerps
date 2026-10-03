@@ -26,6 +26,7 @@
     "market:inspect": "tsx apps/api/src/cli.ts",
     "test:live": "tsx apps/api/src/live-smoke.ts",
     "deploy:dry-run": "tsx scripts/dry-run-testnet.ts",
+    "arc:testnet-v2:preflight": "tsx scripts/arc-testnet-v2.ts",
     "backend:frontend-readiness": "tsx scripts/backend-frontend-readiness.ts",
     "backend:freeze": "tsx scripts/backend-freeze.ts"
   },
