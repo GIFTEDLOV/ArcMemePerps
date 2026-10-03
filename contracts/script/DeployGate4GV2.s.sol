@@ -363,7 +363,13 @@ contract DeployGate4GV2 {
         address reporter2,
         address reporter3
     ) private pure {
-        address[11] memory actors = [
+        // The frozen candidate intentionally aliases LP_RISK_CONTROLLER to RISK_ADMIN.
+        // It is the same permission boundary, not a second independent signer. Reject any
+        // other alias so deployment cannot silently collapse unrelated roles.
+        if (lpRiskController == address(0)) revert MissingActor();
+        if (lpRiskController != riskAdmin) revert InvalidLpRiskController();
+
+        address[10] memory actors = [
             governanceAdmin,
             riskAdmin,
             emergencyAdmin,
@@ -371,7 +377,6 @@ contract DeployGate4GV2 {
             qualificationWriter,
             keeper,
             insuranceManager,
-            lpRiskController,
             reporter1,
             reporter2,
             reporter3
@@ -569,6 +574,7 @@ contract DeployGate4GV2 {
     error InvalidUsdc();
     error MissingActor();
     error DuplicateActor();
+    error InvalidLpRiskController();
     error InvalidCanaryConfiguration();
     error RuntimeBytecodeMismatch();
 }

@@ -4,7 +4,7 @@
   "chainId": 5042002,
   "rpcIdentity": "https://rpc.testnet.arc.io",
   "explorer": "https://testnet.arcscan.app/",
-  "sourceHead": "c87379c3f53346812c28c72bdb9188ea36e60a7d",
+  "sourceHead": "262e3ae28466369baa8b999524671f4326c5a1a7",
   "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
   "backendSourceSha256": "0xb65fc781b5f77e0c2bfa2434696ab047558bdce64bc2811d11e33a9d1b6ba93c",
   "compiler": {
