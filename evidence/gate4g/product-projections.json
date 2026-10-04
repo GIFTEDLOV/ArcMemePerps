@@ -1,0 +1,14 @@
+{
+  "protocolStatus": "PASS_DIRECT_CHAIN_READ",
+  "market": "PASS_DIRECT_CHAIN_READ",
+  "risk": "PASS_DIRECT_CHAIN_READ",
+  "qualificationProof": "PASS_DIRECT_CHAIN_READ",
+  "positions": "PASS_DIRECT_CHAIN_READ",
+  "lpState": "PASS_DIRECT_CHAIN_READ",
+  "activity": "PASS_LIVE_RECEIPTS",
+  "profileAnalytics": "NOT_RUN_LIVE_HTTP",
+  "competitionAccounting": "NOT_RUN_LIVE_HTTP",
+  "notifications": "NOT_RUN_LIVE_HTTP",
+  "needsAttention": "NOT_RUN_LIVE_HTTP",
+  "noFakeData": true
+}

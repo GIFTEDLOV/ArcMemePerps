@@ -1,0 +1,20 @@
+{
+  "explorer": "https://testnet.arcscan.app/",
+  "method": "Blockscout-compatible getsourcecode API read",
+  "compiler": "solc 0.8.24, optimizer enabled, runs 200, viaIR true",
+  "status": "NOT_VERIFIED",
+  "reason": "ArcScan returned address-only records without SourceCode/CompilerVersion metadata for every V2 contract; exact source/compiler/constructor data was not accepted by the explorer endpoint",
+  "contracts": {
+    "QualificationRegistry":"NOT_VERIFIED",
+    "MarketRegistry":"NOT_VERIFIED",
+    "OracleRouter":"NOT_VERIFIED",
+    "RiskConfig":"NOT_VERIFIED",
+    "USDCMarginVault":"NOT_VERIFIED",
+    "PerpEngine":"NOT_VERIFIED",
+    "InsuranceFund":"NOT_VERIFIED",
+    "PublicLPVault":"NOT_VERIFIED",
+    "ADLController":"NOT_VERIFIED",
+    "ProtocolTimelock":"NOT_VERIFIED"
+  },
+  "redeployOnFailure": false
+}

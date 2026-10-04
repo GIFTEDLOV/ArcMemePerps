@@ -1,0 +1,15 @@
+{
+  "backendReadiness": "PASS",
+  "directLiveProtocolSnapshot": {
+    "protocolStatus": "CLOSE_ONLY / SOLVENCY_BLOCKED",
+    "market": "verified directly from MarketRegistry",
+    "risk": "verified directly from RiskConfig",
+    "qualification": "verified directly from QualificationRegistry",
+    "positions": "verified directly from PerpEngine; positions 1-4 closed",
+    "lpState": "verified directly from PublicLPVault",
+    "activity": "verified from live receipts in transactions.json"
+  },
+  "apiProfileCompetitionNotificationsNeedsAttention": "NOT_RUN_AS_HTTP_PROJECTION",
+  "reason": "The repository API/indexer boundary is read-only and no backend server or frontend was started in this run; no fake rows were introduced.",
+  "frontendStarted": false
+}

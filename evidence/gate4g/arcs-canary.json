@@ -1,0 +1,22 @@
+{
+  "publicLpGuard": "PASS; inactive deposit path rejected before activation",
+  "publicLpActivation": "PASS; real governance/timelock path; publicLpActive=true",
+  "lp1Deposit": "PASS; final share balance 600000 after completed withdrawal claim",
+  "lp2Deposit": "PASS; final share balance 1000000",
+  "lpShareReconciliation": "PASS; total shares 1600000",
+  "lpNavReconciliation": "PASS; NAV 1600000, share price 1e18",
+  "lpWithdrawalRequest": "PASS; queue was created and reserved, then cleared after cooldown",
+  "lpWithdrawalClaim": "PASS; claim completed within entitlement and safe liquidity",
+  "long": "PASS; controlled long opened through live order/keeper path and was fully closed",
+  "short": "PASS; controlled short opened and was fully closed",
+  "keeperRecovery": "PASS; controlled pending-order recovery produced one logical execution",
+  "funding": "PASS; nonzero funding index observed",
+  "borrow": "PASS; nonzero borrow index observed",
+  "partialClose": "PASS; realized settlement and remaining-size path exercised",
+  "fullClose": "PASS; final open position count is zero",
+  "liquidation": "PASS; controlled liquidatable path completed",
+  "insurance": "PASS; 2000000 base units covered",
+  "badDebt": "PASS; uncovered amount remains explicit",
+  "adl": "PASS; 497 base units applied and replay rejected",
+  "solvencyBlock": "PASS; solvencyBlocked=true and risk increase rejected"
+}

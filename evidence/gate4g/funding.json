@@ -1,0 +1,21 @@
+{
+  "assetModel": "unified Arc USDC; native and ERC20 views are one economic asset and are not summed",
+  "initialDeployerUnifiedUsdcBaseUnits": 21845702,
+  "initialDistributionBaseUnits": 3193377,
+  "postLiveReserveTopupBaseUnits": 14513,
+  "totalFundsDistributedBaseUnits": 3207890,
+  "finalDeployerUnifiedUsdcBaseUnits": 18622170,
+  "finalPreflight": "PASS",
+  "transfers": [
+    {"role":"GOVERNANCE_ADMIN","amount":29845,"balanceBefore":220155,"balanceAfter":250000,"tx":"0xff48c10465c85b19afba39d5fdafcf7edbd619ae02cd9d7780fabd58aa6c3adc","block":65478667,"gas":48938,"receipt":"SUCCESS"},
+    {"role":"EMERGENCY_ADMIN","amount":2992,"balanceBefore":247008,"balanceAfter":250000,"tx":"0x9fbac01a3636798f01e27840fffe52730b614d7ea4cf211a7f1a40a74637b9c7","block":65478683,"gas":48938,"receipt":"SUCCESS"},
+    {"role":"KEEPER","amount":449704,"balanceBefore":50296,"balanceAfter":500000,"tx":"0x40b5c38daf8cc13b6b8d358880879f8d7608b8a1024b917afa78180e559e8a24","block":65478701,"gas":48950,"receipt":"SUCCESS"},
+    {"role":"TRADER_LONG","amount":533590,"balanceBefore":216410,"balanceAfter":750000,"tx":"0xf136877471accf2cf8b12c818126242d346733cedb4dfb25292cc17abaf1be6f","block":65478719,"gas":48950,"receipt":"SUCCESS"},
+    {"role":"TRADER_SHORT","amount":561657,"balanceBefore":188343,"balanceAfter":750000,"tx":"0x2cf0f24375f8eb7e360d7ba27cdf549256566ac7e42c84caaf2e9b5f12203391","block":65478737,"gas":48950,"receipt":"SUCCESS"},
+    {"role":"LP_1","amount":610451,"balanceBefore":639549,"balanceAfter":1250000,"tx":"0x0ba49f22ab4b3a0bd4adb595824884dc7e4d6df93c8ada639c2f28860a0c21b9","block":65478755,"gas":48950,"receipt":"SUCCESS"},
+    {"role":"LP_2","amount":1005138,"balanceBefore":244862,"balanceAfter":1250000,"tx":"0x6598ea64ba9d95b04dae6640f0e54e874a7a97e0e1892deb211596a59b29b814","block":65478770,"gas":48950,"receipt":"SUCCESS"},
+    {"role":"GOVERNANCE_ADMIN","amount":5716,"balanceBefore":244284,"balanceAfter":250000,"tx":"0x76a9f987f7e027b50403b569ef350b31fd75db781c3a86e06d12525e43f5cf7a","block":65482399,"gas":48938,"receipt":"SUCCESS"},
+    {"role":"EMERGENCY_ADMIN","amount":2901,"balanceBefore":247099,"balanceAfter":250000,"tx":"0xdb0cf474e70504cfa4973e8524ac6d837a6f46fce438b889f0556827dc56fb95","block":65482403,"gas":48938,"receipt":"SUCCESS"},
+    {"role":"KEEPER","amount":5896,"balanceBefore":494104,"balanceAfter":500000,"tx":"0xa60496cbe859eb0bc8c2f1756581271d26561808579488c213390ffbf4e7a2ac","block":65482409,"gas":48938,"receipt":"SUCCESS"}
+  ]
+}

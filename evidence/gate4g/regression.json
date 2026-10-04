@@ -1,0 +1,14 @@
+{
+  "preflight": "PASS",
+  "pnpmLint": "PASS",
+  "pnpmTypecheck": "PASS",
+  "pnpmTest": "PASS; 33 files, 149 tests",
+  "backendFrontendReadiness": "PASS; rows=84 implemented=82 external=0 releaseOnly=2",
+  "forgeFmtCheck": "PASS",
+  "forgeBuild": "PASS",
+  "forgeTest": "PASS; 10 suites, 53 tests",
+  "forgeLint": "PASS",
+  "arcSpecificForgeSuite": "PASS; LocalGate4E2ETest",
+  "contractSourceSha": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "backendSourceSha": "0xf40a605f189e660163dbe46dfb45349bb90e7d3cbdf2ea679680f6422dbaf52f"
+}

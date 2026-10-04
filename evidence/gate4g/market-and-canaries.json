@@ -1,0 +1,23 @@
+{
+  "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+  "originChain": "BASE",
+  "originChainId": 8453,
+  "originToken": "0x0000000000000000000000000000000000000001",
+  "qualificationHash": "0x0be48211905e22c0145a5c5690cc1ae6e2ec27e8eaf5d8a21e35765716aca1fc",
+  "ruleVersion": "0xaa7cdbe2cce2ec7b606b0e199ddd9b264a6e645e767fb8479a7917dcd1b8693f",
+  "evidenceRoot": "0x1dc60bace0e924a9981404cf2524e0c19bcf09f7ad5664d56d514f7fa4c37085",
+  "qualificationExpiry": 0,
+  "maxLeverageWad": "1500000000000000000",
+  "maxPositionBaseUnits": 200000,
+  "maxOIBaseUnits": 500000,
+  "maintenanceMarginBps": 2500,
+  "liquidationPenaltyBps": 500,
+  "finalMarketState": "CLOSE_ONLY",
+  "qualification": "APPROVED",
+  "qualificationAttacks": "expired, tampered, wrong-market, invalid-evidence rejected in the existing live canary; unauthorized writer probe rejected",
+  "executionGate": "bounded over-cap, stale/expired/tampered/wrong-account/wrong-market/replay/blocked paths rejected; final engine is terminally solvency-blocked",
+  "preTradePlan": "immutable order path exercised in the existing live canary; no open positions remain",
+  "oracleThreshold": "2-of-3",
+  "oracleSetVersion": "0xfcf04628118b4208901b1b67765496ba7236d1bc43590f5573d9de0305c38b26",
+  "latestOracleSequence": 60
+}

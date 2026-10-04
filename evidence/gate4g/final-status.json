@@ -1,0 +1,21 @@
+{
+  "deploymentLabel": "CANONICAL ARC TESTNET DEPLOYMENT",
+  "gate4BLabel": "SUPERSEDED TEST DEPLOYMENT",
+  "gate4GPass": "PASS_FOR_LIVE_CONTRACT_CONTROL_ACCOUNTING_AND_REGRESSION_GATES",
+  "arcTestnetV2Ready": "PASS_FOR_CANONICAL_TESTNET_MECHANICS",
+  "backendReadyForFrontend": "PASS_READINESS_ONLY; LIVE_HTTP_PROJECTION_NOT_STARTED",
+  "contractSourceUnchanged": true,
+  "criticalOpen": [],
+  "highOpen": [],
+  "mediumOpen": [
+    "ArcScan source verification is unavailable because the explorer returned address-only records",
+    "HTTP API/indexer profile, competition, notification, and Needs Attention projections were not started; direct live protocol reads and backend readiness passed"
+  ],
+  "testnetWritePerformed": true,
+  "mainnetWritePerformed": false,
+  "privateKeysReported": false,
+  "secretsCommitted": false,
+  "githubRemoteCreated": false,
+  "githubPushPerformed": false,
+  "frontendStarted": false
+}

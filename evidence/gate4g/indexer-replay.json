@@ -1,0 +1,7 @@
+{
+  "liveEventRange": {"deploymentStart": 65425128, "latestCaptured": 65482409},
+  "directReceiptOrdering": "PASS; block and log ordering retained in sanitized transaction evidence",
+  "cleanReplayProjection": "NOT_RUN_LIVE",
+  "restartReplayDuplicateSuppression": "PASS_IN_REPOSITORY_DETERMINISTIC_TESTS; live protocol projection was not started",
+  "reason": "The repository indexer currently exposes provider-neutral discovery and idempotent event primitives, not a configured V2 protocol-event replay command. No synthetic projection was created."
+}

@@ -1,0 +1,49 @@
+{
+  "baseUnits": "USDC 6 decimals",
+  "vault": {
+    "actualCustody": 10200000,
+    "expectedCustody": 10200000,
+    "rawCash": 10200000,
+    "totalAccountedAssets": 10299781,
+    "withdrawableLiquidity": 9008765,
+    "totalFreeCollateral": 1091454,
+    "totalLockedCollateral": 0
+  },
+  "traders": {
+    "TRADER_LONG_free": 548852,
+    "TRADER_SHORT_free": 448902,
+    "TRADER_LONG_locked": 0,
+    "TRADER_SHORT_locked": 0,
+    "positionsOpen": 0,
+    "longOI": 0,
+    "shortOI": 0,
+    "totalOI": 0,
+    "nextPositionId": 26
+  },
+  "lp": {
+    "publicLpActive": true,
+    "LP_1_shares": 600000,
+    "LP_2_shares": 1000000,
+    "totalShares": 1600000,
+    "managedAssets": 1600000,
+    "navAssets": 1600000,
+    "sharePriceWad": "1000000000000000000",
+    "pendingTraderLiability": 0,
+    "withdrawalRequestAfterClaim": {"shares": 0, "availableAt": 0}
+  },
+  "insuranceAndBadDebt": {
+    "insuranceAvailableCapital": 0,
+    "insuranceCoverage": 2000000,
+    "initialDeficit": 2100278,
+    "adlCoverage": 497,
+    "remainingProtocolBadDebt": 2099781,
+    "remainingInsuranceUncovered": 100278,
+    "solvencyBlocked": true
+  },
+  "fundingBorrow": {
+    "fundingIndexWad": "74188000000000",
+    "borrowIndexWad": "5126895514813",
+    "fundingAndBorrowAccrualObserved": true
+  },
+  "status": "PASS; actual and expected custody match and residual insolvency is explicit"
+}

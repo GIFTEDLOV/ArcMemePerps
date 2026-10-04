@@ -1,0 +1,34 @@
+{
+  "governanceExecutor": "0xde0c8dbd58d0eb2f742aaab167eacb2f1fe9c10e",
+  "ownerReadback": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833",
+  "bootstrapFinalized": true,
+  "deployerBuiltInRoleBypass": false,
+  "rolePlan": {
+    "GOVERNANCE_ADMIN": "0x867E0B85a1dd5d342571A7Dbdb98A71b24e6D77F",
+    "RISK_ADMIN": "0x327202b6638ACB7dD7b3B2D9a7b14B32FC2B7448",
+    "EMERGENCY_ADMIN": "0xA6038073Fcfc2db7A37C54e106E182928ABFF3a7",
+    "ORACLE_ADMIN": "0x9a3443C679DcFeEF1Fbf46Ab8bfE4ABA7bd20e5E",
+    "QUALIFICATION_WRITER": "0x4445656Fe52116CA653d4F86a16705964A99d4A6",
+    "KEEPER": "0xDAFBAB12B5456b633F0DdC9D8470B5361eA76e44",
+    "INSURANCE_MANAGER": "0x3a0BDe26Ba9b86462f05Ff340F755a182b061403",
+    "LP_RISK_CONTROLLER": "0x327202b6638ACB7dD7b3B2D9a7b14B32FC2B7448"
+  },
+  "reporters": {
+    "REPORTER_1": "0x5b603D76A46A5a974D21c4112929DcD93aF4eDCD",
+    "REPORTER_2": "0x245996aDE245356CC5e1dDbE34AC53101f4467a1",
+    "REPORTER_3": "0x61aA79c0409f5De54Dc9ffd09E2b9bDD576ddfdb",
+    "threshold": "2-of-3",
+    "setVersion": "0xfcf04628118b4208901b1b67765496ba7236d1bc43590f5573d9de0305c38b26"
+  },
+  "unauthorizedProbes": {
+    "qualification": "REJECTED",
+    "riskIncrease": "REJECTED",
+    "pause": "REJECTED",
+    "lpActivation": "REJECTED",
+    "reporterChange": "REJECTED",
+    "insuranceManagement": "REJECTED",
+    "keeperOperation": "REJECTED",
+    "adl": "REJECTED",
+    "governanceQueue": "REJECTED"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "rpc": "https://rpc.testnet.arc.io",
+  "deployer": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833",
+  "deploymentBroadcast": "broadcast/DeployGate4GV2.s.sol/5042002/run-latest.json",
+  "recordedTransactionCount": 122,
+  "recordedReceiptCount": 122,
+  "allRecordedReceiptsSuccessful": true,
+  "deploymentBlockRange": [65425128, 65425168],
+  "runtimeBytecodeParity": "PASS",
+  "contracts": {
+    "QualificationRegistry": {"address": "0xc63ab21db792767f29750ce5d3f5bbf73e9758cd", "tx": "0x0572eef3b618e8edd2b1a761b1ab444576deafe5f24bb585b08dfd01e89e9671", "nonce": "0xa", "block": 65425128, "gas": 878277},
+    "MarketRegistry": {"address": "0xf36fdec9688250afc79040f0f1c8079232fdad0d", "tx": "0x497730292e3db18f005d746f4be3ee344831a6ee675b6bf5390a939c81f88058", "nonce": "0xb", "block": 65425133, "gas": 1479300},
+    "OracleRouter": {"address": "0x2cab215a4eda6e4a38d94775e6fb91b6d2a5a25b", "tx": "0xf59aea2fc4ca3971c7e63c5084600e8be7bd5374b769bb8e8b383ac5cf7d3f71", "nonce": "0xc", "block": 65425138, "gas": 2096679},
+    "RiskConfig": {"address": "0x6c6c4a62ef80863d4bf133a18b599234bface8c0", "tx": "0x62e141af43c6a5494add3e28de42e39b16fce1a46d4f799b4225e8a34af67ae6", "nonce": "0xd", "block": 65425142, "gas": 1287060},
+    "USDCMarginVault": {"address": "0xac2c04fd72bc971ea5a0cf7b2a0031d60d1f8bdb", "tx": "0x509d2270705cbd18752851d8f00fb965870717ec10af79bc7696d800609cfa6f", "nonce": "0xe", "block": 65425147, "gas": 2645256},
+    "InsuranceFund": {"address": "0x49264e8002a6d56553305ed3a7b52831571f2aa9", "tx": "0x380d4c431c3dd16303b08253bd3e9fb9aa6158c6d3d2b4dfd52ab00629c159a2", "nonce": "0xf", "block": 65425152, "gas": 1243250},
+    "PerpEngine": {"address": "0x3c6489c312fde0009842fb1470705ae2971b19f5", "tx": "0xfc74080b66a4e2b1cadd40e22ea264acbf5e26dd23728fdc76d649671613f76c", "nonce": "0x10", "block": 65425157, "gas": 5207838},
+    "PublicLPVault": {"address": "0xffb36018800aeaeb16fc2b04d26084f5f8774589", "tx": "0xce190a88334d7dc8b56970c45f2fad6be6637cc889754ede4dbbf58fd450c63e", "nonce": "0x11", "block": 65425161, "gas": 1859615},
+    "ADLController": {"address": "0x7d7703b70f7e78a9ee1773fa4442f7b5b26c6440", "tx": "0x50af68e87dedbe28856fa33bf63d6240d2c1af3f1f58def76b8f018dc42b0f2e", "nonce": "0x12", "block": 65425163, "gas": 1217138},
+    "ProtocolTimelock": {"address": "0xde0c8dbd58d0eb2f742aaab167eacb2f1fe9c10e", "tx": "0x08b9e1d44a809ca49d47cf3e410c74c52989b4dbc747b2e3aa854da60de6d3", "nonce": "0x13", "block": 65425168, "gas": 929648}
+  }
+}
