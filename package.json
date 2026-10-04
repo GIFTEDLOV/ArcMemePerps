@@ -19,7 +19,7 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "typecheck": "tsc -p tsconfig.json --noEmit && pnpm --filter @arcmemeperps/frontend exec tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "forge:test": "forge test",
@@ -29,7 +29,11 @@
     "arc:testnet-v2:preflight": "tsx scripts/arc-testnet-v2.ts",
     "backend:frontend-readiness": "tsx scripts/backend-frontend-readiness.ts",
     "backend:frontend-readiness:live": "tsx scripts/backend-frontend-readiness-live.ts",
-    "backend:freeze": "tsx scripts/backend-freeze.ts"
+    "backend:freeze": "tsx scripts/backend-freeze.ts",
+    "frontend:dev": "pnpm --filter @arcmemeperps/frontend dev",
+    "frontend:build": "pnpm --filter @arcmemeperps/frontend build",
+    "frontend:test": "pnpm --filter @arcmemeperps/frontend test",
+    "e2e": "pnpm --filter @arcmemeperps/frontend exec playwright test -c playwright.config.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

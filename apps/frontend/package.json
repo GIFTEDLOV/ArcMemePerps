@@ -1,0 +1,27 @@
+{
+  "name": "@arcmemeperps/frontend",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 3001",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1 --port 3001",
+    "test": "vitest run --config vitest.config.ts"
+  },
+  "dependencies": {
+    "@vitejs/plugin-react": "latest",
+    "react": "latest",
+    "react-dom": "latest",
+    "react-router-dom": "latest",
+    "viem": "^2.37.0",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0",
+    "@types/react": "latest",
+    "@types/react-dom": "latest",
+    "typescript": "^5.7.0",
+    "vitest": "^3.0.0"
+  }
+}
