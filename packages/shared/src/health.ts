@@ -10,6 +10,7 @@ export type HealthComponent =
   | "DATABASE"
   | "JOB_WORKER"
   | "MARKET_DATA"
+  | "MARKET_DISCOVERY"
   | "HOLDER_DATA"
   | "CLUSTER_DATA"
   | "DEPTH_ENGINE"

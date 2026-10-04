@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "comparison": "compiled expected runtime == Gate4G stress runtime == Product runtime after immutable-slot masking",
+  "contracts": {
+    "QualificationRegistry": "0xbd8936a0a7918605012649ce52dcc323188757ca64aaf0b86298be0160f1edd7",
+    "MarketRegistry": "0xb7d5e9487b4376ddd16962596c71f56e930e0c7a9a43a66ef62303eef3af3d69",
+    "OracleRouter": "0xe8de5cc0b81f31c79b9a3475548984467c98e4a8b4a83568d408c5e9cad9e4d9",
+    "RiskConfig": "0x637b6f88b2e80162c905bcd6f51c1ef4063b069cf4f8c9be2396d0333ae67bb7",
+    "USDCMarginVault": "0xa19d7e3e8751d5f20890d455430a29db0810086c651a62461ea225915944cddb",
+    "InsuranceFund": "0xa044dff7fc3fbc0fe641346914923a2a83bd22d115713c3f08ce44e08438658c",
+    "PerpEngine": "0x9334c4cf06600c849a44c0a90c1916d5e1de1cd8bec7d9d99e82ff3aa9858d8d",
+    "PublicLPVault": "0x9b6ed4b9a911f828779298f8f34637ac22cb01076e505c762515543d1f5863ea",
+    "ADLController": "0x7b9615196e3ab1a36b8eb318d8e20f5049411d536e049e69a0bae296bf91b0d6",
+    "ProtocolTimelock": "0x9c2fb77a519d366963fb455fb5bbdeb633db499c2c3e1066c74ade9272252116"
+  }
+}

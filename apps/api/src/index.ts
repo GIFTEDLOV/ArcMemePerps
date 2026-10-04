@@ -40,7 +40,7 @@ export class MarketAssessmentService {
 }
 
 export const apiBuildState = {
-  transport: "read-only developer CLI",
+  transport: "versioned HTTP read model with SSE realtime stream",
   liveProviders: true,
   writesToArc: false,
 } as const;

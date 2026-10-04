@@ -1,0 +1,21 @@
+{
+  "chainId": 5042002,
+  "deployer": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833",
+  "balanceModel": "unified economic balance; native gas and Arc USDC views are not double-counted",
+  "deployerUnifiedBalanceBaseUnitsObserved": "10410205",
+  "deployerRequiredReserveBaseUnits": "8000000",
+  "deployerReserveStatus": "PASS",
+  "productDeploymentCostEstimateBaseUnits": "2254987",
+  "productFundingWrites": [
+    { "purpose": "KEEPER gas reserve", "to": "0x3a0BDe26Ba9b86462f05Ff340F755a182b061403", "amountBaseUnits": "5000", "tx": "0x3700e137324f2bbdf251596d2878bf91fb43f1cf854eeafd5292cd85e9f159e2", "block": 65488874 },
+    { "purpose": "protocol backing", "to": "0xec9eed7f03a945ca9a810ed0db87c6dc6f23901f", "amountBaseUnits": "5000000", "tx": "0x6d08add0f88e3ad8b2f37eb54cd5b02d6154b2c900955ed2a6a591290d5deb4e", "block": 65488879 },
+    { "purpose": "insurance funding", "to": "0x3a0BDe26Ba9b86462f05Ff340F755a182b061403", "amountBaseUnits": "2000000", "tx": "0x9762d82948076e7c3c154c59ab8b2c5980b526914e08399e1e15594acc518758", "block": 65488886 }
+  ],
+  "sharedActorReserveObservation": {
+    "status": "HISTORICAL_RESERVE_DEFICITS_AFTER_COMPLETED_PRODUCT_ACTIVITY",
+    "roles": ["GOVERNANCE_ADMIN", "KEEPER", "TRADER_LONG", "TRADER_SHORT", "LP_1", "LP_2"],
+    "exactDeficitsBaseUnits": { "GOVERNANCE_ADMIN": 13133, "KEEPER": 88309, "TRADER_LONG": 336337, "TRADER_SHORT": 317368, "LP_1": 806331, "LP_2": 1004753 },
+    "action": "No unrelated transfers made; all Product deployment/configuration and required bounded lifecycle writes completed successfully."
+  },
+  "secretOutput": false
+}

@@ -20,6 +20,7 @@ export const API_ENDPOINTS = [
   "GET /markets/:marketId/clusters",
   "GET /markets/:marketId/depth",
   "GET /markets/:marketId/activity",
+  "GET /markets/:marketId/pretrade",
   "GET /wallet/:address",
   "GET /wallet/:address/activity",
   "GET /wallet/:address/intelligence",

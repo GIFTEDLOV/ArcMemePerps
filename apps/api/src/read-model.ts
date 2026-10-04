@@ -1,5 +1,4 @@
 import {
-  MarketSnapshotSchema,
   NotificationEventSchema,
   passportAsSnapshot,
   UserProfileSchema,
@@ -86,7 +85,15 @@ export class PersistenceApiReadModel {
   public getMarketResource(
     marketId: string,
     resource:
-      "history" | "risk" | "proof" | "holders" | "clusters" | "deployer" | "depth" | "activity",
+      | "history"
+      | "risk"
+      | "proof"
+      | "holders"
+      | "clusters"
+      | "deployer"
+      | "depth"
+      | "activity"
+      | "pretrade",
   ): Promise<unknown> {
     const passport = this.repository.getPassport(marketId);
     if (passport === null) throw new Error("MARKET_NOT_FOUND");
@@ -106,11 +113,28 @@ export class PersistenceApiReadModel {
         organicActivity: passport.organicActivity,
         washFarm: passport.washFarm,
       });
+    if (resource === "pretrade")
+      return Promise.resolve({
+        status: "AVAILABLE",
+        deploymentId: "arc-testnet-product-v2",
+        chainId: 5042002,
+        marketId,
+        oracle: passport.oracleEvidence,
+        qualification: passport.qualification,
+        risk: passport.derivativesEvidence,
+        fees: {
+          status: "UNAVAILABLE",
+          reason: "fee schedule is not yet exposed by the canonical read model",
+        },
+        nonce: { source: "USER_WALLET", required: true },
+        expiry: { required: true, source: "USER_WALLET", minimumSeconds: 30 },
+        signer: { backendSigns: false, userWalletSigns: true },
+      });
     return Promise.resolve(
       this.storage
         .list("market_snapshots")
         .filter((record) => record.id.startsWith(`${marketId}:`))
-        .map((record) => MarketSnapshotSchema.parse(record.payload)),
+        .map((record) => passportAsSnapshot(record.payload as never)),
     );
   }
 

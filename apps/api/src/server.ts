@@ -30,7 +30,15 @@ export interface ApiReadModel {
   getMarketResource?(
     marketId: string,
     resource:
-      "history" | "risk" | "proof" | "holders" | "clusters" | "deployer" | "depth" | "activity",
+      | "history"
+      | "risk"
+      | "proof"
+      | "holders"
+      | "clusters"
+      | "deployer"
+      | "depth"
+      | "activity"
+      | "pretrade",
   ): Promise<unknown>;
   getWalletActivity?(address: string): Promise<readonly Record<string, unknown>[]>;
   getWalletIntelligence?(address: string): Promise<WalletSnapshot | null>;
@@ -127,7 +135,7 @@ async function handleRequest(
       return;
     }
     const marketResource =
-      /^\/markets\/([^/]+)\/(history|risk|proof|holders|clusters|deployer|depth|activity)$/.exec(
+      /^\/markets\/([^/]+)\/(history|risk|proof|holders|clusters|deployer|depth|activity|pretrade)$/.exec(
         path,
       );
     if (marketResource !== null) {

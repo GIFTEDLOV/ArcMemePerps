@@ -1,0 +1,23 @@
+{
+  "deploymentIdentity": "PRODUCT_TESTNET_DEPLOYMENT",
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "sourceRoot": "evidence/gate4i/verification-package/source",
+  "sourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "compiler": { "solc": "0.8.24", "optimizer": true, "optimizerRuns": 200, "viaIR": true, "evmVersion": "default" },
+  "constructorArguments": {
+    "QualificationRegistry": [],
+    "MarketRegistry": ["0x5f4193cbbcaf64175b2bb3dbe46dd6c7733c59bd"],
+    "OracleRouter": [120, 8500],
+    "RiskConfig": ["0x5f4193cbbcaf64175b2bb3dbe46dd6c7733c59bd"],
+    "USDCMarginVault": [],
+    "InsuranceFund": [],
+    "PerpEngine": ["0x4ea3fbb41962d0a3ec28c570656ea9d5ac1904bb", "0x3f9a6bfd2019b760d85eaf2ce0827534d58e65ad", "0xfdc85c3a13186e9be0ad63c34b5162de25BD39a5", "0xf73b9eb7e1853c9ba8f558542f1276584dd0f6ab", "0x131ce3346eb5e15a3ae3c1cba2cd93d54dc6877b"],
+    "PublicLPVault": ["0x3600000000000000000000000000000000000000", 60],
+    "ADLController": ["0xbd2c3ad91799110adf647493acbaa1f63a40514c"],
+    "ProtocolTimelock": [60]
+  },
+  "creationTransactions": "evidence/gate4i/product-deployment.json",
+  "runtimeParity": "evidence/gate4i/runtime-parity.json",
+  "secretsIncluded": false
+}

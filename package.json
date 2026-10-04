@@ -28,6 +28,7 @@
     "deploy:dry-run": "tsx scripts/dry-run-testnet.ts",
     "arc:testnet-v2:preflight": "tsx scripts/arc-testnet-v2.ts",
     "backend:frontend-readiness": "tsx scripts/backend-frontend-readiness.ts",
+    "backend:frontend-readiness:live": "tsx scripts/backend-frontend-readiness-live.ts",
     "backend:freeze": "tsx scripts/backend-freeze.ts"
   },
   "devDependencies": {

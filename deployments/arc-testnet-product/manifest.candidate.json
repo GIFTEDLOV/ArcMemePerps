@@ -1,0 +1,143 @@
+{
+  "status": "PRODUCT_TESTNET_DEPLOYMENT",
+  "deploymentPurpose": "PRODUCT_TESTNET_DEPLOYMENT",
+  "stressDeployment": "evidence/gate4g/deployment.json",
+  "network": "ARC_TESTNET",
+  "chainId": 5042002,
+  "rpcIdentity": "https://rpc.testnet.arc.io",
+  "explorer": "https://testnet.arcscan.app/",
+  "sourceHead": "7d7c514",
+  "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "backendSourceSha256": "0x0cce1f41d246ae0cb2e04faba9ff7ded4f9a14c65355e2f7147cf1e5a2b19afa",
+  "compiler": {
+    "solc": "0.8.24",
+    "optimizer": true,
+    "optimizerRuns": 200,
+    "viaIR": true,
+    "evmVersion": "default"
+  },
+  "collateral": {
+    "symbol": "USDC",
+    "address": "0x3600000000000000000000000000000000000000",
+    "interfaceDecimals": 6,
+    "custodyModel": "ERC20_BALANCE_ONLY",
+    "nativeBalanceRule": "native balance is gas only and is never added to ERC20 custody"
+  },
+  "deploymentOrder": [
+    "QualificationRegistry",
+    "MarketRegistry",
+    "OracleRouter",
+    "RiskConfig",
+    "USDCMarginVault",
+    "InsuranceFund",
+    "PerpEngine",
+    "PublicLPVault",
+    "ADLController",
+    "ProtocolTimelock"
+  ],
+  "constructorArguments": {
+    "QualificationRegistry": [],
+    "MarketRegistry": ["QualificationRegistry"],
+    "OracleRouter": [120, 8500],
+    "RiskConfig": ["QualificationRegistry"],
+    "USDCMarginVault": [],
+    "InsuranceFund": [],
+    "PerpEngine": ["MarketRegistry", "RiskConfig", "OracleRouter", "USDCMarginVault", "InsuranceFund"],
+    "PublicLPVault": ["USDC", 60],
+    "ADLController": ["PerpEngine"],
+    "ProtocolTimelock": [60]
+  },
+  "rolePlan": {
+    "governanceExecutor": "ProtocolTimelock",
+    "GOVERNANCE_ADMIN": "GOVERNANCE_ADMIN",
+    "RISK_ADMIN": "RISK_ADMIN",
+    "EMERGENCY_ADMIN": "EMERGENCY_ADMIN",
+    "ORACLE_ADMIN": "ORACLE_ADMIN",
+    "QUALIFICATION_WRITER": "QUALIFICATION_WRITER",
+    "KEEPER": "KEEPER",
+    "INSURANCE_MANAGER": "INSURANCE_MANAGER",
+    "LP_RISK_CONTROLLER": "RISK_ADMIN",
+    "deployerFinalization": "V2_DEPLOYER"
+  },
+  "reporterSet": {
+    "threshold": "2-of-3",
+    "version": "testnet-reporters-v2",
+    "addressesSource": "deployments/arc-testnet-v2/actors.candidate.json",
+    "signingMode": "OFFCHAIN_EIP712"
+  },
+  "governance": {
+    "minimumDelaySeconds": 60,
+    "bootstrapFinalization": true,
+    "emergencyRiskDecrease": true,
+    "emergencyRiskIncrease": false
+  },
+  "riskRuleVersion": "0.1.0",
+  "qualificationProofVersion": "2",
+  "riskSettings": {
+    "maxLeverageX": "2",
+    "maxOIBaseUnits": "1000000",
+    "maxLongOIBaseUnits": "500000",
+    "maxShortOIBaseUnits": "500000",
+    "maxPositionBaseUnits": "200000",
+    "maintenanceMarginBps": "2500",
+    "liquidationPenaltyBps": "500",
+    "riskBudgetStatus": "RISK_BUDGET_SAFE"
+  },
+  "backingSettings": {
+    "protocolBackingBaseUnits": "5000000",
+    "insuranceBaseUnits": "2000000"
+  },
+  "lpSettings": {
+    "publicLpShares": true,
+    "withdrawalQueue": true,
+    "withdrawalCooldownSeconds": 60,
+    "initialActive": false,
+    "activationPath": "PROTOCOL_TIMELOCK"
+  },
+  "market": {
+    "testnetCanary": true,
+    "originChain": "BASE",
+    "originChainId": 8453,
+    "originToken": "0x0000000000000000000000000000000000000001",
+    "qualificationProofHash": "ARCMEMEPERPS_TESTNET_CANARY_PROOF_V2",
+    "lifecycle": "TESTNET_CANARY_V2"
+  },
+  "progress": {
+    "path": "deployments/arc-testnet-product/progress.json",
+    "resumeRule": "reuse only addresses with non-empty matching runtime bytecode; never blind-redeploy"
+  },
+  "deployment": {
+    "broadcastAuthorized": true,
+    "deploymentTransactions": [
+      { "contract": "QualificationRegistry", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x96", "txHash": "0x601ab13242d74394c37493ebdb1cdc2b72813215f915107724780e18393570e7", "block": 65487723, "gas": 878277, "address": "0x5f4193cbbcaf64175b2bb3dbe46dd6c7733c59bd" },
+      { "contract": "MarketRegistry", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x97", "txHash": "0x1b331dbc5e0c719b6bb11bb5ed3a7ad17ee60ba19aa8f346f6cb8da381dd630c", "block": 65487728, "gas": 1479300, "address": "0x4ea3fbb41962d0a3ec28c570656ea9d5ac1904bb" },
+      { "contract": "OracleRouter", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x98", "txHash": "0xc277f29800ad06fb9d070fa73f459566b8557c02a9ec2e79aeaa9e0bef2056b6", "block": 65487733, "gas": 2096679, "address": "0xfdc85c3a13186e9be0ad63c34b5162de25BD39a5" },
+      { "contract": "RiskConfig", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x99", "txHash": "0xa648920ffae7fccaba861f45ce91655ea0e3aadf544aa6323fd0487173054f43", "block": 65487737, "gas": 1287060, "address": "0x3f9a6bfd2019b760d85eaf2ce0827534d58e65ad" },
+      { "contract": "USDCMarginVault", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x9a", "txHash": "0x1d82ac96bce150af1750785d9219c8d85f79e83e8d3e8092e3e6a87928b5d9ec", "block": 65487741, "gas": 2645256, "address": "0xf73b9eb7e1853c9ba8f558542f1276584dd0f6ab" },
+      { "contract": "InsuranceFund", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x9b", "txHash": "0x1e711c2713723c07ddfc618fa9824b02edac43700d7846f5bb70260491c53e79", "block": 65487745, "gas": 1243250, "address": "0x131ce3346eb5e15a3ae3c1cba2cd93d54dc6877b" },
+      { "contract": "PerpEngine", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x9c", "txHash": "0xf0c5ef7506b445e740409b45349522863ee0e89150ff8bdfa53759a2d44346f9", "block": 65487749, "gas": 5207850, "address": "0xbd2c3ad91799110adf647493acbaa1f63a40514c" },
+      { "contract": "PublicLPVault", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x9d", "txHash": "0x4a23a04c3a18199b4f9f1351ac16c99aa7b85b8512e6215044b1ec0e385ca624", "block": 65487754, "gas": 1859615, "address": "0x826892d52172ddef07f2927ba67493465cf54964" },
+      { "contract": "ADLController", "sender": "0x456A3ab835Bea90b42FF207B6C42BCE0BFF3e833", "nonce": "0x9e", "txHash": "0xa2b78b42104b547fc6b0a4a5cdbb4e3bc2756799dbf9913e2aad84bab0ea1f04", "block": 65487758, "gas": 1217150, "address": "0xca600bcd65de31d65ee198a82d5d51d50fa4b841" },
+      { "contract": "ProtocolTimelock", "sender": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833", "nonce": "0x9f", "txHash": "0x9fd64ee11b75d9cc3168664013def2cf7287b1e11c41963de10b5622acf1e4c7", "block": 65487763, "gas": 929648, "address": "0xec9eed7f03a945ca9a810ed0db87c6dc6f23901f" }
+    ],
+    "deploymentBlockRange": "65487723-65488218",
+    "transactionCount": 122,
+    "receiptCount": 122,
+    "contractAddresses": {
+      "QualificationRegistry": "0x5f4193cbbcaf64175b2bb3dbe46dd6c7733c59bd",
+      "MarketRegistry": "0x4ea3fbb41962d0a3ec28c570656ea9d5ac1904bb",
+      "OracleRouter": "0xfdc85C3A13186e9be0AD63C34b5162de25BD39a5",
+      "RiskConfig": "0x3f9a6bfd2019b760d85eaf2ce0827534d58e65ad",
+      "USDCMarginVault": "0xf73b9eb7e1853c9ba8f558542f1276584dd0f6ab",
+      "InsuranceFund": "0x131ce3346eb5e15a3ae3c1cba2cd93d54dc6877b",
+      "PerpEngine": "0xbd2c3ad91799110adf647493acbaa1f63a40514c",
+      "PublicLPVault": "0x826892d52172ddef07f2927ba67493465cf54964",
+      "ADLController": "0xca600bcd65de31d65ee198a82d5d51d50fa4b841",
+      "ProtocolTimelock": "0xec9eed7f03a945ca9a810ed0db87c6dc6f23901f"
+    },
+    "runtimeBytecodeParity": "PASS",
+    "productMarketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+    "finalState": { "solvencyBlocked": false, "badDebtBaseUnits": "0", "totalOpenInterestBaseUnits": "0", "publicLpActive": true }
+  },
+  "secretsIncluded": false
+}

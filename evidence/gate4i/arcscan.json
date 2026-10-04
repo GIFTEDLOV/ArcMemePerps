@@ -1,0 +1,24 @@
+{
+  "network": "Arc Testnet",
+  "stressDeployment": {
+    "status": "NOT_VERIFIED",
+    "reason": "Explorer/API submission remains externally unavailable; Gate4G runtime parity and local provenance remain authoritative"
+  },
+  "productDeployment": {
+    "status": "NOT_VERIFIED",
+    "contractsAttempted": 10,
+    "endpoint": "https://api-testnet.arc-scan.org/v1/verify/{address}",
+    "method": "POST",
+    "result": "HTTP 530 for every Product contract"
+  },
+  "sourceVerificationInputs": {
+    "sourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+    "compiler": "0.8.24",
+    "optimizer": true,
+    "optimizerRuns": 200,
+    "viaIR": true,
+    "constructorArguments": "evidence/gate4i/verification-package/metadata.json"
+  },
+  "localPackage": "evidence/gate4i/verification-package/",
+  "noRedeployForExplorerFailure": true
+}

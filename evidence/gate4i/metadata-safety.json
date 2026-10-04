@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "cases": [
+    { "input": "oversized name", "result": "bounded" },
+    { "input": "oversized symbol", "result": "bounded" },
+    { "input": "unicode controls", "result": "removed" },
+    { "input": "javascript URL", "result": "rejected" },
+    { "input": "unsafe data URL", "result": "rejected" },
+    { "input": "malformed image/website/social link", "result": "null or rejected" }
+  ],
+  "noSyntheticReplacement": true
+}

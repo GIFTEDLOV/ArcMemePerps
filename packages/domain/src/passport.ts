@@ -13,11 +13,8 @@ const isoTimestamp = z.string().datetime({ offset: true });
 const integerString = z.string().regex(/^-?[0-9]+$/);
 const nonNegativeIntegerString = z.string().regex(/^[0-9]+$/);
 
-export const MarketPassportSchema = z
-  .intersection(
-    MarketSnapshotSchema,
-    z
-      .object({
+const MarketPassportExtrasSchema = z
+  .object({
         passportSchemaVersion: z.literal(MARKET_PASSPORT_SCHEMA),
         marketAgeSeconds: z.number().int().min(0).nullable(),
         priceHistory: z
@@ -178,17 +175,87 @@ export const MarketPassportSchema = z
           )
           .readonly(),
         riskRuleVersion: z.string().min(1),
-      })
-      .strict(),
-  )
-  .brand<"MarketPassport">();
+  })
+  .strict();
 
-export type MarketPassport = z.infer<typeof MarketPassportSchema>;
+const MARKET_PASSPORT_EXTRA_KEYS = new Set([
+  "passportSchemaVersion",
+  "marketAgeSeconds",
+  "priceHistory",
+  "pools",
+  "lpControl",
+  "bundleEvidence",
+  "firstBuyers",
+  "sniperSignals",
+  "deployerProfile",
+  "fundingGraph",
+  "washFarm",
+  "organicActivity",
+  "smartWalletActivity",
+  "marketDepth",
+  "sourceIndependence",
+  "arcMarketState",
+  "providerHealth",
+  "riskRuleVersion",
+]);
+const MARKET_SNAPSHOT_KEYS = new Set([
+  "schemaVersion",
+  "observedAt",
+  "identity",
+  "originChain",
+  "originPlatform",
+  "lifecycle",
+  "marketData",
+  "liquidity",
+  "holderEvidence",
+  "deployerEvidence",
+  "securityEvidence",
+  "oracleEvidence",
+  "derivativesEvidence",
+  "providerState",
+  "freshness",
+  "riskResult",
+  "qualification",
+  "tradability",
+]);
+
+export type MarketPassport = MarketSnapshot & z.infer<typeof MarketPassportExtrasSchema>;
+
+/**
+ * Zod's strict intersection rejects the fields contributed by the other side.
+ * Validate the two canonical strict objects independently so a complete
+ * passport remains strict while accepting both its snapshot and passport
+ * sections.
+ */
+export const MarketPassportSchema = z.custom<MarketPassport>(
+  (input) => {
+    try {
+      if (input === null || typeof input !== "object" || Array.isArray(input)) return false;
+      const record = input as Record<string, unknown>;
+      const baseInput = Object.fromEntries(
+        Object.entries(record).filter(([key]) => !MARKET_PASSPORT_EXTRA_KEYS.has(key)),
+      );
+      try { MarketSnapshotSchema.parse(baseInput); } catch { return false; }
+      const extrasInput = Object.fromEntries(
+        Object.entries(record).filter(([key]) => !MARKET_SNAPSHOT_KEYS.has(key)),
+      );
+      try { MarketPassportExtrasSchema.parse(extrasInput); } catch { return false; }
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  { message: "invalid market passport" },
+);
 
 export function parseMarketPassport(input: unknown): MarketPassport {
   return MarketPassportSchema.parse(input);
 }
 
 export function passportAsSnapshot(passport: MarketPassport): MarketSnapshot {
-  return passport;
+  const record: Record<string, unknown> = passport;
+  const base = Object.fromEntries(
+    Object.entries(record).filter(([key]) => !MARKET_PASSPORT_EXTRA_KEYS.has(key)),
+  );
+  return MarketSnapshotSchema.parse(base);
 }

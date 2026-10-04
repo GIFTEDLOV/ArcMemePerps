@@ -6,7 +6,7 @@
   "explorer": "https://testnet.arcscan.app/",
   "sourceHead": "692abd3cb9a4d4d034ef6dcfc807e9dea6f454b6",
   "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
-  "backendSourceSha256": "0xf40a605f189e660163dbe46dfb45349bb90e7d3cbdf2ea679680f6422dbaf52f",
+  "backendSourceSha256": "0x0cce1f41d246ae0cb2e04faba9ff7ded4f9a14c65355e2f7147cf1e5a2b19afa",
   "compiler": {
     "solc": "0.8.24",
     "optimizer": true,

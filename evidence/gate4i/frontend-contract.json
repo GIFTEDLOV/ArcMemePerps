@@ -1,0 +1,14 @@
+{
+  "apiVersion": "v1",
+  "apiSchemaVersion": "api-contract/v1",
+  "marketPassportSchema": "market-passport/v1",
+  "marketSnapshotSchema": "market-snapshot/v1",
+  "pretradePlanSchema": "pretrade-surface/v1",
+  "profileSchema": "user-profile/v1",
+  "competitionSchema": "competition-score/v1",
+  "needsAttentionSchema": "needs-attention/v1",
+  "realtimeEventSchema": "realtime-event/v1",
+  "transport": { "http": "/api/v1", "stream": "/api/v1/stream", "readOnly": true },
+  "signingBoundary": { "backendSigns": false, "userWalletSigns": true },
+  "frontendStarted": false
+}

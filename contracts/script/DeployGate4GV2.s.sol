@@ -311,7 +311,13 @@ contract DeployGate4GV2 {
         engine.setMarketSideCaps(marketId, maxLongOI, maxShortOI);
         engine.setSkewConfig(8e17, 5e14);
 
-        _fundBacking(marginVault, insurance, usdc, backing, insuranceCapital);
+        // Product deployment uses the same post-deployment governance funding path that
+        // funded the security deployment. This avoids relying on Arc's non-standard token
+        // transferFrom behavior inside the deployment simulation while keeping the contract
+        // bytecode and funding semantics unchanged.
+        if (vm.envOr("SKIP_INITIAL_FUNDING", uint256(0)) == 0) {
+            _fundBacking(marginVault, insurance, usdc, backing, insuranceCapital);
+        }
 
         _finalize(qualification);
         _finalize(registry);
