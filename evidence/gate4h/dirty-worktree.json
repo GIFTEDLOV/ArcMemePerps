@@ -1,0 +1,183 @@
+{
+  "statusBeforeGate4H": "DIRTY",
+  "stagedFilesBeforeGate4H": [],
+  "files": [
+    {
+      "path": "deployments/arc-testnet-v2/manifest.candidate.json",
+      "classification": "GATE4G_DEPLOYMENT_PROVENANCE",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/arc-testnet-v2.test.ts",
+      "classification": "GATE4G_TEST",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/arc-testnet-v2.ts",
+      "classification": "GATE4G_BACKEND_RUNTIME",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-activate-lp-execute.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-activate-lp.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-adl-execute-queue.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-adl-execute.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-adl-finalize.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-adl-queue.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-adl-replay-check.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-bootstrap-execute.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-bootstrap-funding.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-cancel-order.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-close-long.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-close-short4.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-deposit-liq-extra.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-emergency-canary.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-execute-order.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-exhaust-insurance.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-fund-liquidator.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-insurance-fund.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-insurance-topup.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-liquidate.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-lp-claim.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-lp-deposits.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-lp-withdraw-request.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-open-direct.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-open-liq.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-open-order.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-oracle-attacks.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-position-actions.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-role-attacks.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-submit-report.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-topup-liq.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    },
+    {
+      "path": "scripts/.gate4g-trader-deposits.ps1",
+      "classification": "PREEXISTING_GATE4G_OPERATIONAL_HELPER",
+      "action": "PRESERVED_UNSTAGED"
+    }
+  ],
+  "contractSourceFilesDirty": false,
+  "gate4hFilesOnly": "evidence/gate4h/*"
+}

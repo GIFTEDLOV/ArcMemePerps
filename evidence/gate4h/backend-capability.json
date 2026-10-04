@@ -1,0 +1,18 @@
+{
+  "liveV2Indexer": {
+    "status": "UNAVAILABLE_IN_CURRENT_RUNTIME",
+    "reason": "apps/indexer/package.json has no start/bootstrap script and the checked source contains provider-neutral/idempotency building blocks but no canonical V2 protocol-event ingestion command"
+  },
+  "liveApi": {
+    "status": "UNAVAILABLE_IN_CURRENT_RUNTIME",
+    "reason": "apps/api/src/index.ts exposes MarketAssessmentService and declares read-only developer CLI state; it does not initialize a live V2 database/indexer projection",
+    "buildState": {
+      "transport": "read-only developer CLI",
+      "liveProviders": true,
+      "writesToArc": false
+    }
+  },
+  "frontendBackendReadinessLive": "NOT_REACHED",
+  "fixturesOrSyntheticFallbackStarted": false,
+  "newProductArchitectureAdded": false
+}

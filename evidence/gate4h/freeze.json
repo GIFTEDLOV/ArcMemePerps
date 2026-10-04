@@ -1,0 +1,12 @@
+{
+  "startingHead": "a422a8ada6283bc0256781913090ca0a0110fac0",
+  "currentHeadBeforeEvidenceCommit": "a422a8ada6283bc0256781913090ca0a0110fac0",
+  "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "expectedContractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "contractSourceUnchanged": true,
+  "backendSourceSha256": "0xf40a605f189e660163dbe46dfb45349bb90e7d3cbdf2ea679680f6422dbaf52f",
+  "chainId": 5042002,
+  "rpc": "https://rpc.testnet.arc.io",
+  "canonicalDeploymentEvidence": "evidence/gate4g/deployment.json",
+  "runtimeBytecodeParityFromGate4G": "PASS"
+}

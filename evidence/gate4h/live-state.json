@@ -1,0 +1,23 @@
+{
+  "chainId": 5042002,
+  "latestBlockAtCheck": 65485462,
+  "canonicalDeployment": "ARC_TESTNET_V2",
+  "perpEngine": "0x3c6489c312fde0009842fb1470705ae2971b19f5",
+  "marginVault": "0xac2c04fd72bc971ea5a0cf7b2a0031d60d1f8bdb",
+  "stressMarket": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+  "stressMarketLabel": "GATE4G_STRESS_CANARY",
+  "solvencyBlocked": true,
+  "protocolBadDebtBaseUnits": "2099781",
+  "stressMarketOpenInterestBaseUnits": "0",
+  "sourceEvidence": {
+    "contract": "contracts/src/PerpEngine.sol",
+    "solvencyDeclarationLine": 115,
+    "terminalMutationLine": 271,
+    "exposureGuardLine": 867,
+    "resetOrClearFunctionFound": false,
+    "perMarketSolvencyOverrideFound": false
+  },
+  "stressStatePreserved": true,
+  "frontendDemoMarket": "NOT_CREATED",
+  "gate4hArcWrites": 0
+}

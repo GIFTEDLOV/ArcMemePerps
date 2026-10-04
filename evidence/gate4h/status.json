@@ -1,0 +1,27 @@
+{
+  "gate": "4H",
+  "result": "BLOCKED",
+  "stopReason": "Genuine unrecoverable live-state constraint under the frozen no-redeploy/no-contract-modification contract",
+  "healthyFrontendDemoMarket": "NOT_CREATED",
+  "liveBackendProjection": "NOT_STARTED",
+  "frontendStarted": false,
+  "testnetWritePerformed": false,
+  "mainnetWritePerformed": false,
+  "contractRedeploymentPerformed": false,
+  "privateKeysReported": false,
+  "secretsCommitted": false,
+  "githubRemoteCreated": false,
+  "githubPushPerformed": false,
+  "criticalOpen": [
+    "The canonical V2 PerpEngine is globally solvencyBlocked=true after the preserved Gate4G stress canary; the required healthy demo condition solvencyBlocked=false is impossible on this deployment without forbidden mutation or redeployment."
+  ],
+  "highOpen": [
+    "The repository has no existing canonical V2 live indexer bootstrap/start path.",
+    "The API runtime is a read-only developer boundary and has no existing live V2 database/indexer wiring."
+  ],
+  "mediumOpen": [
+    "Gate4G ArcScan source verification remains externally unavailable per Gate4G evidence."
+  ],
+  "gate4gEvidencePreserved": true,
+  "noStateBleedCreated": true
+}
