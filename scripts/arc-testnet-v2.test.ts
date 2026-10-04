@@ -53,10 +53,14 @@ describe("Arc Testnet V2 deployment tooling", () => {
     const requirements = expectedFunding();
     const deployer = requirements.find((item) => item.role === "V2_DEPLOYER");
     const reporter = requirements.find((item) => item.role === "REPORTER_1");
-    expect(deployer?.nativeRequiredBaseUnits).toBe(1_000_000_000_000_000_000n);
-    expect(deployer?.erc20RequiredBaseUnits).toBe(7_000_000n);
-    expect(reporter?.nativeRequiredBaseUnits).toBe(0n);
-    expect(reporter?.erc20RequiredBaseUnits).toBe(0n);
+    expect(deployer?.protocolRequiredUsdcBaseUnits).toBe(7_000_000n);
+    expect(deployer?.gasReserveUsdcBaseUnits).toBe(1_000_000n);
+    expect(deployer?.requiredEconomicUsdcBaseUnits).toBe(8_000_000n);
+    expect(deployer?.requiresOnchainWrite).toBe(true);
+    expect(reporter?.protocolRequiredUsdcBaseUnits).toBe(0n);
+    expect(reporter?.gasReserveUsdcBaseUnits).toBe(0n);
+    expect(reporter?.requiredEconomicUsdcBaseUnits).toBe(0n);
+    expect(reporter?.requiresOnchainWrite).toBe(false);
   });
 
   it("rejects wrong-chain, wrong-USDC, hash-mismatch, and corrupt candidates before RPC work", () => {

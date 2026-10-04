@@ -40,15 +40,20 @@ interface ActorManifest {
 export interface FundingRequirement {
   readonly role: string;
   readonly address: Address;
-  readonly nativeRequiredBaseUnits: bigint;
-  readonly erc20RequiredBaseUnits: bigint;
+  readonly protocolRequiredUsdcBaseUnits: bigint;
+  readonly gasReserveUsdcBaseUnits: bigint;
+  readonly requiredEconomicUsdcBaseUnits: bigint;
+  readonly requiresOnchainWrite: boolean;
 }
 
 export interface FundingObservation extends FundingRequirement {
   readonly nativeBalanceBaseUnits: bigint;
   readonly erc20BalanceBaseUnits: bigint;
-  readonly nativeDeficitBaseUnits: bigint;
-  readonly erc20DeficitBaseUnits: bigint;
+  readonly nativeEconomicEquivalentBaseUnits: bigint;
+  readonly unifiedEconomicBalanceBaseUnits: bigint;
+  readonly economicDeficitBaseUnits: bigint;
+  readonly nativeErc20RepresentationMatch: boolean;
+  readonly gasCapability: "PASS" | "NOT_REQUIRED" | "FAIL";
 }
 
 const ERC20_ABI = parseAbi([
@@ -77,36 +82,29 @@ const ROLE_ORDER = [
 
 export const REQUIRED_ACTOR_ROLES = [...ROLE_ORDER] as readonly string[];
 
-const writeRoles = new Set([
-  "V2_DEPLOYER",
-  "GOVERNANCE_ADMIN",
-  "RISK_ADMIN",
-  "EMERGENCY_ADMIN",
-  "ORACLE_ADMIN",
-  "QUALIFICATION_WRITER",
-  "KEEPER",
-  "INSURANCE_MANAGER",
-  "TRADER_LONG",
-  "TRADER_SHORT",
-  "LIQUIDATOR",
-  "LP_1",
-  "LP_2",
-]);
-
 export function expectedFunding(): FundingRequirement[] {
-  return ROLE_ORDER.map((role) => ({
-    role,
-    address: "0x0000000000000000000000000000000000000000",
-    nativeRequiredBaseUnits: writeRoles.has(role) ? 1_000_000_000_000_000_000n : 0n,
-    erc20RequiredBaseUnits:
-      role === "V2_DEPLOYER"
-        ? 7_000_000n
-        : role === "TRADER_LONG" || role === "TRADER_SHORT"
-          ? 500_000n
-          : role === "LP_1" || role === "LP_2"
-            ? 1_000_000n
-            : 0n,
-  }));
+  const plan: Record<string, { protocol: bigint; gas: bigint }> = {
+    V2_DEPLOYER: { protocol: 7_000_000n, gas: 1_000_000n },
+    GOVERNANCE_ADMIN: { protocol: 0n, gas: 250_000n },
+    EMERGENCY_ADMIN: { protocol: 0n, gas: 250_000n },
+    QUALIFICATION_WRITER: { protocol: 0n, gas: 250_000n },
+    KEEPER: { protocol: 0n, gas: 500_000n },
+    TRADER_LONG: { protocol: 500_000n, gas: 250_000n },
+    TRADER_SHORT: { protocol: 500_000n, gas: 250_000n },
+    LP_1: { protocol: 1_000_000n, gas: 250_000n },
+    LP_2: { protocol: 1_000_000n, gas: 250_000n },
+  };
+  return ROLE_ORDER.map((role) => {
+    const entry = plan[role] ?? { protocol: 0n, gas: 0n };
+    return {
+      role,
+      address: "0x0000000000000000000000000000000000000000",
+      protocolRequiredUsdcBaseUnits: entry.protocol,
+      gasReserveUsdcBaseUnits: entry.gas,
+      requiredEconomicUsdcBaseUnits: entry.protocol + entry.gas,
+      requiresOnchainWrite: entry.gas > 0n,
+    };
+  });
 }
 
 async function filesUnder(root: string, directory: string, extension: string): Promise<string[]> {
@@ -277,12 +275,26 @@ async function observeFunding(
         functionName: "balanceOf",
         args: [requirement.address],
       });
+      const nativeEconomicEquivalent = nativeBalance / 1_000_000_000_000n;
+      const representationMatch =
+        nativeEconomicEquivalent === erc20Balance;
+      const economicDeficit = fundingDeficit(
+        erc20Balance,
+        requirement.requiredEconomicUsdcBaseUnits,
+      );
       return {
         ...requirement,
         nativeBalanceBaseUnits: nativeBalance,
         erc20BalanceBaseUnits: erc20Balance,
-        nativeDeficitBaseUnits: fundingDeficit(nativeBalance, requirement.nativeRequiredBaseUnits),
-        erc20DeficitBaseUnits: fundingDeficit(erc20Balance, requirement.erc20RequiredBaseUnits),
+        nativeEconomicEquivalentBaseUnits: nativeEconomicEquivalent,
+        unifiedEconomicBalanceBaseUnits: erc20Balance,
+        economicDeficitBaseUnits: economicDeficit,
+        nativeErc20RepresentationMatch: representationMatch,
+        gasCapability: !requirement.requiresOnchainWrite
+          ? "NOT_REQUIRED"
+          : representationMatch && nativeEconomicEquivalent >= requirement.requiredEconomicUsdcBaseUnits
+            ? "PASS"
+            : "FAIL",
       };
     }),
   );
@@ -303,7 +315,7 @@ export async function runPreflight(root = process.cwd()): Promise<number> {
     const actor = actorByRole.get(role);
     if (!actor) continue;
     const keystoreDir = process.env.ARCMEMEPERPS_KEYSTORE_DIR ??
-      resolve(process.env.USERPROFILE ?? process.env.HOME ?? root, ".arcmemeperps", "gate4g0-keystores");
+      resolve(process.env.USERPROFILE ?? process.env.HOME ?? root, ".arcmemeperps", "gate4g-recovered-keystores");
     try {
       await stat(join(keystoreDir, role));
     } catch {
@@ -351,7 +363,10 @@ export async function runPreflight(root = process.cwd()): Promise<number> {
   }
 
   const fundingDeficits = observations.filter(
-    (observation) => observation.nativeDeficitBaseUnits > 0n || observation.erc20DeficitBaseUnits > 0n,
+    (observation) =>
+      observation.economicDeficitBaseUnits > 0n ||
+      !observation.nativeErc20RepresentationMatch ||
+      observation.gasCapability === "FAIL",
   );
   const hardFailures = failures.filter((failure) => !failure.startsWith("funding deficit:"));
   const result = {
@@ -365,10 +380,15 @@ export async function runPreflight(root = process.cwd()): Promise<number> {
     funding: observations,
     failures,
     fundingDeficits,
-    status: hardFailures.length === 0 ? "PASS_WITH_FUNDING_CHECK" : "FAIL",
+    status:
+      hardFailures.length === 0 && fundingDeficits.length === 0
+        ? "PASS"
+        : hardFailures.length === 0
+          ? "FAIL_FUNDING"
+          : "FAIL",
   };
   console.log(asJson(result));
-  return hardFailures.length === 0 ? 0 : 1;
+  return hardFailures.length === 0 && fundingDeficits.length === 0 ? 0 : 1;
 }
 
 export async function main(): Promise<void> {
