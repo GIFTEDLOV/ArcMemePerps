@@ -34,4 +34,19 @@ pnpm e2e
 See [docs/FRONTEND_GATE5.md](docs/FRONTEND_GATE5.md) for routes, wallet
 review boundaries, live data policy, schemas, and the Product/Stress split.
 
+## Public release
+
+- Live app: https://arcmemeperps.vercel.app
+- Read-only API and SSE: https://api-production-0eb6.up.railway.app/api/v1
+- GitHub: https://github.com/GIFTEDLOV/ArcMemePerps
+- Network: Arc Testnet (`5042002`)
+- Product target: `arc-testnet-product-v2`
+
+The Product deployment is the healthy frontend target. The separate Stress
+deployment is immutable security evidence for liquidation, insurance, ADL, and
+terminal solvency blocking; it is never used for normal trading. ArcScan
+source verification remains externally unavailable where the explorer returns
+address-only records, so runtime parity and local provenance are the
+authoritative release evidence.
+
 The Foundry toolchain is required for Solidity validation. The repository keeps Solidity sources and tests under `contracts/` and uses `foundry.toml` at the root.

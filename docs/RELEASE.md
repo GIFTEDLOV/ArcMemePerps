@@ -21,6 +21,12 @@ The process is supervised together so the API, indexer, reporter, and keeper res
 
 The Gate 4G Stress/Security deployment remains a separate immutable security record and is never the default API or frontend target.
 
+## Public endpoints
+
+- Frontend: `https://arcmemeperps.vercel.app`
+- API and SSE: `https://api-production-0eb6.up.railway.app/api/v1`
+- Repository: `https://github.com/GIFTEDLOV/ArcMemePerps`
+
 ## Required Railway variables
 
 Public configuration:

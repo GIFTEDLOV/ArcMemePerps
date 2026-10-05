@@ -1,0 +1,87 @@
+{
+  "project": "ArcMemePerps",
+  "release": "v1.0.0",
+  "github": {
+    "repository": "https://github.com/GIFTEDLOV/ArcMemePerps",
+    "branch": "main",
+    "releaseCandidateCommit": "01df3591e88e5f95f6ee025e3146fd8d66ad84a3"
+  },
+  "publicServices": {
+    "frontend": "https://arcmemeperps.vercel.app",
+    "vercelProject": "arcmemeperps",
+    "vercelDeploymentId": "dpl_5kLLJeS4czzXYZmkRgo2gLcxzuQz",
+    "backend": "https://api-production-0eb6.up.railway.app/api/v1",
+    "railwayProject": "arcmemeperps",
+    "railwayDeploymentId": "4e6bc2b7-3038-4be1-a6cc-30a600ae27bf",
+    "database": "durable Railway volume /data/product-live.sqlite",
+    "realtime": "SSE /stream"
+  },
+  "network": {
+    "name": "Arc Testnet",
+    "chainId": 5042002,
+    "rpc": "https://rpc.testnet.arc.io",
+    "usdcInterface": "0x3600000000000000000000000000000000000000"
+  },
+  "productDeployment": {
+    "identity": "PRODUCT_TESTNET_DEPLOYMENT",
+    "deploymentId": "arc-testnet-product-v2",
+    "blockRange": [65487723, 65488218],
+    "marketId": "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387",
+    "solvencyBlocked": false,
+    "badDebtBaseUnits": "0",
+    "runtimeBytecodeParity": "PASS",
+    "contractSourceSha256": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+    "backendSourceSha256AtReleaseCandidate": "0xd3e5eff94d112a13085f66abe635ccd170869a830c7324134ea3a7786a1a3a86",
+    "riskRuleVersion": "0xaa7cdbe2cce2ec7b606b0e199ddd9b264a6e645e767fb8479a7917dcd1b8693f",
+    "reporterSetVersion": "0xfcf04628118b4208901b1b67765496ba7236d1bc43590f5573d9de0305c38b26",
+    "reporterThreshold": "2-of-3",
+    "addresses": {
+      "MarketRegistry": "0x4ea3fbb41962d0a3ec28c570656ea9d5ac1904bb",
+      "QualificationRegistry": "0x5f4193cbbcaf64175b2bb3dbe46dd6c7733c59bd",
+      "OracleRouter": "0xfdc85c3a13186e9be0ad63c34b5162de25BD39a5",
+      "RiskConfig": "0x3f9a6bfd2019b760d85eaf2ce0827534d58e65ad",
+      "USDCMarginVault": "0xf73b9eb7e1853c9ba8f558542f1276584dd0f6ab",
+      "PerpEngine": "0xbd2c3ad91799110adf647493acbaa1f63a40514c",
+      "InsuranceFund": "0x131ce3346eb5e15a3ae3c1cba2cd93d54dc6877b",
+      "PublicLPVault": "0x826892d52172ddef07f2927ba67493465cf54964",
+      "ADLController": "0xca600bcd65de31d65ee198a82d5d51d50fa4b841",
+      "ProtocolTimelock": "0xec9eed7f03a945ca9a810ed0db87c6dc6f23901f"
+    }
+  },
+  "stressDeployment": {
+    "identity": "STRESS_SECURITY_DEPLOYMENT",
+    "blockRange": [65425128, 65425168],
+    "solvencyBlocked": true,
+    "badDebtBaseUnits": "2099781",
+    "purpose": "Immutable liquidation, insurance, ADL, and terminal insolvency evidence",
+    "addresses": {
+      "MarketRegistry": "0xf36fdec9688250afc79040f0f1c8079232fdad0d",
+      "QualificationRegistry": "0xc63ab21db792767f29750ce5d3f5bbf73e9758cd",
+      "OracleRouter": "0x2cab215a4eda6e4a38d94775e6fb91b6d2a5a25b",
+      "RiskConfig": "0x6c6c4a62ef80863d4bf133a18b599234bface8c0",
+      "USDCMarginVault": "0xac2c04fd72bc971ea5a0cf7b2a0031d60d1f8bdb",
+      "PerpEngine": "0x3c6489c312fde0009842fb1470705ae2971b19f5",
+      "InsuranceFund": "0x49264e8002a6d56553305ed3a7b52831571f2aa9",
+      "PublicLPVault": "0xffb36018800aeaeb16fc2b04d26084f5f8774589",
+      "ADLController": "0x7d7703b70f7e78a9ee1773fa4442f7b5b26c6440",
+      "ProtocolTimelock": "0xde0c8dbd58d0eb2f742aaab167eacb2f1fe9c10e"
+    }
+  },
+  "oracle": {
+    "worker": "Railway backend sealed worker",
+    "observations": "Onchain Product baseline carried forward only after market, chain, bounds, reporter-set, and threshold validation; fail-closed when unavailable",
+    "observedPublicCycles": [
+      { "sequence": 18, "tx": "0x98a8341c7362ccbc7db40263b60b25485342d3d635fce136d39c1f7491828511" },
+      { "sequence": 19, "tx": "0x197d1cc1d87a8741f78bb619f95e16e6139f7701d2ca9dd404660cb6303b68d3" },
+      { "sequence": 20, "tx": "0x38eeb7f3c31c41495d92c98559cbecfba609f4d1445f1fed73201eb96a43d264" }
+    ]
+  },
+  "verification": {
+    "arcScanProduct": "NOT_VERIFIED — external explorer returned address-only records",
+    "arcScanStress": "NOT_VERIFIED — external explorer returned address-only records",
+    "runtimeParity": "PASS",
+    "secretsCommitted": false,
+    "mainnetWrites": false,
+    "contractRedeployedForRelease": false
+  }
+}

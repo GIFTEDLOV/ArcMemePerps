@@ -20,3 +20,5 @@ keystores/
 wallets/
 *.keystore
 evidence/gate4i/*.sqlite*
+
+.vercel
