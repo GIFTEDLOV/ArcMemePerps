@@ -44,8 +44,8 @@ describe("Arc Testnet V2 deployment tooling", () => {
     const artifacts = deploymentArtifacts("root");
     expect(Object.keys(artifacts)).toEqual([...DEPLOYMENT_ORDER]);
     expect(artifacts.PublicLPVault.replaceAll("\\", "/")).toContain("out/PublicLPVault.sol/PublicLPVault.json");
-    expect(artifacts.ProtocolTimelock).toContain(
-      "out/ProtocolTimelock.sol/ProtocolTimelock.json".replaceAll("/", "\\"),
+    expect(artifacts.ProtocolTimelock.replaceAll("\\", "/")).toContain(
+      "out/ProtocolTimelock.sol/ProtocolTimelock.json",
     );
   });
 
