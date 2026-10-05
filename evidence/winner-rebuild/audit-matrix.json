@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "winner-rebuild/audit-v1",
+  "branch": "winner-rebuild",
+  "startingReleaseHead": "3043b9b8d5b8f70858c023cb65805cbd3d5305b2",
+  "contractSourceSha": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "discovery": {
+    "provider": "DEXSCREENER",
+    "observedAt": "2026-10-05T08:27:52.970Z",
+    "marketCount": 30,
+    "chains": ["SOLANA", "BNB", "ROBINHOOD"],
+    "arcPerpCount": 0
+  },
+  "featureReality": [
+    { "feature": "origin market universe", "classification": "LIVE_E2E", "evidence": "discovery-snapshot.json + /markets browser suite" },
+    { "feature": "chain/token identity", "classification": "LIVE_E2E", "evidence": "packages/market-universe/src/index.test.ts" },
+    { "feature": "origin lifecycle", "classification": "LIVE_PARTIAL", "evidence": "DexScreener pair evidence; graduation not inferred" },
+    { "feature": "token integrity", "classification": "LIVE_PARTIAL", "evidence": "PENDING with explicit provider observation; enrichment providers unavailable" },
+    { "feature": "Arc perp registry merge", "classification": "LIVE_PARTIAL", "evidence": "NOT_REGISTERED for discovered universe; frozen Product registry remains separate" },
+    { "feature": "wallet order path", "classification": "LIVE_PARTIAL", "evidence": "viem ABI path and immutable plan guard; no discovered token is registered" },
+    { "feature": "history", "classification": "LIVE_PARTIAL", "evidence": "one real observation; chart correctly unavailable until two points" },
+    { "feature": "holders/clusters/deployer/depth", "classification": "EXTERNAL_BLOCKED", "evidence": "configured provider credentials/readers absent" },
+    { "feature": "stress canary as normal market", "classification": "DEAD_OR_UNNECESSARY", "evidence": "removed from normal discovery; retained in proof/evidence" }
+  ],
+  "checks": {
+    "typecheck": "PASS",
+    "lint": "PASS",
+    "vitest": "38 files / 161 tests PASS",
+    "frontendUnit": "4 files / 9 tests PASS",
+    "frontendBuild": "PASS",
+    "playwright": "14 tests PASS",
+    "foundry": "53 tests PASS; fmt/build/lint PASS",
+    "mainnetWrites": "NO",
+    "contractChanges": "NO"
+  },
+  "knownGaps": [
+    "No discovered origin token is currently registered as an Arc perp.",
+    "Provider-specific integrity and holder intelligence require configured production readers.",
+    "The local rebuild API is not a public deployment and does not replace the historical v1.0.0 release."
+  ]
+}

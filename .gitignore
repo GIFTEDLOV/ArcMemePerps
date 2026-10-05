@@ -20,5 +20,6 @@ keystores/
 wallets/
 *.keystore
 evidence/gate4i/*.sqlite*
+evidence/winner-rebuild/*.sqlite*
 
 .vercel

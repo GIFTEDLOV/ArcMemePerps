@@ -35,7 +35,9 @@
     "frontend:dev": "pnpm --filter @arcmemeperps/frontend dev",
     "frontend:build": "pnpm --filter @arcmemeperps/frontend build",
     "frontend:test": "pnpm --filter @arcmemeperps/frontend test",
-    "e2e": "pnpm --filter @arcmemeperps/frontend exec playwright test -c playwright.config.ts"
+    "e2e": "pnpm --filter @arcmemeperps/frontend exec playwright test -c playwright.config.ts",
+    "winner:discover": "tsx scripts/winner-discovery.ts",
+    "winner:service": "tsx scripts/winner-rebuild-service.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",

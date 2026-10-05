@@ -1,0 +1,2368 @@
+{
+  "schemaVersion": 1,
+  "provider": "DEXSCREENER",
+  "observedAt": "2026-10-05T08:27:52.970Z",
+  "marketCount": 30,
+  "markets": [
+    {
+      "marketId": "0x2bc267f93975c48c94bdb64eabbf62a7d05c9c4b9b9a64a32b86ce98a9c7de28",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0x51e100B6c73a1D8aEAF0D6486DC59EB6e28DA9cc",
+      "symbol": "SWORDDOG",
+      "name": "dog wif sword",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/j2YLWbarAl8g_iBa?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/robinhood/0x50e7b7fa4b5280d0f844adff6d5407fbc8c5d6990049afbbd626c4d9f91b8f9a",
+      "originPlatform": "uniswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:00:09.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001829",
+      "priceChange24hBps": 36600,
+      "volume24hUsd": "5222.24",
+      "transactions24h": 45,
+      "originSpotLiquidityUsd": "12749.18",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:53.703Z",
+            "fetchedAt": "2026-10-05T08:27:53.703Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:53.703Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:53.703Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:53.703Z",
+          "priceUsd": "0.00001829"
+        }
+      ]
+    },
+    {
+      "marketId": "0x2321fe9029b56c53d6ddf0dbd4d58d27741b4b0e0bdd4a1332159628c29b3120",
+      "chain": "SOLANA",
+      "tokenAddress": "8BjfeA3Ze1fzMceENXnjLrJKg4RJXbBUz9Drhrikpump",
+      "symbol": "elves",
+      "name": "machine elves",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/JUVuyxGqG0WTe4wC?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/budm5emzd1vnbxljm9syb4spzembt4rxreiqbnbupwb3",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T08:20:23.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00003718",
+      "priceChange24hBps": 92500,
+      "volume24hUsd": "55440.9",
+      "transactions24h": 663,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:53.989Z",
+            "fetchedAt": "2026-10-05T08:27:53.989Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:53.989Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:53.989Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:53.989Z",
+          "priceUsd": "0.00003718"
+        }
+      ]
+    },
+    {
+      "marketId": "0x7a66d80b855d50a5ec8e25f984b32e7cdfff7a2a0e2e686e3942670993ceab4b",
+      "chain": "SOLANA",
+      "tokenAddress": "9NoWD9DfG5xhQPpKrAUWoc1JHFXa9evL9SZFRawUpump",
+      "symbol": "PUP",
+      "name": "Pup",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/y7HusxwQcBUtCUFD?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/hpsk39hjvcbztdr2wuje1p7syx9tfwc9g2twwldfp9n4",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:36:10.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000007718",
+      "priceChange24hBps": 8791,
+      "volume24hUsd": "48544.53",
+      "transactions24h": 1067,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.171Z",
+            "fetchedAt": "2026-10-05T08:27:54.171Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.171Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.171Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.171Z",
+          "priceUsd": "0.000007718"
+        }
+      ]
+    },
+    {
+      "marketId": "0x1419b755a1d4109a9ba91290939327a1e9703a142d24777b0f586ddffb3d15a8",
+      "chain": "SOLANA",
+      "tokenAddress": "FiywNWCbQjZFA9wtKdczKff1kYimNU1d6je1DwJUQB5d",
+      "symbol": null,
+      "name": null,
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/0266bV7mtS7-IIq0?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/fiywnwcbqjzfa9wtkdczkff1kyimnu1d6je1dwjuqb5d",
+      "originPlatform": null,
+      "lifecycle": {
+        "status": "DISCOVERED",
+        "observedAt": "2026-10-05T08:27:54.010Z",
+        "confidenceBps": null,
+        "evidenceHash": null
+      },
+      "priceUsd": null,
+      "priceChange24hBps": null,
+      "volume24hUsd": null,
+      "transactions24h": null,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "PARTIAL",
+            "observedAt": "2026-10-05T08:27:54.010Z",
+            "fetchedAt": "2026-10-05T08:27:54.010Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": "PAIR_NOT_FOUND"
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "PARTIAL",
+        "fetchedAt": "2026-10-05T08:27:54.010Z",
+        "reason": "PAIR_NOT_FOUND"
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.010Z",
+        "maxAgeSeconds": 120
+      },
+      "history": []
+    },
+    {
+      "marketId": "0x2d49be125dc2db8174081cc2f239924fe4676bc46f342cb40aa742bb665a933a",
+      "chain": "SOLANA",
+      "tokenAddress": "GbfbkwUPMB48CErnqxCZDVaRtsGUnGVixoqefZCWDcpY",
+      "symbol": "SIF",
+      "name": "Super Intelligence Force",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/gmSUoOMjLL7YX7-o?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/gdamjapqfmwtsyp51qgarkrjrqxwfs7epbt9bkfspvqs",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:50:28.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000007952",
+      "priceChange24hBps": 10700,
+      "volume24hUsd": "162291.06",
+      "transactions24h": 3721,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.005Z",
+            "fetchedAt": "2026-10-05T08:27:54.005Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.005Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.005Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.005Z",
+          "priceUsd": "0.000007952"
+        }
+      ]
+    },
+    {
+      "marketId": "0xacf6468bf3da6fa15f6b9b34df137a4ad6efd9fc9681d93a74f10e0dce57dc26",
+      "chain": "SOLANA",
+      "tokenAddress": "5BVUokeQxWBrbx8bUE9qbMjKKGho1dCRg4bu5BguPfKB",
+      "symbol": "Spawn",
+      "name": "Spawn",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/-OdlCq-U2_niKHLt?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/aheflqomac4wxwgmtfxucsqtch6e1hko8mafjxlctxhd",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T08:12:48.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000003548",
+      "priceChange24hBps": -4683,
+      "volume24hUsd": "44639.69",
+      "transactions24h": 698,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.250Z",
+            "fetchedAt": "2026-10-05T08:27:54.250Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.250Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.250Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.250Z",
+          "priceUsd": "0.000003548"
+        }
+      ]
+    },
+    {
+      "marketId": "0x38bf5b1f8e1bc95fad8a944b644e10123962cc6c3968e620c9a3950d40dd9552",
+      "chain": "SOLANA",
+      "tokenAddress": "8qfyGBXhN43m8nWcLeTVZVdCVyH554F5gpEWFBAYpump",
+      "symbol": "Instinct",
+      "name": "Instinct",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/5iUb_DrABK6w5LxK?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/gngudakwtmsmmwnehtwusdnaxzydt82sqx6c6c9qhhpe",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:51:39.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.0002573",
+      "priceChange24hBps": 42400,
+      "volume24hUsd": "777940.36",
+      "transactions24h": 12947,
+      "originSpotLiquidityUsd": "46686.75",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.409Z",
+            "fetchedAt": "2026-10-05T08:27:54.409Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.409Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.409Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.409Z",
+          "priceUsd": "0.0002573"
+        }
+      ]
+    },
+    {
+      "marketId": "0x96947897e4b172b430c7b77830aca5ec33d206be6a6146291f92b27ae7c58bdd",
+      "chain": "BNB",
+      "tokenAddress": "0x98515053f88A6f2aeca19cFD0D69dA0CBAA3010b",
+      "symbol": "ZEC",
+      "name": "Zcash Token",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/MqsVeKByfgBc8zMg?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/bsc/0x18ed35c2a68f61b79bdc7b34ad7dcedc7995ed9c",
+      "originPlatform": "pancakeswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-04T15:19:18.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "41.29",
+      "priceChange24hBps": 5494000,
+      "volume24hUsd": "19886388.17",
+      "transactions24h": 2413,
+      "originSpotLiquidityUsd": "781317.19",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.516Z",
+            "fetchedAt": "2026-10-05T08:27:54.516Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.516Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.516Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.516Z",
+          "priceUsd": "41.29"
+        }
+      ]
+    },
+    {
+      "marketId": "0x6be1d9fabcb6c9a34f3dabe2e5598a0b392f8f01c51944f45df9ca98c47c41ea",
+      "chain": "SOLANA",
+      "tokenAddress": "Gip8QuXDsNeKCWTysazDT1eMhV5n9af5biBwvFujpump",
+      "symbol": "ROUTER",
+      "name": "Ensoulded Agents",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/-L4z0zJrkSmt5zoe?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/7v6mz3yghce1w4fhxwykzbafqsujvqqctzkg9wmgezmk",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T08:17:22.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00002888",
+      "priceChange24hBps": -4150,
+      "volume24hUsd": "61250.14",
+      "transactions24h": 1275,
+      "originSpotLiquidityUsd": "13604.11",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.410Z",
+            "fetchedAt": "2026-10-05T08:27:54.410Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.410Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.410Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.410Z",
+          "priceUsd": "0.00002888"
+        }
+      ]
+    },
+    {
+      "marketId": "0xbe353875df82a6a693e0af808ffbad17fef1d70bccc06031ce17c99d33a32106",
+      "chain": "SOLANA",
+      "tokenAddress": "FHrUC2H5ZX8nbWr3G2Ue1PPYUXFEC7iDZ9QJad2AoyLW",
+      "symbol": "Jdog",
+      "name": "John Dog",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/AePsWb_TGjiI2ZeG?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/evcbxrblyofmwgijrqewsfcssboyyr8s1oxmg19fffcv",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T08:10:57.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001927",
+      "priceChange24hBps": -6061,
+      "volume24hUsd": "141795.6",
+      "transactions24h": 3088,
+      "originSpotLiquidityUsd": "10750.46",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.413Z",
+            "fetchedAt": "2026-10-05T08:27:54.413Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.413Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.413Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.413Z",
+          "priceUsd": "0.00001927"
+        }
+      ]
+    },
+    {
+      "marketId": "0x790a5f17dce27edbd8c191e0ea6a9dba2890c0bdfefc16138c70ce5fc1fadccf",
+      "chain": "SOLANA",
+      "tokenAddress": "A1vzTAA7jmbMJ2aas23irVsPBMAgFe8C3UXeDEbJpnny",
+      "symbol": "PENNIED",
+      "name": "Pennied",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/Vkbta-r1VLlbN-5K?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/3hueh7e9usxgtmnh1wlf7ommwoccwyjtffbn2amau1dt",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T08:03:34.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000009813",
+      "priceChange24hBps": 14700,
+      "volume24hUsd": "54344.37",
+      "transactions24h": 1173,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.411Z",
+            "fetchedAt": "2026-10-05T08:27:54.411Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.411Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.411Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.411Z",
+          "priceUsd": "0.000009813"
+        }
+      ]
+    },
+    {
+      "marketId": "0xa8d9d3ad5bd63e9da28337fc5e261dc732686c4ba2b32fa5e74c698f7da3a07d",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0x6B4b0327EBb13Dd3bc47b558aB7529e32930d8D4",
+      "symbol": "SHDUTY",
+      "name": "Shiba On Duty",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/t7wJvhhRtV9ai2s9?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/robinhood/0x773e593b4ae56bc3aa4e393b592cbf1b689b9a258667c48ef2bf2d2d4eae9a5c",
+      "originPlatform": "uniswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:49:58.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000006318",
+      "priceChange24hBps": 160500,
+      "volume24hUsd": "1365808.35",
+      "transactions24h": 1165,
+      "originSpotLiquidityUsd": "264680.79",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.446Z",
+            "fetchedAt": "2026-10-05T08:27:54.446Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.446Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.446Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.446Z",
+          "priceUsd": "0.000006318"
+        }
+      ]
+    },
+    {
+      "marketId": "0x20a65928dc296065819960b0f1d6cc4fa411b707c801b867507427d9448cf2a7",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0x0cd229F1bBad5ae58e9a84950AEbcf5816229d75",
+      "symbol": "TEXCAT",
+      "name": "Texcat",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/EwxA012o3NISkmoX?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/robinhood/0xec7fe2cb601715adea4b64e50480ec73b5ee047f",
+      "originPlatform": "uniswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:41:49.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00009864",
+      "priceChange24hBps": 70500,
+      "volume24hUsd": "360481.25",
+      "transactions24h": 1297,
+      "originSpotLiquidityUsd": "57342.94",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.691Z",
+            "fetchedAt": "2026-10-05T08:27:54.691Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.691Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.691Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.691Z",
+          "priceUsd": "0.00009864"
+        }
+      ]
+    },
+    {
+      "marketId": "0xf9dca752a1eec472c49692f2579b82261f0c228e60edf2e08a693fcc67a2f23f",
+      "chain": "SOLANA",
+      "tokenAddress": "5j7k71WozYmbfExmRJT2bvb2dxu6iLsYn7cdPESzWDoY",
+      "symbol": "SM",
+      "name": "Stupid Model",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/uo8Z3sgwVCSB8KU2?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/7jemxccobaubgrhexkuexl3ahazkbpr5pg3deegtpeyu",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:22:01.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000004241",
+      "priceChange24hBps": -2552,
+      "volume24hUsd": "66456.64",
+      "transactions24h": 1512,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.670Z",
+            "fetchedAt": "2026-10-05T08:27:54.670Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.670Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.670Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.670Z",
+          "priceUsd": "0.000004241"
+        }
+      ]
+    },
+    {
+      "marketId": "0xbe09e860b408f6bac176f15681d5ac427c9b68e7c1a845bd60236c9c52e684af",
+      "chain": "SOLANA",
+      "tokenAddress": "3JuKpRqoptXyE9Js91JU5a3SkaDgTHMvD35CAPfipump",
+      "symbol": "CRANKER",
+      "name": "CRANKER",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/0lFcDadHMUNUWmAk?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/2xqdwghfk9dyeropsnhxxfsh4m9dn2jfu9ac3nuz7njb",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:37:10.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000008418",
+      "priceChange24hBps": 13200,
+      "volume24hUsd": "191550.75",
+      "transactions24h": 4039,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.672Z",
+            "fetchedAt": "2026-10-05T08:27:54.672Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.672Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.672Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.672Z",
+          "priceUsd": "0.000008418"
+        }
+      ]
+    },
+    {
+      "marketId": "0x704d149f60c096a341b3bac0e6290c70047388cd986084a4ecaabae98b511445",
+      "chain": "SOLANA",
+      "tokenAddress": "4TC17s3DNkZzhfbeppB5xrff2Hs7x8oafqqiYe6ypump",
+      "symbol": "bul",
+      "name": "bul",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/1QGXxsyjcQGJl31t?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/8ysy87jglo2b6kgstj9v3ev6auaapcjdx62rhlj4c2ub",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:40:10.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001623",
+      "priceChange24hBps": -6764,
+      "volume24hUsd": "258894.1",
+      "transactions24h": 6406,
+      "originSpotLiquidityUsd": "9854.24",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.675Z",
+            "fetchedAt": "2026-10-05T08:27:54.675Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.675Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.675Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.675Z",
+          "priceUsd": "0.00001623"
+        }
+      ]
+    },
+    {
+      "marketId": "0x66bb6a1d3cc0b1b4a4a866b2769d065763d89db63ae6c358b2801139494dbf55",
+      "chain": "BNB",
+      "tokenAddress": "0x1fB7260EE42038F7081024f9f740a3Aa38E07777",
+      "symbol": "西八姐姐",
+      "name": "JADOODOO",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/iqB8DoIgXcxGs9Md?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/bsc/0x9ea362e673541b7b969ecbc85ee696403b5c47bd",
+      "originPlatform": "pancakeswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T04:16:46.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.0003606",
+      "priceChange24hBps": 72400,
+      "volume24hUsd": "1656154.51",
+      "transactions24h": 18696,
+      "originSpotLiquidityUsd": "65349.66",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.676Z",
+            "fetchedAt": "2026-10-05T08:27:54.676Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.676Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.676Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.676Z",
+          "priceUsd": "0.0003606"
+        }
+      ]
+    },
+    {
+      "marketId": "0xfdf7316c28f7ee0cf953d814b13cc19091cf9e5ea84c3caa060e52b279e509fb",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0x2478AbEd48A7d9C527Fda12fB473c634fe7cD46B",
+      "symbol": "WHY",
+      "name": "Why",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/XUPqx6hB-ZL2BG4h?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/robinhood/0xcf70dbbec59989f0c3490404cc56a036c589f6911461d2304164e5993848baf8",
+      "originPlatform": "uniswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T08:16:42.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00002524",
+      "priceChange24hBps": -95,
+      "volume24hUsd": "9.99",
+      "transactions24h": 2,
+      "originSpotLiquidityUsd": "10.31",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.690Z",
+            "fetchedAt": "2026-10-05T08:27:54.690Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.690Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.690Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.690Z",
+          "priceUsd": "0.00002524"
+        }
+      ]
+    },
+    {
+      "marketId": "0xa2f6a55cd27a84f648935676b40371c63fcc3be3cf4098597ed049ee0932dbb2",
+      "chain": "SOLANA",
+      "tokenAddress": "Fa4zQx81PhdJFBvtqAMM4jjLe6GjisGWgJYx54hy9V3s",
+      "symbol": "clanker",
+      "name": "clanker-rooms",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/RUXHlnNUOO1niq-e?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/dnav6q7bmkuwvpv5tdmpka2f7tdnsvuljcw1syoxv2sy",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:26:44.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000003476",
+      "priceChange24hBps": -9305,
+      "volume24hUsd": "84204.73",
+      "transactions24h": 1671,
+      "originSpotLiquidityUsd": "3326.9",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.842Z",
+            "fetchedAt": "2026-10-05T08:27:54.842Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.842Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.842Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.842Z",
+          "priceUsd": "0.000003476"
+        }
+      ]
+    },
+    {
+      "marketId": "0x00e95522b533c6404df093b86480760268414789d0e5deccccc292db349907aa",
+      "chain": "SOLANA",
+      "tokenAddress": "39hidrKSdmHiQ5gSoifbdj5ZKmsUWXJsw6k6MA7Upump",
+      "symbol": "INFLUENCR",
+      "name": "influencr.fun",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/iVIFJfPGOeaUEQt0?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/2mts27atlw6zvggbxzxsasxrgunreewoxapemh8tbivj",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:14:33.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000002622",
+      "priceChange24hBps": -9482,
+      "volume24hUsd": "220327.18",
+      "transactions24h": 3929,
+      "originSpotLiquidityUsd": "2658.38",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.835Z",
+            "fetchedAt": "2026-10-05T08:27:54.835Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.835Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.835Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.835Z",
+          "priceUsd": "0.000002622"
+        }
+      ]
+    },
+    {
+      "marketId": "0x1b7fbdb0620e2028865669ba1d988cac654fbc9665c084fdc74730cc2d161676",
+      "chain": "SOLANA",
+      "tokenAddress": "6NX2tVJBvAzNeN3bQK295KdUGMjPWP3oKqwCoW9Zpump",
+      "symbol": "KKK",
+      "name": "Kool Kitty Klan",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/3Li2_UVhwArP-x6k?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/7cozpf6l3zsybujojniktxso8dzt9wby9hcpqjmzffet",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:12:21.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001321",
+      "priceChange24hBps": -7364,
+      "volume24hUsd": "192783.4",
+      "transactions24h": 4754,
+      "originSpotLiquidityUsd": "8567.66",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.842Z",
+            "fetchedAt": "2026-10-05T08:27:54.842Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.842Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.842Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.842Z",
+          "priceUsd": "0.00001321"
+        }
+      ]
+    },
+    {
+      "marketId": "0xfda968d9b2458c88e5b6bfd6751f85324fce5813289988ecf1c7ec86007ef983",
+      "chain": "SOLANA",
+      "tokenAddress": "3M4EPrHdBxxRDCb8q2RTDQ3oDTi3QGi3iMgVxifqpump",
+      "symbol": "$T800",
+      "name": "T800",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/7jBxtLFa-JlYMDu1?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/baqzasqrvzpuwm9gd1phpnhhkjewsswqlacavbc33pwy",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-04T23:59:31.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001306",
+      "priceChange24hBps": -7342,
+      "volume24hUsd": "188898.24",
+      "transactions24h": 3675,
+      "originSpotLiquidityUsd": "8488.17",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.849Z",
+            "fetchedAt": "2026-10-05T08:27:54.849Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.849Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.849Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.849Z",
+          "priceUsd": "0.00001306"
+        }
+      ]
+    },
+    {
+      "marketId": "0x0364788c0f1311f818872612af0011f6ceab951b0bccfcc0a51437efae364d05",
+      "chain": "SOLANA",
+      "tokenAddress": "pe6RXJPfbSaYxxHNiWbURPU2qs5NsHFtcLVSeLUpump",
+      "symbol": "TikTok",
+      "name": "TikTok Coin",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/v7FhaiGtmR1g9YtV?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/gd2tfedxqebrgy57bfm6cuaxxexr9khfvwtvmqkn2eaa",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T07:17:06.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000002920",
+      "priceChange24hBps": -9418,
+      "volume24hUsd": "26317.98",
+      "transactions24h": 718,
+      "originSpotLiquidityUsd": "2865.79",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:54.842Z",
+            "fetchedAt": "2026-10-05T08:27:54.842Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:54.842Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.842Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:54.842Z",
+          "priceUsd": "0.000002920"
+        }
+      ]
+    },
+    {
+      "marketId": "0x51a4852d71178377132adb3f060dad68d3b12aab2adcc95b36d0327f40c20e38",
+      "chain": "SOLANA",
+      "tokenAddress": "GKYfx9BfjTmpn88YWvqei7rjBuqBV83bMKzZzmgpsreW",
+      "symbol": null,
+      "name": null,
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/e1iSigHssOg-m_Ji?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/gkyfx9bfjtmpn88ywvqei7rjbuqbv83bmkzzzmgpsrew",
+      "originPlatform": null,
+      "lifecycle": {
+        "status": "DISCOVERED",
+        "observedAt": "2026-10-05T08:27:54.857Z",
+        "confidenceBps": null,
+        "evidenceHash": null
+      },
+      "priceUsd": null,
+      "priceChange24hBps": null,
+      "volume24hUsd": null,
+      "transactions24h": null,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "PARTIAL",
+            "observedAt": "2026-10-05T08:27:54.857Z",
+            "fetchedAt": "2026-10-05T08:27:54.857Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": "PAIR_NOT_FOUND"
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "PARTIAL",
+        "fetchedAt": "2026-10-05T08:27:54.857Z",
+        "reason": "PAIR_NOT_FOUND"
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:54.857Z",
+        "maxAgeSeconds": 120
+      },
+      "history": []
+    },
+    {
+      "marketId": "0xef867403917e0116c30da4347f4f3a328551a681dd157146681db4d1f911d6c4",
+      "chain": "SOLANA",
+      "tokenAddress": "3vDRTeMiZE9Hg3oMvuXgKnQhAREMJxZrv1B4RWb3PAut",
+      "symbol": "SIF",
+      "name": "Super Intelligence Force",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/DyuVys8fgnA8gYUa?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/dvoanwsnxxpsjchuketnzacrkwzibdrpxjutfrhxwag7",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:49:48.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000008004",
+      "priceChange24hBps": -8399,
+      "volume24hUsd": "324545.64",
+      "transactions24h": 8043,
+      "originSpotLiquidityUsd": "6238.66",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:55.011Z",
+            "fetchedAt": "2026-10-05T08:27:55.011Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:55.011Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:55.011Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:55.011Z",
+          "priceUsd": "0.000008004"
+        }
+      ]
+    },
+    {
+      "marketId": "0xbe7d2771c090811bea4840e702f4b7538e5862cad179477fe6a16e7eb96c68f7",
+      "chain": "SOLANA",
+      "tokenAddress": "CBLx6CRcCTtbmgTdxpqnF2dP1MpWbMUjngtNbFTApump",
+      "symbol": "BACKERS",
+      "name": "Backers",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/MduP0d2EHIc0rRPf?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/p977g14fukdl3aoh97mamqq4v7ecav5azkhtpn21ehc",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:11:00.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.001745",
+      "priceChange24hBps": 347000,
+      "volume24hUsd": "1291684.06",
+      "transactions24h": 13088,
+      "originSpotLiquidityUsd": "124912.13",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:55.008Z",
+            "fetchedAt": "2026-10-05T08:27:55.008Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:55.008Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:55.008Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:55.008Z",
+          "priceUsd": "0.001745"
+        }
+      ]
+    },
+    {
+      "marketId": "0x22c15e32a818ca285ebc98d34056394eca441e9d4503af6c8d261c00e8fd4666",
+      "chain": "SOLANA",
+      "tokenAddress": "2fLwLvf7qPPw498A7287SLkqdQUrnX4nSHJ81juGf5pt",
+      "symbol": "SM",
+      "name": "Super Model Agent",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/kMO-5CjceXLKwIGX?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/2mspwaa7yg1leu43gpfdguxc5p4pshmgnzjib6z1xhw6",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:29:36.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001567",
+      "priceChange24hBps": -6855,
+      "volume24hUsd": "418147.18",
+      "transactions24h": 6861,
+      "originSpotLiquidityUsd": "9698.29",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:55.010Z",
+            "fetchedAt": "2026-10-05T08:27:55.010Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:55.010Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:55.010Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:55.010Z",
+          "priceUsd": "0.00001567"
+        }
+      ]
+    },
+    {
+      "marketId": "0xb61c4599c9a8ae64e41a36dbaf610eeede902255b22f60eedc9bdac0d96059ab",
+      "chain": "SOLANA",
+      "tokenAddress": "DHGRdY6HK8BeFDqqbDxsj6sYRnQPU88bF8MPr6SVR5hK",
+      "symbol": "Janie",
+      "name": "Janie",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/2bvDppFeqpXuwVCh?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/7tdmzkdqkz3homnuwpsdxyi6aotzfztgmiscpryrqpeu",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:24:07.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00001958",
+      "priceChange24hBps": 34100,
+      "volume24hUsd": "94446.99",
+      "transactions24h": 2089,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:55.012Z",
+            "fetchedAt": "2026-10-05T08:27:55.012Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:55.012Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:55.012Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:55.012Z",
+          "priceUsd": "0.00001958"
+        }
+      ]
+    },
+    {
+      "marketId": "0x33bcec1d139e23767db2a3a769681e9c674a12d14212f56d8297238fa95a0938",
+      "chain": "SOLANA",
+      "tokenAddress": "958KjvaEqMKNa59YhfTBF9RpYnqMoZGhTdx5gsFYpump",
+      "symbol": "CrawlPad",
+      "name": "CrawlPad",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/fDyCVBWnFafWyQmL?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/ace77l2dr9mdfkhxpqtrrkqdgwgcd7nyk94lmjbxwiii",
+      "originPlatform": "pumpswap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:46:14.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000004295",
+      "priceChange24hBps": -9135,
+      "volume24hUsd": "27670.5",
+      "transactions24h": 772,
+      "originSpotLiquidityUsd": "3928.9",
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:55.010Z",
+            "fetchedAt": "2026-10-05T08:27:55.010Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:55.010Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:55.010Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:55.010Z",
+          "priceUsd": "0.000004295"
+        }
+      ]
+    },
+    {
+      "marketId": "0x55a2dc14f374cdfc4e35777ce5979dca2b70dc9dafcb49057e9e04d3f2251884",
+      "chain": "SOLANA",
+      "tokenAddress": "AUoEBhN3DYnPRDvNsiXv5zu2Qu6f116Yjr6iBHD1pump",
+      "symbol": "TECH",
+      "name": "too early, could've held",
+      "decimals": null,
+      "imageUrl": "https://cdn.dexscreener.com/cms/images/Wv-SOKGnCJZ3d0IX?width=64&height=64&fit=crop&quality=95&format=auto",
+      "sourceUrl": "https://dexscreener.com/solana/3infrz27h3neioc3gzy1xetevmpjh5t2jfa2ibmdz32y",
+      "originPlatform": "pumpfun",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-05T06:05:30.000Z",
+        "confidenceBps": 9000,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000008563",
+      "priceChange24hBps": 11700,
+      "volume24hUsd": "99416.27",
+      "transactions24h": 2237,
+      "originSpotLiquidityUsd": null,
+      "originDepth2PctUsd": null,
+      "holders": null,
+      "top10ConcentrationBps": null,
+      "largestClusterBps": null,
+      "integrity": {
+        "status": "PENDING",
+        "reasonCodes": [
+          "ORIGIN_INTEGRITY_NOT_ASSESSED"
+        ],
+        "observations": [
+          {
+            "provider": "DEXSCREENER",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-05T08:27:55.021Z",
+            "fetchedAt": "2026-10-05T08:27:55.021Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "NOT_REGISTERED",
+        "safeOiUsd": null,
+        "safePositionUsd": null,
+        "maxLeverage": null,
+        "oracleQuality": null,
+        "sourceIndependence": null,
+        "reasonCodes": [
+          "ARC_PERP_NOT_REGISTERED"
+        ]
+      },
+      "perp": {
+        "status": "NOT_REGISTERED",
+        "deploymentId": null,
+        "marketId": null,
+        "currentOiUsd": null,
+        "capacityUsd": null,
+        "qualificationHash": null,
+        "riskRuleVersion": null
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-05T08:27:55.021Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-05T08:27:55.021Z",
+        "maxAgeSeconds": 120
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-05T08:27:55.021Z",
+          "priceUsd": "0.000008563"
+        }
+      ]
+    }
+  ]
+}

@@ -9,9 +9,10 @@ import {
   type UserProfile,
 } from "@arcmemeperps/domain";
 
-export const PERSISTENCE_SCHEMA_VERSION = 3;
+export const PERSISTENCE_SCHEMA_VERSION = 4;
 export const PERSISTED_ENTITIES = [
   "markets",
+  "market_universe",
   "tokens",
   "market_snapshots",
   "price_history",

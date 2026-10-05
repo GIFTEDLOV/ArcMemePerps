@@ -49,6 +49,10 @@ export interface ApiReadModel {
   getCompetitionLeaderboard?(id: string): Promise<readonly Record<string, unknown>[]>;
   getCompetitionAccount?(id: string, address: string): Promise<Record<string, unknown> | null>;
   getAttention?(address: string): Promise<readonly Record<string, unknown>[]>;
+  listUniverseMarkets?(options: { readonly chain?: string; readonly lifecycle?: string; readonly perp?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }>;
+  searchUniverseMarkets?(query: string, chain?: string): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }>;
+  getUniverseMarket?(marketId: string): Promise<Record<string, unknown> | null>;
+  getUniverseResource?(marketId: string, resource: string): Promise<unknown>;
 }
 
 export interface ApiServerOptions {
@@ -96,6 +100,19 @@ async function handleRequest(
     if (path === "/markets" || path === "/markets/trending" || path === "/markets/fresh") {
       const limit = parseLimit(url.searchParams.get("limit"));
       const offset = parseOffset(url.searchParams.get("cursor"));
+      if (options.readModel.listUniverseMarkets) {
+        const universe = await options.readModel.listUniverseMarkets({
+          ...(url.searchParams.has("chain") ? { chain: url.searchParams.get("chain")! } : {}),
+          ...(url.searchParams.has("lifecycle") ? { lifecycle: url.searchParams.get("lifecycle")! } : {}),
+          ...(url.searchParams.has("perp") ? { perp: url.searchParams.get("perp")! } : {}),
+          limit,
+          offset,
+        });
+        if (universe.discoveryCount > 0) {
+          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
+          return;
+        }
+      }
       const items =
         path === "/markets/trending" && options.readModel.listTrending
           ? await options.readModel.listTrending()
@@ -125,6 +142,13 @@ async function handleRequest(
       return;
     }
     if (path === "/markets/search") {
+      if (options.readModel.searchUniverseMarkets) {
+        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", url.searchParams.get("chain") ?? undefined);
+        if (universe.discoveryCount > 0) {
+          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: null });
+          return;
+        }
+      }
       if (options.readModel.searchMarkets === undefined) throw new Error("SEARCH_UNAVAILABLE");
       const items = await options.readModel.searchMarkets(
         url.searchParams.get("q") ?? "",
@@ -150,6 +174,13 @@ async function handleRequest(
         path,
       );
     if (marketResource !== null) {
+      if (options.readModel.getUniverseResource) {
+        const data = await options.readModel.getUniverseResource(decodeURIComponent(marketResource[1]!), marketResource[2]!);
+        if (data !== null) {
+          writeJson(response, 200, { schemaVersion: API_VERSION, data });
+          return;
+        }
+      }
       if (options.readModel.getMarketResource === undefined)
         throw new Error("MARKET_RESOURCE_UNAVAILABLE");
       const data = await options.readModel.getMarketResource(
@@ -161,6 +192,14 @@ async function handleRequest(
     }
     const market = /^\/markets\/([^/]+)$/.exec(path);
     if (market !== null) {
+      if (options.readModel.getUniverseMarket) {
+        const item = await options.readModel.getUniverseMarket(decodeURIComponent(market[1]!));
+        if (item === null) { /* fall through to the canonical Product projection */ }
+        else {
+        writeJson(response, 200, { schemaVersion: API_VERSION, market: item });
+        return;
+        }
+      }
       const item = await options.readModel.getMarket(decodeURIComponent(market[1]!));
       if (item === null) {
         writeJson(response, 404, { error: "MARKET_NOT_FOUND" });

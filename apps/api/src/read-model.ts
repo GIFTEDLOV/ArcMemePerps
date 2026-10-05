@@ -98,6 +98,56 @@ export class PersistenceApiReadModel {
     return Promise.resolve(this.repository.searchPassports(query, chain).map(snapshotFromPassport));
   }
 
+  public listUniverseMarkets(options: {
+    readonly chain?: string;
+    readonly lifecycle?: string;
+    readonly perp?: string;
+    readonly limit?: number;
+    readonly offset?: number;
+  }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }> {
+    const all = this.storage.list("market_universe").map((item) => item.payload);
+    const filtered = all.filter((market) =>
+      (options.chain === undefined || market.chain === options.chain) &&
+      (options.lifecycle === undefined || (market.lifecycle as Record<string, unknown> | undefined)?.status === options.lifecycle) &&
+      (options.perp === undefined || (market.perp as Record<string, unknown> | undefined)?.status === options.perp),
+    );
+    const limit = Math.min(Math.max(options.limit ?? 100, 1), 100);
+    const offset = Math.max(options.offset ?? 0, 0);
+    const perpCount = all.filter((market) => (market.perp as Record<string, unknown> | undefined)?.status !== "NOT_REGISTERED").length;
+    return Promise.resolve({ items: filtered.slice(offset, offset + limit), total: filtered.length, discoveryCount: all.length, perpCount });
+  }
+
+  public searchUniverseMarkets(query: string, chain?: string): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }> {
+    const normalized = query.trim().toLowerCase();
+    const all = this.storage.list("market_universe").map((item) => item.payload);
+    const matched = all.filter((market) => {
+      const token = typeof market.tokenAddress === "string" ? market.tokenAddress.toLowerCase() : "";
+      const id = typeof market.marketId === "string" ? market.marketId.toLowerCase() : "";
+      const symbol = typeof market.symbol === "string" ? market.symbol.toLowerCase() : "";
+      const name = typeof market.name === "string" ? market.name.toLowerCase() : "";
+      return (chain === undefined || market.chain === chain) && (normalized.length === 0 || token === normalized || id === normalized || symbol.includes(normalized) || name.includes(normalized));
+    });
+    const perpCount = all.filter((market) => (market.perp as Record<string, unknown> | undefined)?.status !== "NOT_REGISTERED").length;
+    return Promise.resolve({ items: matched, total: matched.length, discoveryCount: all.length, perpCount });
+  }
+
+  public getUniverseMarket(marketId: string): Promise<Record<string, unknown> | null> {
+    return Promise.resolve(this.storage.get("market_universe", marketId)?.payload ?? null);
+  }
+
+  public getUniverseResource(marketId: string, resource: string): Promise<unknown> {
+    const market = this.storage.get("market_universe", marketId)?.payload;
+    if (market === null || market === undefined) return Promise.resolve(null);
+    if (resource === "history") return Promise.resolve({ status: Array.isArray(market.history) && market.history.length > 1 ? "AVAILABLE" : "UNAVAILABLE", items: market.history ?? [], reason: "INSUFFICIENT_REAL_OBSERVATIONS" });
+    if (resource === "risk") return Promise.resolve({ status: "PARTIAL", integrity: market.integrity, derivatives: market.derivatives, freshness: market.freshness });
+    if (resource === "proof") return Promise.resolve({ status: "UNAVAILABLE", qualification: market.perp, reason: "MARKET_NOT_REGISTERED_FOR_ARC_PERPS" });
+    if (resource === "activity") return Promise.resolve({ status: "UNAVAILABLE", reason: "ORIGIN_ACTIVITY_READER_NOT_CONFIGURED" });
+    if (resource === "holders" || resource === "clusters" || resource === "deployer") return Promise.resolve({ status: "UNAVAILABLE", reason: "ENRICHMENT_PROVIDER_NOT_CONFIGURED" });
+    if (resource === "depth") return Promise.resolve({ status: "UNAVAILABLE", reason: "DIRECTIONAL_DEPTH_NOT_OBSERVED" });
+    if (resource === "pretrade") return Promise.resolve({ status: "UNAVAILABLE", reason: "ARC_PERP_NOT_REGISTERED", marketId, chainId: 5042002, signer: { backendSigns: false, userWalletSigns: true } });
+    throw new Error("RESOURCE_NOT_SUPPORTED");
+  }
+
   public async listFreshMarkets(): Promise<readonly MarketSnapshot[]> {
     return (await this.listMarkets()).filter((market) => market.freshness.status === "FRESH");
   }

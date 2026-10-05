@@ -9,7 +9,7 @@ export default defineConfig({
     ["html", { outputFolder: "../../evidence/gate5/playwright-report", open: "never" }],
   ],
   use: {
-    baseURL: "http://127.0.0.1:3001",
+    baseURL: process.env.E2E_BASE_URL ?? "http://127.0.0.1:3001",
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },

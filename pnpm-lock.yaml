@@ -248,6 +248,12 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
+  packages/market-universe:
+    dependencies:
+      '@arcmemeperps/shared':
+        specifier: workspace:*
+        version: link:../shared
+
   packages/oracle:
     dependencies:
       '@arcmemeperps/shared':
