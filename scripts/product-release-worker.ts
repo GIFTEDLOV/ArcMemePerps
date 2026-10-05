@@ -1,3 +1,5 @@
+import { existsSync, readFileSync, mkdirSync, writeFileSync } from "node:fs";
+import { dirname } from "node:path";
 import {
   createPublicClient,
   createWalletClient,
@@ -216,7 +218,7 @@ type Order = readonly [
 ];
 
 async function keeperCycle(fromBlock: bigint, toBlock: bigint): Promise<bigint> {
-  if (toBlock <= fromBlock) return toBlock;
+  if (toBlock < fromBlock) return fromBlock;
   const scanTo = fromBlock + 2_000n < toBlock ? fromBlock + 2_000n : toBlock;
   const logs = await publicClient.getLogs({
     address: PRODUCT_RELEASE.perpEngine,
@@ -258,7 +260,28 @@ async function keeperCycle(fromBlock: bigint, toBlock: bigint): Promise<bigint> 
     if (receipt.status !== "success") throw new Error("KEEPER_EXECUTION_REVERTED");
     process.stdout.write(`KEEPER_EXECUTED order=${log.args.orderId} tx=${txHash}\n`);
   }
-  return scanTo;
+  return scanTo + 1n;
+}
+
+function keeperCursorPath(): string {
+  return process.env.KEEPER_CURSOR_FILE ?? "/data/keeper-cursor";
+}
+
+async function initialKeeperBlock(): Promise<bigint> {
+  const configured = process.env.KEEPER_START_BLOCK;
+  if (configured !== undefined) return BigInt(configured);
+  const path = keeperCursorPath();
+  if (existsSync(path)) {
+    const stored = readFileSync(path, "utf8").trim();
+    if (/^\d+$/.test(stored)) return BigInt(stored);
+  }
+  return (await publicClient.getBlockNumber()) + 1n;
+}
+
+function persistKeeperBlock(block: bigint): void {
+  const path = keeperCursorPath();
+  mkdirSync(dirname(path), { recursive: true });
+  writeFileSync(path, `${block}\n`, "utf8");
 }
 
 async function main(): Promise<void> {
@@ -268,7 +291,7 @@ async function main(): Promise<void> {
       : Number(process.env.RELEASE_WORKER_MAX_CYCLES);
   const once = process.env.RELEASE_WORKER_ONCE === "true";
   let cycles = 0;
-  let orderBlock = PRODUCT_RELEASE.startBlock;
+  let orderBlock = await initialKeeperBlock();
   process.stdout.write(
     `RELEASE_WORKER_READY deployment=${PRODUCT_RELEASE.deploymentId} source=ONCHAIN_CANONICAL_BASELINE threshold=2-of-3\n`,
   );
@@ -279,6 +302,7 @@ async function main(): Promise<void> {
     );
     const latest = await publicClient.getBlockNumber();
     orderBlock = await keeperCycle(orderBlock, latest);
+    persistKeeperBlock(orderBlock);
     return;
   }
 
@@ -296,6 +320,7 @@ async function main(): Promise<void> {
     while (cycles < maxCycles) {
       const latest = await publicClient.getBlockNumber();
       orderBlock = await keeperCycle(orderBlock, latest);
+      persistKeeperBlock(orderBlock);
       await sleep(Math.max(5_000, PRODUCT_RELEASE.keeperIntervalMs));
     }
   };
