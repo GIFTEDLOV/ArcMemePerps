@@ -11,7 +11,7 @@ const children = [
       "--host=0.0.0.0",
       `--port=${process.env.PORT ?? "8787"}`,
       "--db=/data/product-live.sqlite",
-      "--poll-ms=5000",
+      "--poll-ms=30000",
     ],
     { stdio: "inherit" },
   ),

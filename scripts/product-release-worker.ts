@@ -99,6 +99,19 @@ function sleep(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
 }
 
+async function waitForReceipt(hash: Hex) {
+  let lastError: unknown = null;
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    try {
+      return await publicClient.waitForTransactionReceipt({ hash });
+    } catch (error) {
+      lastError = error;
+      await sleep(2_000 * (attempt + 1));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error("TRANSACTION_RECEIPT_UNAVAILABLE");
+}
+
 async function readReport(): Promise<Report> {
   const report = await publicClient.readContract({
     address: PRODUCT_RELEASE.oracleRouter,
@@ -191,7 +204,7 @@ async function publishOracleReport(): Promise<{ readonly sequence: bigint; reado
       [signature1, signature2],
     ],
   });
-  const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+  const receipt = await waitForReceipt(txHash);
   if (receipt.status !== "success") throw new Error("ORACLE_PUBLICATION_REVERTED");
   const verified = await readReport();
   if (
@@ -256,7 +269,7 @@ async function keeperCycle(fromBlock: bigint, toBlock: bigint): Promise<bigint> 
       functionName: "executeOrder",
       args: [log.args.orderId, report[11]],
     });
-    const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+    const receipt = await waitForReceipt(txHash);
     if (receipt.status !== "success") throw new Error("KEEPER_EXECUTION_REVERTED");
     process.stdout.write(`KEEPER_EXECUTED order=${log.args.orderId} tx=${txHash}\n`);
   }
@@ -292,9 +305,11 @@ async function main(): Promise<void> {
   const once = process.env.RELEASE_WORKER_ONCE === "true";
   let cycles = 0;
   let orderBlock = await initialKeeperBlock();
+  const startDelayMs = Math.max(0, Number(process.env.RELEASE_WORKER_START_DELAY_MS ?? "15000"));
   process.stdout.write(
     `RELEASE_WORKER_READY deployment=${PRODUCT_RELEASE.deploymentId} source=ONCHAIN_CANONICAL_BASELINE threshold=2-of-3\n`,
   );
+  if (startDelayMs > 0) await sleep(startDelayMs);
   if (once) {
     const published = await publishOracleReport();
     process.stdout.write(
