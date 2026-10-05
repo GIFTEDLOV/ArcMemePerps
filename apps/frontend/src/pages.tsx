@@ -10,7 +10,7 @@ import type {
   RealtimeEvent,
   WalletSnapshot,
 } from "./lib/types";
-import { freshness, pctBps, shortAddress, wad } from "./lib/format";
+import { effectiveFreshness, freshness, pctBps, shortAddress, wad } from "./lib/format";
 import type { useWallet } from "./components/Shell";
 import { RiskPassport } from "./components/Passport";
 import { TradingRail } from "./components/TradingRail";
@@ -36,6 +36,7 @@ export interface PageProps {
   health: Health | null;
   streamState: string;
   events: RealtimeEvent[];
+  error: string | null;
   api: ApiClient;
   wallet: ReturnType<typeof useWallet>;
   refresh: () => Promise<void>;
@@ -64,7 +65,19 @@ function PageTitle({
   );
 }
 
-export function Landing({ markets, health }: PageProps) {
+function chartHeight(points: Array<{ priceUsdWad: string }>, index: number): number {
+  try {
+    const values = points.map((point) => BigInt(point.priceUsdWad));
+    const min = values.reduce((current, value) => (value < current ? value : current), values[0]);
+    const max = values.reduce((current, value) => (value > current ? value : current), values[0]);
+    const range = max - min;
+    return range === 0n ? 50 : Number(((values[index] - min) * 84n) / range + 8n);
+  } catch {
+    return 50;
+  }
+}
+
+export function Landing({ markets, health, error }: PageProps) {
   const market = markets[0];
   return (
     <div className="landing">
@@ -88,6 +101,7 @@ export function Landing({ markets, health }: PageProps) {
         </div>
       </header>
       <main>
+        {error && <ErrorState message={error} />}
         <section className="landing-hero">
           <div className="hero-copy">
             <ProductBadge />
@@ -116,16 +130,23 @@ export function Landing({ markets, health }: PageProps) {
           <div className="hero-terminal">
             <div className="terminal-top">
               <span>PRODUCT / LIVE SNAPSHOT</span>
-              <AvailabilityPill value={market?.oracleEvidence?.freshness} />
+              <AvailabilityPill
+                value={effectiveFreshness(
+                  market?.oracleEvidence?.freshness,
+                  market?.freshness?.observedAt ?? market?.observedAt,
+                  market?.freshness?.maxAgeSeconds,
+                )}
+              />
             </div>
             <div className="terminal-market">
               <div className="token-mark large">AR</div>
               <div>
                 <span className="eyebrow">
-                  {market?.identity.chain ?? "ARC"} · {market?.lifecycle?.status ?? "LIVE"}
+                  {market?.identity.chain ?? "UNAVAILABLE"} ·{" "}
+                  {market?.lifecycle?.status ?? "UNAVAILABLE"}
                 </span>
-                <h3>{market?.identity.symbol ?? "Arc Product Market"}</h3>
-                <span>{market?.identity.name ?? "Canonical Product Testnet market"}</span>
+                <h3>{market?.identity.symbol ?? "UNAVAILABLE"}</h3>
+                <span>{market?.identity.name ?? "Live market metadata unavailable"}</span>
               </div>
             </div>
             <div className="snapshot-rule">
@@ -243,7 +264,16 @@ export function Landing({ markets, health }: PageProps) {
   );
 }
 
-export function HomePage({ markets, health, events, wallet, api, streamState }: PageProps) {
+export function HomePage({
+  markets,
+  health,
+  events,
+  wallet,
+  api,
+  streamState,
+  error,
+  refresh,
+}: PageProps) {
   const market = markets[0];
   const [attention, setAttention] = useState<JsonRecord[]>([]);
   useEffect(() => {
@@ -268,6 +298,7 @@ export function HomePage({ markets, health, events, wallet, api, streamState }: 
           </Link>
         }
       />
+      {error && <ErrorState message={error} retry={() => void refresh()} />}
       <AttentionPanel items={attention} />
       <section className="kpi-grid">
         <StatCard
@@ -278,7 +309,7 @@ export function HomePage({ markets, health, events, wallet, api, streamState }: 
         />
         <StatCard
           label="Live markets"
-          value={markets.length.toString()}
+          value={error ? "UNAVAILABLE" : markets.length.toString()}
           detail="indexed Product markets"
         />
         <StatCard
@@ -288,9 +319,21 @@ export function HomePage({ markets, health, events, wallet, api, streamState }: 
         />
         <StatCard
           label="Oracle"
-          value={market?.oracleEvidence?.freshness ?? "UNAVAILABLE"}
+          value={effectiveFreshness(
+            market?.oracleEvidence?.freshness,
+            market?.freshness?.observedAt ?? market?.observedAt,
+            market?.freshness?.maxAgeSeconds,
+          )}
           detail="3 sources · 2-of-3"
-          tone="good"
+          tone={
+            effectiveFreshness(
+              market?.oracleEvidence?.freshness,
+              market?.freshness?.observedAt ?? market?.observedAt,
+              market?.freshness?.maxAgeSeconds,
+            ) === "FRESH"
+              ? "good"
+              : "default"
+          }
         />
       </section>
       <section className="home-grid">
@@ -374,21 +417,84 @@ export function HomePage({ markets, health, events, wallet, api, streamState }: 
   );
 }
 
-export function MarketsPage({ markets }: PageProps) {
+export function AttentionPage({ api, wallet }: PageProps) {
+  const [items, setItems] = useState<JsonRecord[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  useEffect(() => {
+    if (!wallet.address) {
+      setItems([]);
+      return;
+    }
+    void api
+      .attention(wallet.address)
+      .then((response) => {
+        setItems(response.items ?? []);
+        setLoadError(null);
+      })
+      .catch((caught) =>
+        setLoadError(caught instanceof Error ? caught.message : "ATTENTION_UNAVAILABLE"),
+      );
+  }, [api, wallet.address]);
+  return (
+    <div className="page">
+      <PageTitle
+        eyebrow="NEEDS ATTENTION"
+        title="Actionable state, in one place."
+        body="These items are projected from canonical Product state. The frontend does not infer alerts from incomplete fields."
+        action={
+          <Link className="button button-secondary" to="/app">
+            Back to command center
+          </Link>
+        }
+      />
+      {loadError ? (
+        <ErrorState message={loadError} />
+      ) : wallet.address ? (
+        <AttentionPanel items={items} />
+      ) : (
+        <EmptyState
+          title="Connect a wallet"
+          body="Needs Attention is wallet-scoped and remains empty until the API has an authorized recipient."
+        />
+      )}
+    </div>
+  );
+}
+
+export function MarketsPage({ markets, error, refresh }: PageProps) {
   const [params, setParams] = useSearchParams();
   const [query, setQuery] = useState(params.get("search") ?? "");
   const [filter, setFilter] = useState("All");
-  const filtered = markets.filter((market) => {
-    const text =
-      `${market.identity.symbol ?? ""} ${market.identity.name ?? ""} ${market.identity.marketId}`.toLowerCase();
-    return (
-      text.includes(query.toLowerCase()) &&
-      (filter === "All" ||
+  const [chain, setChain] = useState("All");
+  const [sort, setSort] = useState("market");
+  const filtered = markets
+    .filter((market) => {
+      const text =
+        `${market.identity.symbol ?? ""} ${market.identity.name ?? ""} ${market.identity.marketId} ${market.identity.tokenAddress}`.toLowerCase();
+      const lifecycle = market.lifecycle?.status?.toUpperCase() ?? "UNAVAILABLE";
+      const chainMatch = chain === "All" || market.identity.chain.toUpperCase() === chain;
+      const statusMatch =
+        filter === "All" ||
         (filter === "Qualified"
           ? market.qualification?.eligible
-          : market.derivativesEvidence?.status === filter.toUpperCase()))
-    );
-  });
+          : lifecycle === filter.toUpperCase() ||
+            market.derivativesEvidence?.status === filter.toUpperCase());
+      return text.includes(query.toLowerCase()) && chainMatch && statusMatch;
+    })
+    .sort((left, right) => {
+      if (sort === "price") {
+        const delta =
+          BigInt(right.marketData?.priceUsdWad ?? "0") -
+          BigInt(left.marketData?.priceUsdWad ?? "0");
+        return delta > 0n ? 1 : delta < 0n ? -1 : 0;
+      }
+      if (sort === "liquidity") {
+        const delta =
+          BigInt(right.liquidity?.totalUsdWad ?? "0") - BigInt(left.liquidity?.totalUsdWad ?? "0");
+        return delta > 0n ? 1 : delta < 0n ? -1 : 0;
+      }
+      return String(left.identity.symbol ?? "").localeCompare(String(right.identity.symbol ?? ""));
+    });
   function submit(event: React.FormEvent) {
     event.preventDefault();
     setParams(query ? { search: query } : {});
@@ -399,8 +505,13 @@ export function MarketsPage({ markets }: PageProps) {
         eyebrow="MARKET DISCOVERY"
         title="Find the signal."
         body="Fast discovery, slow assumptions. Every row is backed by the canonical Product API."
-        action={<span className="result-count">{filtered.length} indexed</span>}
+        action={
+          <span className="result-count">
+            {error ? "UNAVAILABLE" : `${filtered.length} indexed`}
+          </span>
+        }
       />
+      {error && <ErrorState message={error} retry={() => void refresh()} />}
       <div className="filter-bar">
         <form className="market-search" onSubmit={submit}>
           <span>⌕</span>
@@ -422,6 +533,29 @@ export function MarketsPage({ markets }: PageProps) {
             </button>
           ))}
         </div>
+        <div className="filter-tabs">
+          {["All", "ARC", "BASE", "SOLANA", "ETHEREUM"].map((item) => (
+            <button
+              key={item}
+              className={chain === item ? "active" : ""}
+              onClick={() => setChain(item)}
+            >
+              {item}
+            </button>
+          ))}
+          <label className="sort-control">
+            Sort
+            <select
+              value={sort}
+              onChange={(event) => setSort(event.target.value)}
+              aria-label="Sort markets"
+            >
+              <option value="market">Market</option>
+              <option value="price">Price</option>
+              <option value="liquidity">Liquidity</option>
+            </select>
+          </label>
+        </div>
       </div>
       {filtered.length ? (
         <MarketTable markets={filtered} />
@@ -438,6 +572,7 @@ export function MarketsPage({ markets }: PageProps) {
 export function MarketDetailPage({ api, wallet }: PageProps) {
   const { marketId } = useParams();
   const { market, pretrade, resources, error } = useMarket(api, marketId);
+  const [activeTab, setActiveTab] = useState("Overview");
   if (error)
     return (
       <div className="page">
@@ -454,6 +589,12 @@ export function MarketDetailPage({ api, wallet }: PageProps) {
     <div className="page market-page">
       <div className="market-detail-grid">
         <main>
+          {error && (
+            <div className="live-error">
+              <AvailabilityPill value="UNAVAILABLE" label="API UNAVAILABLE" />
+              <span>{error}</span>
+            </div>
+          )}
           <div className="market-detail-header">
             <div className="market-name detail-name">
               <div className="token-mark large">{(market.identity.symbol ?? "?").slice(0, 2)}</div>
@@ -497,7 +638,7 @@ export function MarketDetailPage({ api, wallet }: PageProps) {
                     <span
                       key={`${point.observedAt}-${index}`}
                       style={{
-                        height: `${Math.max(8, Math.min(92, Number(point.priceUsdWad ?? 0n) % 100))}%`,
+                        height: `${chartHeight(market.priceHistory ?? [], index)}%`,
                       }}
                     />
                   ))}
@@ -516,15 +657,137 @@ export function MarketDetailPage({ api, wallet }: PageProps) {
               />
             )}
           </div>
-          <div className="tab-strip">
-            <button className="active">Overview</button>
-            <button>Risk passport</button>
-            <button>Holders</button>
-            <button>Trades</button>
-            <button>Deployer</button>
-            <button>Proof</button>
+          <div className="tab-strip" role="tablist" aria-label="Market detail sections">
+            {["Overview", "Risk passport", "Holders", "Trades", "Deployer", "Proof"].map((tab) => (
+              <button
+                key={tab}
+                className={activeTab === tab ? "active" : ""}
+                role="tab"
+                aria-selected={activeTab === tab}
+                onClick={() => setActiveTab(tab)}
+              >
+                {tab}
+              </button>
+            ))}
           </div>
-          <RiskPassport market={market} resources={resources} />
+          {(activeTab === "Overview" || activeTab === "Risk passport") && (
+            <RiskPassport market={market} resources={resources} />
+          )}
+          {activeTab === "Holders" && (
+            <section className="panel detail-resource-panel">
+              <SectionHeader eyebrow="HOLDER INTELLIGENCE" title="Ownership evidence" />
+              <RiskRow
+                label="Largest holder"
+                value={pctBps(market.holderEvidence?.largestHolderBps)}
+                source="holder provider"
+                status={
+                  market.holderEvidence?.largestHolderBps == null ? "UNAVAILABLE" : "AVAILABLE"
+                }
+              />
+              <RiskRow
+                label="Largest connected cluster"
+                value={pctBps(market.holderEvidence?.largestConnectedClusterBps)}
+                source="graph provider"
+                status={
+                  market.holderEvidence?.largestConnectedClusterBps == null
+                    ? "UNAVAILABLE"
+                    : "AVAILABLE"
+                }
+              />
+              <RiskRow
+                label="Cluster count"
+                value={market.holderEvidence?.clusterCount?.toString() ?? "UNAVAILABLE"}
+                source="graph provider"
+                status={market.holderEvidence?.clusterCount == null ? "UNAVAILABLE" : "AVAILABLE"}
+              />
+              <p className="panel-copy">
+                Unknown wallets remain economically counted. No relationship is inferred from an
+                unavailable graph.
+              </p>
+            </section>
+          )}
+          {activeTab === "Trades" && (
+            <section className="panel detail-resource-panel">
+              <SectionHeader eyebrow="ACTIVITY QUALITY" title="Canonical market activity" />
+              <RiskRow
+                label="24h volume"
+                value={wad(market.marketData?.volume24hUsdWad)}
+                source="market activity index"
+                status={market.marketData?.volume24hUsdWad == null ? "UNAVAILABLE" : "AVAILABLE"}
+              />
+              <RiskRow
+                label="Organic activity"
+                value={String(
+                  resources.activity?.organicActivity?.independentTraderCount ?? "UNAVAILABLE",
+                )}
+                source="activity provider"
+                status={
+                  resources.activity?.organicActivity?.independentTraderCount == null
+                    ? "UNAVAILABLE"
+                    : "AVAILABLE"
+                }
+              />
+              <RiskRow
+                label="Wash / farm signal"
+                value={String(resources.activity?.washFarm?.verdict ?? "UNAVAILABLE")}
+                source="activity provider"
+                status={
+                  resources.activity?.washFarm?.verdict === "INSUFFICIENT_DATA"
+                    ? "UNAVAILABLE"
+                    : "AVAILABLE"
+                }
+              />
+            </section>
+          )}
+          {activeTab === "Deployer" && (
+            <section className="panel detail-resource-panel">
+              <SectionHeader eyebrow="DEPLOYER INTELLIGENCE" title="Origin evidence" />
+              <RiskRow
+                label="Deployer"
+                value={market.deployerEvidence?.deployer ?? "UNAVAILABLE"}
+                source="origin provider"
+                status={market.deployerEvidence?.deployer == null ? "UNAVAILABLE" : "AVAILABLE"}
+              />
+              <RiskRow
+                label="Tokens created"
+                value={market.deployerEvidence?.tokensCreated?.toString() ?? "UNAVAILABLE"}
+                source="origin provider"
+                status={
+                  market.deployerEvidence?.tokensCreated == null ? "UNAVAILABLE" : "AVAILABLE"
+                }
+              />
+              <RiskRow
+                label="Incident history"
+                value={market.deployerEvidence?.reasonCodes?.[0] ?? "UNAVAILABLE"}
+                source="origin provider"
+                status={market.deployerEvidence?.reasonCodes?.length ? "UNAVAILABLE" : "AVAILABLE"}
+              />
+              <p className="panel-copy">
+                Missing origin history is not interpreted as a clean record.
+              </p>
+            </section>
+          )}
+          {activeTab === "Proof" && (
+            <section className="panel detail-resource-panel">
+              <SectionHeader eyebrow="QUALIFICATION PROOF" title="Evidence bound to eligibility" />
+              <RiskRow
+                label="Eligible"
+                value={market.qualification?.eligible ? "APPROVED" : "UNAVAILABLE"}
+                source="QualificationRegistry"
+                status={market.qualification?.eligible ? "QUALIFIED" : "UNAVAILABLE"}
+              />
+              <RiskRow
+                label="Proof hash"
+                value={market.qualification?.proofHash ?? "UNAVAILABLE"}
+                source="QualificationRegistry"
+              />
+              <RiskRow
+                label="Evidence root"
+                value={market.qualification?.evidenceRoot ?? "UNAVAILABLE"}
+                source="QualificationRegistry"
+              />
+            </section>
+          )}
           <div className="proof-callout">
             <div>
               <span className="eyebrow">QUALIFICATION PROOF</span>
@@ -612,12 +875,18 @@ export function PortfolioPage({ api, wallet }: PageProps) {
 
 export function ActivityPage({ api, wallet }: PageProps) {
   const [items, setItems] = useState<JsonRecord[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   useEffect(() => {
     if (wallet.address)
       void api
-        .get<JsonRecord[]>(`/wallet/${wallet.address}/activity`)
-        .then(setItems)
-        .catch(() => setItems([]));
+        .walletActivity(wallet.address)
+        .then((response) => {
+          setItems(response.items ?? []);
+          setLoadError(null);
+        })
+        .catch((caught) =>
+          setLoadError(caught instanceof Error ? caught.message : "ACTIVITY_UNAVAILABLE"),
+        );
   }, [api, wallet.address]);
   return (
     <div className="page">
@@ -636,7 +905,9 @@ export function ActivityPage({ api, wallet }: PageProps) {
             <button>LP</button>
             <button>Risk</button>
           </div>
-          {items.length ? (
+          {loadError ? (
+            <ErrorState message={loadError} />
+          ) : items.length ? (
             <div className="event-list">
               {items.map((item, index) => (
                 <div className="event-row" key={item.id ?? index}>
@@ -723,7 +994,7 @@ export function EarnPage({ markets }: PageProps) {
                   market?.liquidity?.totalUsdWad ? wad(market.liquidity.totalUsdWad) : "UNAVAILABLE"
                 }
               />
-              <Metric label="Protocol state" value="ACTIVE" />
+              <Metric label="Protocol state" value={market?.tradability?.status ?? "UNAVAILABLE"} />
             </div>
           </div>
         </div>
@@ -749,6 +1020,7 @@ export function ProfilePage({ api, wallet }: PageProps) {
   const target = address || wallet.address;
   const [profile, setProfile] = useState<Profile | null>(null);
   const [snapshot, setSnapshot] = useState<WalletSnapshot | null>(null);
+  const [watchlist, setWatchlist] = useState<JsonRecord | null>(null);
   useEffect(() => {
     if (target)
       void Promise.all([api.profile(target), api.wallet(target)])
@@ -757,6 +1029,11 @@ export function ProfilePage({ api, wallet }: PageProps) {
           setSnapshot(nextSnapshot);
         })
         .catch(() => undefined);
+    if (target)
+      void api
+        .watchlist(target)
+        .then(setWatchlist)
+        .catch(() => setWatchlist(null));
   }, [api, target]);
   if (!target)
     return (
@@ -827,6 +1104,29 @@ export function ProfilePage({ api, wallet }: PageProps) {
           />
         </div>
       </div>
+      <div className="panel">
+        <SectionHeader eyebrow="WATCHLIST" title="Saved markets" />
+        {Array.isArray(watchlist?.marketIds) && watchlist.marketIds.length > 0 ? (
+          <div className="watchlist-items">
+            {watchlist.marketIds.map((marketId) => (
+              <Link
+                className="market-row compact"
+                key={String(marketId)}
+                to={`/markets/${marketId}`}
+              >
+                <strong>{shortAddress(String(marketId))}</strong>
+                <span>canonical watchlist</span>
+                <span>→</span>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <EmptyState
+            title="No saved markets"
+            body="This wallet has no canonical watchlist entries. Signed mutation is not impersonated by the read-only API."
+          />
+        )}
+      </div>
     </div>
   );
 }
@@ -835,6 +1135,7 @@ export function CompetitionPage({ api }: PageProps) {
   const { id } = useParams();
   const [items, setItems] = useState<JsonRecord[]>([]);
   const [selected, setSelected] = useState<JsonRecord | null>(null);
+  const [leaderboard, setLeaderboard] = useState<JsonRecord[]>([]);
   useEffect(() => {
     void api.competitions().then((response) => setItems(response.items ?? []));
   }, [api]);
@@ -844,6 +1145,11 @@ export function CompetitionPage({ api }: PageProps) {
         .competition(id)
         .then(setSelected)
         .catch(() => setSelected(null));
+    if (id)
+      void api
+        .competitionLeaderboard(id)
+        .then((response) => setLeaderboard(response.items ?? []))
+        .catch(() => setLeaderboard([]));
   }, [api, id]);
   return (
     <div className="page">
@@ -852,15 +1158,37 @@ export function CompetitionPage({ api }: PageProps) {
         title="Compete on the ledger, not the leaderboard fantasy."
         body="Scores are projections from canonical Product activity. No prizes or user-submitted points are implied."
       />
-      {id && selected ? (
+      {id ? (
         <div className="panel">
-          <SectionHeader eyebrow="TESTNET SEASON" title={selected.name ?? id} />
+          <SectionHeader eyebrow="TESTNET SEASON" title={selected?.name ?? id} />
           <div className="competition-boards">
-            <StatCard label="Realized PnL" value="CANONICAL" />
-            <StatCard label="Return %" value="CANONICAL" />
-            <StatCard label="Risk-adjusted" value="CANONICAL" />
-            <StatCard label="Win rate" value="CANONICAL" />
+            <StatCard label="Realized PnL" value="UNAVAILABLE" detail="no leaderboard projection" />
+            <StatCard label="Return %" value="UNAVAILABLE" detail="no leaderboard projection" />
+            <StatCard
+              label="Risk-adjusted"
+              value="UNAVAILABLE"
+              detail="no leaderboard projection"
+            />
+            <StatCard label="Win rate" value="UNAVAILABLE" detail="no leaderboard projection" />
           </div>
+          {leaderboard.length > 0 ? (
+            <div className="event-list">
+              {leaderboard.map((entry, index) => (
+                <div className="event-row" key={String(entry.wallet ?? entry.address ?? index)}>
+                  <span className="event-seq">#{index + 1}</span>
+                  <strong>
+                    {shortAddress(String(entry.wallet ?? entry.address ?? "UNAVAILABLE"))}
+                  </strong>
+                  <span>{String(entry.score ?? "UNAVAILABLE")}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <EmptyState
+              title="No canonical leaderboard rows"
+              body="The Product API returned no participant projection. No users or scores are being invented."
+            />
+          )}
           <Link to="/competitions" className="button button-secondary">
             Back to seasons
           </Link>
@@ -899,9 +1227,18 @@ export function CompetitionPage({ api }: PageProps) {
 
 export function NotificationsPage({ api, wallet }: PageProps) {
   const [items, setItems] = useState<JsonRecord[]>([]);
+  const [loadError, setLoadError] = useState<string | null>(null);
   useEffect(() => {
     if (wallet.address)
-      void api.notifications(wallet.address).then((response) => setItems(response.items ?? []));
+      void api
+        .notifications(wallet.address)
+        .then((response) => {
+          setItems(response.items ?? []);
+          setLoadError(null);
+        })
+        .catch((caught) =>
+          setLoadError(caught instanceof Error ? caught.message : "NOTIFICATIONS_UNAVAILABLE"),
+        );
   }, [api, wallet.address]);
   return (
     <div className="page">
@@ -912,7 +1249,9 @@ export function NotificationsPage({ api, wallet }: PageProps) {
       />
       {wallet.address ? (
         <div className="panel notification-list">
-          {items.length ? (
+          {loadError ? (
+            <ErrorState message={loadError} />
+          ) : items.length ? (
             items.map((item) => (
               <div className="notification-row" key={item.id}>
                 <AvailabilityPill
@@ -1007,6 +1346,21 @@ export function ProofPage({ health }: PageProps) {
             status="UNAVAILABLE"
           />
         </div>
+      </section>
+      <section className="panel proof-ledger-large">
+        <SectionHeader eyebrow="PRODUCT CONTRACTS" title="Canonical Product addresses" />
+        <div className="address-list">
+          {Object.entries(PRODUCT.addresses).map(([contract, address]) => (
+            <div className="address-row" key={contract}>
+              <span>{contract}</span>
+              <code>{address}</code>
+            </div>
+          ))}
+        </div>
+        <p className="panel-copy">
+          These addresses are read from the frozen Product deployment manifest. The Stress
+          deployment is evidence only and is never a trading target.
+        </p>
       </section>
       <section className="proof-gates">
         <div>

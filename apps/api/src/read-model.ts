@@ -9,6 +9,26 @@ import {
 } from "@arcmemeperps/domain";
 import { BackendRepository, type PersistenceStore } from "@arcmemeperps/persistence";
 
+function refreshSnapshotFreshness(snapshot: MarketSnapshot): MarketSnapshot {
+  const { observedAt, maxAgeSeconds } = snapshot.freshness;
+  let status = snapshot.freshness.status;
+  if (status === "FRESH") {
+    const observedMs = observedAt === null ? Number.NaN : Date.parse(observedAt);
+    if (!Number.isFinite(observedMs)) status = "UNAVAILABLE";
+    else if (observedMs > Date.now()) status = "FUTURE_TIMESTAMP";
+    else if (Date.now() - observedMs > maxAgeSeconds * 1_000) status = "STALE";
+  }
+  return {
+    ...snapshot,
+    oracleEvidence: { ...snapshot.oracleEvidence, freshness: status },
+    freshness: { ...snapshot.freshness, status },
+  };
+}
+
+function snapshotFromPassport(passport: Parameters<typeof passportAsSnapshot>[0]): MarketSnapshot {
+  return refreshSnapshotFreshness(passportAsSnapshot(passport));
+}
+
 /** Durable read model used by the API. Missing projections remain unavailable. */
 export class PersistenceApiReadModel {
   public constructor(
@@ -17,7 +37,7 @@ export class PersistenceApiReadModel {
   ) {}
 
   public listMarkets(): Promise<readonly MarketSnapshot[]> {
-    return Promise.resolve(this.repository.listPassports().map(passportAsSnapshot));
+    return Promise.resolve(this.repository.listPassports().map(snapshotFromPassport));
   }
 
   public listMarketsWithOptions(options: {
@@ -33,7 +53,7 @@ export class PersistenceApiReadModel {
       this.repository
         .listPassports(options)
         .slice(offset, offset + limit)
-        .map(passportAsSnapshot),
+        .map(snapshotFromPassport),
     );
   }
 
@@ -47,13 +67,13 @@ export class PersistenceApiReadModel {
           if (volume !== 0n) return volume > 0n ? 1 : -1;
           return right.observedAt.localeCompare(left.observedAt);
         })
-        .map(passportAsSnapshot),
+        .map(snapshotFromPassport),
     );
   }
 
   public getMarket(marketId: string): Promise<MarketSnapshot | null> {
     const passport = this.repository.getPassport(marketId);
-    return Promise.resolve(passport === null ? null : passportAsSnapshot(passport));
+    return Promise.resolve(passport === null ? null : snapshotFromPassport(passport));
   }
 
   public getWallet(address: string): Promise<WalletSnapshot | null> {
@@ -75,7 +95,7 @@ export class PersistenceApiReadModel {
   }
 
   public searchMarkets(query: string, chain?: string): Promise<readonly MarketSnapshot[]> {
-    return Promise.resolve(this.repository.searchPassports(query, chain).map(passportAsSnapshot));
+    return Promise.resolve(this.repository.searchPassports(query, chain).map(snapshotFromPassport));
   }
 
   public async listFreshMarkets(): Promise<readonly MarketSnapshot[]> {
@@ -97,9 +117,10 @@ export class PersistenceApiReadModel {
   ): Promise<unknown> {
     const passport = this.repository.getPassport(marketId);
     if (passport === null) throw new Error("MARKET_NOT_FOUND");
-    if (resource === "risk") return Promise.resolve(passport.riskResult);
-    if (resource === "proof") return Promise.resolve(passport.qualification);
-    if (resource === "holders") return Promise.resolve({ holderEvidence: passport.holderEvidence });
+    const snapshot = snapshotFromPassport(passport);
+    if (resource === "risk") return Promise.resolve(snapshot.riskResult);
+    if (resource === "proof") return Promise.resolve(snapshot.qualification);
+    if (resource === "holders") return Promise.resolve({ holderEvidence: snapshot.holderEvidence });
     if (resource === "clusters")
       return Promise.resolve({
         holderEvidence: passport.holderEvidence,
@@ -115,13 +136,18 @@ export class PersistenceApiReadModel {
       });
     if (resource === "pretrade")
       return Promise.resolve({
-        status: "AVAILABLE",
+        status:
+          snapshot.oracleEvidence.freshness === "FRESH"
+            ? "AVAILABLE"
+            : snapshot.oracleEvidence.freshness === "UNAVAILABLE"
+              ? "UNAVAILABLE"
+              : "STALE",
         deploymentId: "arc-testnet-product-v2",
         chainId: 5042002,
         marketId,
-        oracle: passport.oracleEvidence,
-        qualification: passport.qualification,
-        risk: passport.derivativesEvidence,
+        oracle: snapshot.oracleEvidence,
+        qualification: snapshot.qualification,
+        risk: snapshot.derivativesEvidence,
         fees: {
           status: "UNAVAILABLE",
           reason: "fee schedule is not yet exposed by the canonical read model",
@@ -134,7 +160,7 @@ export class PersistenceApiReadModel {
       this.storage
         .list("market_snapshots")
         .filter((record) => record.id.startsWith(`${marketId}:`))
-        .map((record) => passportAsSnapshot(record.payload as never)),
+        .map((record) => snapshotFromPassport(record.payload as never)),
     );
   }
 

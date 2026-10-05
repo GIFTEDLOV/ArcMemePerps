@@ -3,6 +3,7 @@ import { useProduct } from "./hooks/useProduct";
 import { useWallet, Shell } from "./components/Shell";
 import {
   ActivityPage,
+  AttentionPage,
   CompetitionPage,
   EarnPage,
   HomePage,
@@ -44,7 +45,7 @@ function ProductApp() {
         <Route path="/competitions" element={<CompetitionPage {...props} />} />
         <Route path="/competitions/:id" element={<CompetitionPage {...props} />} />
         <Route path="/notifications" element={<NotificationsPage {...props} />} />
-        <Route path="/attention" element={<HomePage {...props} />} />
+        <Route path="/attention" element={<AttentionPage {...props} />} />
         <Route path="/proof" element={<ProofPage {...props} />} />
         <Route path="/system" element={<SystemPage {...props} />} />
         <Route path="/settings" element={<SettingsPage {...props} />} />

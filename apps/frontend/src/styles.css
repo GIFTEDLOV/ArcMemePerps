@@ -491,6 +491,10 @@ kbd {
   display: grid;
   gap: 28px;
 }
+.page > *,
+.page-title > div {
+  min-width: 0;
+}
 .page-title {
   display: flex;
   align-items: end;
@@ -541,6 +545,17 @@ kbd {
 .panel-copy {
   max-width: 560px;
   font-size: 13px;
+}
+.live-error {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto 18px;
+  padding: 10px 12px;
+  border: 1px solid rgba(236, 158, 158, 0.32);
+  border-radius: 6px;
+  color: var(--muted);
+  font-size: 12px;
 }
 .attention-panel {
   display: flex;
@@ -704,6 +719,10 @@ kbd {
   display: flex;
   gap: 4px;
 }
+.filter-tabs {
+  min-width: 0;
+  flex-wrap: wrap;
+}
 .filter-tabs button,
 .activity-filters button,
 .chart-ranges button,
@@ -722,6 +741,21 @@ kbd {
   border-color: var(--line);
   color: var(--text);
   background: var(--panel-2);
+}
+.sort-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.sort-control select {
+  border: 1px solid var(--line-soft);
+  border-radius: 5px;
+  padding: 6px 8px;
+  color: var(--text);
+  background: var(--panel-2);
+  font: inherit;
 }
 .market-table {
   overflow: hidden;
@@ -756,6 +790,17 @@ kbd {
 }
 .market-row:hover {
   background: rgba(169, 230, 207, 0.055);
+}
+.market-row.compact {
+  grid-template-columns: 1fr auto auto;
+  min-height: 54px;
+  border: 1px solid var(--line-soft);
+  border-radius: 6px;
+  text-decoration: none;
+}
+.market-row.compact span {
+  color: var(--muted);
+  font-size: 11px;
 }
 .market-name {
   display: flex;
@@ -943,6 +988,32 @@ kbd {
 .tab-strip button.active {
   border-color: var(--accent);
   color: var(--text);
+}
+.detail-resource-panel {
+  display: grid;
+  gap: 4px;
+  margin-top: 10px;
+}
+.address-list {
+  display: grid;
+  gap: 0;
+  border-top: 1px solid var(--line-soft);
+}
+.address-row {
+  display: grid;
+  grid-template-columns: minmax(140px, 0.8fr) minmax(0, 2fr);
+  gap: 18px;
+  align-items: center;
+  min-height: 36px;
+  border-bottom: 1px solid var(--line-soft);
+  color: var(--muted);
+  font-size: 12px;
+}
+.address-row code {
+  overflow: hidden;
+  color: var(--text);
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .passport-section {
   display: grid;
@@ -1167,6 +1238,17 @@ kbd {
   margin: 0;
   color: var(--bad);
   font-size: 11px;
+}
+.oracle-warning {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 10px;
+  border: 1px solid rgba(229, 189, 120, 0.28);
+  color: var(--muted);
+  background: rgba(229, 189, 120, 0.05);
+  font-size: 11px;
+  line-height: 1.45;
 }
 .review-overlay {
   position: fixed;

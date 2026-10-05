@@ -1,5 +1,5 @@
 import type { Market } from "../lib/types";
-import { pctBps, freshness, wad } from "../lib/format";
+import { effectiveFreshness, pctBps, freshness, wad } from "../lib/format";
 import { AvailabilityPill, RiskRow, SectionHeader } from "./ui";
 
 export function RiskPassport({
@@ -60,7 +60,13 @@ export function RiskPassport({
         <div className="passport-card">
           <div className="passport-card-head">
             <span>Oracle & freshness</span>
-            <AvailabilityPill value={market.oracleEvidence?.freshness} />
+            <AvailabilityPill
+              value={effectiveFreshness(
+                market.oracleEvidence?.freshness,
+                market.freshness?.observedAt ?? market.observedAt,
+                market.freshness?.maxAgeSeconds,
+              )}
+            />
           </div>
           <RiskRow
             label="Sources"
@@ -85,7 +91,11 @@ export function RiskPassport({
             label="Last observed"
             value={freshness(market.freshness?.observedAt ?? market.observedAt)}
             source="Arc RPC"
-            status={market.freshness?.status}
+            status={effectiveFreshness(
+              market.freshness?.status,
+              market.freshness?.observedAt ?? market.observedAt,
+              market.freshness?.maxAgeSeconds,
+            )}
           />
         </div>
         <div className="passport-card">

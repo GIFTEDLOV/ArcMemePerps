@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import type { ReactNode } from "react";
-import { freshness, pctBps, usdc, wad } from "../lib/format";
+import { effectiveFreshness, freshness, pctBps, usdc, wad } from "../lib/format";
 import type { Availability, Health, JsonRecord, Market } from "../lib/types";
 
 export function AvailabilityPill({ value, label }: { value?: string | null; label?: string }) {
@@ -329,7 +329,11 @@ export function MarketStatLine({ market }: { market: Market }) {
       />
       <Metric
         label="Oracle"
-        value={market.oracleEvidence?.freshness ?? "UNAVAILABLE"}
+        value={effectiveFreshness(
+          market.oracleEvidence?.freshness,
+          market.freshness?.observedAt ?? market.observedAt,
+          market.freshness?.maxAgeSeconds,
+        )}
         hint={`${market.oracleEvidence?.independentSourceCount ?? "—"} independent sources`}
       />
       <Metric label="Capacity" value={formatRisk(market)} />

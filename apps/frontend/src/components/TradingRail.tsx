@@ -1,6 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { parseUnits } from "viem";
 import type { ApiClient } from "../lib/api";
 import type { Market, Pretrade } from "../lib/types";
+import { effectiveFreshness } from "../lib/format";
 import { AvailabilityPill } from "./ui";
 
 export function TradingRail({
@@ -15,9 +17,10 @@ export function TradingRail({
   walletAddress: string | null;
 }) {
   const [side, setSide] = useState<"LONG" | "SHORT">("LONG");
-  const [collateral, setCollateral] = useState("100");
+  const [collateral, setCollateral] = useState("0.05");
   const [leverage, setLeverage] = useState("2");
   const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewPretrade, setReviewPretrade] = useState<Pretrade | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const maxLeverage = useMemo(
     () =>
@@ -26,10 +29,54 @@ export function TradingRail({
         : null,
     [pretrade],
   );
+  const oracleFreshness = effectiveFreshness(
+    market.oracleEvidence?.freshness,
+    market.freshness?.observedAt ?? market.observedAt,
+    market.freshness?.maxAgeSeconds,
+  );
+  const validation = useMemo(() => {
+    if (!/^\d+(\.\d{1,6})?$/.test(collateral) || /^0+(\.0{1,6})?$/.test(collateral))
+      return "Enter a positive USDC amount.";
+    try {
+      const collateralWad = parseUnits(collateral, 6) * 1_000_000_000_000n;
+      const leverageWad = parseUnits(leverage, 18);
+      if (pretrade?.risk?.maxLeverageWad && leverageWad > BigInt(pretrade.risk.maxLeverageWad))
+        return "Leverage exceeds the canonical market maximum.";
+      if (
+        pretrade?.risk?.maxPositionWad &&
+        (collateralWad * leverageWad) / 1_000_000_000_000_000_000n >
+          BigInt(pretrade.risk.maxPositionWad)
+      )
+        return "Collateral × leverage exceeds the position cap.";
+    } catch {
+      return "Enter a valid fixed-point amount.";
+    }
+    return null;
+  }, [collateral, leverage, pretrade]);
+  useEffect(() => {
+    if (!reviewOpen) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setReviewOpen(false);
+        setReviewPretrade(null);
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [reviewOpen]);
   const review = async () => {
+    if (validation) {
+      setMessage(validation);
+      return;
+    }
     await api
       .pretrade(market.identity.marketId)
-      .then(() => {
+      .then((latest) => {
+        if (latest.status !== "AVAILABLE" || latest.oracle?.freshness !== "FRESH") {
+          setMessage("Review invalidated: canonical oracle or execution state is not fresh.");
+          return;
+        }
+        setReviewPretrade(latest);
         setReviewOpen(true);
         setMessage(null);
       })
@@ -84,14 +131,14 @@ export function TradingRail({
         <div>
           <span>Entry reference</span>
           <strong>
-            {market.marketData?.priceUsdWad
+            {market.marketData?.priceUsdWad && oracleFreshness === "FRESH"
               ? `$${(Number(BigInt(market.marketData.priceUsdWad) / 1_000_000_000_000_000n) / 1000).toFixed(4)}`
               : "UNAVAILABLE"}
           </strong>
         </div>
         <div>
           <span>Oracle</span>
-          <strong>{market.oracleEvidence?.freshness ?? "UNAVAILABLE"}</strong>
+          <strong>{oracleFreshness}</strong>
         </div>
         <div>
           <span>Fees</span>
@@ -102,6 +149,12 @@ export function TradingRail({
           <strong>Review required</strong>
         </div>
       </div>
+      {oracleFreshness !== "FRESH" && (
+        <div className="oracle-warning">
+          <AvailabilityPill value={oracleFreshness} label="ORACLE STALE" />
+          <span>Risk-increasing review is disabled until the canonical observation refreshes.</span>
+        </div>
+      )}
       {!walletAddress && (
         <div className="wallet-callout">
           <span>◉</span>
@@ -116,8 +169,11 @@ export function TradingRail({
       <button
         className="button button-primary button-wide"
         onClick={() => void review()}
-        disabled={pretrade?.status !== "AVAILABLE"}
+        disabled={
+          pretrade?.status !== "AVAILABLE" || Boolean(validation) || oracleFreshness !== "FRESH"
+        }
       >{`Review ${side === "LONG" ? "Long" : "Short"}`}</button>
+      {validation && <p className="inline-error">{validation}</p>}
       {message && <p className="inline-error">{message}</p>}
       <p className="rail-footnote">
         Plan binds account, market, side, oracle sequence, nonce and expiry before signature.
@@ -132,7 +188,10 @@ export function TradingRail({
               </div>
               <button
                 className="icon-button"
-                onClick={() => setReviewOpen(false)}
+                onClick={() => {
+                  setReviewOpen(false);
+                  setReviewPretrade(null);
+                }}
                 aria-label="Close review"
               >
                 ×
@@ -164,8 +223,8 @@ export function TradingRail({
                 <strong>{leverage}x</strong>
               </div>
               <div>
-                <span>Oracle sequence</span>
-                <strong>{pretrade?.oracle?.freshness === "FRESH" ? "fresh" : "UNAVAILABLE"}</strong>
+                <span>Oracle freshness</span>
+                <strong>{reviewPretrade?.oracle?.freshness ?? "UNAVAILABLE"}</strong>
               </div>
               <div>
                 <span>Fees</span>
@@ -173,7 +232,7 @@ export function TradingRail({
               </div>
               <div>
                 <span>Expiry</span>
-                <strong>{pretrade?.expiry?.minimumSeconds ?? "—"}s minimum</strong>
+                <strong>{reviewPretrade?.expiry?.minimumSeconds ?? "—"}s minimum</strong>
               </div>
             </div>
             <div className="review-warning">
@@ -186,7 +245,10 @@ export function TradingRail({
             </div>
             <button
               className="button button-secondary button-wide"
-              onClick={() => setReviewOpen(false)}
+              onClick={() => {
+                setReviewOpen(false);
+                setReviewPretrade(null);
+              }}
             >
               Close review
             </button>

@@ -362,7 +362,19 @@ function notificationFor(event: DecodedEvent, recipient: Address, marketId: Hex 
   };
 }
 
-function healthSnapshot(database: HealthRecord, indexer: HealthRecord, realtime: HealthRecord): readonly HealthRecord[] {
+function oracleHealth(state: ProductState): HealthRecord {
+  const observedAt = BigInt(recordString(state.report.observedAt ?? state.report["8"] ?? "0"));
+  const now = BigInt(Math.floor(Date.now() / 1_000));
+  const fresh = observedAt > 0n && observedAt <= now && now - observedAt <= 120n;
+  return healthRecord("ORACLE", fresh ? "OPERATIONAL" : "STALE", {
+    lastSuccessAt: isoFromUnix(observedAt),
+    latencyMs: null,
+    error: fresh ? null : "ORACLE_OBSERVATION_STALE",
+    freshness: fresh ? "FRESH" : "STALE",
+  });
+}
+
+function healthSnapshot(database: HealthRecord, indexer: HealthRecord, oracle: HealthRecord, realtime: HealthRecord): readonly HealthRecord[] {
   const operational = (component: HealthRecord["component"]): HealthRecord => healthRecord(component, "OPERATIONAL", { lastSuccessAt: nowIso(), latencyMs: null, error: null, freshness: "FRESH" });
   return [
     database,
@@ -373,7 +385,7 @@ function healthSnapshot(database: HealthRecord, indexer: HealthRecord, realtime:
     operational("RISK_ENGINE"),
     operational("KEEPER"),
     operational("ORACLE_REPORTERS"),
-    operational("ORACLE"),
+    oracle,
     operational("VAULT"),
     operational("INSURANCE"),
     realtime,
@@ -634,7 +646,7 @@ async function main(): Promise<void> {
   const indexerHealth = healthRecord("INDEXER", "OPERATIONAL", { lastSuccessAt: indexer.lastProjectionAt, latencyMs: 0, error: null, freshness: "FRESH" });
   const options: ApiServerOptions = {
     readModel: new PersistenceApiReadModel(indexer.storage),
-    health: () => healthSnapshot(databaseHealth, indexerHealth, healthRecord("REALTIME_STREAM", realtime.status() === "LIVE" ? "OPERATIONAL" : "STALE", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: realtime.status() === "LIVE" ? "FRESH" : "STALE" })),
+    health: () => healthSnapshot(databaseHealth, indexerHealth, oracleHealth(state), healthRecord("REALTIME_STREAM", realtime.status() === "LIVE" ? "OPERATIONAL" : "STALE", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: realtime.status() === "LIVE" ? "FRESH" : "STALE" })),
     realtime,
   };
   process.stdout.write(JSON.stringify({ mode: serve ? "LIVE_SERVE" : "LIVE_BOOTSTRAP", deploymentId: PRODUCT_DEPLOYMENT_ID, chainId: CHAIN_ID, startBlock: PRODUCT_START_BLOCK.toString(), head: indexer.lastHead.toString(), checkpoint: indexer.checkpoint(), state: safeJson(state), databasePath, apiVersion: "v1", marketId: PRODUCT_MARKET_ID }) + "\n");
