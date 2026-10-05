@@ -4,15 +4,17 @@
   "github": {
     "repository": "https://github.com/GIFTEDLOV/ArcMemePerps",
     "branch": "main",
-    "releaseCandidateCommit": "01df3591e88e5f95f6ee025e3146fd8d66ad84a3"
+    "releaseCandidateCommit": "37d0a8170336ff1b51379a28296442784f574fbe",
+    "ciRun": "https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/37277026622",
+    "ciResult": "PASS"
   },
   "publicServices": {
     "frontend": "https://arcmemeperps.vercel.app",
     "vercelProject": "arcmemeperps",
-    "vercelDeploymentId": "dpl_5kLLJeS4czzXYZmkRgo2gLcxzuQz",
+    "vercelDeploymentId": "dpl_2GeNz67nFh8hwapvVSWRCt925WJy",
     "backend": "https://api-production-0eb6.up.railway.app/api/v1",
     "railwayProject": "arcmemeperps",
-    "railwayDeploymentId": "4e6bc2b7-3038-4be1-a6cc-30a600ae27bf",
+    "railwayDeploymentId": "8886a10b-6755-44ef-a1c0-e16537b09857",
     "database": "durable Railway volume /data/product-live.sqlite",
     "realtime": "SSE /stream"
   },
@@ -71,9 +73,9 @@
     "worker": "Railway backend sealed worker",
     "observations": "Onchain Product baseline carried forward only after market, chain, bounds, reporter-set, and threshold validation; fail-closed when unavailable",
     "observedPublicCycles": [
-      { "sequence": 18, "tx": "0x98a8341c7362ccbc7db40263b60b25485342d3d635fce136d39c1f7491828511" },
-      { "sequence": 19, "tx": "0x197d1cc1d87a8741f78bb619f95e16e6139f7701d2ca9dd404660cb6303b68d3" },
-      { "sequence": 20, "tx": "0x38eeb7f3c31c41495d92c98559cbecfba609f4d1445f1fed73201eb96a43d264" }
+      { "sequence": 60, "tx": "0x122986e08d728e7953cad7301d3f5cd303cb0593eed107738416dfa048cc53ce" },
+      { "sequence": 61, "tx": "0xa4c3cca04891688b381f51ae9e5de429b0a015bea3905bfc4ea824f8dde41852" },
+      { "sequence": 62, "tx": "0xf6f7ae10819098f092828b733b85de7ba3b7e94bebabfb084f04825e212da82c" }
     ]
   },
   "verification": {
