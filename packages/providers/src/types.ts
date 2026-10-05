@@ -21,8 +21,8 @@ export interface ProviderResult<T> {
 
 export interface RpcTokenEvidence {
   readonly chainId: number;
-  readonly blockNumber: bigint;
-  readonly blockHash: Hex;
+  readonly blockNumber: bigint | null;
+  readonly blockHash: Hex | null;
   readonly blockTimestamp: number;
   readonly bytecodeExists: boolean;
   readonly proxyDetected: boolean | null;
@@ -43,7 +43,11 @@ export interface SolanaMintEvidence {
   readonly decimals: number | null;
   readonly mintAuthority: string | null;
   readonly freezeAuthority: string | null;
-  readonly largestAccounts: readonly { readonly address: string; readonly amount: bigint }[];
+  readonly largestAccounts: readonly {
+    readonly address: string;
+    readonly amount: bigint;
+    readonly owner: string | null;
+  }[];
 }
 
 export interface DexPairObservation {
@@ -62,8 +66,8 @@ export interface DexPairObservation {
   };
   readonly priceUsd: number | null;
   readonly priceUsdRaw?: string | null;
-  readonly liquidityUsd: number;
-  readonly liquidityUsdRaw?: string;
+  readonly liquidityUsd: number | null;
+  readonly liquidityUsdRaw?: string | null;
   readonly baseLiquidity: number | null;
   readonly quoteLiquidity: number | null;
   readonly volume24hUsd: number;
@@ -80,10 +84,10 @@ export interface DexPairObservation {
 
 export interface DexAggregate {
   readonly pairs: readonly DexPairObservation[];
-  readonly totalObservedLiquidityUsd: number;
-  readonly totalObservedLiquidityUsdRaw?: string;
+  readonly totalObservedLiquidityUsd: number | null;
+  readonly totalObservedLiquidityUsdRaw?: string | null;
   readonly dominantPool: DexPairObservation | null;
-  readonly poolConcentrationPct: number;
+  readonly poolConcentrationPct: number | null;
   readonly meaningfulPoolCount: number;
   readonly liquidityByDex: Readonly<Record<string, number>>;
   readonly volume24hUsd: number;

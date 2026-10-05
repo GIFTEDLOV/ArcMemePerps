@@ -147,8 +147,8 @@ export const MarketSnapshotSchema = z
       .strict(),
     oracleEvidence: z
       .object({
-        priceSourceCount: z.number().int().min(0),
-        independentSourceCount: z.number().int().min(0),
+        priceSourceCount: z.number().int().min(0).nullable(),
+        independentSourceCount: z.number().int().min(0).nullable(),
         dispersionBps: z.number().int().min(0).nullable(),
         confidenceBps: z.number().int().min(0).max(10_000).nullable(),
         freshness: z.enum(["FRESH", "STALE", "FUTURE_TIMESTAMP", "UNAVAILABLE", "INVALID"]),

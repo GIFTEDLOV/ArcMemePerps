@@ -159,9 +159,13 @@ function makeObservation(overrides: ObservationOverrides = {}): MarketObservatio
 }
 
 function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket {
+  const totalLiquidityUsd = requireFixtureNumber(observation.liquidity.totalLiquidityUsd, "totalLiquidityUsd");
+  const oracleSourceCount = requireFixtureNumber(observation.oracle.sourceCount, "sourceCount");
+  const oraclePriceUsd = requireFixtureNumber(observation.oracle.priceUsd, "priceUsd");
+  const oracleConfidenceBps = requireFixtureNumber(observation.oracle.confidenceBps, "confidenceBps");
   const holder: HolderRecord = {
     address: "0x0000000000000000000000000000000000000010",
-    balancePct: observation.holders.topHolderPct,
+    balancePct: requireFixtureNumber(observation.holders.topHolderPct, "topHolderPct"),
     connectedClusterId: "cluster-1",
     firstSeenAt: observation.token.createdAt ?? ASSESSED_AT,
     fundingSource: "funding-1",
@@ -169,7 +173,7 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
   const lock: LiquidityLock = {
     venue: observation.liquidity.liquidityVenues[0] ?? "fixture-dex",
     provider: "fixture-locker",
-    lockedAmountUsd: observation.liquidity.totalLiquidityUsd,
+    lockedAmountUsd: totalLiquidityUsd,
     unlockAt: observation.liquidity.earliestLpUnlockAt,
     burned: observation.liquidity.lpLockStatus === "BURNED",
   };
@@ -177,17 +181,17 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
     venue: observation.liquidity.liquidityVenues[0] ?? "fixture-dex",
     poolAddress: "0x0000000000000000000000000000000000000020",
     tokenReserve: 1_000_000,
-    quoteReserveUsd: observation.liquidity.totalLiquidityUsd / 2,
-    liquidityUsd: observation.liquidity.totalLiquidityUsd,
+    quoteReserveUsd: totalLiquidityUsd / 2,
+    liquidityUsd: totalLiquidityUsd,
     feeBps: 30,
   };
   const sources: PriceSource[] = Array.from(
-    { length: observation.oracle.sourceCount },
+    { length: oracleSourceCount },
     (_, index) => ({
       source: `fixture-oracle-${index + 1}`,
-      priceUsd: observation.oracle.priceUsd,
+      priceUsd: oraclePriceUsd,
       observedAt: observation.oracle.observedAt,
-      confidenceBps: observation.oracle.confidenceBps,
+      confidenceBps: oracleConfidenceBps,
     }),
   );
   const permissions: TokenPermissions = {
@@ -203,14 +207,14 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
     launchAt: observation.token.createdAt ?? ASSESSED_AT,
     bundleCount: observation.activity.bundledLaunchDetected ? 10 : 1,
     initialBuyerCount: 100,
-    initialLiquidityUsd: observation.liquidity.totalLiquidityUsd,
+    initialLiquidityUsd: totalLiquidityUsd,
   };
   const trade: TradeRecord = {
     txHash: "fixture-trade-1",
     trader: holder.address,
     side: "BUY",
     amountUsd: 100,
-    priceUsd: observation.oracle.priceUsd,
+    priceUsd: oraclePriceUsd,
     timestamp: observation.oracle.observedAt,
     relatedTradeId: null,
   };
@@ -228,7 +232,7 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
     txHash: "fixture-tx-1",
     from: observation.deployer.deployerAddress ?? "fixture-deployer",
     to: observation.token.tokenAddress,
-    valueUsd: observation.liquidity.totalLiquidityUsd,
+    valueUsd: totalLiquidityUsd,
     timestamp: observation.token.createdAt ?? ASSESSED_AT,
     method: "create",
   };
@@ -244,6 +248,11 @@ function defaultsFor(observation: MarketObservation): DeterministicFixtureMarket
     launchData,
     transactionHistory: [transaction],
   };
+}
+
+function requireFixtureNumber(value: number | null, field: string): number {
+  if (value === null) throw new Error(`fixture requires known ${field}`);
+  return value;
 }
 
 const fixture = (

@@ -1,0 +1,1219 @@
+{
+  "schemaVersion": "winner-rebuild/phase2-closure-v1",
+  "generatedAt": "2026-10-05T20:26:46.307Z",
+  "discovery": {
+    "marketCount": 104,
+    "evaluatedMarketCount": 104,
+    "marketCountByChain": {
+      "BASE": 11,
+      "BNB": 21,
+      "ETHEREUM": 9,
+      "ROBINHOOD": 18,
+      "SOLANA": 45
+    },
+    "marketCountByLifecycle": {
+      "DEX_LIVE": 103,
+      "DISCOVERED": 1
+    },
+    "realOriginPoolCount": 126
+  },
+  "qualification": {
+    "candidatesEvaluated": 20,
+    "pass": 0,
+    "watch": 0,
+    "rejected": 20,
+    "rejectedUnsafe": 7,
+    "rejectedInsufficientEvidence": 13,
+    "rejectionCodeCounts": {
+      "BUNDLED_LAUNCH_CONCENTRATION": 20,
+      "CONNECTED_CLUSTER_CONCENTRATION": 20,
+      "DANGEROUS_OWNER_ADMIN_PRIVILEGE": 20,
+      "DEPLOYER_CONCENTRATION": 20,
+      "FREEZE_AUTHORITY_ACTIVE": 16,
+      "HONEYPOT_OR_TRANSFER_RESTRICTION": 20,
+      "INDIVIDUAL_HOLDER_CONCENTRATION": 20,
+      "INSUFFICIENT_EVIDENCE": 20,
+      "INTEGRITY_NOT_QUALIFIED": 20,
+      "KNOWN_RISK_DEPLOYER": 20,
+      "MINT_AUTHORITY_ACTIVE": 16,
+      "ORACLE_FRESHNESS_UNAVAILABLE": 7,
+      "RELATED_WALLET_FUNDING": 20,
+      "SUSPICIOUS_EARLY_BUYERS": 20,
+      "SUSPICIOUS_TRANSACTION_REPETITION": 20,
+      "UPGRADEABILITY_RISK": 7,
+      "VOLUME_FARMING": 20,
+      "WASH_TRADING": 20
+    },
+    "candidateOutcomes": [
+      {
+        "chain": "BASE",
+        "symbol": "BSW",
+        "tokenAddress": "0x3c5cd672b204ba0fc48e93b98c0922920a87912d",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BNB",
+        "symbol": "GALABET",
+        "tokenAddress": "0x6d6521283cd3fd0188fe0408e700a5790a0f6c61",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "ETHEREUM",
+        "symbol": "BULL",
+        "tokenAddress": "0x8e9de09f9b28c262e06d10766093e5069b1dcf3e",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "ROBINHOOD",
+        "symbol": "AOTTR",
+        "tokenAddress": "0x52C4c365CF5317C89C817Cf2516141613D38d08c",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "SOLANA",
+        "symbol": "USDТ",
+        "tokenAddress": "8Fnm6XUnY9DGQLh7tFM4SjQRbjfspfhTMyVSx7nXQNYB",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BASE",
+        "symbol": "xdp",
+        "tokenAddress": "0x07b3d902783c3c12b077508c3b5c00113d1291d0",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BNB",
+        "symbol": "BTC",
+        "tokenAddress": "0x30ed6a37665c50f799125923185b0fc171d36f0c",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "ETHEREUM",
+        "symbol": "7AΩ∞",
+        "tokenAddress": "0x622b6330f226bf08427dcad49c9ea9694604bf2d",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "ROBINHOOD",
+        "symbol": "NVDA",
+        "tokenAddress": "0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "SOLANA",
+        "symbol": "jelly",
+        "tokenAddress": "CyDJMENR6Sbtwj4erhuARNa5cNbeK92GpNAGyXLVpump",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BASE",
+        "symbol": "cbBTC",
+        "tokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BNB",
+        "symbol": "Dr.Angel",
+        "tokenAddress": "0x06bb166a33cf2734e09bc34022fc6e57d5350165",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "ROBINHOOD",
+        "symbol": "HI",
+        "tokenAddress": "0xee049979960d5e42b389b941ec45790ca7b6e1f7",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "SOLANA",
+        "symbol": "Sacabambaspis",
+        "tokenAddress": "DYSk618g74BeMEGcmHZizxWUJCR2MhGxpdfu6vsppump",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BASE",
+        "symbol": "AERO",
+        "tokenAddress": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BNB",
+        "symbol": "WBTCBR",
+        "tokenAddress": "0x2919b42e28ba205b56712425d09d98d3bdeb7b1a",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "ROBINHOOD",
+        "symbol": "BABY",
+        "tokenAddress": "0x6a6a57d1e94eb586c5b505a1c81434bda3d6ed97",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "SOLANA",
+        "symbol": "ANY",
+        "tokenAddress": "9aQwx5QQSpvrntr7EvHqRNbAqKrLUd9WaiqHGZoppump",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "UNSAFE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "UPGRADEABILITY_RISK",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BASE",
+        "symbol": "MSTRc",
+        "tokenAddress": "0xb2000000000000000000004884b426556b92883d",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      },
+      {
+        "chain": "BNB",
+        "symbol": "GM",
+        "tokenAddress": "0x8bbe564a2736458e757792f4d01304290a877777",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "classification": "INSUFFICIENT_EVIDENCE",
+        "rejectionCodes": [
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "DEPLOYER_CONCENTRATION",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "INSUFFICIENT_EVIDENCE",
+          "INTEGRITY_NOT_QUALIFIED",
+          "KNOWN_RISK_DEPLOYER",
+          "MINT_AUTHORITY_ACTIVE",
+          "ORACLE_FRESHNESS_UNAVAILABLE",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "VOLUME_FARMING",
+          "WASH_TRADING"
+        ]
+      }
+    ]
+  },
+  "evidenceCoverage": {
+    "realHistoryMarkets": 0,
+    "resolvedSolanaHolderMarkets": 4,
+    "chainNativeAuthorityEvidenceMarkets": 4,
+    "contractMetadataEvidenceMarkets": 16,
+    "deployerEvidenceMarkets": 0,
+    "directDepthMarkets": 1,
+    "providerAvailability": [
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:14.550Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:14.550Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:14.550Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:14.550Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:14.550Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:16.273Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "ERROR",
+        "reason": "DexScreener field liquidity must be an object",
+        "fetchedAt": "2026-10-05T20:16:16.273Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:16.273Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:16.273Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:16.273Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:22.430Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:22.430Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:22.430Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:22.430Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:22.430Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:28.428Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:28.428Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:28.428Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:28.428Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:28.428Z"
+      },
+      {
+        "provider": "canonical-solana-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:34.638Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:34.638Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:34.638Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:34.638Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:34.638Z"
+      },
+      {
+        "provider": "helius",
+        "status": "UNAVAILABLE",
+        "reason": "HELIUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:34.638Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:40.726Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:40.726Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:16:40.726Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:40.726Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:40.726Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:47.841Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:47.841Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:16:47.841Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:47.841Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:47.841Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:53.366Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:53.366Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:16:53.366Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:53.366Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:53.366Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:59.432Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:59.432Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:16:59.432Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:59.432Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:16:59.432Z"
+      },
+      {
+        "provider": "canonical-solana-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:05.646Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:05.646Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:17:05.646Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:05.646Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:05.646Z"
+      },
+      {
+        "provider": "helius",
+        "status": "UNAVAILABLE",
+        "reason": "HELIUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:05.646Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:11.749Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:11.749Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:11.749Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:11.749Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:11.749Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:17.284Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:17.284Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:17:17.284Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:17.284Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:17.284Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:23.864Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:23.864Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:23.864Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:23.864Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:23.864Z"
+      },
+      {
+        "provider": "canonical-solana-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:29.407Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:29.407Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:17:29.407Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:29.407Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:29.407Z"
+      },
+      {
+        "provider": "helius",
+        "status": "UNAVAILABLE",
+        "reason": "HELIUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:29.407Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:36.071Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:36.071Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:36.071Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:36.071Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:36.071Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:42.271Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:42.271Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:17:42.271Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:42.271Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:42.271Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:48.281Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:48.281Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:48.281Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:48.281Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:48.281Z"
+      },
+      {
+        "provider": "canonical-solana-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:53.971Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:17:53.971Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:17:53.971Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:53.971Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:53.971Z"
+      },
+      {
+        "provider": "helius",
+        "status": "UNAVAILABLE",
+        "reason": "HELIUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:17:53.971Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:18:00.509Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:18:00.509Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:18:00.509Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:18:00.509Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:18:00.509Z"
+      },
+      {
+        "provider": "canonical-evm-rpc",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:18:06.134Z"
+      },
+      {
+        "provider": "dexscreener",
+        "status": "AVAILABLE",
+        "reason": null,
+        "fetchedAt": "2026-10-05T20:18:06.134Z"
+      },
+      {
+        "provider": "geckoterminal",
+        "status": "ERROR",
+        "reason": "provider returned HTTP 429",
+        "fetchedAt": "2026-10-05T20:18:06.134Z"
+      },
+      {
+        "provider": "goplus",
+        "status": "UNAVAILABLE",
+        "reason": "GOPLUS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:18:06.134Z"
+      },
+      {
+        "provider": "bubblemaps",
+        "status": "UNAVAILABLE",
+        "reason": "BUBBLEMAPS_API_KEY_MISSING",
+        "fetchedAt": "2026-10-05T20:18:06.134Z"
+      }
+    ]
+  },
+  "safety": {
+    "zeroAsUnknownAudit": "PASS",
+    "oracleConfidenceModel": "DERIVED_FROM_MEANINGFUL_POOL_COUNT_VENUE_COUNT_LIQUIDITY_AND_DISAGREEMENT",
+    "sourceFamilyModel": "POOL_IDENTITY_DEDUPLICATED_PROVIDER_CORROBORATION_NOT_INDEPENDENCE",
+    "directDepthModel": "READ_ONLY_V2_RESERVES_WITH_SPOT_PRICE_CONSISTENCY_AND_USD_10000_MEANINGFUL_POOL_FLOOR",
+    "testnetWritesPerformed": false,
+    "registrationDecision": "NO_MARKET_NATURALLY_QUALIFIED",
+    "stopCondition": "ZERO_QUALIFIED_AFTER_104_REAL_MARKETS_AND_20_EVIDENCE_RANKED_CANDIDATES"
+  }
+}

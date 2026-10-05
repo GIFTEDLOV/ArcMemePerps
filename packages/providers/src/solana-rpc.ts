@@ -5,6 +5,7 @@ import type { JsonValue, ProviderResult, SolanaMintEvidence } from "./types.js";
 
 const SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9SsAq1mD4";
 const TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
+let nextRpcRequestAt = 0;
 
 interface SolanaRpcResponse<T> {
   readonly jsonrpc: string;
@@ -12,6 +13,23 @@ interface SolanaRpcResponse<T> {
   readonly result?: T;
   readonly error?: { readonly code: number; readonly message: string };
 }
+
+interface TokenAccountInfo {
+  readonly data?: {
+    readonly parsed?: {
+      readonly info?: { readonly owner?: string };
+    };
+  };
+}
+
+interface ProgramTokenAccount {
+  readonly pubkey: string;
+  readonly account: { readonly data: [string, string] };
+}
+
+type ProgramTokenAccountsResult =
+  | { readonly context?: { readonly slot: number }; readonly value?: readonly ProgramTokenAccount[] }
+  | readonly ProgramTokenAccount[];
 
 export class SolanaRpcProvider {
   public readonly providerName = "canonical-solana-rpc";
@@ -33,17 +51,69 @@ export class SolanaRpcProvider {
     fetchedAt: string,
   ): Promise<ProviderResult<SolanaMintEvidence>> {
     try {
-      const [account, largest] = await Promise.all([
-        this.call<{
-          context: { slot: number };
-          value: { owner: string; data: [string, string] } | null;
-        }>("getAccountInfo", [mintAddress, { encoding: "base64", commitment: "confirmed" }]),
-        this.call<{ context: { slot: number }; value: { address: string; amount: string }[] }>(
+      const account = await this.call<{
+        context: { slot: number };
+        value: { owner: string; data: [string, string] } | null;
+      }>("getAccountInfo", [mintAddress, { encoding: "base64", commitment: "confirmed" }]);
+      let largest: { context: { slot: number }; value: { address: string; amount: string }[] } | null = null;
+      let largestError: string | null = null;
+      let largestDataVersion = "getTokenLargestAccounts";
+      try {
+        largest = await this.call<{ context: { slot: number }; value: { address: string; amount: string }[] }>(
           "getTokenLargestAccounts",
           [mintAddress, { commitment: "confirmed" }],
-        ),
-      ]);
-      const value = parseMint(account, largest);
+        );
+      } catch (error) {
+        largestError = error instanceof Error ? error.message : "getTokenLargestAccounts failed";
+        try {
+          const fallback = await this.call<ProgramTokenAccountsResult>("getProgramAccounts", [
+            account.value?.owner ?? SPL_TOKEN_PROGRAM,
+            {
+              encoding: "base64",
+              filters: [{ memcmp: { offset: 0, bytes: mintAddress } }],
+              dataSlice: { offset: 64, length: 8 },
+              withContext: true,
+              commitment: "confirmed",
+            },
+          ]);
+          const fallbackValue: readonly ProgramTokenAccount[] = isProgramTokenAccountList(fallback)
+            ? fallback
+            : fallback.value ?? [];
+          largest = {
+            context: isProgramTokenAccountList(fallback)
+              ? account.context
+              : fallback.context ?? account.context,
+            value: fallbackValue
+              .map((item) => ({ address: item.pubkey, amount: readBase64U64(item.account.data[0]) }))
+              .sort((left, right) => (BigInt(right.amount) > BigInt(left.amount) ? 1 : -1))
+              .slice(0, 20),
+          };
+          largestError = null;
+          largestDataVersion = "getProgramAccounts:mint-filter:dataSlice-amount";
+        } catch (fallbackError) {
+          largestError = `${largestError};fallback=${fallbackError instanceof Error ? fallbackError.message : "getProgramAccounts failed"}`;
+        }
+      }
+      const largestAddresses = largest?.value.map((item) => item.address) ?? [];
+      let ownerByAccount = new Map<string, string>();
+      if (largestAddresses.length > 0) {
+        try {
+          const accounts = await this.call<{
+            context: { slot: number };
+            value: (TokenAccountInfo | null)[];
+          }>("getMultipleAccounts", [largestAddresses, { encoding: "jsonParsed", commitment: "confirmed" }]);
+          ownerByAccount = new Map(
+            accounts.value.flatMap((item, index) => {
+              const owner = item?.data?.parsed?.info?.owner;
+              return owner === undefined ? [] : [[largestAddresses[index]!.toLowerCase(), owner] as const];
+            }),
+          );
+        } catch {
+          // Owner resolution is enrichment. Preserve canonical mint/account evidence
+          // when a node does not support parsed multiple-account reads.
+        }
+      }
+      const value = parseMint(account, largest, ownerByAccount);
       const slot = BigInt(account.context.slot);
       const ownerProgram = account.value?.owner ?? "";
       return {
@@ -85,7 +155,7 @@ export class SolanaRpcProvider {
             chain: "SOLANA",
             network: this.network.name,
             endpointClass: "RPC",
-            dataVersion: "getTokenLargestAccounts",
+            dataVersion: largestDataVersion,
             schemaVersion: "1",
             slot: slot.toString(),
             observedAt: fetchedAt,
@@ -93,11 +163,13 @@ export class SolanaRpcProvider {
             fetchedAt,
             freshness: "FRESH",
             confidence: 0.95,
-            status: "AVAILABLE",
-            value: value.largestAccounts.map((item) => ({
+            status: largestError === null ? "AVAILABLE" : "UNAVAILABLE",
+            value: largestError === null ? value.largestAccounts.map((item) => ({
               address: item.address,
               amount: item.amount.toString(),
-            })),
+              owner: item.owner,
+            })) : null,
+            unavailableReason: largestError,
           }),
         ],
       };
@@ -122,6 +194,10 @@ export class SolanaRpcProvider {
   }
 
   private async call<T>(method: string, params: JsonValue[]): Promise<T> {
+    const now = Date.now();
+    const waitFor = Math.max(0, nextRpcRequestAt - now);
+    if (waitFor > 0) await new Promise((resolve) => setTimeout(resolve, waitFor));
+    nextRpcRequestAt = Date.now() + 500;
     const response = await this.client.post<JsonValue>(this.rpcUrl, {
       jsonrpc: "2.0",
       id: 1,
@@ -138,7 +214,8 @@ export class SolanaRpcProvider {
 
 function parseMint(
   account: { context: { slot: number }; value: { owner: string; data: [string, string] } | null },
-  largest: { context: { slot: number }; value: { address: string; amount: string }[] },
+  largest: { context: { slot: number }; value: { address: string; amount: string }[] } | null,
+  ownerByAccount: ReadonlyMap<string, string>,
 ): Omit<SolanaMintEvidence, "slot"> {
   const accountValue = account.value;
   if (accountValue === null) {
@@ -150,7 +227,7 @@ function parseMint(
       decimals: null,
       mintAuthority: null,
       freezeAuthority: null,
-      largestAccounts: [],
+    largestAccounts: [],
     };
   }
   const tokenProgram =
@@ -176,10 +253,14 @@ function parseMint(
     decimals,
     mintAuthority,
     freezeAuthority,
-    largestAccounts: largest.value.map((item) => ({
-      address: item.address,
-      amount: BigInt(item.amount),
-    })),
+    largestAccounts: (largest?.value ?? []).map((item) => {
+      if (typeof item.amount !== "string") throw new Error(`invalid token-account amount:${JSON.stringify(item)}`);
+      return {
+        address: item.address,
+        amount: BigInt(item.amount),
+        owner: ownerByAccount.get(item.address.toLowerCase()) ?? null,
+      };
+    }),
   };
 }
 
@@ -202,6 +283,16 @@ function readU64(bytes: Uint8Array, offset: number): bigint {
   for (let index = 7; index >= 0; index -= 1)
     value = (value << 8n) + BigInt(bytes[offset + index]!);
   return value;
+}
+
+function readBase64U64(value: string): string {
+  const binary = decodeBase64(value);
+  if (binary.length < 8) throw new Error("token-account amount slice is shorter than 8 bytes");
+  return readU64(binary, 0).toString();
+}
+
+function isProgramTokenAccountList(value: ProgramTokenAccountsResult): value is readonly ProgramTokenAccount[] {
+  return Array.isArray(value);
 }
 
 function encodeBase58(bytes: Uint8Array): string {

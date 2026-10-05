@@ -43,12 +43,12 @@ export interface QualificationProof {
   readonly liquidityMetrics: LiquidityState;
   readonly authorityState: AuthorityState;
   readonly holderConcentration: HolderConcentration;
-  readonly connectedClusterConcentration: number;
-  readonly bundleConcentration: number;
+  readonly connectedClusterConcentration: number | null;
+  readonly bundleConcentration: number | null;
   readonly deployerRisk: RiskAssessment["riskMetrics"]["deployer"];
   readonly activityQualityMetrics: RiskAssessment["riskMetrics"]["activity"];
   readonly oracleMetrics: RiskAssessment["riskMetrics"]["oracle"];
-  readonly manipulationCostEstimate: number;
+  readonly manipulationCostEstimate: number | null;
   readonly finalStatuses: {
     readonly integrity: IntegrityStatus;
     readonly derivatives: DerivativesStatus;
@@ -157,9 +157,15 @@ export function qualificationProofFromAssessment(
       derivatives: assessment.derivativesStatus,
     },
     riskParameters: {
-      recommendedMaxLeverage: assessment.recommendedMaxLeverage,
-      recommendedMaxOI: assessment.recommendedMaxOI,
-      recommendedMaxPosition: assessment.recommendedMaxPosition,
+      recommendedMaxLeverage: requireKnownNumber(
+        assessment.recommendedMaxLeverage,
+        "recommendedMaxLeverage",
+      ),
+      recommendedMaxOI: requireKnownNumber(assessment.recommendedMaxOI, "recommendedMaxOI"),
+      recommendedMaxPosition: requireKnownNumber(
+        assessment.recommendedMaxPosition,
+        "recommendedMaxPosition",
+      ),
     },
     riskRuleVersion: assessment.ruleVersion,
     ruleVersion: assessment.ruleVersion,
@@ -297,6 +303,13 @@ function scaledUint(value: number, scale: number): bigint {
   if (!Number.isSafeInteger(scaled))
     throw new Error("commitment amount exceeds safe integer precision");
   return BigInt(scaled);
+}
+
+function requireKnownNumber(value: number | null, field: string): number {
+  if (value === null || !Number.isFinite(value) || value < 0) {
+    throw new Error(`qualification proof requires observed ${field}`);
+  }
+  return value;
 }
 
 function unixSeconds(value: string): bigint {

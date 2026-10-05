@@ -145,4 +145,70 @@ describe("risk engine", () => {
     expect(assessment.derivativesStatus).toBe("BLOCKED");
     expect(assessment.rejectionReasons.map(({ code }) => code)).toContain("STALE_ORACLE");
   });
+
+  it("fails closed when unavailable measurements are represented as null", () => {
+    const assessment = assessRisk(
+      {
+        ...base,
+        liquidity: {
+          ...base.liquidity,
+          totalLiquidityUsd: null,
+          venueCount: null,
+          lpOwnershipConcentrationPct: null,
+          suddenCollapsePct24h: null,
+        },
+        holders: {
+          ...base.holders,
+          topHolderPct: null,
+          topFivePct: null,
+          connectedClusterPct: null,
+          bundledLaunchPct: null,
+          holderCount: null,
+          organicHolderGrowthPct24h: null,
+        },
+        deployer: { ...base.deployer, deployerHoldingsPct: null, priorRugCount: null },
+        activity: {
+          ...base.activity,
+          organicVolume24hUsd: null,
+          realizedVolatility30dPct: null,
+          fundingSourceDiversity: null,
+        },
+        oracle: {
+          ...base.oracle,
+          sourceCount: null,
+          disagreementPct: null,
+          confidenceBps: null,
+          stale: null,
+          priceUsd: null,
+          manipulationCostUsd: null,
+        },
+        derivatives: {
+          ...base.derivatives,
+          spotLiquidityUsd: null,
+          liquidityVenueCount: null,
+          organicVolume24hUsd: null,
+          realizedVolatilityPct: null,
+          oracleSourceCount: null,
+          oracleDisagreementPct: null,
+          oracleConfidenceBps: null,
+          manipulationCostUsd: null,
+          maximumSafeOpenInterestUsd: null,
+          maximumPositionSizeUsd: null,
+          maximumLeverage: null,
+          fundingImbalancePct: null,
+          liquidationCapacityUsd: null,
+        },
+      },
+      { assessedAt: "2026-09-29T00:00:00.000Z" },
+    );
+    expect(assessment.integrityStatus).toBe("REJECTED");
+    expect(assessment.hardGates.find((item) => item.code === "INSUFFICIENT_EVIDENCE")?.passed).toBe(
+      false,
+    );
+    expect(assessment.rejectionReasons.map(({ code }) => code)).toContain(
+      "ORACLE_FRESHNESS_UNAVAILABLE",
+    );
+    expect(assessment.warnings.map(({ code }) => code)).toContain("INSUFFICIENT_ORACLE_SOURCES");
+    expect(assessment.recommendedMaxOI).toBeNull();
+  });
 });

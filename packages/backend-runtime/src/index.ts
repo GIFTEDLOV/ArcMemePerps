@@ -220,7 +220,7 @@ export function buildMarketPassport(
       sellCount24h: null,
       priceChange24hBps: null,
       volatilityBps:
-        record.activity.realizedVolatility30dPct === 0
+        record.activity.realizedVolatility30dPct === null || record.activity.realizedVolatility30dPct === 0
           ? null
           : integer(record.activity.realizedVolatility30dPct * 100),
     },
@@ -264,9 +264,10 @@ export function buildMarketPassport(
     },
     oracleEvidence: {
       priceSourceCount: record.oracle.sourceCount,
-      // An aggregation API is not independent from the pools it observes.
-      independentSourceCount: 0,
-      dispersionBps: integer(record.oracle.disagreementPct * 100),
+      // Aggregator provider identity is not an independent economic source.
+      independentSourceCount: null,
+      dispersionBps:
+        record.oracle.disagreementPct === null ? null : integer(record.oracle.disagreementPct * 100),
       confidenceBps: record.oracle.confidenceBps,
       freshness:
         record.oracle.stale === true
@@ -274,18 +275,22 @@ export function buildMarketPassport(
           : record.oracle.stale === null
             ? ("UNAVAILABLE" as const)
             : ("FRESH" as const),
-      sourceFamilies: ["DEXSCREENER_AGGREGATION"],
+      sourceFamilies: record.oracle.sourceCount === null ? [] : ["DEXSCREENER_AGGREGATION"],
     },
     derivativesEvidence: {
       status: risk.derivativesStatus,
       maxLeverageWad: usdWad(risk.recommendedMaxLeverage),
       maxOIWad: usdWad(risk.recommendedMaxOI),
       maxPositionWad: usdWad(risk.recommendedMaxPosition),
-      maintenanceMarginBps: risk.riskMetrics.derivatives.maximumLeverage > 0 ? 1_000 : null,
+      maintenanceMarginBps:
+        risk.riskMetrics.derivatives.maximumLeverage !== null &&
+        risk.riskMetrics.derivatives.maximumLeverage > 0
+          ? 1_000
+          : null,
       manipulationResistance:
-        record.oracle.manipulationCostUsd >= 1_000_000
+        record.oracle.manipulationCostUsd !== null && record.oracle.manipulationCostUsd >= 1_000_000
           ? ("HIGH" as const)
-          : record.oracle.manipulationCostUsd > 0
+          : record.oracle.manipulationCostUsd !== null && record.oracle.manipulationCostUsd > 0
             ? ("LOW" as const)
             : ("UNAVAILABLE" as const),
       reasonCodes: [...risk.rejectionReasons.map((item) => item.code)],
@@ -345,13 +350,16 @@ export function buildMarketPassport(
       record.token.createdAt === null
         ? null
         : Math.max(0, Math.floor((Date.parse(now) - Date.parse(record.token.createdAt)) / 1_000)),
-    priceHistory: [
-      {
-        observedAt: record.oracle.observedAt,
-        priceUsdWad: usdWad(record.oracle.priceUsd),
-        source: "canonical-record",
-      },
-    ],
+    priceHistory:
+      record.oracle.priceUsd === null
+        ? []
+        : [
+            {
+              observedAt: record.oracle.observedAt,
+              priceUsdWad: usdWad(record.oracle.priceUsd)!,
+              source: "canonical-record",
+            },
+          ],
     pools: [],
     lpControl: {
       status: record.liquidity.lpLockStatus,
@@ -415,9 +423,9 @@ export function buildMarketPassport(
       reason: record.liquidity.depth1PctUsd === null ? "DEPTH_UNAVAILABLE" : null,
     },
     sourceIndependence: {
-      independentSourceCount: 0,
-      sourceIds: ["dexscreener"],
-      correlatedSourceIds: ["dexscreener"],
+      independentSourceCount: null,
+      sourceIds: [],
+      correlatedSourceIds: record.oracle.sourceCount === null ? [] : ["dexscreener"],
     },
     arcMarketState: "UNREGISTERED" as const,
     providerHealth,
@@ -544,18 +552,18 @@ export class ReconciliationService {
 function unique(values: readonly string[]): readonly string[] {
   return [...new Set(values)].sort();
 }
-function integer(value: number): string {
-  return Number.isFinite(value) ? Math.max(0, Math.round(value)).toString() : "0";
+function integer(value: number | null): string | null {
+  return value !== null && Number.isFinite(value) ? Math.max(0, Math.round(value)).toString() : null;
 }
-function usdWad(value: number): string {
-  if (!Number.isFinite(value) || value < 0) return "0";
+function usdWad(value: number | null): string | null {
+  if (value === null || !Number.isFinite(value) || value < 0) return null;
   return decimalToWad(value.toString()).toString();
 }
 function nullableUsdWad(value: number | null): string | null {
-  return value === null ? null : usdWad(value);
+  return usdWad(value);
 }
-function percentBps(value: number): number {
-  if (!Number.isFinite(value)) return 0;
+function percentBps(value: number | null): number | null {
+  if (value === null || !Number.isFinite(value)) return null;
   return Math.max(0, Math.min(10_000, Math.round(value * 100)));
 }
 

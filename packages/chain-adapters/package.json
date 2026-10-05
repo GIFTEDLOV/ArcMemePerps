@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "@arcmemeperps/domain": "workspace:*",
+    "@arcmemeperps/market-depth": "workspace:*",
     "@arcmemeperps/shared": "workspace:*",
     "@arcmemeperps/providers": "workspace:*",
     "@arcmemeperps/qualification-proof": "workspace:*",

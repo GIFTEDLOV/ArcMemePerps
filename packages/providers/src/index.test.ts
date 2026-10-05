@@ -4,6 +4,7 @@ import { BubblemapsProvider } from "./bubblemaps.js";
 import { DexScreenerProvider } from "./dexscreener.js";
 import { freshnessFor } from "./evidence.js";
 import { GoPlusProvider } from "./goplus.js";
+import { GeckoTerminalProvider } from "./geckoterminal.js";
 import { HttpJsonClient } from "./http.js";
 import { SolanaRpcProvider } from "./solana-rpc.js";
 import { reconcileNumeric } from "./reconciliation.js";
@@ -92,6 +93,77 @@ describe("provider boundaries", () => {
     );
     expect(result.status).toBe("ERROR");
     expect(result.error).toContain("invalid");
+  });
+
+  it("normalizes GeckoTerminal pools and keeps the underlying pool identity", async () => {
+    const provider = new GeckoTerminalProvider(NETWORK_CONFIGS.BASE, {
+      minRequestIntervalMs: 0,
+      client: new HttpJsonClient({
+        fetchImpl: fakeFetch({
+          data: [
+            {
+              type: "pool",
+              id: "base_0xpool-a",
+              attributes: {
+                address: "0xpool-a",
+                dex_id: "uniswap_v3",
+                name: "TOKEN / USDC",
+                base_token_price_usd: "1.25",
+                reserve_in_usd: "1000000",
+                volume_usd: { h24: "2500000" },
+                transactions: { h24: { buys: 120, sells: 100 } },
+                pool_created_at: "2026-10-01T00:00:00Z",
+              },
+              relationships: {
+                base_token: { data: { id: "base_0xtoken" } },
+                quote_token: { data: { id: "base_0xusdc" } },
+              },
+            },
+          ],
+        }),
+      }),
+    });
+    const result = await provider.readToken(
+      "0xtoken",
+      fetchedAt,
+    );
+    expect(result.status).toBe("AVAILABLE");
+    expect(result.value?.pools[0]).toMatchObject({
+      poolAddress: "0xpool-a",
+      dexId: "uniswap_v3",
+      priceUsd: 1.25,
+      liquidityUsd: 1_000_000,
+      volume24hUsd: 2_500_000,
+      baseTokenAddress: "0xtoken",
+    });
+    expect(result.value?.rawResponseHash).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(result.evidence[0]?.source.provider).toBe("geckoterminal");
+  });
+
+  it("fails closed on malformed GeckoTerminal responses", async () => {
+    const provider = new GeckoTerminalProvider(NETWORK_CONFIGS.BASE, {
+      minRequestIntervalMs: 0,
+      client: new HttpJsonClient({ fetchImpl: fakeFetch({ data: "not-an-array" }) }),
+    });
+    const result = await provider.readToken("0xtoken", fetchedAt);
+    expect(result.status).toBe("ERROR");
+    expect(result.value).toBeNull();
+    expect(result.evidence[0]?.status).toBe("ERROR");
+  });
+
+  it("parses real OHLCV observations without inventing missing points", async () => {
+    const provider = new GeckoTerminalProvider(NETWORK_CONFIGS.BASE, {
+      minRequestIntervalMs: 0,
+      client: new HttpJsonClient({
+        fetchImpl: fakeFetch({
+          data: { attributes: { ohlcv_list: [[1_759_276_800, "1", "2", "0.5", "1.5", "20", "1000"]] } },
+        }),
+      }),
+    });
+    const result = await provider.readOhlcv("0xpool-a", fetchedAt);
+    expect(result.status).toBe("AVAILABLE");
+    expect(result.value).toHaveLength(1);
+    expect(result.value?.[0]?.closeUsd).toBe(1.5);
   });
 
   it("keeps optional security and cluster evidence unavailable without credentials", async () => {
@@ -217,6 +289,75 @@ describe("provider boundaries", () => {
     expect(result.value?.mintAuthority).not.toBeNull();
     expect(result.value?.freezeAuthority).not.toBeNull();
     expect(result.value?.decimals).toBe(6);
+  });
+
+  it("falls back to bounded mint-filtered token accounts when largest-account RPC is throttled", async () => {
+    const data = new Uint8Array(82);
+    data[36] = 0xe8;
+    data[37] = 0x03;
+    data[44] = 6;
+    const amount = (value: number) => {
+      const bytes = new Uint8Array(8);
+      let remaining = BigInt(value);
+      for (let index = 0; index < 8; index += 1) {
+        bytes[index] = Number(remaining & 0xffn);
+        remaining >>= 8n;
+      }
+      return Buffer.from(bytes).toString("base64");
+    };
+    const provider = new SolanaRpcProvider(
+      NETWORK_CONFIGS.SOLANA,
+      "https://example.invalid",
+      new HttpJsonClient({
+        maxRetries: 0,
+        fetchImpl: (_url, init) => {
+          const body = JSON.parse(typeof init?.body === "string" ? init.body : "") as {
+            method: string;
+          };
+          if (body.method === "getTokenLargestAccounts") {
+            return Promise.resolve(
+              new Response(JSON.stringify({ jsonrpc: "2.0", id: 1, error: { code: -32005, message: "rate limited" } }), { status: 200 }),
+            );
+          }
+          const result =
+            body.method === "getAccountInfo"
+              ? {
+                  context: { slot: 101 },
+                  value: {
+                    owner: "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb",
+                    data: [Buffer.from(data).toString("base64"), "base64"],
+                  },
+                }
+              : body.method === "getProgramAccounts"
+                  ? {
+                      context: { slot: 101 },
+                      value: [
+                        { pubkey: "token-account-a", account: { data: [amount(700), "base64"] } },
+                        { pubkey: "token-account-b", account: { data: [amount(200), "base64"] } },
+                      ],
+                    }
+                  : {
+                      context: { slot: 101 },
+                      value: [
+                        { data: { parsed: { info: { owner: "owner-a" } } } },
+                        { data: { parsed: { info: { owner: "owner-b" } } } },
+                      ],
+                    };
+          return Promise.resolve(
+            new Response(JSON.stringify({ jsonrpc: "2.0", id: 1, result }), { status: 200 }),
+          );
+        },
+      }),
+    );
+    const result = await provider.readMint(
+      "So11111111111111111111111111111111111111112",
+      fetchedAt,
+    );
+    expect(result.status).toBe("AVAILABLE");
+    expect(result.value?.largestAccounts.map((item) => item.amount)).toEqual([700n, 200n]);
+    expect(result.value?.largestAccounts.map((item) => item.owner)).toEqual(["owner-a", "owner-b"]);
+    expect(result.evidence.find((item) => item.kind === "solana-largest-token-accounts")?.source.dataVersion)
+      .toContain("getProgramAccounts");
   });
 
   it("retries bounded transient failures and rejects malformed JSON", async () => {

@@ -38,10 +38,10 @@ export interface LiquidityLock {
 export interface PoolSnapshot {
   readonly venue: string;
   readonly poolAddress: string;
-  readonly tokenReserve: number;
-  readonly quoteReserveUsd: number;
-  readonly liquidityUsd: number;
-  readonly feeBps: number;
+  readonly tokenReserve: number | null;
+  readonly quoteReserveUsd: number | null;
+  readonly liquidityUsd: number | null;
+  readonly feeBps: number | null;
 }
 
 export interface TradeRecord {
@@ -55,9 +55,9 @@ export interface TradeRecord {
 }
 
 export interface PricePoint {
-  readonly priceUsd: number;
+  readonly priceUsd: number | null;
   readonly observedAt: string;
-  readonly confidenceBps: number;
+  readonly confidenceBps: number | null;
   readonly source: string;
 }
 
@@ -66,9 +66,9 @@ export interface PriceSource {
   /** Underlying price origin, used to prevent correlated providers counting twice. */
   readonly sourceFamily?: string;
   readonly underlyingVenueId?: string | null;
-  readonly priceUsd: number;
+  readonly priceUsd: number | null;
   readonly observedAt: string;
-  readonly confidenceBps: number;
+  readonly confidenceBps: number | null;
 }
 
 export interface DeployerHistoryRecord {

@@ -114,5 +114,9 @@ export function rpcUrlsForNetwork(
     .split(",")
     .map((value) => value.trim())
     .filter((value) => value.length > 0);
-  return [...new Set([primary, ...fallbacks])];
+  const documentedFallbacks =
+    network.chain === "SOLANA" && fallbacks.length === 0
+      ? ["https://solana-rpc.publicnode.com"]
+      : [];
+  return [...new Set([primary, ...fallbacks, ...documentedFallbacks])];
 }

@@ -108,8 +108,8 @@ function parsePairs(
       },
       priceUsd: optionalNonNegative(item.priceUsd),
       priceUsdRaw: optionalDecimal(item.priceUsd),
-      liquidityUsd: nonNegative(objectField(item, "liquidity").usd, "liquidity.usd", true),
-      liquidityUsdRaw: decimal(objectField(item, "liquidity").usd, "liquidity.usd", true),
+      liquidityUsd: optionalNonNegative(objectField(item, "liquidity").usd),
+      liquidityUsdRaw: optionalDecimal(objectField(item, "liquidity").usd),
       baseLiquidity: optionalNonNegative(objectField(item, "liquidity").base),
       quoteLiquidity: optionalNonNegative(objectField(item, "liquidity").quote),
       volume24hUsd: nonNegative(objectField(item, "volume").h24, "volume.h24", false),
@@ -139,27 +139,27 @@ function parsePairs(
 }
 
 function aggregatePairs(pairs: readonly DexPairObservation[]): DexAggregate {
-  const total = pairs.reduce((sum, pair) => sum + pair.liquidityUsd, 0);
-  const totalRaw = pairs.reduce(
-    (sum, pair) => addDecimal(sum, pair.liquidityUsdRaw ?? pair.liquidityUsd.toString()),
-    "0",
-  );
+  const knownLiquidity = pairs.flatMap((pair) => pair.liquidityUsd === null ? [] : [pair.liquidityUsd]);
+  const total = knownLiquidity.length === 0 ? (pairs.length === 0 ? 0 : null) : knownLiquidity.reduce((sum, value) => sum + value, 0);
+  const totalRaw = pairs.reduce((sum, pair) => pair.liquidityUsdRaw === null || pair.liquidityUsdRaw === undefined ? sum : addDecimal(sum, pair.liquidityUsdRaw), "0");
   const dominantPool = pairs.reduce<DexPairObservation | null>(
     (dominant, pair) =>
-      dominant === null || pair.liquidityUsd > dominant.liquidityUsd ? pair : dominant,
+      dominant === null || (pair.liquidityUsd ?? -1) > (dominant.liquidityUsd ?? -1) ? pair : dominant,
     null,
   );
   const liquidityByDex: Record<string, number> = {};
   for (const pair of pairs)
-    liquidityByDex[pair.dexId] = (liquidityByDex[pair.dexId] ?? 0) + pair.liquidityUsd;
+    if (pair.liquidityUsd !== null) liquidityByDex[pair.dexId] = (liquidityByDex[pair.dexId] ?? 0) + pair.liquidityUsd;
   return {
     pairs,
     totalObservedLiquidityUsd: total,
     totalObservedLiquidityUsdRaw: totalRaw,
     dominantPool,
     poolConcentrationPct:
-      total === 0 || dominantPool === null ? 0 : (dominantPool.liquidityUsd / total) * 100,
-    meaningfulPoolCount: pairs.filter((pair) => pair.liquidityUsd > 0).length,
+      total === null || total === 0 || dominantPool?.liquidityUsd === null || dominantPool === null
+        ? null
+        : (dominantPool.liquidityUsd / total) * 100,
+    meaningfulPoolCount: pairs.filter((pair) => pair.liquidityUsd !== null && pair.liquidityUsd > 0).length,
     liquidityByDex,
     volume24hUsd: pairs.reduce((sum, pair) => sum + pair.volume24hUsd, 0),
     volume24hUsdRaw: pairs.reduce(
@@ -214,7 +214,7 @@ function optionalNumber(value: JsonValue | undefined): number | null {
 function optionalNonNegative(value: JsonValue | undefined): number | null {
   const parsed = optionalNumber(value);
   if (parsed === null) return null;
-  if (parsed < 0) throw new Error("DexScreener numeric field cannot be negative");
+  if (parsed < 0) throw new Error("DexScreener numeric field is invalid: cannot be negative");
   return parsed;
 }
 

@@ -135,23 +135,23 @@ export function evaluateIntegrity(
       earliestLpUnlockAt: liquidity.earliestLpUnlockAt,
       minimumLpLockDays: rules.minimumLpLockDays,
     }),
-    gate("DEPLOYER_CONCENTRATION", deployer.deployerHoldingsPct <= rules.maxDeployerHoldingsPct, {
+    gate("DEPLOYER_CONCENTRATION", atMost(deployer.deployerHoldingsPct, rules.maxDeployerHoldingsPct), {
       deployerHoldingsPct: deployer.deployerHoldingsPct,
       maxDeployerHoldingsPct: rules.maxDeployerHoldingsPct,
     }),
-    gate("INDIVIDUAL_HOLDER_CONCENTRATION", holders.topHolderPct <= rules.maxIndividualHolderPct, {
+    gate("INDIVIDUAL_HOLDER_CONCENTRATION", atMost(holders.topHolderPct, rules.maxIndividualHolderPct), {
       topHolderPct: holders.topHolderPct,
       maxIndividualHolderPct: rules.maxIndividualHolderPct,
     }),
     gate(
       "CONNECTED_CLUSTER_CONCENTRATION",
-      holders.connectedClusterPct <= rules.maxConnectedClusterPct,
+      atMost(holders.connectedClusterPct, rules.maxConnectedClusterPct),
       {
         connectedClusterPct: holders.connectedClusterPct,
         maxConnectedClusterPct: rules.maxConnectedClusterPct,
       },
     ),
-    gate("BUNDLED_LAUNCH_CONCENTRATION", holders.bundledLaunchPct <= rules.maxBundledLaunchPct, {
+    gate("BUNDLED_LAUNCH_CONCENTRATION", atMost(holders.bundledLaunchPct, rules.maxBundledLaunchPct), {
       bundledLaunchPct: holders.bundledLaunchPct,
       maxBundledLaunchPct: rules.maxBundledLaunchPct,
     }),
@@ -177,8 +177,20 @@ export function evaluateIntegrity(
     gate(
       "INSUFFICIENT_EVIDENCE",
       liquidity.lpLockStatus !== "UNKNOWN" &&
+        holders.holderCount !== null &&
         holders.holderCount > 0 &&
+        liquidity.totalLiquidityUsd !== null &&
+        liquidity.venueCount !== null &&
+        liquidity.lpOwnershipConcentrationPct !== null &&
+        liquidity.suddenCollapsePct24h !== null &&
+        holders.topHolderPct !== null &&
+        holders.topFivePct !== null &&
+        holders.connectedClusterPct !== null &&
+        holders.bundledLaunchPct !== null &&
+        holders.organicHolderGrowthPct24h !== null &&
         deployer.deployerAddress !== null &&
+        deployer.deployerHoldingsPct !== null &&
+        deployer.priorRugCount !== null &&
         authorities.mintAuthorityActive !== null &&
         authorities.freezeAuthorityActive !== null &&
         authorities.dangerousOwnerAdminPrivileges !== null &&
@@ -204,14 +216,17 @@ export function evaluateIntegrity(
     reason(item.code, `hard gate failed: ${item.code}`, true, item.details),
   );
   const warnings: RiskReason[] = [];
-  if (liquidity.suddenCollapsePct24h >= rules.warningLiquidityCollapsePct24h) {
+  if (
+    liquidity.suddenCollapsePct24h !== null &&
+    liquidity.suddenCollapsePct24h >= rules.warningLiquidityCollapsePct24h
+  ) {
     warnings.push(
       reason("LIQUIDITY_COLLAPSE", "liquidity has deteriorated rapidly", false, {
         suddenCollapsePct24h: liquidity.suddenCollapsePct24h,
       }),
     );
   }
-  if (holders.organicHolderGrowthPct24h < 0) {
+  if (holders.organicHolderGrowthPct24h !== null && holders.organicHolderGrowthPct24h < 0) {
     warnings.push(
       reason("NEGATIVE_ORGANIC_HOLDER_GROWTH", "organic holder count is shrinking", false, {
         organicHolderGrowthPct24h: holders.organicHolderGrowthPct24h,
@@ -233,30 +248,36 @@ export function evaluateDerivativesCapacity(
   rules: RiskRuleConfig = DEVELOPMENT_RISK_RULES,
 ): DerivativesEvaluation {
   const { liquidity, activity, oracle, derivatives } = observation;
-  const safeOpenInterest = clampNonNegative(
-    Math.min(
-      derivatives.maximumSafeOpenInterestUsd,
-      (liquidity.depth1PctUsd ?? 0) * 2,
-      activity.organicVolume24hUsd * 0.5,
-      oracle.manipulationCostUsd * 0.25,
-      derivatives.liquidationCapacityUsd * 0.8,
-    ),
-  );
-  const safePosition = clampNonNegative(
-    Math.min(
-      derivatives.maximumPositionSizeUsd,
-      (liquidity.depth1PctUsd ?? 0) * 0.25,
-      safeOpenInterest * 0.25,
-    ),
-  );
+  const safeOpenInterestInputs = [
+    derivatives.maximumSafeOpenInterestUsd,
+    liquidity.depth1PctUsd,
+    activity.organicVolume24hUsd,
+    oracle.manipulationCostUsd,
+    derivatives.liquidationCapacityUsd,
+  ];
+  const safeOpenInterest = minKnown(safeOpenInterestInputs, [1, 2, 0.5, 0.25, 0.8]);
+  const safePosition =
+    derivatives.maximumPositionSizeUsd === null ||
+    liquidity.depth1PctUsd === null ||
+    safeOpenInterest === null
+      ? null
+      : clampNonNegative(
+          Math.min(
+            derivatives.maximumPositionSizeUsd,
+            liquidity.depth1PctUsd * 0.25,
+            safeOpenInterest * 0.25,
+          ),
+        );
   const volatilityLeverage =
-    derivatives.realizedVolatilityPct <= 0
-      ? 1
-      : Math.max(1, 100 / derivatives.realizedVolatilityPct);
-  const recommendedMaxLeverage = roundDown(
-    Math.min(derivatives.maximumLeverage, rules.maximumLeverage, volatilityLeverage),
-    2,
-  );
+    derivatives.realizedVolatilityPct === null
+      ? null
+      : derivatives.realizedVolatilityPct <= 0
+        ? 1
+        : Math.max(1, 100 / derivatives.realizedVolatilityPct);
+  const recommendedMaxLeverage =
+    derivatives.maximumLeverage === null || volatilityLeverage === null
+      ? null
+      : roundDown(Math.min(derivatives.maximumLeverage, rules.maximumLeverage, volatilityLeverage), 2);
   const metrics: DerivativesCapacityMetrics = {
     spotLiquidityUsd: liquidity.totalLiquidityUsd,
     liquidityVenueCount: liquidity.venueCount,
@@ -285,67 +306,67 @@ export function evaluateDerivativesCapacity(
   ][] = [
     [
       "INSUFFICIENT_SPOT_LIQUIDITY",
-      liquidity.totalLiquidityUsd >= rules.minimumSpotLiquidityUsd,
+      atLeast(liquidity.totalLiquidityUsd, rules.minimumSpotLiquidityUsd),
       "spot liquidity is below development minimum",
       { actual: liquidity.totalLiquidityUsd, minimum: rules.minimumSpotLiquidityUsd },
     ],
     [
       "INSUFFICIENT_DEPTH_1_PERCENT",
-      (liquidity.depth1PctUsd ?? 0) >= rules.minimumDepth1PctUsd,
+      atLeast(liquidity.depth1PctUsd, rules.minimumDepth1PctUsd),
       "1% market depth is below development minimum",
       { actual: liquidity.depth1PctUsd, minimum: rules.minimumDepth1PctUsd },
     ],
     [
       "INSUFFICIENT_DEPTH_2_PERCENT",
-      (liquidity.depth2PctUsd ?? 0) >= rules.minimumDepth2PctUsd,
+      atLeast(liquidity.depth2PctUsd, rules.minimumDepth2PctUsd),
       "2% market depth is below development minimum",
       { actual: liquidity.depth2PctUsd, minimum: rules.minimumDepth2PctUsd },
     ],
     [
       "INSUFFICIENT_ORGANIC_VOLUME",
-      activity.organicVolume24hUsd >= rules.minimumOrganicVolume24hUsd,
+      atLeast(activity.organicVolume24hUsd, rules.minimumOrganicVolume24hUsd),
       "organic volume is below development minimum",
       { actual: activity.organicVolume24hUsd, minimum: rules.minimumOrganicVolume24hUsd },
     ],
     [
       "EXCESSIVE_REALIZED_VOLATILITY",
-      derivatives.realizedVolatilityPct <= rules.maximumRealizedVolatilityPct,
+      atMost(derivatives.realizedVolatilityPct, rules.maximumRealizedVolatilityPct),
       "realized volatility exceeds development maximum",
       { actual: derivatives.realizedVolatilityPct, maximum: rules.maximumRealizedVolatilityPct },
     ],
     [
       "INSUFFICIENT_ORACLE_SOURCES",
-      oracle.sourceCount >= rules.minimumOracleSources,
+      atLeast(oracle.sourceCount, rules.minimumOracleSources),
       "oracle source count is below development minimum",
       { actual: oracle.sourceCount, minimum: rules.minimumOracleSources },
     ],
     [
       "ORACLE_DISAGREEMENT",
-      oracle.disagreementPct <= rules.maximumOracleDisagreementPct,
+      atMost(oracle.disagreementPct, rules.maximumOracleDisagreementPct),
       "oracle disagreement exceeds development maximum",
       { actual: oracle.disagreementPct, maximum: rules.maximumOracleDisagreementPct },
     ],
     [
       "LOW_ORACLE_CONFIDENCE",
-      oracle.confidenceBps >= rules.minimumOracleConfidenceBps,
+      atLeast(oracle.confidenceBps, rules.minimumOracleConfidenceBps),
       "oracle confidence is below development minimum",
       { actual: oracle.confidenceBps, minimum: rules.minimumOracleConfidenceBps },
     ],
     [
       "INSUFFICIENT_MANIPULATION_RESISTANCE",
-      oracle.manipulationCostUsd >= rules.minimumManipulationCostUsd,
+      atLeast(oracle.manipulationCostUsd, rules.minimumManipulationCostUsd),
       "estimated manipulation cost is too low",
       { actual: oracle.manipulationCostUsd, minimum: rules.minimumManipulationCostUsd },
     ],
     [
       "INSUFFICIENT_LIQUIDATION_CAPACITY",
-      derivatives.liquidationCapacityUsd >= rules.minimumLiquidationCapacityUsd,
+      atLeast(derivatives.liquidationCapacityUsd, rules.minimumLiquidationCapacityUsd),
       "liquidation capacity is below development minimum",
       { actual: derivatives.liquidationCapacityUsd, minimum: rules.minimumLiquidationCapacityUsd },
     ],
     [
       "INSUFFICIENT_SAFE_OPEN_INTEREST",
-      safeOpenInterest >= rules.minimumSafeOpenInterestUsd,
+      atLeast(safeOpenInterest, rules.minimumSafeOpenInterestUsd),
       "safe open interest is below development minimum",
       { actual: safeOpenInterest, minimum: rules.minimumSafeOpenInterestUsd },
     ],
@@ -355,8 +376,14 @@ export function evaluateDerivativesCapacity(
       warnings.push(reason(code, message, false, details));
     }
   }
-  if (oracle.stale !== false) {
+  if (oracle.stale === true) {
     rejectionReasons.push(reason("STALE_ORACLE", "oracle data is stale", false, { stale: true }));
+  } else if (oracle.stale === null) {
+    rejectionReasons.push(
+      reason("ORACLE_FRESHNESS_UNAVAILABLE", "oracle freshness was not observed", false, {
+        stale: null,
+      }),
+    );
   }
   if (integrity.status === "REJECTED") {
     rejectionReasons.push(
@@ -370,7 +397,7 @@ export function evaluateDerivativesCapacity(
       ),
     );
   }
-  if (rejectionReasons.length > 0 || safeOpenInterest <= 0) {
+  if (rejectionReasons.length > 0 || safeOpenInterest === null || safeOpenInterest <= 0) {
     return {
       status: "BLOCKED",
       metrics,
@@ -457,6 +484,20 @@ function parameters(metrics: DerivativesCapacityMetrics): RiskParameters {
 
 function clampNonNegative(value: number): number {
   return Number.isFinite(value) && value > 0 ? value : 0;
+}
+
+function atLeast(value: number | null, minimum: number): boolean {
+  return value !== null && value >= minimum;
+}
+
+function atMost(value: number | null, maximum: number): boolean {
+  return value !== null && value <= maximum;
+}
+
+function minKnown(values: readonly (number | null)[], multipliers: readonly number[]): number | null {
+  if (values.some((value) => value === null)) return null;
+  const numbers = values as readonly number[];
+  return clampNonNegative(Math.min(...numbers.map((value, index) => value * multipliers[index]!)));
 }
 
 function roundDown(value: number, decimals: number): number {

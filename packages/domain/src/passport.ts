@@ -148,7 +148,7 @@ const MarketPassportExtrasSchema = z
           .strict(),
         sourceIndependence: z
           .object({
-            independentSourceCount: z.number().int().min(0),
+            independentSourceCount: z.number().int().min(0).nullable(),
             sourceIds: z.array(z.string()).readonly(),
             correlatedSourceIds: z.array(z.string()).readonly(),
           })

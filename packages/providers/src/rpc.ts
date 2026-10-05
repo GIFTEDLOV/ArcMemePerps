@@ -88,8 +88,11 @@ export class EvmRpcProvider {
           `wrong chain returned: expected ${this.network.chainId}, received ${chainId}`,
         );
       }
-      const blockNumber = block.number ?? 0n;
-      const blockHash: Hex = block.hash;
+      const blockNumber = block.number;
+      const blockHash: Hex | null = block.hash;
+      if (blockNumber === null || blockHash === null) {
+        throw new Error("latest block metadata is unavailable");
+      }
       const observations = await Promise.all([
         this.readString(tokenAddress, "name"),
         this.readString(tokenAddress, "symbol"),

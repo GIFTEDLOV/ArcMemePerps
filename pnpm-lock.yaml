@@ -202,6 +202,9 @@ importers:
       '@arcmemeperps/domain':
         specifier: workspace:*
         version: link:../domain
+      '@arcmemeperps/market-depth':
+        specifier: workspace:*
+        version: link:../market-depth
       '@arcmemeperps/providers':
         specifier: workspace:*
         version: link:../providers
@@ -250,6 +253,9 @@ importers:
 
   packages/market-universe:
     dependencies:
+      '@arcmemeperps/providers':
+        specifier: workspace:*
+        version: link:../providers
       '@arcmemeperps/shared':
         specifier: workspace:*
         version: link:../shared

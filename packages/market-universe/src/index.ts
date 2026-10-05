@@ -1,11 +1,13 @@
 import { marketIdForToken, type SupportedChain } from "@arcmemeperps/shared";
+import { GeckoTerminalProvider, type GeckoPoolObservation } from "@arcmemeperps/providers";
+import { NETWORK_CONFIGS, type SupportedNetworkConfig } from "@arcmemeperps/shared";
 
 export type UniverseAvailability = "AVAILABLE" | "PARTIAL" | "STALE" | "UNAVAILABLE" | "CONFLICTED";
 export type UniverseLifecycle = "NEW" | "BONDING" | "BONDED" | "GRADUATED" | "MIGRATED" | "DEX_LIVE" | "ESTABLISHED" | "DISCOVERED";
 
 export interface UniverseObservation { provider: string; status: UniverseAvailability; observedAt: string | null; fetchedAt: string | null; blockOrSlot: string | null; evidenceHash: string | null; reason: string | null }
 export interface UniverseMarket {
-  marketId: string; chain: SupportedChain; tokenAddress: string; symbol: string | null; name: string | null; decimals: number | null; imageUrl: string | null; sourceUrl: string | null; originPlatform: string | null;
+  marketId: string; chain: SupportedChain; tokenAddress: string; symbol: string | null; name: string | null; decimals: number | null; imageUrl: string | null; sourceUrl: string | null; originPlatform: string | null; discoveryProvider?: "DEXSCREENER" | "GECKOTERMINAL";
   lifecycle: { status: UniverseLifecycle; observedAt: string | null; confidenceBps: number | null; evidenceHash: string | null };
   priceUsd: string | null; priceChange24hBps: number | null; volume24hUsd: string | null; transactions24h: number | null; originSpotLiquidityUsd: string | null; originDepth2PctUsd: string | null; holders: number | null; top10ConcentrationBps: number | null; largestClusterBps: number | null;
   integrity: { status: "PENDING" | "WATCH" | "QUALIFIED" | "REJECTED" | "UNKNOWN"; reasonCodes: string[]; observations: UniverseObservation[] };
@@ -31,7 +33,7 @@ export function mapDexMarket(profile: DexProfile, pairs: readonly DexPair[], fet
   const best = [...matching].sort((a, b) => (safeNumber(b.liquidity?.usd) ?? -1) - (safeNumber(a.liquidity?.usd) ?? -1))[0];
   const h24 = best?.priceChange?.h24; const txns = best?.txns?.h24;
   const observation: UniverseObservation = { provider: "DEXSCREENER", status: best ? "AVAILABLE" : "PARTIAL", observedAt: fetchedAt, fetchedAt, blockOrSlot: null, evidenceHash: null, reason: best ? null : "PAIR_NOT_FOUND" };
-  return { marketId, chain, tokenAddress, symbol: safeString(best?.baseToken?.symbol), name: safeString(best?.baseToken?.name), decimals: null, imageUrl: safeString(profile.icon), sourceUrl: safeString(best?.url) ?? safeString(profile.url), originPlatform: best ? platform(best) : null, lifecycle: { status: lifecycleFor(best), observedAt: best?.pairCreatedAt ? new Date(best.pairCreatedAt).toISOString() : fetchedAt, confidenceBps: best ? 9000 : null, evidenceHash: null }, priceUsd: safeString(best?.priceUsd), priceChange24hBps: h24 == null ? null : Math.round(h24 * 100), volume24hUsd: safeNumber(best?.volume?.h24)?.toString() ?? null, transactions24h: txns ? (txns.buys ?? 0) + (txns.sells ?? 0) : null, originSpotLiquidityUsd: safeNumber(best?.liquidity?.usd)?.toString() ?? null, originDepth2PctUsd: null, holders: null, top10ConcentrationBps: null, largestClusterBps: null, integrity: { status: "PENDING", reasonCodes: ["ORIGIN_INTEGRITY_NOT_ASSESSED"], observations: [observation] }, derivatives: { status: "NOT_REGISTERED", safeOiUsd: null, safePositionUsd: null, maxLeverage: null, oracleQuality: null, sourceIndependence: null, reasonCodes: ["ARC_PERP_NOT_REGISTERED"] }, perp: { status: "NOT_REGISTERED", deploymentId: null, marketId: null, currentOiUsd: null, capacityUsd: null, qualificationHash: null, riskRuleVersion: null }, providerState: { status: best ? "AVAILABLE" : "PARTIAL", fetchedAt, reason: best ? null : "PAIR_NOT_FOUND" }, freshness: { status: "AVAILABLE", observedAt: fetchedAt, maxAgeSeconds: 120 }, history: best?.priceUsd ? [{ observedAt: fetchedAt, priceUsd: best.priceUsd }] : [] };
+  return { discoveryProvider: "DEXSCREENER", marketId, chain, tokenAddress, symbol: safeString(best?.baseToken?.symbol), name: safeString(best?.baseToken?.name), decimals: null, imageUrl: safeString(profile.icon), sourceUrl: safeString(best?.url) ?? safeString(profile.url), originPlatform: best ? platform(best) : null, lifecycle: { status: lifecycleFor(best), observedAt: best?.pairCreatedAt ? new Date(best.pairCreatedAt).toISOString() : fetchedAt, confidenceBps: best ? 9000 : null, evidenceHash: null }, priceUsd: safeString(best?.priceUsd), priceChange24hBps: h24 == null ? null : Math.round(h24 * 100), volume24hUsd: safeNumber(best?.volume?.h24)?.toString() ?? null, transactions24h: txns ? (txns.buys ?? 0) + (txns.sells ?? 0) : null, originSpotLiquidityUsd: safeNumber(best?.liquidity?.usd)?.toString() ?? null, originDepth2PctUsd: null, holders: null, top10ConcentrationBps: null, largestClusterBps: null, integrity: { status: "PENDING", reasonCodes: ["ORIGIN_INTEGRITY_NOT_ASSESSED"], observations: [observation] }, derivatives: { status: "NOT_REGISTERED", safeOiUsd: null, safePositionUsd: null, maxLeverage: null, oracleQuality: null, sourceIndependence: null, reasonCodes: ["ARC_PERP_NOT_REGISTERED"] }, perp: { status: "NOT_REGISTERED", deploymentId: null, marketId: null, currentOiUsd: null, capacityUsd: null, qualificationHash: null, riskRuleVersion: null }, providerState: { status: best ? "AVAILABLE" : "PARTIAL", fetchedAt, reason: best ? null : "PAIR_NOT_FOUND" }, freshness: { status: "AVAILABLE", observedAt: fetchedAt, maxAgeSeconds: 120 }, history: best?.priceUsd ? [{ observedAt: fetchedAt, priceUsd: best.priceUsd }] : [] };
 }
 
 async function json<T>(fetchImpl: typeof fetch, url: string): Promise<T> { const response = await fetchImpl(url, { headers: { accept: "application/json" } }); if (!response.ok) throw new Error(`DISCOVERY_HTTP_${response.status}`); return await response.json() as T; }
@@ -39,4 +41,140 @@ export async function discoverDexScreener(fetchImpl: typeof fetch = fetch, limit
   const profiles = await json<DexProfile[]>(fetchImpl, "https://api.dexscreener.com/token-profiles/latest/v1"); const seen = new Set<string>(); const selected = profiles.filter((profile) => profile.chainId && profile.tokenAddress).slice(0, limit); const output: UniverseMarket[] = [];
   for (let index = 0; index < selected.length; index += 6) { const batch = selected.slice(index, index + 6); const rows = await Promise.all(batch.map(async (profile) => { const chain = chainMap[profile.chainId!.toLowerCase()]; if (!chain) return null; let pairs: DexPair[] = []; try { const result = await json<{ pairs?: DexPair[] }>(fetchImpl, `https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(profile.tokenAddress!)}`); pairs = result.pairs ?? []; } catch { pairs = []; } return mapDexMarket(profile, pairs); })); for (const row of rows) { if (!row) continue; const key = `${row.chain}:${row.tokenAddress.toLowerCase()}`; if (seen.has(key)) continue; seen.add(key); output.push(row); } }
   return output;
+}
+
+export interface GeckoDiscoveryOptions {
+  readonly networks?: readonly SupportedNetworkConfig[];
+  readonly pagesPerNetwork?: number;
+  readonly minRequestIntervalMs?: number;
+  readonly sleep?: (milliseconds: number) => Promise<void>;
+}
+
+/**
+ * Bounded, provider-native discovery. The public GeckoTerminal API exposes
+ * top/new/trending pools by network; each pool is converted to a market keyed
+ * only by chain plus canonical token address. No qualification result is
+ * inferred here.
+ */
+export async function discoverGeckoTerminal(
+  options: GeckoDiscoveryOptions = {},
+): Promise<UniverseMarket[]> {
+  const networks = options.networks ?? [
+    NETWORK_CONFIGS.SOLANA,
+    NETWORK_CONFIGS.BNB,
+    NETWORK_CONFIGS.BASE,
+    NETWORK_CONFIGS.ETHEREUM,
+    NETWORK_CONFIGS.ROBINHOOD,
+  ];
+  const pages = Math.max(1, Math.min(10, options.pagesPerNetwork ?? 1));
+  const fetchedAt = new Date().toISOString();
+  const output: UniverseMarket[] = [];
+  const seen = new Set<string>();
+  for (const network of networks) {
+    const provider = new GeckoTerminalProvider(
+      network,
+      {
+        ...(options.minRequestIntervalMs === undefined
+          ? {}
+          : { minRequestIntervalMs: options.minRequestIntervalMs }),
+        ...(options.sleep === undefined ? {} : { sleep: options.sleep }),
+      },
+    );
+    for (let page = 1; page <= pages; page += 1) {
+      const result = await provider.readNetworkPools(fetchedAt, "pools", page);
+      if (result.value === null) continue;
+      for (const pool of result.value) {
+        const tokenAddress = pool.baseTokenAddress;
+        if (tokenAddress === null) continue;
+        let marketId: string;
+        try {
+          marketId = marketIdForToken(network.chain, tokenAddress);
+        } catch {
+          continue;
+        }
+        const key = `${network.chain}:${tokenAddress.toLowerCase()}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        output.push(mapGeckoPool(network.chain, tokenAddress, pool, fetchedAt, marketId));
+      }
+    }
+  }
+  return output;
+}
+
+function mapGeckoPool(
+  chain: SupportedChain,
+  tokenAddress: string,
+  pool: GeckoPoolObservation,
+  fetchedAt: string,
+  marketId: string,
+): UniverseMarket {
+  const observedAt = pool.observedAt;
+  const observation: UniverseObservation = {
+    provider: "GECKOTERMINAL",
+    status: "AVAILABLE",
+    observedAt,
+    fetchedAt,
+    blockOrSlot: null,
+    evidenceHash: null,
+    reason: null,
+  };
+  const lifecyclePair = pool.pairCreatedAt
+    ? { dexId: pool.dexId ?? "", pairCreatedAt: Date.parse(pool.pairCreatedAt) }
+    : { dexId: pool.dexId ?? "" };
+  const lifecycleStatus = lifecycleFor(lifecyclePair);
+  const transactions = pool.buys24h === null || pool.sells24h === null ? null : pool.buys24h + pool.sells24h;
+  return {
+    discoveryProvider: "GECKOTERMINAL",
+    marketId,
+    chain,
+    tokenAddress,
+    symbol: pool.baseTokenSymbol,
+    name: pool.name,
+    decimals: null,
+    imageUrl: null,
+    sourceUrl: `https://www.geckoterminal.com/${pool.network}/pools/${pool.poolAddress}`,
+    originPlatform: pool.dexId,
+    lifecycle: {
+      status: lifecycleStatus,
+      observedAt: pool.pairCreatedAt ?? fetchedAt,
+      confidenceBps: 7_500,
+      evidenceHash: null,
+    },
+    priceUsd: pool.priceUsd === null ? null : pool.priceUsd.toString(),
+    priceChange24hBps: null,
+    volume24hUsd: pool.volume24hUsd === null ? null : pool.volume24hUsd.toString(),
+    transactions24h: transactions,
+    originSpotLiquidityUsd: pool.liquidityUsd === null ? null : pool.liquidityUsd.toString(),
+    originDepth2PctUsd: null,
+    holders: null,
+    top10ConcentrationBps: null,
+    largestClusterBps: null,
+    integrity: {
+      status: "PENDING",
+      reasonCodes: ["ORIGIN_INTEGRITY_NOT_ASSESSED"],
+      observations: [observation],
+    },
+    derivatives: {
+      status: "NOT_REGISTERED",
+      safeOiUsd: null,
+      safePositionUsd: null,
+      maxLeverage: null,
+      oracleQuality: null,
+      sourceIndependence: null,
+      reasonCodes: ["ARC_PERP_NOT_REGISTERED"],
+    },
+    perp: {
+      status: "NOT_REGISTERED",
+      deploymentId: null,
+      marketId: null,
+      currentOiUsd: null,
+      capacityUsd: null,
+      qualificationHash: null,
+      riskRuleVersion: null,
+    },
+    providerState: { status: "AVAILABLE", fetchedAt, reason: null },
+    freshness: { status: "AVAILABLE", observedAt, maxAgeSeconds: 120 },
+    history: [],
+  };
 }

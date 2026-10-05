@@ -79,79 +79,84 @@ export interface AuthorityState {
 export type LpLockStatus = "LOCKED" | "BURNED" | "PROTOCOL_CONTROLLED" | "WITHDRAWABLE" | "UNKNOWN";
 
 export interface LiquidityState {
-  readonly totalLiquidityUsd: number;
+  readonly totalLiquidityUsd: number | null;
   readonly depth1PctUsd: number | null;
   readonly depth2PctUsd: number | null;
-  readonly venueCount: number;
-  readonly lpOwnershipConcentrationPct: number;
+  readonly venueCount: number | null;
+  readonly lpOwnershipConcentrationPct: number | null;
   readonly lpLockStatus: LpLockStatus;
   readonly earliestLpUnlockAt: string | null;
   readonly liquidityVenues: readonly string[];
-  readonly suddenCollapsePct24h: number;
+  readonly suddenCollapsePct24h: number | null;
 }
 
 export interface HolderConcentration {
-  readonly topHolderPct: number;
-  readonly topFivePct: number;
-  readonly connectedClusterPct: number;
-  readonly bundledLaunchPct: number;
-  readonly individualWalletsUnderFivePct: boolean;
-  readonly holderCount: number;
-  readonly organicHolderGrowthPct24h: number;
+  readonly topHolderPct: number | null;
+  readonly topFivePct: number | null;
+  readonly connectedClusterPct: number | null;
+  readonly bundledLaunchPct: number | null;
+  readonly individualWalletsUnderFivePct: boolean | null;
+  readonly holderCount: number | null;
+  readonly organicHolderGrowthPct24h: number | null;
+  /** Scope of the observation; top token accounts are not a full holder census. */
+  readonly evidenceScope?: "TOP_TOKEN_ACCOUNTS" | "RESOLVED_TOP_OWNERS" | "FULL_CENSUS" | "UNAVAILABLE";
+  readonly topTokenAccountPct?: number | null;
+  readonly resolvedTopOwnerPct?: number | null;
+  readonly resolvedTopFiveOwnerPct?: number | null;
 }
 
 export interface DeployerRisk {
   readonly deployerAddress: string | null;
-  readonly deployerHoldingsPct: number;
+  readonly deployerHoldingsPct: number | null;
   readonly knownRisk: boolean | null;
-  readonly priorRugCount: number;
+  readonly priorRugCount: number | null;
   readonly relatedWalletFundingDetected: boolean | null;
   readonly walletRotationDetected: boolean | null;
 }
 
 export interface ActivityQualityMetrics {
-  readonly organicVolume24hUsd: number;
-  readonly realizedVolatility30dPct: number;
+  readonly organicVolume24hUsd: number | null;
+  readonly realizedVolatility30dPct: number | null;
   readonly washTradingDetected: boolean | null;
   readonly volumeFarmingDetected: boolean | null;
   readonly suspiciousEarlyBuyers: boolean | null;
   readonly suspiciousTransactionRepetition: boolean | null;
   readonly bundledLaunchDetected: boolean | null;
-  readonly fundingSourceDiversity: number;
+  readonly fundingSourceDiversity: number | null;
 }
 
 export interface OracleMetrics {
-  readonly sourceCount: number;
-  readonly disagreementPct: number;
-  readonly confidenceBps: number;
+  readonly sourceCount: number | null;
+  readonly disagreementPct: number | null;
+  readonly confidenceBps: number | null;
   readonly stale: boolean | null;
-  readonly priceUsd: number;
+  readonly priceUsd: number | null;
   readonly observedAt: string;
-  readonly manipulationCostUsd: number;
+  readonly manipulationCostUsd: number | null;
 }
 
 export interface DerivativesCapacityMetrics {
-  readonly spotLiquidityUsd: number;
-  readonly liquidityVenueCount: number;
+  readonly spotLiquidityUsd: number | null;
+  readonly liquidityVenueCount: number | null;
   readonly depth1PctUsd: number | null;
   readonly depth2PctUsd: number | null;
-  readonly organicVolume24hUsd: number;
-  readonly realizedVolatilityPct: number;
-  readonly oracleSourceCount: number;
-  readonly oracleDisagreementPct: number;
-  readonly oracleConfidenceBps: number;
-  readonly manipulationCostUsd: number;
-  readonly maximumSafeOpenInterestUsd: number;
-  readonly maximumPositionSizeUsd: number;
-  readonly maximumLeverage: number;
-  readonly fundingImbalancePct: number;
-  readonly liquidationCapacityUsd: number;
+  readonly organicVolume24hUsd: number | null;
+  readonly realizedVolatilityPct: number | null;
+  readonly oracleSourceCount: number | null;
+  readonly oracleDisagreementPct: number | null;
+  readonly oracleConfidenceBps: number | null;
+  readonly manipulationCostUsd: number | null;
+  readonly maximumSafeOpenInterestUsd: number | null;
+  readonly maximumPositionSizeUsd: number | null;
+  readonly maximumLeverage: number | null;
+  readonly fundingImbalancePct: number | null;
+  readonly liquidationCapacityUsd: number | null;
 }
 
 export interface RiskParameters {
-  readonly recommendedMaxLeverage: number;
-  readonly recommendedMaxOI: number;
-  readonly recommendedMaxPosition: number;
+  readonly recommendedMaxLeverage: number | null;
+  readonly recommendedMaxOI: number | null;
+  readonly recommendedMaxPosition: number | null;
   readonly maintenanceMarginBps: number;
   readonly liquidationPenaltyBps: number;
 }
@@ -209,9 +214,9 @@ export interface RiskAssessment {
   };
   readonly rejectionReasons: readonly RiskReason[];
   readonly warnings: readonly RiskReason[];
-  readonly recommendedMaxLeverage: number;
-  readonly recommendedMaxOI: number;
-  readonly recommendedMaxPosition: number;
+  readonly recommendedMaxLeverage: number | null;
+  readonly recommendedMaxOI: number | null;
+  readonly recommendedMaxPosition: number | null;
   readonly assessedAt: string;
   readonly ruleVersion: string;
 }

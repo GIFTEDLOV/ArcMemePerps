@@ -18,6 +18,7 @@ import {
   DexScreenerProvider,
   EvmRpcProvider,
   GoPlusProvider,
+  GeckoTerminalProvider,
   HeliusProvider,
   SolanaRpcProvider,
   ProviderPool,
@@ -25,6 +26,7 @@ import {
   type BubblemapsObservation,
   type DexAggregate,
   type GoPlusSecurityObservation,
+  type GeckoTokenObservation,
   type HeliusAssetObservation,
   type ProviderResult,
   type RpcTokenEvidence,
@@ -46,6 +48,7 @@ import type {
   TradeRecord,
   TransactionRecord,
 } from "./index.js";
+import { readDirectEvmV2Depth, type DirectEvmDepthResult } from "./direct-evm-depth.js";
 
 export interface LiveAdapterOptions {
   readonly noEnrichment?: boolean;
@@ -80,6 +83,7 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
   private readonly dex: DexScreenerProvider;
   private readonly goPlus: GoPlusProvider;
   private readonly bubbles: BubblemapsProvider;
+  private readonly gecko: GeckoTerminalProvider;
   private readonly options: LiveAdapterOptions;
 
   public constructor(
@@ -118,6 +122,7 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
       network,
       options.bubbleMapsApiKey === undefined ? {} : { apiKey: options.bubbleMapsApiKey },
     );
+    this.gecko = new GeckoTerminalProvider(network);
   }
 
   public async inspectToken(
@@ -133,14 +138,24 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
       this.chain,
       this.network.name,
     );
-    const dex = await this.dex.readToken(normalized, fetchedAt);
+    const [dex, gecko] = await Promise.all([
+      this.dex.readToken(normalized, fetchedAt),
+      this.gecko.readToken(normalized, fetchedAt),
+    ]);
+    const directDepth = await readDirectEvmV2Depth(
+      this.network,
+      this.rpcUrls,
+      normalized,
+      dex.value?.pairs ?? [],
+      fetchedAt,
+    );
     const goPlus = noEnrichment
       ? unavailableResult(this.chain, this.network.name, "goplus", "NO_ENRICHMENT")
       : await this.goPlus.readToken(normalized, fetchedAt);
     const bubbles = noEnrichment
       ? unavailableResult(this.chain, this.network.name, "bubblemaps", "NO_ENRICHMENT")
       : await this.bubbles.readToken(normalized, fetchedAt);
-    return buildEvmRecord(this.network, normalized, fetchedAt, rpc, dex, goPlus, bubbles);
+    return buildEvmRecord(this.network, normalized, fetchedAt, rpc, dex, gecko, directDepth, goPlus, bubbles);
   }
 
   public discoverTokens(query?: DiscoverTokensQuery): Promise<readonly TokenIdentity[]> {
@@ -171,10 +186,10 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
       return result.value.pairs.map((pair) => ({
         venue: pair.dexId,
         poolAddress: pair.pairAddress,
-        tokenReserve: pair.baseLiquidity ?? 0,
-        quoteReserveUsd: pair.quoteLiquidity ?? 0,
+        tokenReserve: pair.baseLiquidity,
+        quoteReserveUsd: pair.quoteLiquidity,
         liquidityUsd: pair.liquidityUsd,
-        feeBps: 0,
+        feeBps: null,
       }));
     });
   }
@@ -248,6 +263,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
   private readonly goPlus: GoPlusProvider;
   private readonly bubbles: BubblemapsProvider;
   private readonly helius: HeliusProvider;
+  private readonly gecko: GeckoTerminalProvider;
   private readonly options: LiveAdapterOptions;
 
   public constructor(
@@ -288,6 +304,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
       network,
       options.heliusApiKey === undefined ? {} : { apiKey: options.heliusApiKey },
     );
+    this.gecko = new GeckoTerminalProvider(network);
   }
 
   public async inspectToken(
@@ -297,7 +314,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
     const normalized = normalizeTokenAddress("SOLANA", tokenAddress);
     const fetchedAt = new Date().toISOString();
     const noEnrichment = options.noEnrichment ?? this.options.noEnrichment ?? false;
-    const [rpc, dex] = await Promise.all([
+  const [rpc, dex, gecko] = await Promise.all([
       readRpcPool(
         this.rpcPool,
         { tokenAddress: normalized, fetchedAt },
@@ -305,8 +322,9 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
         this.network.name,
       ),
       this.dex.readToken(normalized, fetchedAt),
+      this.gecko.readToken(normalized, fetchedAt),
     ]);
-    const goPlus = noEnrichment
+  const goPlus = noEnrichment
       ? unavailableResult("SOLANA", this.network.name, "goplus", "NO_ENRICHMENT")
       : await this.goPlus.readToken(normalized, fetchedAt);
     const bubbles = noEnrichment
@@ -321,6 +339,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
       fetchedAt,
       rpc,
       dex,
+      gecko,
       goPlus,
       bubbles,
       helius,
@@ -355,10 +374,10 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
       return result.value.pairs.map((pair) => ({
         venue: pair.dexId,
         poolAddress: pair.pairAddress,
-        tokenReserve: pair.baseLiquidity ?? 0,
-        quoteReserveUsd: pair.quoteLiquidity ?? 0,
+        tokenReserve: pair.baseLiquidity,
+        quoteReserveUsd: pair.quoteLiquidity,
         liquidityUsd: pair.liquidityUsd,
-        feeBps: 0,
+        feeBps: null,
       }));
     });
   }
@@ -450,6 +469,8 @@ function buildEvmRecord(
   fetchedAt: string,
   rpc: ProviderResult<RpcTokenEvidence>,
   dex: ProviderResult<DexAggregate>,
+  gecko: ProviderResult<GeckoTokenObservation>,
+  directDepth: DirectEvmDepthResult,
   goPlus: ProviderResult<GoPlusSecurityObservation>,
   bubbles: ProviderResult<BubblemapsObservation>,
 ): MarketIntelligenceRecord {
@@ -469,29 +490,29 @@ function buildEvmRecord(
   };
   const lifecycle = lifecycleSnapshot(network.chain, d !== null && d.pairs.length > 0, fetchedAt);
   const authorities = evmAuthorities(r, s);
-  const liquidity = liquidityState(d);
+  const liquidity = liquidityState(d, gecko.value, directDepth);
   const holders = holderConcentration(b);
   const deployer: DeployerRisk = {
     deployerAddress: s?.creatorAddress ?? null,
-    deployerHoldingsPct: 0,
+    deployerHoldingsPct: null,
     knownRisk: null,
-    priorRugCount: 0,
+    priorRugCount: null,
     relatedWalletFundingDetected: null,
     walletRotationDetected: null,
   };
   const activity: ActivityQualityMetrics = {
-    organicVolume24hUsd: d?.volume24hUsd ?? 0,
-    realizedVolatility30dPct: 0,
+    organicVolume24hUsd: null,
+    realizedVolatility30dPct: null,
     washTradingDetected: null,
     volumeFarmingDetected: null,
     suspiciousEarlyBuyers: null,
     suspiciousTransactionRepetition: null,
     bundledLaunchDetected: null,
-    fundingSourceDiversity: 0,
+    fundingSourceDiversity: null,
   };
-  const oracle = oracleMetrics(d, fetchedAt);
+  const oracle = oracleMetrics(d, gecko.value, fetchedAt);
   const derivatives = derivativesMetrics(liquidity, activity, oracle);
-  const evidence = [...rpc.evidence, ...dex.evidence, ...goPlus.evidence, ...bubbles.evidence];
+  const evidence = [...rpc.evidence, ...dex.evidence, ...gecko.evidence, ...directDepth.evidence, ...goPlus.evidence, ...bubbles.evidence];
   return makeRecord(
     token,
     lifecycle,
@@ -505,12 +526,12 @@ function buildEvmRecord(
     evidence,
     network.chain,
     network.name,
-    r?.blockNumber.toString() ?? null,
+    r?.blockNumber?.toString() ?? null,
     r?.blockHash ?? null,
     null,
     providerAvailability(
-      [rpc, dex, goPlus, bubbles],
-      ["canonical-evm-rpc", "dexscreener", "goplus", "bubblemaps"],
+      [rpc, dex, gecko, goPlus, bubbles],
+      ["canonical-evm-rpc", "dexscreener", "geckoterminal", "goplus", "bubblemaps"],
       fetchedAt,
     ),
   );
@@ -522,6 +543,7 @@ function buildSolanaRecord(
   fetchedAt: string,
   rpc: ProviderResult<SolanaMintEvidence>,
   dex: ProviderResult<DexAggregate>,
+  gecko: ProviderResult<GeckoTokenObservation>,
   goPlus: ProviderResult<GoPlusSecurityObservation>,
   bubbles: ProviderResult<BubblemapsObservation>,
   helius: ProviderResult<HeliusAssetObservation>,
@@ -551,31 +573,32 @@ function buildSolanaRecord(
     transferRestricted: triOr(s?.cannotBuy ?? null, s?.cannotSell ?? null),
     honeypotDetected: s?.isHoneypot ?? null,
   };
-  const liquidity = liquidityState(d);
+  const liquidity = liquidityState(d, gecko.value);
   const holders = holderConcentration(b, r);
   const deployer: DeployerRisk = {
     deployerAddress: null,
-    deployerHoldingsPct: 0,
+    deployerHoldingsPct: null,
     knownRisk: null,
-    priorRugCount: 0,
+    priorRugCount: null,
     relatedWalletFundingDetected: null,
     walletRotationDetected: null,
   };
   const activity: ActivityQualityMetrics = {
-    organicVolume24hUsd: d?.volume24hUsd ?? 0,
-    realizedVolatility30dPct: 0,
+    organicVolume24hUsd: null,
+    realizedVolatility30dPct: null,
     washTradingDetected: null,
     volumeFarmingDetected: null,
     suspiciousEarlyBuyers: null,
     suspiciousTransactionRepetition: null,
     bundledLaunchDetected: null,
-    fundingSourceDiversity: 0,
+    fundingSourceDiversity: null,
   };
-  const oracle = oracleMetrics(d, fetchedAt);
+  const oracle = oracleMetrics(d, gecko.value, fetchedAt);
   const derivatives = derivativesMetrics(liquidity, activity, oracle);
   const evidence = [
     ...rpc.evidence,
     ...dex.evidence,
+    ...gecko.evidence,
     ...goPlus.evidence,
     ...bubbles.evidence,
     ...helius.evidence,
@@ -597,8 +620,8 @@ function buildSolanaRecord(
     null,
     r?.slot.toString() ?? null,
     providerAvailability(
-      [rpc, dex, goPlus, bubbles, helius],
-      ["canonical-solana-rpc", "dexscreener", "goplus", "bubblemaps", "helius"],
+      [rpc, dex, gecko, goPlus, bubbles, helius],
+      ["canonical-solana-rpc", "dexscreener", "geckoterminal", "goplus", "bubblemaps", "helius"],
       fetchedAt,
     ),
   );
@@ -666,18 +689,63 @@ function lifecycleSnapshot(
     evidenceHash: `0x${"00".repeat(32)}`,
   };
 }
-function liquidityState(dex: DexAggregate | null): LiquidityState {
+interface CombinedPool {
+  readonly poolAddress: string;
+  readonly venue: string | null;
+  readonly priceUsd: number | null;
+  readonly liquidityUsd: number | null;
+}
+
+function combinedPools(
+  dex: DexAggregate | null,
+  gecko: GeckoTokenObservation | null,
+): readonly CombinedPool[] {
+  const pools = new Map<string, CombinedPool>();
+  for (const pair of dex?.pairs ?? []) {
+    pools.set(pair.pairAddress.toLowerCase(), {
+      poolAddress: pair.pairAddress,
+      venue: pair.dexId,
+      priceUsd: pair.priceUsd,
+      liquidityUsd: pair.liquidityUsd,
+    });
+  }
+  for (const pool of gecko?.pools ?? []) {
+    const key = pool.poolAddress.toLowerCase();
+    if (pools.has(key)) continue;
+    pools.set(key, {
+      poolAddress: pool.poolAddress,
+      venue: pool.dexId,
+      priceUsd: pool.priceUsd,
+      liquidityUsd: pool.liquidityUsd,
+    });
+  }
+  return [...pools.values()];
+}
+
+function liquidityState(
+  dex: DexAggregate | null,
+  gecko: GeckoTokenObservation | null,
+  directDepth: DirectEvmDepthResult | null = null,
+): LiquidityState {
+  const pools = combinedPools(dex, gecko);
+  const knownLiquidity = pools.flatMap((pool) => pool.liquidityUsd === null ? [] : [pool.liquidityUsd]);
+  const venues = [...new Set(pools.flatMap((pool) => pool.venue === null ? [] : [pool.venue]))];
   return {
-    totalLiquidityUsd: dex?.totalObservedLiquidityUsd ?? 0,
-    depth1PctUsd: dex?.depth1PctUsd ?? null,
-    depth2PctUsd: dex?.depth2PctUsd ?? null,
-    venueCount: dex?.meaningfulPoolCount ?? 0,
-    lpOwnershipConcentrationPct: 0,
+    totalLiquidityUsd: dex === null && gecko === null ? null : knownLiquidity.reduce((sum, value) => sum + value, 0),
+    depth1PctUsd: conservativeDepthUsd(directDepth?.depth.buyDepth1PctUsdWad ?? null, directDepth?.depth.sellDepth1PctUsdWad ?? null),
+    depth2PctUsd: conservativeDepthUsd(directDepth?.depth.buyDepth2PctUsdWad ?? null, directDepth?.depth.sellDepth2PctUsdWad ?? null),
+    venueCount: dex === null && gecko === null ? null : venues.length,
+    lpOwnershipConcentrationPct: null,
     lpLockStatus: "UNKNOWN",
     earliestLpUnlockAt: null,
-    liquidityVenues: dex?.pairs.map((pair) => pair.dexId) ?? [],
-    suddenCollapsePct24h: 0,
+    liquidityVenues: venues,
+    suddenCollapsePct24h: null,
   };
+}
+
+function conservativeDepthUsd(buy: bigint | null, sell: bigint | null): number | null {
+  if (buy === null || sell === null) return null;
+  return Number((buy < sell ? buy : sell)) / 1e18;
 }
 function evmAuthorities(
   rpc: RpcTokenEvidence | null,
@@ -700,40 +768,99 @@ function triOr(left: boolean | null, right: boolean | null): boolean | null {
 }
 function holderConcentration(
   bubbles: BubblemapsObservation | null,
-  mint?: SolanaMintEvidence | null,
+  mint: SolanaMintEvidence | null = null,
 ): HolderConcentration {
   if (bubbles !== null)
     return {
       topHolderPct: bubbles.largestIndividualNonSystemPct,
-      topFivePct: 0,
+      topFivePct: null,
       connectedClusterPct: bubbles.largestConnectedNonSystemClusterPct,
-      bundledLaunchPct: 0,
+      bundledLaunchPct: null,
       individualWalletsUnderFivePct: bubbles.largestIndividualNonSystemPct < 5,
       holderCount: bubbles.holders.length,
-      organicHolderGrowthPct24h: 0,
+      organicHolderGrowthPct24h: null,
+      evidenceScope: "RESOLVED_TOP_OWNERS",
+      topTokenAccountPct: null,
+      resolvedTopOwnerPct: bubbles.largestIndividualNonSystemPct,
+      resolvedTopFiveOwnerPct: null,
     };
-  const supply = mint?.supply ?? 0n;
-  const top =
-    supply === 0n ? 0 : Number(((mint?.largestAccounts[0]?.amount ?? 0n) * 10_000n) / supply) / 100;
+  const supply = mint?.supply ?? null;
+  const tokenAccountPercent =
+    supply === null || supply === 0n || mint === null || mint.largestAccounts.length === 0
+      ? null
+      : Number((mint.largestAccounts[0]!.amount * 10_000n) / supply) / 100;
+  const owners = new Map<string, bigint>();
+  for (const account of mint?.largestAccounts ?? []) {
+    if (account.owner === null) continue;
+    owners.set(account.owner, (owners.get(account.owner) ?? 0n) + account.amount);
+  }
+  const ownerPercentages =
+    supply === null || supply === 0n
+      ? []
+      : [...owners.values()].map((amount) => Number((amount * 10_000n) / supply) / 100).sort((a, b) => b - a);
+  const resolvedTopOwnerPct = ownerPercentages[0] ?? null;
+  const resolvedTopFiveOwnerPct = ownerPercentages.length === 0 ? null : ownerPercentages.slice(0, 5).reduce((sum, value) => sum + value, 0);
   return {
-    topHolderPct: top,
-    topFivePct: 0,
-    connectedClusterPct: 0,
-    bundledLaunchPct: 0,
-    individualWalletsUnderFivePct: top < 5,
-    holderCount: mint?.largestAccounts.length ?? 0,
-    organicHolderGrowthPct24h: 0,
+    topHolderPct: resolvedTopOwnerPct,
+    topFivePct: resolvedTopFiveOwnerPct,
+    connectedClusterPct: null,
+    bundledLaunchPct: null,
+    individualWalletsUnderFivePct:
+      resolvedTopOwnerPct === null ? null : resolvedTopOwnerPct < 5,
+    holderCount: owners.size === 0 ? null : owners.size,
+    organicHolderGrowthPct24h: null,
+    evidenceScope: owners.size === 0 ? "TOP_TOKEN_ACCOUNTS" : "RESOLVED_TOP_OWNERS",
+    topTokenAccountPct: tokenAccountPercent,
+    resolvedTopOwnerPct,
+    resolvedTopFiveOwnerPct,
   };
 }
-function oracleMetrics(dex: DexAggregate | null, observedAt: string): OracleMetrics {
+function oracleMetrics(
+  dex: DexAggregate | null,
+  gecko: GeckoTokenObservation | null,
+  observedAt: string,
+): OracleMetrics {
+  const pools = combinedPools(dex, gecko).filter(
+    (pool): pool is CombinedPool & { readonly priceUsd: number } =>
+      pool.priceUsd !== null && pool.priceUsd > 0,
+  );
+  // Dust pools remain evidence but must not manufacture oracle independence
+  // or overwhelm a meaningful price with an economically irrelevant quote.
+  const meaningfulPools = pools.filter(
+    (pool) => pool.liquidityUsd !== null && pool.liquidityUsd >= 10_000,
+  );
+  if (meaningfulPools.length === 0) {
+    return {
+      sourceCount: null,
+      disagreementPct: null,
+      confidenceBps: null,
+      stale: null,
+      priceUsd: null,
+      observedAt,
+      manipulationCostUsd: null,
+    };
+  }
+  const prices = meaningfulPools.map((pool) => pool.priceUsd).sort((a, b) => a - b);
+  const minimum = prices[0]!;
+  const maximum = prices.at(-1)!;
+  const median = prices[Math.floor(prices.length / 2)]!;
+  const disagreementPct = ((maximum - minimum) / median) * 100;
+  const sourceCount = meaningfulPools.length;
+  const venueCount = new Set(meaningfulPools.flatMap((pool) => pool.venue === null ? [] : [pool.venue])).size;
+  const totalLiquidity = meaningfulPools.reduce((sum, pool) => sum + (pool.liquidityUsd ?? 0), 0);
+  const liquidityScore = Math.min(2_000, Math.log10(Math.max(totalLiquidity, 1)) * 350);
+  const sourceScore = Math.min(2_500, sourceCount * 1_250);
+  const venueScore = Math.min(1_500, venueCount * 750);
+  const agreementScore = Math.max(0, 1_500 - disagreementPct * 300);
+  const confidenceBps = Math.max(0, Math.min(10_000, Math.round(2_500 + sourceScore + venueScore + liquidityScore + agreementScore)));
   return {
-    sourceCount: dex?.priceSourceCount ?? 0,
-    disagreementPct: 0,
-    confidenceBps: dex?.priceUsd === null || dex?.priceUsd === undefined ? 0 : 5_000,
-    stale: null,
-    priceUsd: dex?.priceUsd ?? 0,
+    sourceCount,
+    disagreementPct,
+    confidenceBps,
+    stale: false,
+    priceUsd: median,
     observedAt,
-    manipulationCostUsd: 0,
+    manipulationCostUsd: null,
   };
 }
 function derivativesMetrics(
@@ -747,16 +874,16 @@ function derivativesMetrics(
     depth1PctUsd: liquidity.depth1PctUsd,
     depth2PctUsd: liquidity.depth2PctUsd,
     organicVolume24hUsd: activity.organicVolume24hUsd,
-    realizedVolatilityPct: 0,
+    realizedVolatilityPct: null,
     oracleSourceCount: oracle.sourceCount,
     oracleDisagreementPct: oracle.disagreementPct,
     oracleConfidenceBps: oracle.confidenceBps,
     manipulationCostUsd: oracle.manipulationCostUsd,
-    maximumSafeOpenInterestUsd: 0,
-    maximumPositionSizeUsd: 0,
-    maximumLeverage: 1,
-    fundingImbalancePct: 0,
-    liquidationCapacityUsd: 0,
+    maximumSafeOpenInterestUsd: null,
+    maximumPositionSizeUsd: null,
+    maximumLeverage: null,
+    fundingImbalancePct: null,
+    liquidationCapacityUsd: null,
   };
 }
 function unavailableResult(
