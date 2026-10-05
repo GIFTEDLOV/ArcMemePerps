@@ -60,8 +60,9 @@ export interface ApiServerOptions {
 /** Read-only versioned API boundary. Mutations are intentionally not exposed in this gate. */
 export function createReadOnlyApiServer(options: ApiServerOptions) {
   const realtime = options.realtime ?? new RealtimeHub();
+  const allowedOrigin = process.env.API_ALLOWED_ORIGIN ?? "*";
   return createServer((request, response) => {
-    void handleRequest(request, response, options, realtime);
+    void handleRequest(request, response, options, realtime, allowedOrigin);
   });
 }
 
@@ -70,8 +71,9 @@ async function handleRequest(
   response: ServerResponse,
   options: ApiServerOptions,
   realtime: RealtimeHub,
+  allowedOrigin: string,
 ): Promise<void> {
-  response.setHeader("Access-Control-Allow-Origin", "*");
+  response.setHeader("Access-Control-Allow-Origin", allowedOrigin);
   response.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");
   response.setHeader("Access-Control-Allow-Headers", "Content-Type");
   response.setHeader("Vary", "Origin");

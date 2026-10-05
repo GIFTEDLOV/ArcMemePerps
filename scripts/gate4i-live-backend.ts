@@ -623,6 +623,18 @@ export class ProductLiveIndexer {
     return this.storage.get("indexer_checkpoints", `${this.deploymentId}:ARC`)?.payload ?? null;
   }
 
+  public latestProtocolEvent(): Record<string, unknown> | null {
+    const latest = this.storage
+      .list("protocol_events")
+      .filter((record) => record.payload.deploymentId === this.deploymentId)
+      .sort((left, right) => {
+        const blockDelta = Number(payloadString(right.payload, "blockNumber", "0")) - Number(payloadString(left.payload, "blockNumber", "0"));
+        if (blockDelta !== 0) return blockDelta;
+        return Number(payloadString(right.payload, "logIndex", "0")) - Number(payloadString(left.payload, "logIndex", "0"));
+      })[0];
+    return latest?.payload ?? null;
+  }
+
   public close(): void { this.storage.close(); }
 }
 
@@ -633,30 +645,47 @@ async function main(): Promise<void> {
   const databasePath = resolve(dbArgument?.slice("--db=".length) ?? "evidence/gate4i/product-live.sqlite");
   await mkdir(dirname(databasePath), { recursive: true });
   const indexer = new ProductLiveIndexer(databasePath);
-  const state = await indexer.bootstrap();
+  let state = await indexer.bootstrap();
   const realtime = new RealtimeHub();
   realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:bootstrap:${indexer.lastHead.toString()}`, type: "market.discovered", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, blockNumber: indexer.lastHead.toString() } }));
-  const latestProductEvent = indexer.storage
-    .list("protocol_events")
-    .filter((record) => record.payload.deploymentId === PRODUCT_DEPLOYMENT_ID)
-    .sort((left, right) => Number(payloadString(right.payload, "blockNumber", "0")) - Number(payloadString(left.payload, "blockNumber", "0")))[0];
-  if (latestProductEvent !== undefined)
-    realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:event:${latestProductEvent.id}`, type: "price.updated", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, sourceEventId: latestProductEvent.id, blockNumber: payloadString(latestProductEvent.payload, "blockNumber") } }));
+  let latestRealtimeEventId: string | null = null;
+  const publishLatestProductEvent = () => {
+    const latestProductEvent = indexer.latestProtocolEvent();
+    const eventId = latestProductEvent?.eventId;
+    if (latestProductEvent === null || typeof eventId !== "string" || eventId === latestRealtimeEventId) return;
+    latestRealtimeEventId = eventId;
+    realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:event:${eventId}`, type: "price.updated", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, sourceEventId: eventId, blockNumber: payloadString(latestProductEvent, "blockNumber") } }));
+  };
+  publishLatestProductEvent();
   const databaseHealth = healthRecord("DATABASE", "OPERATIONAL", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: "FRESH" });
-  const indexerHealth = healthRecord("INDEXER", "OPERATIONAL", { lastSuccessAt: indexer.lastProjectionAt, latencyMs: 0, error: null, freshness: "FRESH" });
   const options: ApiServerOptions = {
     readModel: new PersistenceApiReadModel(indexer.storage),
-    health: () => healthSnapshot(databaseHealth, indexerHealth, oracleHealth(state), healthRecord("REALTIME_STREAM", realtime.status() === "LIVE" ? "OPERATIONAL" : "STALE", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: realtime.status() === "LIVE" ? "FRESH" : "STALE" })),
+    health: () => healthSnapshot(databaseHealth, healthRecord("INDEXER", "OPERATIONAL", { lastSuccessAt: indexer.lastProjectionAt, latencyMs: 0, error: null, freshness: "FRESH" }), oracleHealth(state), healthRecord("REALTIME_STREAM", realtime.status() === "LIVE" ? "OPERATIONAL" : "STALE", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: realtime.status() === "LIVE" ? "FRESH" : "STALE" })),
     realtime,
   };
   process.stdout.write(JSON.stringify({ mode: serve ? "LIVE_SERVE" : "LIVE_BOOTSTRAP", deploymentId: PRODUCT_DEPLOYMENT_ID, chainId: CHAIN_ID, startBlock: PRODUCT_START_BLOCK.toString(), head: indexer.lastHead.toString(), checkpoint: indexer.checkpoint(), state: safeJson(state), databasePath, apiVersion: "v1", marketId: PRODUCT_MARKET_ID }) + "\n");
   if (!serve) { indexer.close(); return; }
   const portArgument = process.argv.find((value) => value.startsWith("--port="));
   const port = Number(portArgument?.slice("--port=".length) ?? "8787");
+  const hostArgument = process.argv.find((value) => value.startsWith("--host="));
+  const host = hostArgument?.slice("--host=".length) ?? "127.0.0.1";
+  const pollArgument = process.argv.find((value) => value.startsWith("--poll-ms="));
+  const pollMs = Math.max(0, Number(pollArgument?.slice("--poll-ms=".length) ?? "0"));
   const server = createReadOnlyApiServer(options);
-  await new Promise<void>((resolveListen) => server.listen(port, "127.0.0.1", resolveListen));
-  process.stdout.write(`LIVE_API_LISTENING=http://127.0.0.1:${port}/api/v1\n`);
-  const close = () => { server.close(); indexer.close(); };
+  await new Promise<void>((resolveListen) => server.listen(port, host, resolveListen));
+  process.stdout.write(`LIVE_API_LISTENING=http://${host}:${port}/api/v1\n`);
+  let polling = false;
+  const pollTimer = pollMs === 0 ? null : setInterval(() => {
+    if (polling) return;
+    polling = true;
+    void indexer.bootstrap().then((nextState) => {
+      state = nextState;
+      publishLatestProductEvent();
+    }).catch((error: unknown) => {
+      process.stderr.write(`INDEXER_POLL_FAILED=${error instanceof Error ? error.message : String(error)}\n`);
+    }).finally(() => { polling = false; });
+  }, pollMs);
+  const close = () => { if (pollTimer !== null) clearInterval(pollTimer); server.close(); indexer.close(); };
   process.once("SIGINT", close);
   process.once("SIGTERM", close);
 }

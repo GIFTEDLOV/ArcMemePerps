@@ -11,6 +11,9 @@ coverage/
 artifacts/
 broadcast/
 lib/
+apps/frontend/test-results/
+evidence/gate5/playwright-report/
+evidence/gate6/market-detail-mobile.png
 *.key
 *.pem
 keystores/

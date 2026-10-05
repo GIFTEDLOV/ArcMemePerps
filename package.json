@@ -30,6 +30,8 @@
     "backend:frontend-readiness": "tsx scripts/backend-frontend-readiness.ts",
     "backend:frontend-readiness:live": "tsx scripts/backend-frontend-readiness-live.ts",
     "backend:freeze": "tsx scripts/backend-freeze.ts",
+    "release:worker": "tsx scripts/product-release-worker.ts",
+    "release:service": "tsx scripts/product-release-service.ts",
     "frontend:dev": "pnpm --filter @arcmemeperps/frontend dev",
     "frontend:build": "pnpm --filter @arcmemeperps/frontend build",
     "frontend:test": "pnpm --filter @arcmemeperps/frontend test",
