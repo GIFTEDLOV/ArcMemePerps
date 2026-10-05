@@ -217,11 +217,12 @@ type Order = readonly [
 
 async function keeperCycle(fromBlock: bigint, toBlock: bigint): Promise<bigint> {
   if (toBlock <= fromBlock) return toBlock;
+  const scanTo = fromBlock + 2_000n < toBlock ? fromBlock + 2_000n : toBlock;
   const logs = await publicClient.getLogs({
     address: PRODUCT_RELEASE.perpEngine,
     event: orderSubmittedEvent,
     fromBlock,
-    toBlock,
+    toBlock: scanTo,
   });
   for (const log of logs) {
     if (
@@ -257,7 +258,7 @@ async function keeperCycle(fromBlock: bigint, toBlock: bigint): Promise<bigint> 
     if (receipt.status !== "success") throw new Error("KEEPER_EXECUTION_REVERTED");
     process.stdout.write(`KEEPER_EXECUTED order=${log.args.orderId} tx=${txHash}\n`);
   }
-  return toBlock;
+  return scanTo;
 }
 
 async function main(): Promise<void> {
