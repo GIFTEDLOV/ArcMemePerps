@@ -34,6 +34,8 @@ type ProgramTokenAccountsResult =
 export class SolanaRpcProvider {
   public readonly providerName = "canonical-solana-rpc";
   private readonly client: HttpJsonClient;
+  private queueTail: Promise<void> = Promise.resolve();
+  private backoffUntil = 0;
 
   public constructor(
     public readonly network: SolanaNetworkConfig,
@@ -45,6 +47,16 @@ export class SolanaRpcProvider {
   }
 
   private readonly rpcUrl: string;
+
+  /**
+   * Read-only escape hatch for chain-specific evidence readers.  The regular
+   * mint provider intentionally exposes a narrow interface; canonical venue
+   * readers still need the same rate-limited RPC transport for account, log,
+   * and transaction evidence.
+   */
+  public request<T>(method: string, params: JsonValue[]): Promise<T> {
+    return this.call<T>(method, params);
+  }
 
   public async readMint(
     mintAddress: string,
@@ -194,21 +206,37 @@ export class SolanaRpcProvider {
   }
 
   private async call<T>(method: string, params: JsonValue[]): Promise<T> {
-    const now = Date.now();
-    const waitFor = Math.max(0, nextRpcRequestAt - now);
-    if (waitFor > 0) await new Promise((resolve) => setTimeout(resolve, waitFor));
-    nextRpcRequestAt = Date.now() + 500;
-    const response = await this.client.post<JsonValue>(this.rpcUrl, {
-      jsonrpc: "2.0",
-      id: 1,
-      method,
-      params,
-    });
-    const parsed = response as unknown as SolanaRpcResponse<T>;
-    if (parsed.error) throw new HttpProviderError(parsed.error.message, null, this.rpcUrl, false);
-    if (parsed.result === undefined)
-      throw new Error(`Solana RPC response missing result for ${method}`);
-    return parsed.result;
+    const run = this.queueTail.then(() => this.performCall<T>(method, params));
+    this.queueTail = run.then(() => undefined, () => undefined);
+    return run;
+  }
+
+  private async performCall<T>(method: string, params: JsonValue[]): Promise<T> {
+    for (let attempt = 0; ; attempt += 1) {
+      const now = Date.now();
+      const waitFor = Math.max(0, nextRpcRequestAt - now, this.backoffUntil - now);
+      if (waitFor > 0) await new Promise((resolve) => setTimeout(resolve, waitFor));
+      nextRpcRequestAt = Date.now() + 500;
+      try {
+        const response = await this.client.post<JsonValue>(this.rpcUrl, {
+          jsonrpc: "2.0",
+          id: 1,
+          method,
+          params,
+        });
+        const parsed = response as unknown as SolanaRpcResponse<T>;
+        if (parsed.error) throw new HttpProviderError(parsed.error.message, null, this.rpcUrl, false);
+        if (parsed.result === undefined)
+          throw new Error(`Solana RPC response missing result for ${method}`);
+        return parsed.result;
+      } catch (error) {
+        if (error instanceof HttpProviderError && error.status === 429 && attempt < 2) {
+          this.backoffUntil = Date.now() + 1_000 * 2 ** attempt;
+          continue;
+        }
+        throw error;
+      }
+    }
   }
 }
 

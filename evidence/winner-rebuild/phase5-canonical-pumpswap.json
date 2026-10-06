@@ -1,0 +1,1181 @@
+{
+  "schemaVersion": "winner-rebuild/phase5-canonical-pumpswap-v1",
+  "phase4CheckpointCommit": "64e66dfb8d6cba638799d60311cdc1fd210eb422",
+  "fetchedAt": "2026-10-06T23:04:34.523Z",
+  "rules": "0.2.0",
+  "numericThresholdsUnchanged": true,
+  "helius": "ABSENT_PUBLIC_RPC_PATH_USED",
+  "officialPolicy": {
+    "docsVersion": "pump-public-docs@main (verified 2026-10-06)",
+    "pumpProgramId": "6EF8rrecthR5Dkzon8Nwu78hRvfCKubJ14M5uBEwF6P",
+    "pumpSwapProgramId": "pAMMBay6oceH9fJKBRHGP5D4bD4sWpmSwMn52FMfXEA"
+  },
+  "candidateCount": 12,
+  "candidates": [
+    {
+      "mint": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      "symbol": "BONK",
+      "source": "ESTABLISHED_CONTROL_SET",
+      "liquidityUsd": null,
+      "volume24hUsd": null,
+      "canonicalPoolAddress": "AMLNPNLKs4QBMJkZSiyJ1z7yK5Cb7jfnq2wAagbRN8fE",
+      "canonicalPoolStatus": "CONFLICTED",
+      "reason": "ARBITRARY_PUMPSWAP_POOL_PRESENT_CANONICAL_PDA_EMPTY:2CT6BqTj2VUdXFbyN5MG6LrfEnt7dEQPK3wbAEohBu7u,5aMerS3GdZ3YaQ2vA5kcD52BTbiDY1vu7ekTRtMwodaW,6AoHSe997uANgXyYGcFyf1BDvVXoW1p2QeQXLDFN2Gvv,6TCSqvubP3nnmbWaovcHF7kcEKiMryjodzjddvPCn7Hh,6xntjWSP6WTtKkrtMe4uK5j1oDyA5Rv7i4baHDvesK8D,76dM3uJgict93MiphJJ1sxVAzH6rC47Paagka6r2mKVX,7tQjjSTLNNdJXiV2S45zfnrgvYZksnk8YrG2mLLNewyq,7ypWM7c4ey2VzZxcq6mZvYjyTtG3y64wRM1tMLqagL2a,8Qag9ArRqxsono2TsqyrjoDG6v6kBtH1sjtNvHeq1kpS,8tBgYHfr76rqXcP7pE3gySCAeR2oQgeDKGoEFsrUrABf,8umqvNNwomr2b2LE6CsvGJ4iNx4381Eu7ZEkH4R9L1aZ,9JRa9EwHaJ81qtheRf7buyuGqnWZJm6HTNHAGrCyNmbe,BYjEMyTKUZ1KUtGgJ1gFa6jr6diLqdrHhVUQ9onQ9oj7,CRX13y6gRGYGSsucQbR4sNzbRkaPsunJtuiabHCzduu4,CSwSH1nmKypoDfpihK4ZJAXFZvGWMVERJp8w2n3ncTGd,D7A4Uc4833Vu1QSQVs3TP4j1BqHmiBZUnHVvQxX22JFN,Dwczp92NX3ngbE2HeTUH4p5dcQxrpDF2AJMbW581gq1E,ECFGrU1uLUwMqWDyn9BiiHBTynwXofunGPsGKG439Nqo,Gh1XgGPvnj23PjUM8y28kVuGh3inTYkMdrwXpcQVb51N,HPo4YAVmrN2iCgnXpjJQyGTHnahbCntJS3cdsUYzzZtg,JBWgWNXYGBm5yoiZ2CWqhzgtEYephN2CnxVJUFuKwQdY"
+    },
+    {
+      "mint": "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+      "symbol": "WIF",
+      "source": "ESTABLISHED_CONTROL_SET",
+      "liquidityUsd": null,
+      "volume24hUsd": null,
+      "canonicalPoolAddress": "Hw3sV3nF6REGUi5iHcxWReH1nq7a6hdRAakceViuXTG",
+      "canonicalPoolStatus": "CONFLICTED",
+      "reason": "ARBITRARY_PUMPSWAP_POOL_PRESENT_CANONICAL_PDA_EMPTY:5wXwqXGGXWkzKSYMSxiVEctgj3EfynPPdkHkgJqFL7yf,C3nBt8TCrxmrhcJew1bWXW9rqXK3GSrUW86vs14EPdCh,CjZeXDvtPRfNxF3Vm2m1wTThp62Bq9UUSfJPpDR2MjV1,EPDEfTpeZ6ZegMNoEsiTUybr9Hg5vpUvykSLx9m2aW8z,HAFy6jt5N87aDiMtr2c1DP5NmdCNnVc3X5fUFxqp1tGK"
+    },
+    {
+      "mint": "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr",
+      "symbol": "POPCAT",
+      "source": "ESTABLISHED_CONTROL_SET",
+      "liquidityUsd": null,
+      "volume24hUsd": null,
+      "canonicalPoolAddress": "5zuy61ugTxPazg2wdGBjrdkRJ748fCdabkXB7FJ2TeDL",
+      "canonicalPoolStatus": "CONFLICTED",
+      "reason": "ARBITRARY_PUMPSWAP_POOL_PRESENT_CANONICAL_PDA_EMPTY:4WEdWCofCQccncy68TMkdsk4vnQuJB7EVkTdC813FuYN,7txwdTa3Au6Cg4pJRe2JDywQ6HxqUZF1EuwY4GPSNY7N,DN8efewWeSkkFCffjZBgBYvfVJ9EasTKgmxf4FqA8Xf5"
+    },
+    {
+      "mint": "MEW1gQWJ3nEXg2qgERiKu7FAFj79PHvQVREQUzScPP5",
+      "symbol": "MEW",
+      "source": "ESTABLISHED_CONTROL_SET",
+      "liquidityUsd": null,
+      "volume24hUsd": null,
+      "canonicalPoolAddress": "P9Emg2F4oLCYgAYB9DCfn5U2dF9DYuKzEM8XRWYyme5",
+      "canonicalPoolStatus": "CONFLICTED",
+      "reason": "ARBITRARY_PUMPSWAP_POOL_PRESENT_CANONICAL_PDA_EMPTY:H6f3vLQapv9DGUg3dk85edAGiGM6p1CCbsNAzKwv9qoj"
+    },
+    {
+      "mint": "ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82",
+      "symbol": "BOME",
+      "source": "ESTABLISHED_CONTROL_SET",
+      "liquidityUsd": null,
+      "volume24hUsd": null,
+      "canonicalPoolAddress": "2jZiXBTxTYEPwXwJK4fCNpjfmSQqTXoXzPz58MimXzBM",
+      "canonicalPoolStatus": "CONFLICTED",
+      "reason": "ARBITRARY_PUMPSWAP_POOL_PRESENT_CANONICAL_PDA_EMPTY:AE8bRLNKiFxiWjxQQMfasm93U3toMJEUz3uX27MQ8xek,GmoZsr3G4aV5B4Uk6zsTN2KbXGagV3JM2RkDCgszr8Ls"
+    },
+    {
+      "mint": "CzLSujWBLFsSjncfkh59rUFqvafWcY5tzedWJSuypump",
+      "symbol": "GOAT",
+      "source": "ESTABLISHED_CONTROL_SET",
+      "liquidityUsd": null,
+      "volume24hUsd": null,
+      "canonicalPoolAddress": "GaQDap4LtnHB4v5izC3D4QXid4ofMyTf182j4WE1sH8Q",
+      "canonicalPoolStatus": "CONFLICTED",
+      "reason": "ARBITRARY_PUMPSWAP_POOL_PRESENT_CANONICAL_PDA_EMPTY:98XgdsRZXoY46nUkxFkcuFjmF77jEwojeN3uxS6B7chc"
+    },
+    {
+      "mint": "ADPN2aqzY5RhkBC7bNQWFhTFFEYKY4drHUQG887Cpump",
+      "symbol": "CATCRAFT",
+      "source": "pumpswap",
+      "liquidityUsd": "99737.48",
+      "volume24hUsd": "1047980.5",
+      "canonicalPoolAddress": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+      "canonicalPoolStatus": "PROVEN",
+      "reason": null
+    },
+    {
+      "mint": "45VHsie7CwFfPKWCw28PCdZdJWMA5Y6k56wDam9Hpump",
+      "symbol": "RARINU",
+      "source": "pumpswap",
+      "liquidityUsd": "51336.03",
+      "volume24hUsd": "577775.37",
+      "canonicalPoolAddress": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+      "canonicalPoolStatus": "PROVEN",
+      "reason": null
+    },
+    {
+      "mint": "3zzhzEJKpZgfx1ymd5DSU3y3NzkzAwVRHkvRfVq6pump",
+      "symbol": "SDOGE",
+      "source": "pumpswap",
+      "liquidityUsd": "3196.79",
+      "volume24hUsd": "2120028.01",
+      "canonicalPoolAddress": "4wVB2dHkmAyBPL4XAifvCC8k59JAFGbJYCKTEczPVTwA",
+      "canonicalPoolStatus": "PROVEN",
+      "reason": null
+    },
+    {
+      "mint": "B574RvQ3aj2MCBbV2rta118uLwYYKf33nyLkjUcpump",
+      "symbol": "patryczek",
+      "source": "pumpswap",
+      "liquidityUsd": "15845.38",
+      "volume24hUsd": "305047.63",
+      "canonicalPoolAddress": "FV8Kwkvp7hNBsyuPzvtgU5quHEcLV8rBN2DwSaeWQ4vM",
+      "canonicalPoolStatus": "PROVEN",
+      "reason": null
+    },
+    {
+      "mint": "DmST7JayW46G1z8Xa4hQNUy932m6nto87n2YGCjSpump",
+      "symbol": "Souls",
+      "source": "pumpswap",
+      "liquidityUsd": "25055.73",
+      "volume24hUsd": "106525.67",
+      "canonicalPoolAddress": "9XpP7VwFv3LsYYuGJhuBxbMLAQr81UaKscV8h4xas4pB",
+      "canonicalPoolStatus": "PROVEN",
+      "reason": null
+    },
+    {
+      "mint": "F4g7BYDmrVGwYUbqUQb4r6fCNiFQvek9h9qoDTphG3BQ",
+      "symbol": "KKK",
+      "source": "pumpswap",
+      "liquidityUsd": "7813.65",
+      "volume24hUsd": "296512.6",
+      "canonicalPoolAddress": "6of6eMYDsFYRBNsjCJAHG27gbY9jiDYRfHXabaYx3ViT",
+      "canonicalPoolStatus": "PROVEN",
+      "reason": null
+    }
+  ],
+  "canonicalMigrationProvenCount": 0,
+  "controlMarkets": [
+    {
+      "mint": "DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263",
+      "symbol": "BONK",
+      "source": "ESTABLISHED_CONTROL_SET"
+    },
+    {
+      "mint": "EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm",
+      "symbol": "WIF",
+      "source": "ESTABLISHED_CONTROL_SET"
+    },
+    {
+      "mint": "7GCihgDB8fe6KNjn2MYtkzZcRjQy3t9GHdC8uHYmW2hr",
+      "symbol": "POPCAT",
+      "source": "ESTABLISHED_CONTROL_SET"
+    },
+    {
+      "mint": "MEW1gQWJ3nEXg2qgERiKu7FAFj79PHvQVREQUzScPP5",
+      "symbol": "MEW",
+      "source": "ESTABLISHED_CONTROL_SET"
+    },
+    {
+      "mint": "ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82",
+      "symbol": "BOME",
+      "source": "ESTABLISHED_CONTROL_SET"
+    },
+    {
+      "mint": "CzLSujWBLFsSjncfkh59rUFqvafWcY5tzedWJSuypump",
+      "symbol": "GOAT",
+      "source": "ESTABLISHED_CONTROL_SET"
+    }
+  ],
+  "results": [
+    {
+      "mint": "ADPN2aqzY5RhkBC7bNQWFhTFFEYKY4drHUQG887Cpump",
+      "symbol": "CATCRAFT",
+      "marketId": null,
+      "canonicalPool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+      "graduationStatus": "UNKNOWN",
+      "lpControl": "UNKNOWN",
+      "directPrice": {
+        "status": "AVAILABLE",
+        "priceQuotePerBase": "432527742846/43832842542207",
+        "baseReserve": "43832842542207",
+        "rawQuoteReserve": "414943237558",
+        "effectiveQuoteReserve": "432527742846",
+        "feeBps": "30",
+        "formulaVersion": "pumpswap-constant-product-effective-quote-v1",
+        "slot": "454043218",
+        "evidenceHash": "0x1cb777a5d3b27f50ccce9f0bf94ee784ab6779f96f413d624e9b10b16edba97f",
+        "reason": null
+      },
+      "directDepth": {
+        "status": "AVAILABLE",
+        "quoteAsset": "So11111111111111111111111111111111111111112",
+        "feeBps": "30",
+        "buy1": "2163750233",
+        "sell1": "2161600802",
+        "buy2": "4316815085",
+        "sell2": "4334212135",
+        "buy5": "10713446078",
+        "sell5": "10919820998",
+        "formulaVersion": "pumpswap-executable-quote-simulation-v1",
+        "provenance": "DIRECT_POOL_STATE",
+        "reason": null
+      },
+      "holders": {
+        "status": "UNAVAILABLE",
+        "supply": "984375424498952",
+        "largestRawTokenAccountPct": null,
+        "largestResolvedOwnerPct": null,
+        "top10ResolvedOwnerPct": null,
+        "unresolvedConcentrationPct": null,
+        "resolvedAccounts": 0,
+        "excludedSystemOwners": [],
+        "reason": "provider returned HTTP 403",
+        "evidenceIds": [],
+        "largestBurnPct": null
+      },
+      "activity": {
+        "status": "AVAILABLE",
+        "observationWindow": {
+          "first": "2026-10-06T23:04:55.000Z",
+          "last": "2026-10-06T23:05:02.000Z"
+        },
+        "sampleCount": 19,
+        "trades": [
+          {
+            "side": "BUY",
+            "wallet": "HyFb3qRZjV9e3FErJmz9KNtveHYF1X76oBTvKrigcKYg",
+            "baseAmount": "6138804580",
+            "quoteAmount": "61544689",
+            "timestamp": 1791327895,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "2ms7uFFDU7ZeX6GvCzvfWK9r9aMqKi4aCYNqeuPScsFMVUdDjHSr3C54TNZ5Q6d9L6AgpANaotXtyGeLPRf8WAza",
+            "slot": "454043256"
+          },
+          {
+            "side": "BUY",
+            "wallet": "HyFb3qRZjV9e3FErJmz9KNtveHYF1X76oBTvKrigcKYg",
+            "baseAmount": "1606314492",
+            "quoteAmount": "16106994",
+            "timestamp": 1791327896,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "4nfdcpHuEuT9ZUaX8iqEhzWihabLyV26n89HCFPm67pCKRSBLP2wB4GswTcwPwX31pzQs7qCXBnZukXJ5zUhG8AD",
+            "slot": "454043258"
+          },
+          {
+            "side": "SELL",
+            "wallet": "8XC7thoUD4QkTBkDsWXY8FmnhTrV7namtstqwKwQayKp",
+            "baseAmount": "2740908407",
+            "quoteAmount": "27211078",
+            "timestamp": 1791327896,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "5M1v3rxviqgg7npkAr66GwAUu8cDgxLywxMaZFYx1an4tLDUekcWcDPZneyPBGcsFPFXqTmurDc4VcQbJJkTvuYc",
+            "slot": "454043259"
+          },
+          {
+            "side": "BUY",
+            "wallet": "FzzvJnriqQWwTx3UieKGQJnAgZtccuuSbkei7EDeXKQ7",
+            "baseAmount": "4206167936",
+            "quoteAmount": "42176822",
+            "timestamp": 1791327896,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "EHovVtLLfQMUoaWJRVDbRjUtPwG1mQf9NhzAEPXB8hTxg4kh55K4RZ7hNZ6GG51nAqUTXRXeCiHdZzCVZE4wwMh",
+            "slot": "454043260"
+          },
+          {
+            "side": "BUY",
+            "wallet": "8XC7thoUD4QkTBkDsWXY8FmnhTrV7namtstqwKwQayKp",
+            "baseAmount": "1361238287",
+            "quoteAmount": "13651390",
+            "timestamp": 1791327897,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "4BwwH684TZ9BqzvjZNuR68s9KDyDYVLzNUJaHXett3oM2E1n5U6m5be4TiRLESrj5xsXhcCMmKPTeyesAWwX4Jfn",
+            "slot": "454043262"
+          },
+          {
+            "side": "SELL",
+            "wallet": "Eign9iEqyuNMbSKGzPPQfCnqox6sN3xJ2yJCWZbALkC",
+            "baseAmount": "5402060440",
+            "quoteAmount": "53612715",
+            "timestamp": 1791327897,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "Se4D6TevxWKGAmNdsWqynZ5r1uk5LujQFmAnCsyav8EaRbTTzLY4VigghuxihBvmet92ttjcqYgK2GedZW3eP58",
+            "slot": "454043263"
+          },
+          {
+            "side": "SELL",
+            "wallet": "4GRVa5kk921ywMiQhfRDV6Jy9NdpNjiZykCmBtyXQQaf",
+            "baseAmount": "8701015825",
+            "quoteAmount": "86381014",
+            "timestamp": 1791327897,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "5UURZYaunovuJNYecaAF8aYEuFxGkgpgNGgmJu95Nxe3JvDCvLfCcvpEGwdheZyygLPXk5qDkE9WWBAk8JA7Qa9x",
+            "slot": "454043263"
+          },
+          {
+            "side": "SELL",
+            "wallet": "4u3Hqe6GFRuZcXg6S5iqk5dBGJsgEzHw9EPQ7L5gQ6in",
+            "baseAmount": "7914145903",
+            "quoteAmount": "78519988",
+            "timestamp": 1791327898,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "5A67R9h2fsFfiuYJQU6wYoNwEQ4mdBRSeZP237vaFKZEhyK49HNmdJrkUM3oZnyVT38LLMD9pHbaHYXkw3HXjQ4m",
+            "slot": "454043265"
+          },
+          {
+            "side": "BUY",
+            "wallet": "4GRVa5kk921ywMiQhfRDV6Jy9NdpNjiZykCmBtyXQQaf",
+            "baseAmount": "3044966892",
+            "quoteAmount": "30509279",
+            "timestamp": 1791327898,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "fhdokoYJcDFu7cGsiG7baV8Uiz1okSPSug48uSxcqRsAB8PHWQtYtf8Z4o6EnGGU36oPh8xaMsm7A8uDwYSrLYy",
+            "slot": "454043266"
+          },
+          {
+            "side": "SELL",
+            "wallet": "4bw6Ne4j2dAJjLPHBk2XzM6VbMGwqffQwr5RTRkjXuRD",
+            "baseAmount": "9376353168",
+            "quoteAmount": "93003454",
+            "timestamp": 1791327898,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "TUnvuZCPvy7sndVv6B96XAcdmL47N38bN57rQxHXe5PRd5j2AHJSQBHMe6vM37mwScaY8SB1d14VXkQ1UkQYvtX",
+            "slot": "454043267"
+          },
+          {
+            "side": "SELL",
+            "wallet": "ALp5RpHVP5hG52uwQgWkh2dVvqoYxV5BgaZdaZmrDQys",
+            "baseAmount": "5351129583",
+            "quoteAmount": "53059663",
+            "timestamp": 1791327899,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "XZbWSC8dEnNA2cTosLB37H1XuydayLZH2KU486JRJKSzym3FGAcDWJYLDVjBZps5D3aAWgfLtEGwXhsfKAiBC6Y",
+            "slot": "454043268"
+          },
+          {
+            "side": "BUY",
+            "wallet": "3gZagz5zPu75wj8Ay3ASrvVXDTmi422iqsqiE2VqaRAu",
+            "baseAmount": "6929561409",
+            "quoteAmount": "69400395",
+            "timestamp": 1791327899,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5FTsTFFpXNXJWZYwZrExBPS8KT8G16MAcV9V4pRZhMT6rrtoYDhRvLPo6J8ePwZbncvjiHdxtpXy6Vc3PNmgU4n6",
+            "slot": "454043269"
+          },
+          {
+            "side": "SELL",
+            "wallet": "Fdxxq2Rr7KLJNj6Lm3saBnB2KUxndsNJhWMLPRQcs9Qc",
+            "baseAmount": "4574536198",
+            "quoteAmount": "45363379",
+            "timestamp": 1791327899,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "3JifcNqJkw46gGvrWVZTvR5Tpq97seXCFvjH62ZekeKsyj5jePN15zaHtkuNewNKo9qBiG59d1R55N7PgzmdkFbb",
+            "slot": "454043271"
+          },
+          {
+            "side": "BUY",
+            "wallet": "3gZagz5zPu75wj8Ay3ASrvVXDTmi422iqsqiE2VqaRAu",
+            "baseAmount": "2991128992",
+            "quoteAmount": "29957064",
+            "timestamp": 1791327900,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "HnEqcpp3E7pFPv6Q4NQzX7pEgTprpHyD9dmfXQswFCqt6xTcm7LtvEhS8uc4WVSbLgk45eAWokd6KFoPBd65bwT",
+            "slot": "454043272"
+          },
+          {
+            "side": "BUY",
+            "wallet": "3WRBVbBWY7CJ2N8nFa5xWAwUzRkFjrwYqV5ZYeGsLEq1",
+            "baseAmount": "64534484320",
+            "quoteAmount": "647332105",
+            "timestamp": 1791327900,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "4Wd2kio2nKx3F618GfKKWFWmfyFLU5oBDAZHW6pBARpNjT6Yn944eHAkBqEXvEs4hAyMzKPUvES4fsYq64vHPG61",
+            "slot": "454043273"
+          },
+          {
+            "side": "BUY",
+            "wallet": "Fdxxq2Rr7KLJNj6Lm3saBnB2KUxndsNJhWMLPRQcs9Qc",
+            "baseAmount": "3217549548",
+            "quoteAmount": "32324762",
+            "timestamp": 1791327900,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "aLgeqWkuuRz7re7XVZAbEuYnMMQDq79LRgvTstskp84xbXzjFzJSLoeQkqwP7jworJjtXF2yrhXELQAAGaqUDAy",
+            "slot": "454043274"
+          },
+          {
+            "side": "SELL",
+            "wallet": "GiPpGQiWm3T42V1TayfnvQ1cDXMDC5LnCtP8BVtbsehq",
+            "baseAmount": "4085894564",
+            "quoteAmount": "40641269",
+            "timestamp": 1791327901,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "4bDzCT785iUHRtZPnJrAmWoC9oohWPZN6QEkiiQBNpgAgE6gKwsoX5FXeDg58Ynm8kzSapXX84pLBoPHJ9Vna8EY",
+            "slot": "454043278"
+          },
+          {
+            "side": "SELL",
+            "wallet": "DGij9d3vmL1k6MbPkHUvVGNoTehkBDdBgCMMjztLF9Py",
+            "baseAmount": "3166360247",
+            "quoteAmount": "31489689",
+            "timestamp": 1791327901,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "2avjH43btKtBDYfFj28qEtjyJt9crqvYmJMgSCSRQt5pus9trihRhVgiAa3YJ762FjWmWuE61inSiNErK4kmwkrB",
+            "slot": "454043279"
+          },
+          {
+            "side": "BUY",
+            "wallet": "DGij9d3vmL1k6MbPkHUvVGNoTehkBDdBgCMMjztLF9Py",
+            "baseAmount": "2306587544",
+            "quoteAmount": "23168127",
+            "timestamp": 1791327902,
+            "pool": "7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "41UE9za4cLsMcRwAtkCsxp5BbXCsTP8qx94E4Fm2q1vDsbZ6BAgvXi3FBbB3cZfRGxoZAVAKLhMEecg5RyT5quMp",
+            "slot": "454043282"
+          }
+        ],
+        "source": "PUMPSWAP_EVENTS",
+        "reason": null
+      },
+      "creator": {
+        "launchCreator": null,
+        "coinCreator": "2SY9MX5gmJrKhQYzvsPT5raoABtHgek79vrwHofgWrj4",
+        "metadataAuthority": null,
+        "assessment": "UNKNOWN"
+      },
+      "rugcheck": {
+        "status": "AVAILABLE",
+        "reason": null
+      },
+      "geckoTerminal": {
+        "status": "AVAILABLE",
+        "poolCount": 2,
+        "history": {
+          "status": "AVAILABLE",
+          "candles": 3,
+          "first": "2026-10-06T21:00:00.000Z",
+          "last": "2026-10-06T23:00:00.000Z"
+        }
+      },
+      "sourceFamilies": [
+        "PUMPSWAP:7mQDGteiaD4Tkupg9hStyPQNeSTNTRaUEhh1zJ1awp8x"
+      ],
+      "integrityStatus": "PENDING",
+      "derivativesStatus": "UNASSESSED",
+      "hardGates": [],
+      "exactBlockers": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ]
+    },
+    {
+      "mint": "45VHsie7CwFfPKWCw28PCdZdJWMA5Y6k56wDam9Hpump",
+      "symbol": "RARINU",
+      "marketId": null,
+      "canonicalPool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+      "graduationStatus": "UNKNOWN",
+      "lpControl": "UNKNOWN",
+      "directPrice": {
+        "status": "AVAILABLE",
+        "priceQuotePerBase": "277154902500/67017893399401",
+        "baseReserve": "67017893399401",
+        "rawQuoteReserve": "259571016951",
+        "effectiveQuoteReserve": "277154902500",
+        "feeBps": "30",
+        "formulaVersion": "pumpswap-constant-product-effective-quote-v1",
+        "slot": "454043517",
+        "evidenceHash": "0x49e3571ef0053cf6370304d2d7ae609ecb3e4a6544b66f90274f899c51a5e03d",
+        "reason": null
+      },
+      "directDepth": {
+        "status": "AVAILABLE",
+        "quoteAsset": "So11111111111111111111111111111111111111112",
+        "feeBps": "30",
+        "buy1": "1386486751",
+        "sell1": "1385109439",
+        "buy2": "2766126529",
+        "sell2": "2777274202",
+        "buy5": "6864956416",
+        "sell5": "6997197230",
+        "formulaVersion": "pumpswap-executable-quote-simulation-v1",
+        "provenance": "DIRECT_POOL_STATE",
+        "reason": null
+      },
+      "holders": {
+        "status": "UNAVAILABLE",
+        "supply": "989324101757984",
+        "largestRawTokenAccountPct": null,
+        "largestResolvedOwnerPct": null,
+        "top10ResolvedOwnerPct": null,
+        "unresolvedConcentrationPct": null,
+        "resolvedAccounts": 0,
+        "excludedSystemOwners": [],
+        "reason": "provider returned HTTP 403",
+        "evidenceIds": [],
+        "largestBurnPct": null
+      },
+      "activity": {
+        "status": "AVAILABLE",
+        "observationWindow": {
+          "first": "2026-10-06T23:05:35.000Z",
+          "last": "2026-10-06T23:06:21.000Z"
+        },
+        "sampleCount": 30,
+        "trades": [
+          {
+            "side": "BUY",
+            "wallet": "8i7DCF6nRFuQcVdve3BUfj2GZDncPam2SYonSS9onh1H",
+            "baseAmount": "611681202147",
+            "quoteAmount": "2558442071",
+            "timestamp": 1791327935,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "3TQpwU7kJMBrTnaHgEjbmCEBR89TUJkpDkxBgSfpq9jzrFJ9XejyuJRirejuRmXxBK3uceHjtKysD7Zff1BTNDd5",
+            "slot": "454043404"
+          },
+          {
+            "side": "BUY",
+            "wallet": "8Y4JoomVkZs4mvad7DDqe2wpYZTDdrqFsCY7K92n3T4Y",
+            "baseAmount": "570815117306",
+            "quoteAmount": "2430263890",
+            "timestamp": 1791327936,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5SWPtoCtXwrErj7auma1QcJnsJ9ipWD72UP5LUP68sxTSwwiemS8k8Sik3wFwYFKZnbD36iR34txfvmyLSu8N3bD",
+            "slot": "454043405"
+          },
+          {
+            "side": "BUY",
+            "wallet": "9eiWxQDekXHPqSkXdshLqwUz46QMf5KkN81BU8jFhvqC",
+            "baseAmount": "5996565415",
+            "quoteAmount": "25753795",
+            "timestamp": 1791327937,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "qYqQ5TXKSFgPoYBe48DdTVwdwULN68kkNsrf2Mdus6b7ffQpahWb99YeMt7U4BhjiTZgZnaDYXDmsDbFRHfkZe9",
+            "slot": "454043411"
+          },
+          {
+            "side": "BUY",
+            "wallet": "FW8tRVDvw6RMhqgPdb3oVSaALU2VJaHK2jg7Ay8fvMe",
+            "baseAmount": "8453958018",
+            "quoteAmount": "36315644",
+            "timestamp": 1791327940,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "cgaZoqEw8Ai1DN7CNiWTzy7aHfrztoidepiM5GXeTcGo7Ky3nCcTjNw7ewL9QiKxKQsC4wzJYF1C4AgLmX6e8Mo",
+            "slot": "454043422"
+          },
+          {
+            "side": "SELL",
+            "wallet": "DjJJT8D2dAvtfRUbEW7XEdm5foVbMM6MUn4bf4Z9BUCq",
+            "baseAmount": "805189828341",
+            "quoteAmount": "3382146799",
+            "timestamp": 1791327941,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "2D88k2t5pq5cucVGCTyYGURikBw6o8EuUPcd6jpY4sUi2pRAu6jqFydc4pbhC95MoxS42eEVSgFwzfqwBA7w6UA4",
+            "slot": "454043427"
+          },
+          {
+            "side": "BUY",
+            "wallet": "HzSph3S5PQMfPWkRa33VBX8eUTusdnguhpJaLtzVHZjm",
+            "baseAmount": "14733147296",
+            "quoteAmount": "61797866",
+            "timestamp": 1791327943,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "6royxkLuyZxmjbmnyxVUfQGr8rqqCks9RqEyShH9KzL5sjs8NsYHQ7tf6EXaaiZ1QFzfM81FFpzeq8Nf2RMxduP",
+            "slot": "454043433"
+          },
+          {
+            "side": "BUY",
+            "wallet": "6EpSbtXSagjRyDZUwNuxwpiPsUL9vn5DnhtUBFe7Da87",
+            "baseAmount": "5676483775",
+            "quoteAmount": "23817166",
+            "timestamp": 1791327945,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "3EvLHk7ueh1sFq1a9YvFkgy6rBE79iaAkwWJrNKGZBadNCdZDaLnivHNop4G98Y3vXMw37vWKYUQhUr3hiTzn4Ga",
+            "slot": "454043442"
+          },
+          {
+            "side": "BUY",
+            "wallet": "3w53GXqSRNXXaan7MKJ5wE9XBfr4mgnAp9KvYoUFsBnW",
+            "baseAmount": "144989605057",
+            "quoteAmount": "609715150",
+            "timestamp": 1791327947,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5ubWFGyfCMxHyuhFcJ1yJwyqgaGFNiNnPXSPsxEHaZbLvuBeWkcQFhkxWmqNUi6nWfbJYKVANUXMw788fJMTnV4A",
+            "slot": "454043448"
+          },
+          {
+            "side": "BUY",
+            "wallet": "CG4v88NfJttLnDeUBeMXvuoVVtM2HAJW5GyJpNrhT9Ch",
+            "baseAmount": "11460214350",
+            "quoteAmount": "48306092",
+            "timestamp": 1791327948,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "oBT8T4kFqks4pz9e8V5N7aKgKgg6yte2MJ4UQ6kRqUkUr7Msgrp6etX4WgiyGmLJ3WWYt9bzw5HRyM1cGopw7bN",
+            "slot": "454043451"
+          },
+          {
+            "side": "BUY",
+            "wallet": "9eiWxQDekXHPqSkXdshLqwUz46QMf5KkN81BU8jFhvqC",
+            "baseAmount": "5077849478",
+            "quoteAmount": "21409021",
+            "timestamp": 1791327950,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5EtyXJdopAFykXF8vw7noMfuRWNBWrbogAzgPv4EAxViLFjr52xVPhpR7ezSWPEDVnL6GFCLEsCLPaVZ1E6hiquy",
+            "slot": "454043462"
+          },
+          {
+            "side": "BUY",
+            "wallet": "7ivKULPRt9PaAB4GfDmEabp4HgUufxwrRHfPj35SiDRT",
+            "baseAmount": "49518772530",
+            "quoteAmount": "208950000",
+            "timestamp": 1791327951,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5BUfbaevhHuPCexj9pxwbYTbvVvkSEWosJ4CDEJT7WN7mrrJypAb7ac845mCdtuM8cRZJ2fqmAtGDYPq6FXdDeqT",
+            "slot": "454043465"
+          },
+          {
+            "side": "SELL",
+            "wallet": "AULWTzLjytAWKF2pAmg64KPbjS2omw94DzJaHV94udZe",
+            "baseAmount": "824061783234",
+            "quoteAmount": "3401604356",
+            "timestamp": 1791327952,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "4TyKp9dQs5yV7JKsdSDkssZMMFWeoCnK8WwVpqM58YpSzBLj35DxZvb473ruP99S9GyR1TgoyS5xdWUNE2cy7rYL",
+            "slot": "454043469"
+          },
+          {
+            "side": "BUY",
+            "wallet": "BZfYVu14vigXNWXcrUP4CnYY4XdnR7UGE4bkj5NXrRWS",
+            "baseAmount": "14189807203",
+            "quoteAmount": "58479499",
+            "timestamp": 1791327953,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5pGqJHUQox4HqoRGoG2RDM3AFvRhsznUw5XTFAXX2fboP2ro9ev7X5XyTHPrigwzvJPqeqqRxYcpLvU9JdSJd9vN",
+            "slot": "454043470"
+          },
+          {
+            "side": "SELL",
+            "wallet": "4Pd4ktDLLywRVg8tXg12ZNaFY9Jgh2FFVa3ufrUtjE2M",
+            "baseAmount": "23400446084",
+            "quoteAmount": "95423616",
+            "timestamp": 1791327956,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "66ZAZS8KJiB3YpWCAr4B4spBsQTr8Yg4chAd8EcsDniWYAAY1D6NS96JdNzzBFfZKD3FA16afNq2FUmBi27rJiYC",
+            "slot": "454043481"
+          },
+          {
+            "side": "BUY",
+            "wallet": "2ASNEKCrCT2EE6mFojmwnaMGuUGpHbq9nHnxVHmhg3vx",
+            "baseAmount": "159239341148",
+            "quoteAmount": "657201797",
+            "timestamp": 1791327958,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "4qFWkkdAHWYx6jce5NMm41fQhPTfXhNbV1nkhLcsVtHf26YSWgvEcFPTUkjydvxU43mZzCCFNFQ886AkUsccuz4d",
+            "slot": "454043491"
+          },
+          {
+            "side": "SELL",
+            "wallet": "BPbvRLYFUd7usLJnasWUbSbGWsebvfRpwaUijZAmK2vX",
+            "baseAmount": "15164065481",
+            "quoteAmount": "61801576",
+            "timestamp": 1791327958,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "438iDAN6QnYMjqzQPnQCmsf7EbVZJQzJvgoEcSbTyjqxvUz4UupGBi6XYozd4FP7dvzDUCu36xL44Te6XNP8F7j9",
+            "slot": "454043491"
+          },
+          {
+            "side": "BUY",
+            "wallet": "HzSph3S5PQMfPWkRa33VBX8eUTusdnguhpJaLtzVHZjm",
+            "baseAmount": "9766343224",
+            "quoteAmount": "40408330",
+            "timestamp": 1791327961,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5FygGJx2EdW4ATCq7YEpwVE2BkqZp1K4J5kqCpEfoWov7SUwtT7Pj8c4PbwPEt4SBf7FnML1Nb4599MxyEDWJZZL",
+            "slot": "454043500"
+          },
+          {
+            "side": "BUY",
+            "wallet": "CG4v88NfJttLnDeUBeMXvuoVVtM2HAJW5GyJpNrhT9Ch",
+            "baseAmount": "4540540745",
+            "quoteAmount": "18790525",
+            "timestamp": 1791327963,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "3uX3hX3LYhBGfvQoFXB2dj3BKg6hsdzogVdcukT3rxCcjxukYB3Uhj1K7vWEfpNFTjZSRVAJCKCihS4i7cari8Q3",
+            "slot": "454043510"
+          },
+          {
+            "side": "BUY",
+            "wallet": "FXxRsfhXmHGePJCSs2qMeUcn7QFbHgXfwRrDu6w27qtw",
+            "baseAmount": "325101007269",
+            "quoteAmount": "1352012111",
+            "timestamp": 1791327964,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "2Pq2ub71gSJjAz15BxrG28PFoxDi81JdTkqKYzCc8Mm56TQjptqvuX6f682478KEhhBx1akiVT8K7tWPS1bJKwSm",
+            "slot": "454043512"
+          },
+          {
+            "side": "BUY",
+            "wallet": "BZfYVu14vigXNWXcrUP4CnYY4XdnR7UGE4bkj5NXrRWS",
+            "baseAmount": "13242078620",
+            "quoteAmount": "55349042",
+            "timestamp": 1791327966,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "36K6X8Sw4hxxBu57GpbRWLGB383bMradexGTDbGixHcXxCbL7XrbTrorgKuyhJX7rkx596vHu3VkEYpDosdPFVRV",
+            "slot": "454043520"
+          },
+          {
+            "side": "SELL",
+            "wallet": "4Pd4ktDLLywRVg8tXg12ZNaFY9Jgh2FFVa3ufrUtjE2M",
+            "baseAmount": "15771091254",
+            "quoteAmount": "65232367",
+            "timestamp": 1791327968,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "41ZaWmBy2WLfxcUmQZS6CUrJXtxi6HuuDLYNJwhpYWiv7H9JhmGhZL6jKew5zS9M4VCdc4Eh85hMnpVDLif5Nx2E",
+            "slot": "454043529"
+          },
+          {
+            "side": "BUY",
+            "wallet": "GGmSvnXb9Tr6uxAJkVj8WGmGjqLAJq4a8P3CpSa5HUVM",
+            "baseAmount": "260116476108",
+            "quoteAmount": "1091169995",
+            "timestamp": 1791327969,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "eBi1KhcmUynoRo7zGBDnHAU3Xj3JQUYp3kzF9Ckn89mvN7obVRv1CkbzCb783fnDjfUk93ECGWB4iZCkRPiMcKQ",
+            "slot": "454043533"
+          },
+          {
+            "side": "SELL",
+            "wallet": "4K1aGN4oonpSvWrcbgd3Hk1kSdmaAxaYCrPZVvefeZCJ",
+            "baseAmount": "10982110023",
+            "quoteAmount": "45760925",
+            "timestamp": 1791327971,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "4koeAT6oiMNBryngDUsgrTgdTLiGY6RLmAAjWg3eJx9WqMSpexcw2hdxLLSeDLdGxGWWgqVWYEY3vHiSR733m9U5",
+            "slot": "454043539"
+          },
+          {
+            "side": "SELL",
+            "wallet": "5JKXLiR46ieKytvR3yG9mrCB7NjALxqDmDdNwZy4Rhkd",
+            "baseAmount": "23791839793",
+            "quoteAmount": "99085710",
+            "timestamp": 1791327973,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "4zxPNejaYDF9528jitX3GJU12jqM6K1nHq9xGX996NHdswzvE9t7Trb6VQY4WiLYztDwiwixyFxjFwizouyS2zUk",
+            "slot": "454043547"
+          },
+          {
+            "side": "BUY",
+            "wallet": "db5JSWaTrEcfmyX2vYCWF8RqjtQncitnNWMfKkHFGXk",
+            "baseAmount": "416120046772",
+            "quoteAmount": "1761560558",
+            "timestamp": 1791327975,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "4z8oV2t3vcoCiyDrm1tj4eu8mjWFF9RgjYjU7WRHJgP9Bx5SxhXp4v52HnCRLemGkk5TbgEteeuk1qH3Aismw4Bp",
+            "slot": "454043552"
+          },
+          {
+            "side": "SELL",
+            "wallet": "7V3ZTXSYtpZ5nGdXpxr9LSV8SRQLjBvrvc3awc2hvzMg",
+            "baseAmount": "12190773598",
+            "quoteAmount": "51382304",
+            "timestamp": 1791327976,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "2b6UJvz65M9BkquQqTXSBR2sHxeKA1Nw6PH4HNfr4kfUZMx99h4CSbij8nY1FdC86zrUgGdJT8r7iALWy54dw7Rw",
+            "slot": "454043556"
+          },
+          {
+            "side": "BUY",
+            "wallet": "6q3ikMXMAEtwj9sWRqi7e1VjgyER2AUcX7A7Rh18EA3s",
+            "baseAmount": "1350168497",
+            "quoteAmount": "5749578",
+            "timestamp": 1791327978,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "5VjKopo2xmwjjhfFgA37p6VBv78sNBGjFxNtPyXFviAWLcsBUup62GCF7gUTUF6rqaJxiNfZcvzeGYkVXSs8oXHM",
+            "slot": "454043564"
+          },
+          {
+            "side": "BUY",
+            "wallet": "CG4v88NfJttLnDeUBeMXvuoVVtM2HAJW5GyJpNrhT9Ch",
+            "baseAmount": "9543604212",
+            "quoteAmount": "40647290",
+            "timestamp": 1791327979,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "41s2XZ44JtRYj5XaXJkwPJDWUckQozSDJCUiR6vPPrEadNAzcXFC6wzn1dvxAsrK6ecURuupovudnTQea9y9xeAy",
+            "slot": "454043566"
+          },
+          {
+            "side": "SELL",
+            "wallet": "AULWTzLjytAWKF2pAmg64KPbjS2omw94DzJaHV94udZe",
+            "baseAmount": "158092286301",
+            "quoteAmount": "664848939",
+            "timestamp": 1791327980,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_SELL_EVENT",
+            "signature": "4giXcrK5XVuQjeqNoXbuaM4YA2c57kY3MnY78qxo2CfNSaVskRvaXDGqyeykt1vzWGBfk3xcUuSW9bFgMRV9nG9U",
+            "slot": "454043572"
+          },
+          {
+            "side": "BUY",
+            "wallet": "35zAVwP1kn6pPf1GiJEMANfvMaAeKDmHZfitUdeZQDWC",
+            "baseAmount": "1725054982",
+            "quoteAmount": "7313612",
+            "timestamp": 1791327981,
+            "pool": "A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj",
+            "source": "PUMPSWAP_BUY_EVENT",
+            "signature": "61s2ZwxGPJ8e2VZ2XzNwR3uPSq8d6a867TxcWXuocvsULq2VosaUHF6P5RTqrSu4PBXgCg1U3cK7gNaoFv96qrTw",
+            "slot": "454043574"
+          }
+        ],
+        "source": "PUMPSWAP_EVENTS",
+        "reason": null
+      },
+      "creator": {
+        "launchCreator": null,
+        "coinCreator": "6Z4ab4eUif5PGk1gU7Q2yMbFNhK1mn7eQUvMvSBMaHPN",
+        "metadataAuthority": null,
+        "assessment": "UNKNOWN"
+      },
+      "rugcheck": {
+        "status": "AVAILABLE",
+        "reason": null
+      },
+      "geckoTerminal": {
+        "status": "AVAILABLE",
+        "poolCount": 2,
+        "history": {
+          "status": "AVAILABLE",
+          "candles": 3,
+          "first": "2026-10-06T21:00:00.000Z",
+          "last": "2026-10-06T23:00:00.000Z"
+        }
+      },
+      "sourceFamilies": [
+        "PUMPSWAP:A2ASUorCeTj9KWkmzhF3PvSSLGzrNMNgHiQkU8UEGQmj"
+      ],
+      "integrityStatus": "PENDING",
+      "derivativesStatus": "UNASSESSED",
+      "hardGates": [],
+      "exactBlockers": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ]
+    },
+    {
+      "mint": "3zzhzEJKpZgfx1ymd5DSU3y3NzkzAwVRHkvRfVq6pump",
+      "symbol": "SDOGE",
+      "marketId": null,
+      "canonicalPool": "4wVB2dHkmAyBPL4XAifvCC8k59JAFGbJYCKTEczPVTwA",
+      "graduationStatus": "UNKNOWN",
+      "lpControl": "UNKNOWN",
+      "directPrice": {
+        "status": "AVAILABLE",
+        "priceQuotePerBase": "22137755668/927056064083957",
+        "baseReserve": "927056064083957",
+        "rawQuoteReserve": "4553250378",
+        "effectiveQuoteReserve": "22137755668",
+        "feeBps": "30",
+        "formulaVersion": "pumpswap-constant-product-effective-quote-v1",
+        "slot": "454043933",
+        "evidenceHash": "0x9772563ef5e36e96da065f33bca55d4aac8c1161314fd56cc6bc401569b95b21",
+        "reason": null
+      },
+      "directDepth": {
+        "status": "AVAILABLE",
+        "quoteAsset": "So11111111111111111111111111111111111111112",
+        "feeBps": "30",
+        "buy1": "110745669",
+        "sell1": "110635655",
+        "buy2": "220944435",
+        "sell2": "221834855",
+        "buy5": "548338587",
+        "sell5": "558901326",
+        "formulaVersion": "pumpswap-executable-quote-simulation-v1",
+        "provenance": "DIRECT_POOL_STATE",
+        "reason": null
+      },
+      "holders": {
+        "status": "UNAVAILABLE",
+        "supply": "975077375505295",
+        "largestRawTokenAccountPct": null,
+        "largestResolvedOwnerPct": null,
+        "top10ResolvedOwnerPct": null,
+        "unresolvedConcentrationPct": null,
+        "resolvedAccounts": 0,
+        "excludedSystemOwners": [],
+        "reason": "provider returned HTTP 403",
+        "evidenceIds": [],
+        "largestBurnPct": null
+      },
+      "activity": {
+        "status": "UNAVAILABLE",
+        "observationWindow": {
+          "first": null,
+          "last": null
+        },
+        "sampleCount": 0,
+        "trades": [],
+        "source": "UNAVAILABLE",
+        "reason": "fetch failed"
+      },
+      "creator": {
+        "launchCreator": null,
+        "coinCreator": "BG1a4oUYxVPoGmaH6VnUC8bqT8YHKKDGMPbifoS4zVjD",
+        "metadataAuthority": null,
+        "assessment": "UNKNOWN"
+      },
+      "rugcheck": {
+        "status": "ERROR",
+        "reason": "fetch failed"
+      },
+      "geckoTerminal": {
+        "status": "ERROR",
+        "poolCount": 0,
+        "history": {
+          "status": "ERROR",
+          "candles": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "sourceFamilies": [
+        "PUMPSWAP:4wVB2dHkmAyBPL4XAifvCC8k59JAFGbJYCKTEczPVTwA"
+      ],
+      "integrityStatus": "PENDING",
+      "derivativesStatus": "UNASSESSED",
+      "hardGates": [],
+      "exactBlockers": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ]
+    },
+    {
+      "mint": "B574RvQ3aj2MCBbV2rta118uLwYYKf33nyLkjUcpump",
+      "symbol": "patryczek",
+      "marketId": null,
+      "canonicalPool": "FV8Kwkvp7hNBsyuPzvtgU5quHEcLV8rBN2DwSaeWQ4vM",
+      "graduationStatus": "UNKNOWN",
+      "lpControl": "UNKNOWN",
+      "directPrice": null,
+      "directDepth": null,
+      "holders": null,
+      "activity": null,
+      "creator": null,
+      "rugcheck": {
+        "status": "ERROR",
+        "reason": "fetch failed"
+      },
+      "geckoTerminal": {
+        "status": "ERROR",
+        "poolCount": 0,
+        "history": {
+          "status": "UNAVAILABLE",
+          "candles": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "sourceFamilies": [
+        "PUMPSWAP:FV8Kwkvp7hNBsyuPzvtgU5quHEcLV8rBN2DwSaeWQ4vM"
+      ],
+      "integrityStatus": "PENDING",
+      "derivativesStatus": "UNASSESSED",
+      "hardGates": [],
+      "exactBlockers": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE",
+        "INSUFFICIENT_DEPTH"
+      ]
+    },
+    {
+      "mint": "DmST7JayW46G1z8Xa4hQNUy932m6nto87n2YGCjSpump",
+      "symbol": "Souls",
+      "marketId": null,
+      "canonicalPool": "9XpP7VwFv3LsYYuGJhuBxbMLAQr81UaKscV8h4xas4pB",
+      "graduationStatus": "UNKNOWN",
+      "lpControl": "UNKNOWN",
+      "directPrice": null,
+      "directDepth": null,
+      "holders": null,
+      "activity": null,
+      "creator": null,
+      "rugcheck": {
+        "status": "ERROR",
+        "reason": "fetch failed"
+      },
+      "geckoTerminal": {
+        "status": "ERROR",
+        "poolCount": 0,
+        "history": {
+          "status": "UNAVAILABLE",
+          "candles": 0,
+          "first": null,
+          "last": null
+        }
+      },
+      "sourceFamilies": [
+        "PUMPSWAP:9XpP7VwFv3LsYYuGJhuBxbMLAQr81UaKscV8h4xas4pB"
+      ],
+      "integrityStatus": "PENDING",
+      "derivativesStatus": "UNASSESSED",
+      "hardGates": [],
+      "exactBlockers": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE",
+        "INSUFFICIENT_DEPTH"
+      ]
+    }
+  ],
+  "counts": {
+    "naturallyQualified": 0,
+    "qualified": 0,
+    "watch": 0,
+    "pending": 11,
+    "rejected": 0,
+    "derivativesEligible": 0,
+    "derivativesWatch": 0,
+    "derivativesUnassessedOrBlocked": 5
+  },
+  "pendingEvidenceMatrix": [
+    {
+      "marketId": null,
+      "mint": "ADPN2aqzY5RhkBC7bNQWFhTFFEYKY4drHUQG887Cpump",
+      "symbol": "CATCRAFT",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "45VHsie7CwFfPKWCw28PCdZdJWMA5Y6k56wDam9Hpump",
+      "symbol": "RARINU",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "3zzhzEJKpZgfx1ymd5DSU3y3NzkzAwVRHkvRfVq6pump",
+      "symbol": "SDOGE",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "B574RvQ3aj2MCBbV2rta118uLwYYKf33nyLkjUcpump",
+      "symbol": "patryczek",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE",
+        "INSUFFICIENT_DEPTH"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "DmST7JayW46G1z8Xa4hQNUy932m6nto87n2YGCjSpump",
+      "symbol": "Souls",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE",
+        "INSUFFICIENT_DEPTH"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    }
+  ],
+  "testnetWritePerformed": false,
+  "mainnetWritePerformed": false,
+  "contractRedeploymentPerformed": false
+}

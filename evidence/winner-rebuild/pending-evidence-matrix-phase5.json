@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "pending-evidence-matrix/phase5-v1",
+  "generatedAt": "2026-10-06T23:04:34.523Z",
+  "rules": "0.2.0",
+  "candidates": [
+    {
+      "marketId": null,
+      "mint": "ADPN2aqzY5RhkBC7bNQWFhTFFEYKY4drHUQG887Cpump",
+      "symbol": "CATCRAFT",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "45VHsie7CwFfPKWCw28PCdZdJWMA5Y6k56wDam9Hpump",
+      "symbol": "RARINU",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "3zzhzEJKpZgfx1ymd5DSU3y3NzkzAwVRHkvRfVq6pump",
+      "symbol": "SDOGE",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "B574RvQ3aj2MCBbV2rta118uLwYYKf33nyLkjUcpump",
+      "symbol": "patryczek",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE",
+        "INSUFFICIENT_DEPTH"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    },
+    {
+      "marketId": null,
+      "mint": "DmST7JayW46G1z8Xa4hQNUy932m6nto87n2YGCjSpump",
+      "symbol": "Souls",
+      "missing": [
+        "CANONICAL_MIGRATION_OR_POOL_PROOF_UNAVAILABLE",
+        "UNKNOWN_GRADUATION",
+        "LP_CONTROL",
+        "UNRESOLVED_OWNER_CONCENTRATION",
+        "INSUFFICIENT_ACTIVITY",
+        "UNKNOWN_CREATOR_RISK",
+        "UNKNOWN_FUNDING",
+        "UNAVAILABLE_HISTORY",
+        "NO_SECOND_INDEPENDENT_PRICE_SOURCE",
+        "INSUFFICIENT_DEPTH"
+      ],
+      "closureRule": "Resolve every listed mandatory applicable gate under risk-rules/0.2.0; no manual override."
+    }
+  ]
+}

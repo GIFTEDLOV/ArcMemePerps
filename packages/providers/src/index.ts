@@ -4,6 +4,7 @@ export * from "./evidence.js";
 export * from "./interfaces.js";
 export * from "./rpc.js";
 export * from "./solana-rpc.js";
+export * from "./pumpswap.js";
 export * from "./dexscreener.js";
 export * from "./goplus.js";
 export * from "./helius.js";
