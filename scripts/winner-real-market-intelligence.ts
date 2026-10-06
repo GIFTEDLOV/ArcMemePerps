@@ -1,7 +1,7 @@
 import { writeFileSync, readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { GenericEvmChainAdapter, SolanaChainAdapter } from "@arcmemeperps/chain-adapters";
-import { assessRisk } from "@arcmemeperps/risk-engine";
+import { assessRisk, AUDITED_RISK_RULES, type RiskEvaluationMode } from "@arcmemeperps/risk-engine";
 import { NETWORK_CONFIGS, rpcUrlsForNetwork } from "@arcmemeperps/shared";
 
 type SnapshotMarket = {
@@ -100,10 +100,14 @@ function jsonSafe(value: unknown): unknown {
 }
 
 const results = [];
+const evaluationMode: RiskEvaluationMode = process.env.WINNER_RISK_MODE === "AUDITED" ? "AUDITED" : "LEGACY";
 for (const candidate of candidates) {
   try {
     const record = await adapterFor(candidate.chain).inspectToken(candidate.tokenAddress);
-    const assessment = assessRisk(record, { assessedAt: new Date().toISOString() });
+    const assessment = assessRisk(record, {
+      assessedAt: new Date().toISOString(),
+      ...(evaluationMode === "AUDITED" ? { rules: AUDITED_RISK_RULES, mode: "AUDITED" as const } : {}),
+    });
     results.push({
       candidate,
       status: "AVAILABLE",
@@ -111,7 +115,9 @@ for (const candidate of candidates) {
       assessment: {
         integrityStatus: assessment.integrityStatus,
         derivativesStatus: assessment.derivativesStatus,
+        hardGates: assessment.hardGates,
         rejectionReasons: assessment.rejectionReasons,
+        unknownReasons: assessment.unknownReasons,
         warnings: assessment.warnings,
         recommendedMaxLeverage: assessment.recommendedMaxLeverage,
         recommendedMaxOI: assessment.recommendedMaxOI,
@@ -135,8 +141,10 @@ const output = {
   fetchedAt: new Date().toISOString(),
   evaluatedMarketCount: snapshot.markets.length,
   candidateSelection: "LIQUIDITY_AND_VOLUME_STRATIFIED_ACROSS_ALL_DISCOVERED_CHAINS",
-  enrichmentMode: "CANONICAL_RPC_PLUS_DEXSCREENER_PLUS_GECKOTERMINAL_OPTIONAL_CREDENTIALS_IF_CONFIGURED",
+  enrichmentMode: "CANONICAL_RPC_PLUS_DEXSCREENER_PLUS_GECKOTERMINAL_PLUS_RUGCHECK_OPTIONAL_CREDENTIALS_IF_CONFIGURED",
+  riskEvaluationMode: evaluationMode,
   candidates: results,
 };
-writeFileSync(resolve(process.cwd(), "evidence/winner-rebuild/real-market-intelligence.json"), `${JSON.stringify(jsonSafe(output), null, 2)}\n`);
+const outputPath = process.env.WINNER_INTELLIGENCE_OUTPUT ?? "evidence/winner-rebuild/real-market-intelligence.json";
+writeFileSync(resolve(process.cwd(), outputPath), `${JSON.stringify(jsonSafe(output), null, 2)}\n`);
 process.stdout.write(`${JSON.stringify({ fetchedAt: output.fetchedAt, evaluatedMarketCount: snapshot.markets.length, candidateCount: results.length, available: results.filter((item) => item.status === "AVAILABLE").length })}\n`);

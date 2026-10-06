@@ -21,16 +21,19 @@ import {
   GeckoTerminalProvider,
   HeliusProvider,
   SolanaRpcProvider,
+  RugCheckProvider,
   ProviderPool,
   unavailableEvidence,
   type BubblemapsObservation,
   type DexAggregate,
   type GoPlusSecurityObservation,
   type GeckoTokenObservation,
+  type GeckoOhlcvPoint,
   type HeliusAssetObservation,
   type ProviderResult,
   type RpcTokenEvidence,
   type SolanaMintEvidence,
+  type RugCheckObservation,
 } from "@arcmemeperps/providers";
 import type { EvmNetworkConfig, SolanaNetworkConfig, SupportedChain } from "@arcmemeperps/shared";
 import type {
@@ -149,13 +152,14 @@ export class GenericEvmChainAdapter implements LiveInspectionAdapter {
       dex.value?.pairs ?? [],
       fetchedAt,
     );
+    const history = await readGeckoHistory(this.gecko, gecko.value, dex.value, fetchedAt);
     const goPlus = noEnrichment
       ? unavailableResult(this.chain, this.network.name, "goplus", "NO_ENRICHMENT")
       : await this.goPlus.readToken(normalized, fetchedAt);
     const bubbles = noEnrichment
       ? unavailableResult(this.chain, this.network.name, "bubblemaps", "NO_ENRICHMENT")
       : await this.bubbles.readToken(normalized, fetchedAt);
-    return buildEvmRecord(this.network, normalized, fetchedAt, rpc, dex, gecko, directDepth, goPlus, bubbles);
+    return buildEvmRecord(this.network, normalized, fetchedAt, rpc, dex, gecko, history, directDepth, goPlus, bubbles);
   }
 
   public discoverTokens(query?: DiscoverTokensQuery): Promise<readonly TokenIdentity[]> {
@@ -263,6 +267,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
   private readonly goPlus: GoPlusProvider;
   private readonly bubbles: BubblemapsProvider;
   private readonly helius: HeliusProvider;
+  private readonly rugCheck: RugCheckProvider;
   private readonly gecko: GeckoTerminalProvider;
   private readonly options: LiveAdapterOptions;
 
@@ -304,6 +309,7 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
       network,
       options.heliusApiKey === undefined ? {} : { apiKey: options.heliusApiKey },
     );
+    this.rugCheck = new RugCheckProvider(network);
     this.gecko = new GeckoTerminalProvider(network);
   }
 
@@ -330,9 +336,13 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
     const bubbles = noEnrichment
       ? unavailableResult("SOLANA", this.network.name, "bubblemaps", "NO_ENRICHMENT")
       : await this.bubbles.readToken(normalized, fetchedAt);
-    const helius = noEnrichment
+  const helius = noEnrichment
       ? unavailableResult("SOLANA", this.network.name, "helius", "NO_ENRICHMENT")
       : await this.helius.readAsset(normalized, fetchedAt);
+    const rugCheck = noEnrichment
+      ? unavailableResult("SOLANA", this.network.name, "rugcheck", "NO_ENRICHMENT")
+      : await this.rugCheck.readToken(normalized, fetchedAt);
+    const history = await readGeckoHistory(this.gecko, gecko.value, dex.value, fetchedAt);
     return buildSolanaRecord(
       this.network,
       normalized,
@@ -343,6 +353,8 @@ export class SolanaChainAdapter implements LiveInspectionAdapter {
       goPlus,
       bubbles,
       helius,
+      rugCheck,
+      history,
     );
   }
 
@@ -470,6 +482,7 @@ function buildEvmRecord(
   rpc: ProviderResult<RpcTokenEvidence>,
   dex: ProviderResult<DexAggregate>,
   gecko: ProviderResult<GeckoTokenObservation>,
+  history: ProviderResult<readonly GeckoOhlcvPoint[]>,
   directDepth: DirectEvmDepthResult,
   goPlus: ProviderResult<GoPlusSecurityObservation>,
   bubbles: ProviderResult<BubblemapsObservation>,
@@ -502,7 +515,7 @@ function buildEvmRecord(
   };
   const activity: ActivityQualityMetrics = {
     organicVolume24hUsd: null,
-    realizedVolatility30dPct: null,
+    realizedVolatility30dPct: realizedVolatilityFromHistory(history.value),
     washTradingDetected: null,
     volumeFarmingDetected: null,
     suspiciousEarlyBuyers: null,
@@ -512,7 +525,7 @@ function buildEvmRecord(
   };
   const oracle = oracleMetrics(d, gecko.value, fetchedAt);
   const derivatives = derivativesMetrics(liquidity, activity, oracle);
-  const evidence = [...rpc.evidence, ...dex.evidence, ...gecko.evidence, ...directDepth.evidence, ...goPlus.evidence, ...bubbles.evidence];
+  const evidence = [...rpc.evidence, ...dex.evidence, ...gecko.evidence, ...history.evidence, ...directDepth.evidence, ...goPlus.evidence, ...bubbles.evidence];
   return makeRecord(
     token,
     lifecycle,
@@ -529,9 +542,10 @@ function buildEvmRecord(
     r?.blockNumber?.toString() ?? null,
     r?.blockHash ?? null,
     null,
+    historyPoints(history.value, historyEvidencePool(history.evidence), "day"),
     providerAvailability(
-      [rpc, dex, gecko, goPlus, bubbles],
-      ["canonical-evm-rpc", "dexscreener", "geckoterminal", "goplus", "bubblemaps"],
+      [rpc, dex, gecko, history, goPlus, bubbles],
+      ["canonical-evm-rpc", "dexscreener", "geckoterminal", "geckoterminal-ohlcv", "goplus", "bubblemaps"],
       fetchedAt,
     ),
   );
@@ -547,6 +561,8 @@ function buildSolanaRecord(
   goPlus: ProviderResult<GoPlusSecurityObservation>,
   bubbles: ProviderResult<BubblemapsObservation>,
   helius: ProviderResult<HeliusAssetObservation>,
+  rugCheck: ProviderResult<RugCheckObservation>,
+  history: ProviderResult<readonly GeckoOhlcvPoint[]>,
 ): MarketIntelligenceRecord {
   const r = rpc.value;
   const d = dex.value;
@@ -585,7 +601,7 @@ function buildSolanaRecord(
   };
   const activity: ActivityQualityMetrics = {
     organicVolume24hUsd: null,
-    realizedVolatility30dPct: null,
+    realizedVolatility30dPct: realizedVolatilityFromHistory(history.value),
     washTradingDetected: null,
     volumeFarmingDetected: null,
     suspiciousEarlyBuyers: null,
@@ -602,6 +618,8 @@ function buildSolanaRecord(
     ...goPlus.evidence,
     ...bubbles.evidence,
     ...helius.evidence,
+    ...rugCheck.evidence,
+    ...history.evidence,
   ];
   return makeRecord(
     token,
@@ -619,9 +637,10 @@ function buildSolanaRecord(
     null,
     null,
     r?.slot.toString() ?? null,
+    historyPoints(history.value, historyEvidencePool(history.evidence), "day"),
     providerAvailability(
-      [rpc, dex, gecko, goPlus, bubbles, helius],
-      ["canonical-solana-rpc", "dexscreener", "geckoterminal", "goplus", "bubblemaps", "helius"],
+      [rpc, dex, gecko, history, goPlus, bubbles, helius, rugCheck],
+      ["canonical-solana-rpc", "dexscreener", "geckoterminal", "geckoterminal-ohlcv", "goplus", "bubblemaps", "helius", "rugcheck"],
       fetchedAt,
     ),
   );
@@ -643,6 +662,7 @@ function makeRecord(
   blockNumber: string | null,
   blockHash: Hex | null,
   slot: string | null,
+  history: MarketIntelligenceRecord["history"],
   providerAvailability: MarketIntelligenceRecord["providerAvailability"],
 ): MarketIntelligenceRecord {
   const bundle: EvidenceBundle = { schemaVersion: "1", records: evidence };
@@ -662,6 +682,7 @@ function makeRecord(
     evidenceRoot: root,
     evidenceSchemaVersion: "1",
     evidence,
+    history,
     assessmentPosition: { chain, blockNumber, blockHash, slot },
     providerAvailability,
     dataQuality: {
@@ -886,6 +907,66 @@ function derivativesMetrics(
     liquidationCapacityUsd: null,
   };
 }
+
+async function readGeckoHistory(
+  provider: GeckoTerminalProvider,
+  gecko: GeckoTokenObservation | null,
+  dex: DexAggregate | null,
+  fetchedAt: string,
+): Promise<ProviderResult<readonly GeckoOhlcvPoint[]>> {
+  const pool = selectedHistoryPool(gecko, dex);
+  if (pool === null) {
+    return unavailableResult(provider.network.chain, provider.network.name, "geckoterminal-ohlcv", "NO_SUPPORTED_POOL");
+  }
+  return provider.readOhlcv(pool, fetchedAt, "day", 1, 100);
+}
+
+function selectedHistoryPool(
+  gecko: GeckoTokenObservation | null,
+  dex: DexAggregate | null,
+): string | null {
+  const candidates = [
+    ...(gecko?.pools ?? []).map((pool) => ({ address: pool.poolAddress, liquidity: pool.liquidityUsd ?? -1 })),
+    ...(dex?.pairs ?? []).map((pair) => ({ address: pair.pairAddress, liquidity: pair.liquidityUsd ?? -1 })),
+  ].sort((left, right) => right.liquidity - left.liquidity);
+  return candidates[0]?.address ?? null;
+}
+
+function historyEvidencePool(evidence: readonly EvidenceRecord[]): string | null {
+  const id = evidence.find((item) => item.kind === "gecko-pool-ohlcv")?.evidenceId ?? null;
+  if (id === null) return null;
+  const parts = id.split(":");
+  return parts.length >= 3 ? parts[2] ?? null : null;
+}
+
+function historyPoints(
+  points: readonly GeckoOhlcvPoint[] | null,
+  poolAddress: string | null,
+  timeframe: string,
+): MarketIntelligenceRecord["history"] {
+  if (points === null || poolAddress === null) return [];
+  return points.map((point) => ({ ...point, observedAt: point.timestamp, provider: "geckoterminal", poolAddress, timeframe }));
+}
+
+function realizedVolatilityFromHistory(points: readonly GeckoOhlcvPoint[] | null): number | null {
+  if (points === null || points.length < 20) return null;
+  const ordered = [...points].sort((left, right) => Date.parse(left.timestamp) - Date.parse(right.timestamp));
+  const first = Date.parse(ordered[0]!.timestamp);
+  const last = Date.parse(ordered.at(-1)!.timestamp);
+  if (!Number.isFinite(first) || !Number.isFinite(last) || last - first < 20 * 86_400_000) return null;
+  const returns: number[] = [];
+  for (let index = 1; index < ordered.length; index += 1) {
+    const previous = ordered[index - 1]!.closeUsd;
+    const current = ordered[index]!.closeUsd;
+    if (previous <= 0 || current <= 0) continue;
+    returns.push(Math.log(current / previous));
+  }
+  if (returns.length < 20) return null;
+  const mean = returns.reduce((sum, value) => sum + value, 0) / returns.length;
+  const variance = returns.reduce((sum, value) => sum + (value - mean) ** 2, 0) / returns.length;
+  return Math.sqrt(variance) * Math.sqrt(365) * 100;
+}
+
 function unavailableResult(
   chain: MarketIntelligenceRecord["token"]["chain"],
   network: string,

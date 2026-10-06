@@ -27,6 +27,9 @@ export type LifecycleStatus = (typeof LIFECYCLE_STATUSES)[number];
 export const INTEGRITY_STATUSES = ["PENDING", "WATCH", "QUALIFIED", "REJECTED"] as const;
 export type IntegrityStatus = (typeof INTEGRITY_STATUSES)[number];
 
+export const GATE_STATES = ["PASS", "FAIL", "UNKNOWN"] as const;
+export type GateState = (typeof GATE_STATES)[number];
+
 export const DERIVATIVES_STATUSES = [
   "UNASSESSED",
   "WATCH",
@@ -76,7 +79,17 @@ export interface AuthorityState {
   readonly honeypotDetected: boolean | null;
 }
 
-export type LpLockStatus = "LOCKED" | "BURNED" | "PROTOCOL_CONTROLLED" | "WITHDRAWABLE" | "UNKNOWN";
+export type LpLockStatus =
+  | "LOCKED"
+  | "TIME_LOCKED"
+  | "BURNED"
+  | "PROTOCOL_CONTROLLED"
+  | "IMMUTABLE_MIGRATION_CONTROL"
+  | "DISTRIBUTED_NON_PRIVILEGED"
+  | "WITHDRAWABLE"
+  | "WITHDRAWABLE_BY_PRIVILEGED_ACTOR"
+  | "UNKNOWN"
+  | "UNAVAILABLE";
 
 export interface LiquidityState {
   readonly totalLiquidityUsd: number | null;
@@ -185,6 +198,9 @@ export type HardGateCode = (typeof HARD_GATE_CODES)[number];
 
 export interface HardGateResult {
   readonly code: HardGateCode;
+  /** Tri-state result. UNKNOWN is neither a pass nor a proven failure. */
+  readonly state: GateState;
+  /** Compatibility projection; true only when state is PASS. */
   readonly passed: boolean;
   readonly hard: true;
   readonly details: Readonly<Record<string, string | number | boolean | null>>;
@@ -213,6 +229,7 @@ export interface RiskAssessment {
     readonly derivatives: DerivativesCapacityMetrics;
   };
   readonly rejectionReasons: readonly RiskReason[];
+  readonly unknownReasons: readonly RiskReason[];
   readonly warnings: readonly RiskReason[];
   readonly recommendedMaxLeverage: number | null;
   readonly recommendedMaxOI: number | null;
@@ -233,6 +250,19 @@ export interface MarketObservation {
   readonly derivatives: DerivativesCapacityMetrics;
 }
 
+export interface MarketHistoryPoint {
+  readonly observedAt: string;
+  readonly openUsd: number;
+  readonly highUsd: number;
+  readonly lowUsd: number;
+  readonly closeUsd: number;
+  readonly volumeUsd: number | null;
+  readonly reserveUsd: number | null;
+  readonly provider: string;
+  readonly poolAddress: string;
+  readonly timeframe: string;
+}
+
 export interface MarketIntelligenceRecord extends MarketObservation {
   readonly marketId: Hex;
   readonly evidenceRoot: EvidenceRoot;
@@ -240,6 +270,7 @@ export interface MarketIntelligenceRecord extends MarketObservation {
   readonly evidence: readonly EvidenceRecord[];
   readonly assessmentPosition: AssessmentPosition;
   readonly providerAvailability: readonly ProviderAvailability[];
+  readonly history: readonly MarketHistoryPoint[];
   readonly dataQuality: {
     readonly status: "SUFFICIENT" | "PARTIAL" | "INSUFFICIENT";
     readonly reconciliationStatus:

@@ -7,6 +7,7 @@ import { GoPlusProvider } from "./goplus.js";
 import { GeckoTerminalProvider } from "./geckoterminal.js";
 import { HttpJsonClient } from "./http.js";
 import { SolanaRpcProvider } from "./solana-rpc.js";
+import { RugCheckProvider } from "./rugcheck.js";
 import { reconcileNumeric } from "./reconciliation.js";
 
 const fetchedAt = "2026-09-29T00:00:00.000Z";
@@ -164,6 +165,31 @@ describe("provider boundaries", () => {
     expect(result.status).toBe("AVAILABLE");
     expect(result.value).toHaveLength(1);
     expect(result.value?.[0]?.closeUsd).toBe(1.5);
+  });
+
+  it("keeps RugCheck enrichment separate from canonical Solana facts", async () => {
+    let request = 0;
+    const provider = new RugCheckProvider(NETWORK_CONFIGS.SOLANA, {
+      minRequestIntervalMs: 0,
+      client: new HttpJsonClient({
+        fetchImpl: () => {
+          request += 1;
+          const payload = request === 1
+            ? { mint: "Mint", creator: "Creator", mintAuthority: null, freezeAuthority: null, score: 12, topHolders: [{ address: "Wallet", pct: 4.2, amount: "42" }], risks: [{ name: "sample", level: "info" }] }
+            : { nodes: [{ address: "Wallet" }], edges: [] };
+          return Promise.resolve(new Response(JSON.stringify(payload), { status: 200 }));
+        },
+      }),
+    });
+    const result = await provider.readToken("Mint", fetchedAt);
+    expect(result.status).toBe("AVAILABLE");
+    expect(result.value?.creator).toBe("Creator");
+    expect(result.value?.topHolders[0]?.percentage).toBe(4.2);
+    expect(result.value?.insiderGraphAvailable).toBe(true);
+    expect(result.evidence.map((item) => item.kind)).toEqual([
+      "rugcheck-token-report",
+      "rugcheck-insider-graph",
+    ]);
   });
 
   it("keeps optional security and cluster evidence unavailable without credentials", async () => {

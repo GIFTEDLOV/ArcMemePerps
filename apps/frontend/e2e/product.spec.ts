@@ -11,7 +11,9 @@ test("landing explains the thesis and opens the terminal", async ({ page }) => {
 
 test("live discovery renders many real origin markets without canary defaults", async ({ page }) => {
   await page.goto("/markets");
-  await expect(page.getByText("30 discovered")).toBeVisible({ timeout: 20_000 });
+  const discovered = page.getByText(/\d+ discovered/);
+  await expect(discovered).toBeVisible({ timeout: 20_000 });
+  expect(Number((await discovered.innerText()).split(" ")[0])).toBeGreaterThanOrEqual(30);
   await expect(page.getByText("ARC-PRODUCT")).not.toBeVisible();
   await expect(page.getByText("0 Arc perp markets")).toBeVisible();
   await expect(page.locator(".market-row").first().getByText("ORIGIN ONLY")).toBeVisible();
@@ -20,10 +22,10 @@ test("live discovery renders many real origin markets without canary defaults", 
 test("exact market search and risk passport remain truthful", async ({ page }) => {
   await page.goto("/markets");
   const search = page.getByPlaceholder(/Exact address/i);
-  await search.fill("INFLUENCR");
+  await search.fill("Alice");
   await search.press("Enter");
-  await expect(page.getByText("INFLUENCR").first()).toBeVisible({ timeout: 20_000 });
-  await page.getByRole("link", { name: /INFLUENCR/i }).first().click();
+  await expect(page.getByText("Alice").first()).toBeVisible({ timeout: 20_000 });
+  await page.getByRole("link", { name: /Alice/i }).first().click();
   await expect(page.getByText("Risk passport")).toBeVisible();
   await expect(page.getByText("HISTORY_UNAVAILABLE")).toBeVisible();
   await expect(page.getByText("Origin market only")).toBeVisible();
@@ -41,7 +43,7 @@ test("mobile discovery has no horizontal overflow", async ({ page }) => {
   await page.goto("/markets");
   await expect(page.getByRole("heading", { name: /Find the next market/i })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  await page.getByRole("link", { name: /INFLUENCR/i }).first().click();
+  await page.getByRole("link", { name: /Alice/i }).first().click();
   await expect(page.getByText("Origin market only")).toBeVisible();
 });
 

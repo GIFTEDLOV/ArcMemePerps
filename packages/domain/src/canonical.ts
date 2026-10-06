@@ -99,10 +99,15 @@ export const MarketSnapshotSchema = z
         sellDepth2PctUsdWad: nonNegativeDecimalString.nullable(),
         securityStatus: z.enum([
           "LOCKED",
+          "TIME_LOCKED",
           "BURNED",
           "PROTOCOL_CONTROLLED",
+          "IMMUTABLE_MIGRATION_CONTROL",
+          "DISTRIBUTED_NON_PRIVILEGED",
           "WITHDRAWABLE",
+          "WITHDRAWABLE_BY_PRIVILEGED_ACTOR",
           "UNKNOWN",
+          "UNAVAILABLE",
         ]),
         earliestUnlockAt: isoTimestamp.nullable(),
       })
@@ -141,7 +146,7 @@ export const MarketSnapshotSchema = z
         upgradeable: z.boolean().nullable(),
         transferRestricted: z.boolean().nullable(),
         honeypot: z.boolean().nullable(),
-        lpSecurity: z.enum(["LOCKED", "BURNED", "PROTOCOL_CONTROLLED", "WITHDRAWABLE", "UNKNOWN"]),
+        lpSecurity: z.enum(["LOCKED", "TIME_LOCKED", "BURNED", "PROTOCOL_CONTROLLED", "IMMUTABLE_MIGRATION_CONTROL", "DISTRIBUTED_NON_PRIVILEGED", "WITHDRAWABLE", "WITHDRAWABLE_BY_PRIVILEGED_ACTOR", "UNKNOWN", "UNAVAILABLE"]),
         evidenceIds: z.array(z.string()).readonly(),
       })
       .strict(),

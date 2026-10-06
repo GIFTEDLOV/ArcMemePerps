@@ -9,5 +9,6 @@ export * from "./goplus.js";
 export * from "./helius.js";
 export * from "./bubblemaps.js";
 export * from "./geckoterminal.js";
+export * from "./rugcheck.js";
 export * from "./reconciliation.js";
 export * from "./pool.js";

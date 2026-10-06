@@ -1,0 +1,2188 @@
+{
+  "schemaVersion": "qualification-calibration/v1",
+  "generatedAt": "2026-10-05T21:30:50.504Z",
+  "input": {
+    "original": "evidence/winner-rebuild/real-market-intelligence.json",
+    "audited": "evidence/winner-rebuild/real-market-intelligence-phase3.json",
+    "discoveryMarketCount": 104
+  },
+  "currentRulesUnchanged": {
+    "total": 20,
+    "qualified": 0,
+    "watch": 0,
+    "pendingInsufficientEvidence": 0,
+    "rejectedUnsafe": 20,
+    "derivativesEligible": 0,
+    "derivativesWatch": 0,
+    "derivativesUnassessedOrBlocked": 20,
+    "failureFrequency": {
+      "MINT_AUTHORITY_ACTIVE": 16,
+      "FREEZE_AUTHORITY_ACTIVE": 16,
+      "DANGEROUS_OWNER_ADMIN_PRIVILEGE": 20,
+      "UPGRADEABILITY_RISK": 7,
+      "HONEYPOT_OR_TRANSFER_RESTRICTION": 20,
+      "LIQUIDITY_WITHDRAWABLE": 20,
+      "LP_UNLOCK_TOO_SOON": 20,
+      "DEPLOYER_CONCENTRATION": 20,
+      "INDIVIDUAL_HOLDER_CONCENTRATION": 20,
+      "CONNECTED_CLUSTER_CONCENTRATION": 20,
+      "BUNDLED_LAUNCH_CONCENTRATION": 20,
+      "KNOWN_RISK_DEPLOYER": 20,
+      "RELATED_WALLET_FUNDING": 20,
+      "SUSPICIOUS_EARLY_BUYERS": 20,
+      "WASH_TRADING": 20,
+      "VOLUME_FARMING": 20,
+      "SUSPICIOUS_TRANSACTION_REPETITION": 20,
+      "INSUFFICIENT_EVIDENCE": 20
+    },
+    "unknownFrequency": {},
+    "outcomes": [
+      {
+        "marketId": "0x4ecc8d965f780402689f13f49c09dd31b7b046f070415feb03caf1bfec3177f1",
+        "chain": "BASE",
+        "tokenAddress": "0x3c5cd672b204ba0fc48e93b98c0922920a87912d",
+        "symbol": "BSW",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x3f263649be0b9128066de916959ed204dd0b7eedf6f3c798addbb64ada1c1fa1",
+        "chain": "BNB",
+        "tokenAddress": "0x6d6521283cd3fd0188fe0408e700a5790a0f6c61",
+        "symbol": "GALABET",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "ORACLE_DISAGREEMENT",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x1fdaab60f0afc38572116cc5d21e4811e4660e7bee27e929da446b12c7fc8f8d",
+        "chain": "ETHEREUM",
+        "tokenAddress": "0x8e9de09f9b28c262e06d10766093e5069b1dcf3e",
+        "symbol": "BULL",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x5d32a0f390fef996a7a6524563548569c1758135e0e598adf7ee93dc7a60324c",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0x52C4c365CF5317C89C817Cf2516141613D38d08c",
+        "symbol": "AOTTR",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x78bd82e4bb4cbd6fb798999b186819ba2d438f73a14d951167fe681c716dd328",
+        "chain": "SOLANA",
+        "tokenAddress": "8Fnm6XUnY9DGQLh7tFM4SjQRbjfspfhTMyVSx7nXQNYB",
+        "symbol": "USDТ",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x1536cb18fd438aa0e224364980bf665fc8a9b461006f7d33d23864dd55accf97",
+        "chain": "BASE",
+        "tokenAddress": "0x07b3d902783c3c12b077508c3b5c00113d1291d0",
+        "symbol": "xdp",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x61bac066de373643600cb687af5a5ac670f9968f6501f6fb7308f5a7b9ffa2b0",
+        "chain": "BNB",
+        "tokenAddress": "0x30ed6a37665c50f799125923185b0fc171d36f0c",
+        "symbol": "BTC",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xb8591bd8f35a59d5db51e7e8a5dd46fa144a3034ffcee639a0f4675d13daf24c",
+        "chain": "ETHEREUM",
+        "tokenAddress": "0x622b6330f226bf08427dcad49c9ea9694604bf2d",
+        "symbol": "7AΩ∞",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xf0f16a90c86b044bca065ac1e9f733252628b94653360bbf3216fa451b674672",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec",
+        "symbol": "NVDA",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "ORACLE_DISAGREEMENT",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xc1688e526653c6c8bf3989358a162ed00fd239a6755ca1c85a6ab69cabfe7f3d",
+        "chain": "SOLANA",
+        "tokenAddress": "CyDJMENR6Sbtwj4erhuARNa5cNbeK92GpNAGyXLVpump",
+        "symbol": "jelly",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x3c1478166cbd10f75776875a4cc74850550ffe4c38e9f32a9c85433cc6b85244",
+        "chain": "BASE",
+        "tokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "symbol": "cbBTC",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "ORACLE_DISAGREEMENT",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x4475048e221d6309285d9d49f1dd706817a9fd072ec529b4462e2b98aeefbbe7",
+        "chain": "BNB",
+        "tokenAddress": "0x06bb166a33cf2734e09bc34022fc6e57d5350165",
+        "symbol": "Dr.Angel",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x5ed7fdba8b06c0aeb2fafbbadae09238fe6421a6335e9af06845e362bf321868",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0xee049979960d5e42b389b941ec45790ca7b6e1f7",
+        "symbol": "HI",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x6dfb850363c5dc760f887a833fbc9b715cb884dde4cb0dfb7e8c42de8c0a7e00",
+        "chain": "SOLANA",
+        "tokenAddress": "DYSk618g74BeMEGcmHZizxWUJCR2MhGxpdfu6vsppump",
+        "symbol": "Sacabambaspis",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x00b0e14175008ea1ac77c570024a10c1c08cc2c8ab4c59de1f86cded51a592d6",
+        "chain": "BASE",
+        "tokenAddress": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "symbol": "AERO",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "ORACLE_DISAGREEMENT",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xfc08c5fa86ce6128ae6fd7f6440798542d26201e9ed58a27aa2d9c77994b4d8c",
+        "chain": "BNB",
+        "tokenAddress": "0x2919b42e28ba205b56712425d09d98d3bdeb7b1a",
+        "symbol": "WBTCBR",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xa3f35304fe05d7b770296e917d0d95864a79e0466d8cd86df8ea289abc6d1cab",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0x6a6a57d1e94eb586c5b505a1c81434bda3d6ed97",
+        "symbol": "BABY",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xdace67ef22a81ed11e8d5b44da2d3b391a841d24d579756a2d961eab44dbeb2f",
+        "chain": "SOLANA",
+        "tokenAddress": "9aQwx5QQSpvrntr7EvHqRNbAqKrLUd9WaiqHGZoppump",
+        "symbol": "ANY",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0xe30c3774d1a70d169dbe8754b5a8a68b39a73832e71fc1d4d0c3e0c9a42050fc",
+        "chain": "BASE",
+        "tokenAddress": "0xb2000000000000000000004884b426556b92883d",
+        "symbol": "MSTRc",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "ORACLE_DISAGREEMENT",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      },
+      {
+        "marketId": "0x30c01b46dc654d8968b688dc53e9507dd90c10c874f04f84301860f47e27cab5",
+        "chain": "BNB",
+        "tokenAddress": "0x8bbe564a2736458e757792f4d01304290a877777",
+        "symbol": "GM",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "unknownGates": [],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_DEPTH_1_PERCENT",
+          "INSUFFICIENT_DEPTH_2_PERCENT",
+          "INSUFFICIENT_ORGANIC_VOLUME",
+          "EXCESSIVE_REALIZED_VOLATILITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE",
+          "INSUFFICIENT_MANIPULATION_RESISTANCE",
+          "INSUFFICIENT_LIQUIDATION_CAPACITY",
+          "INSUFFICIENT_SAFE_OPEN_INTEREST"
+        ]
+      }
+    ]
+  },
+  "auditedRules": {
+    "total": 20,
+    "qualified": 0,
+    "watch": 0,
+    "pendingInsufficientEvidence": 13,
+    "rejectedUnsafe": 7,
+    "derivativesEligible": 0,
+    "derivativesWatch": 0,
+    "derivativesUnassessedOrBlocked": 20,
+    "failureFrequency": {
+      "UPGRADEABILITY_RISK": 3,
+      "INDIVIDUAL_HOLDER_CONCENTRATION": 4
+    },
+    "unknownFrequency": {
+      "MINT_AUTHORITY_ACTIVE": 16,
+      "FREEZE_AUTHORITY_ACTIVE": 16,
+      "DANGEROUS_OWNER_ADMIN_PRIVILEGE": 20,
+      "HONEYPOT_OR_TRANSFER_RESTRICTION": 20,
+      "LIQUIDITY_WITHDRAWABLE": 20,
+      "LP_UNLOCK_TOO_SOON": 20,
+      "DEPLOYER_CONCENTRATION": 20,
+      "INDIVIDUAL_HOLDER_CONCENTRATION": 16,
+      "CONNECTED_CLUSTER_CONCENTRATION": 20,
+      "BUNDLED_LAUNCH_CONCENTRATION": 20,
+      "KNOWN_RISK_DEPLOYER": 20,
+      "RELATED_WALLET_FUNDING": 20,
+      "SUSPICIOUS_EARLY_BUYERS": 20,
+      "WASH_TRADING": 20,
+      "VOLUME_FARMING": 20,
+      "SUSPICIOUS_TRANSACTION_REPETITION": 20,
+      "INSUFFICIENT_EVIDENCE": 20,
+      "UPGRADEABILITY_RISK": 4
+    },
+    "outcomes": [
+      {
+        "marketId": "0x4ecc8d965f780402689f13f49c09dd31b7b046f070415feb03caf1bfec3177f1",
+        "chain": "BASE",
+        "tokenAddress": "0x3c5cd672b204ba0fc48e93b98c0922920a87912d",
+        "symbol": "BSW",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "UPGRADEABILITY_RISK"
+        ],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x3f263649be0b9128066de916959ed204dd0b7eedf6f3c798addbb64ada1c1fa1",
+        "chain": "BNB",
+        "tokenAddress": "0x6d6521283cd3fd0188fe0408e700a5790a0f6c61",
+        "symbol": "GALABET",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "UPGRADEABILITY_RISK"
+        ],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "ORACLE_DISAGREEMENT"
+        ]
+      },
+      {
+        "marketId": "0x1fdaab60f0afc38572116cc5d21e4811e4660e7bee27e929da446b12c7fc8f8d",
+        "chain": "ETHEREUM",
+        "tokenAddress": "0x8e9de09f9b28c262e06d10766093e5069b1dcf3e",
+        "symbol": "BULL",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY"
+        ]
+      },
+      {
+        "marketId": "0x5d32a0f390fef996a7a6524563548569c1758135e0e598adf7ee93dc7a60324c",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0x52C4c365CF5317C89C817Cf2516141613D38d08c",
+        "symbol": "AOTTR",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "ORACLE_DISAGREEMENT",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x78bd82e4bb4cbd6fb798999b186819ba2d438f73a14d951167fe681c716dd328",
+        "chain": "SOLANA",
+        "tokenAddress": "8Fnm6XUnY9DGQLh7tFM4SjQRbjfspfhTMyVSx7nXQNYB",
+        "symbol": "USDТ",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "INDIVIDUAL_HOLDER_CONCENTRATION"
+        ],
+        "unknownGates": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x1536cb18fd438aa0e224364980bf665fc8a9b461006f7d33d23864dd55accf97",
+        "chain": "BASE",
+        "tokenAddress": "0x07b3d902783c3c12b077508c3b5c00113d1291d0",
+        "symbol": "xdp",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x61bac066de373643600cb687af5a5ac670f9968f6501f6fb7308f5a7b9ffa2b0",
+        "chain": "BNB",
+        "tokenAddress": "0x30ed6a37665c50f799125923185b0fc171d36f0c",
+        "symbol": "BTC",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY"
+        ]
+      },
+      {
+        "marketId": "0xb8591bd8f35a59d5db51e7e8a5dd46fa144a3034ffcee639a0f4675d13daf24c",
+        "chain": "ETHEREUM",
+        "tokenAddress": "0x622b6330f226bf08427dcad49c9ea9694604bf2d",
+        "symbol": "7AΩ∞",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY"
+        ]
+      },
+      {
+        "marketId": "0xf0f16a90c86b044bca065ac1e9f733252628b94653360bbf3216fa451b674672",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec",
+        "symbol": "NVDA",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "UPGRADEABILITY_RISK"
+        ],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0xc1688e526653c6c8bf3989358a162ed00fd239a6755ca1c85a6ab69cabfe7f3d",
+        "chain": "SOLANA",
+        "tokenAddress": "CyDJMENR6Sbtwj4erhuARNa5cNbeK92GpNAGyXLVpump",
+        "symbol": "jelly",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "INDIVIDUAL_HOLDER_CONCENTRATION"
+        ],
+        "unknownGates": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x3c1478166cbd10f75776875a4cc74850550ffe4c38e9f32a9c85433cc6b85244",
+        "chain": "BASE",
+        "tokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+        "symbol": "cbBTC",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x4475048e221d6309285d9d49f1dd706817a9fd072ec529b4462e2b98aeefbbe7",
+        "chain": "BNB",
+        "tokenAddress": "0x06bb166a33cf2734e09bc34022fc6e57d5350165",
+        "symbol": "Dr.Angel",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY"
+        ]
+      },
+      {
+        "marketId": "0x5ed7fdba8b06c0aeb2fafbbadae09238fe6421a6335e9af06845e362bf321868",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0xee049979960d5e42b389b941ec45790ca7b6e1f7",
+        "symbol": "HI",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x6dfb850363c5dc760f887a833fbc9b715cb884dde4cb0dfb7e8c42de8c0a7e00",
+        "chain": "SOLANA",
+        "tokenAddress": "DYSk618g74BeMEGcmHZizxWUJCR2MhGxpdfu6vsppump",
+        "symbol": "Sacabambaspis",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "INDIVIDUAL_HOLDER_CONCENTRATION"
+        ],
+        "unknownGates": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY",
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0x00b0e14175008ea1ac77c570024a10c1c08cc2c8ab4c59de1f86cded51a592d6",
+        "chain": "BASE",
+        "tokenAddress": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+        "symbol": "AERO",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "ORACLE_DISAGREEMENT"
+        ]
+      },
+      {
+        "marketId": "0xfc08c5fa86ce6128ae6fd7f6440798542d26201e9ed58a27aa2d9c77994b4d8c",
+        "chain": "BNB",
+        "tokenAddress": "0x2919b42e28ba205b56712425d09d98d3bdeb7b1a",
+        "symbol": "WBTCBR",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0xa3f35304fe05d7b770296e917d0d95864a79e0466d8cd86df8ea289abc6d1cab",
+        "chain": "ROBINHOOD",
+        "tokenAddress": "0x6a6a57d1e94eb586c5b505a1c81434bda3d6ed97",
+        "symbol": "BABY",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_ORACLE_SOURCES",
+          "LOW_ORACLE_CONFIDENCE"
+        ]
+      },
+      {
+        "marketId": "0xdace67ef22a81ed11e8d5b44da2d3b391a841d24d579756a2d961eab44dbeb2f",
+        "chain": "SOLANA",
+        "tokenAddress": "9aQwx5QQSpvrntr7EvHqRNbAqKrLUd9WaiqHGZoppump",
+        "symbol": "ANY",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "hardFailures": [
+          "INDIVIDUAL_HOLDER_CONCENTRATION"
+        ],
+        "unknownGates": [
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "UPGRADEABILITY_RISK",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY"
+        ]
+      },
+      {
+        "marketId": "0xe30c3774d1a70d169dbe8754b5a8a68b39a73832e71fc1d4d0c3e0c9a42050fc",
+        "chain": "BASE",
+        "tokenAddress": "0xb2000000000000000000004884b426556b92883d",
+        "symbol": "MSTRc",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "ORACLE_DISAGREEMENT"
+        ]
+      },
+      {
+        "marketId": "0x30c01b46dc654d8968b688dc53e9507dd90c10c874f04f84301860f47e27cab5",
+        "chain": "BNB",
+        "tokenAddress": "0x8bbe564a2736458e757792f4d01304290a877777",
+        "symbol": "GM",
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED",
+        "hardFailures": [],
+        "unknownGates": [
+          "MINT_AUTHORITY_ACTIVE",
+          "FREEZE_AUTHORITY_ACTIVE",
+          "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "LIQUIDITY_WITHDRAWABLE",
+          "LP_UNLOCK_TOO_SOON",
+          "DEPLOYER_CONCENTRATION",
+          "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "CONNECTED_CLUSTER_CONCENTRATION",
+          "BUNDLED_LAUNCH_CONCENTRATION",
+          "KNOWN_RISK_DEPLOYER",
+          "RELATED_WALLET_FUNDING",
+          "SUSPICIOUS_EARLY_BUYERS",
+          "WASH_TRADING",
+          "VOLUME_FARMING",
+          "SUSPICIOUS_TRANSACTION_REPETITION",
+          "INSUFFICIENT_EVIDENCE"
+        ],
+        "warnings": [
+          "INSUFFICIENT_SPOT_LIQUIDITY"
+        ]
+      }
+    ]
+  },
+  "changes": [
+    {
+      "marketId": "0x4ecc8d965f780402689f13f49c09dd31b7b046f070415feb03caf1bfec3177f1",
+      "tokenAddress": "0x3c5cd672b204ba0fc48e93b98c0922920a87912d",
+      "symbol": "BSW",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0x3f263649be0b9128066de916959ed204dd0b7eedf6f3c798addbb64ada1c1fa1",
+      "tokenAddress": "0x6d6521283cd3fd0188fe0408e700a5790a0f6c61",
+      "symbol": "GALABET",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0x1fdaab60f0afc38572116cc5d21e4811e4660e7bee27e929da446b12c7fc8f8d",
+      "tokenAddress": "0x8e9de09f9b28c262e06d10766093e5069b1dcf3e",
+      "symbol": "BULL",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x5d32a0f390fef996a7a6524563548569c1758135e0e598adf7ee93dc7a60324c",
+      "tokenAddress": "0x52C4c365CF5317C89C817Cf2516141613D38d08c",
+      "symbol": "AOTTR",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x78bd82e4bb4cbd6fb798999b186819ba2d438f73a14d951167fe681c716dd328",
+      "tokenAddress": "8Fnm6XUnY9DGQLh7tFM4SjQRbjfspfhTMyVSx7nXQNYB",
+      "symbol": "USDТ",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0x1536cb18fd438aa0e224364980bf665fc8a9b461006f7d33d23864dd55accf97",
+      "tokenAddress": "0x07b3d902783c3c12b077508c3b5c00113d1291d0",
+      "symbol": "xdp",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x61bac066de373643600cb687af5a5ac670f9968f6501f6fb7308f5a7b9ffa2b0",
+      "tokenAddress": "0x30ed6a37665c50f799125923185b0fc171d36f0c",
+      "symbol": "BTC",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0xb8591bd8f35a59d5db51e7e8a5dd46fa144a3034ffcee639a0f4675d13daf24c",
+      "tokenAddress": "0x622b6330f226bf08427dcad49c9ea9694604bf2d",
+      "symbol": "7AΩ∞",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0xf0f16a90c86b044bca065ac1e9f733252628b94653360bbf3216fa451b674672",
+      "tokenAddress": "0xd0601ce157db5bdc3162bbac2a2c8af5320d9eec",
+      "symbol": "NVDA",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0xc1688e526653c6c8bf3989358a162ed00fd239a6755ca1c85a6ab69cabfe7f3d",
+      "tokenAddress": "CyDJMENR6Sbtwj4erhuARNa5cNbeK92GpNAGyXLVpump",
+      "symbol": "jelly",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0x3c1478166cbd10f75776875a4cc74850550ffe4c38e9f32a9c85433cc6b85244",
+      "tokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "symbol": "cbBTC",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x4475048e221d6309285d9d49f1dd706817a9fd072ec529b4462e2b98aeefbbe7",
+      "tokenAddress": "0x06bb166a33cf2734e09bc34022fc6e57d5350165",
+      "symbol": "Dr.Angel",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x5ed7fdba8b06c0aeb2fafbbadae09238fe6421a6335e9af06845e362bf321868",
+      "tokenAddress": "0xee049979960d5e42b389b941ec45790ca7b6e1f7",
+      "symbol": "HI",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x6dfb850363c5dc760f887a833fbc9b715cb884dde4cb0dfb7e8c42de8c0a7e00",
+      "tokenAddress": "DYSk618g74BeMEGcmHZizxWUJCR2MhGxpdfu6vsppump",
+      "symbol": "Sacabambaspis",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0x00b0e14175008ea1ac77c570024a10c1c08cc2c8ab4c59de1f86cded51a592d6",
+      "tokenAddress": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "symbol": "AERO",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0xfc08c5fa86ce6128ae6fd7f6440798542d26201e9ed58a27aa2d9c77994b4d8c",
+      "tokenAddress": "0x2919b42e28ba205b56712425d09d98d3bdeb7b1a",
+      "symbol": "WBTCBR",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0xa3f35304fe05d7b770296e917d0d95864a79e0466d8cd86df8ea289abc6d1cab",
+      "tokenAddress": "0x6a6a57d1e94eb586c5b505a1c81434bda3d6ed97",
+      "symbol": "BABY",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0xdace67ef22a81ed11e8d5b44da2d3b391a841d24d579756a2d961eab44dbeb2f",
+      "tokenAddress": "9aQwx5QQSpvrntr7EvHqRNbAqKrLUd9WaiqHGZoppump",
+      "symbol": "ANY",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "reason": "REJECTED/BLOCKED -> REJECTED/BLOCKED"
+    },
+    {
+      "marketId": "0xe30c3774d1a70d169dbe8754b5a8a68b39a73832e71fc1d4d0c3e0c9a42050fc",
+      "tokenAddress": "0xb2000000000000000000004884b426556b92883d",
+      "symbol": "MSTRc",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    },
+    {
+      "marketId": "0x30c01b46dc654d8968b688dc53e9507dd90c10c874f04f84301860f47e27cab5",
+      "tokenAddress": "0x8bbe564a2736458e757792f4d01304290a877777",
+      "symbol": "GM",
+      "original": {
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED"
+      },
+      "audited": {
+        "integrityStatus": "PENDING",
+        "derivativesStatus": "UNASSESSED"
+      },
+      "reason": "REJECTED/BLOCKED -> PENDING/UNASSESSED"
+    }
+  ],
+  "sensitivity": {
+    "maxIndividualHolderPct": [
+      {
+        "value": 2.5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 7.5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "maxConnectedClusterPct": [
+      {
+        "value": 2.5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 7.5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "maxBundledLaunchPct": [
+      {
+        "value": 5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 10,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 15,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "maxDeployerHoldingsPct": [
+      {
+        "value": 5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 10,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 15,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumSpotLiquidityUsd": [
+      {
+        "value": 250000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 500000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 1000000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumDepth1PctUsd": [
+      {
+        "value": 25000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 50000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 100000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumDepth2PctUsd": [
+      {
+        "value": 50000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 100000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 200000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumOrganicVolume24hUsd": [
+      {
+        "value": 50000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 100000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 250000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "maximumRealizedVolatilityPct": [
+      {
+        "value": 100,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 150,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 250,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumOracleSources": [
+      {
+        "value": 1,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 2,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 3,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "maximumOracleDisagreementPct": [
+      {
+        "value": 1,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 3,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 5,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumOracleConfidenceBps": [
+      {
+        "value": 7500,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 8500,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 9000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumManipulationCostUsd": [
+      {
+        "value": 50000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 100000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 250000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumLiquidationCapacityUsd": [
+      {
+        "value": 50000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 100000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 250000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ],
+    "minimumSafeOpenInterestUsd": [
+      {
+        "value": 10000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 25000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      },
+      {
+        "value": 50000,
+        "qualified": 0,
+        "pending": 13,
+        "rejected": 7,
+        "eligible": 0
+      }
+    ]
+  },
+  "securityRegression": {
+    "unsafeControls": [
+      {
+        "id": "active-mint-authority",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "withdrawable-lp",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "cluster-fifteen",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "cluster-over-five-individual-under-five",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "cluster-six-point-three-individuals-under-five",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "bundled-launch",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "known-risk-deployer",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      },
+      {
+        "id": "wash-volume",
+        "integrityStatus": "REJECTED",
+        "derivativesStatus": "BLOCKED",
+        "expectedRejected": true
+      }
+    ],
+    "allExplicitUnsafeRemainRejected": true
+  },
+  "decision": "NO_NATURAL_QUALIFICATION_STOP_UNLESS_EVIDENCE_OR_EXPLICIT_RISK_REMAINS"
+}

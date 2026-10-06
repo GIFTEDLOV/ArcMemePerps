@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 import type { MarketObservation } from "@arcmemeperps/domain";
-import { assessRisk, DEVELOPMENT_RISK_RULES, RISK_RULE_VERSION } from "./index.js";
+import {
+  assessRisk,
+  AUDITED_RISK_RULES,
+  DEVELOPMENT_RISK_RULES,
+  RISK_RULE_VERSION,
+} from "./index.js";
 
 const base: MarketObservation = {
   token: {
@@ -210,5 +215,54 @@ describe("risk engine", () => {
     );
     expect(assessment.warnings.map(({ code }) => code)).toContain("INSUFFICIENT_ORACLE_SOURCES");
     expect(assessment.recommendedMaxOI).toBeNull();
+  });
+
+  it("keeps missing evidence pending rather than calling it proven unsafe", () => {
+    const assessment = assessRisk(
+      {
+        ...base,
+        holders: { ...base.holders, connectedClusterPct: null },
+        deployer: { ...base.deployer, knownRisk: null },
+      },
+      { assessedAt: "2026-09-29T00:00:00.000Z", rules: AUDITED_RISK_RULES },
+    );
+    expect(assessment.integrityStatus).toBe("PENDING");
+    expect(assessment.derivativesStatus).toBe("UNASSESSED");
+    expect(assessment.hardGates.find((item) => item.code === "CONNECTED_CLUSTER_CONCENTRATION")?.state).toBe("UNKNOWN");
+    expect(assessment.hardGates.find((item) => item.code === "KNOWN_RISK_DEPLOYER")?.state).toBe("UNKNOWN");
+    expect(assessment.rejectionReasons.map(({ code }) => code)).not.toContain("CONNECTED_CLUSTER_CONCENTRATION");
+  });
+
+  it("keeps an explicit unsafe fact rejected even when other evidence is missing", () => {
+    const assessment = assessRisk(
+      { ...base, authorities: { ...base.authorities, mintAuthorityActive: true }, holders: { ...base.holders, connectedClusterPct: null } },
+      { assessedAt: "2026-09-29T00:00:00.000Z", rules: AUDITED_RISK_RULES },
+    );
+    expect(assessment.integrityStatus).toBe("REJECTED");
+    expect(assessment.rejectionReasons.map(({ code }) => code)).toContain("MINT_AUTHORITY_ACTIVE");
+    expect(assessment.hardGates.find((item) => item.code === "CONNECTED_CLUSTER_CONCENTRATION")?.state).toBe("UNKNOWN");
+  });
+
+  it("does not turn missing derivative capacity into measured zero or eligibility", () => {
+    const assessment = assessRisk(
+      {
+        ...base,
+        derivatives: { ...base.derivatives, maximumSafeOpenInterestUsd: null, liquidationCapacityUsd: null },
+        oracle: { ...base.oracle, manipulationCostUsd: null },
+      },
+      { assessedAt: "2026-09-29T00:00:00.000Z", rules: AUDITED_RISK_RULES },
+    );
+    expect(assessment.derivativesStatus).toBe("UNASSESSED");
+    expect(assessment.recommendedMaxOI).toBeNull();
+    expect(assessment.unknownReasons.map(({ code }) => code)).toContain("SAFE_OPEN_INTEREST_UNAVAILABLE");
+  });
+
+  it("treats privileged LP withdrawal as an explicit hard failure", () => {
+    const assessment = assessRisk(
+      { ...base, liquidity: { ...base.liquidity, lpLockStatus: "WITHDRAWABLE_BY_PRIVILEGED_ACTOR" } },
+      { assessedAt: "2026-09-29T00:00:00.000Z", rules: AUDITED_RISK_RULES },
+    );
+    expect(assessment.integrityStatus).toBe("REJECTED");
+    expect(assessment.rejectionReasons.map(({ code }) => code)).toContain("LIQUIDITY_WITHDRAWABLE");
   });
 });

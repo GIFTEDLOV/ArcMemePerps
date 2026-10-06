@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "qualification-calibration-input/v1",
+  "frozenAtCommit": "ae3d3b41682a18db81f4f5122c566ba80e564486",
+  "frozenAt": "2026-10-05T21:23:57.318Z",
+  "contractSourceSha": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "corpus": {
+    "discoveryMarketCount": 104,
+    "enrichedCandidateCount": 20,
+    "sourceFiles": [
+      {
+        "path": "evidence/winner-rebuild/discovery-snapshot.json",
+        "sha256": "a8f680d51a66ddca2407fc358153f366a40083311e95fda725620055fc9a69d8"
+      },
+      {
+        "path": "evidence/winner-rebuild/real-market-intelligence.json",
+        "sha256": "d4c4784f00f17299d3013c6f6adabd38aaee4a64e91506657dd2d5a2eabba52f"
+      },
+      {
+        "path": "evidence/winner-rebuild/phase2-closure.json",
+        "sha256": "219bff604df99faa0dc95c6ae5b32f0a9a4005bb2ab2f8bbea2faa18ab0a49ab"
+      }
+    ]
+  },
+  "immutability": {
+    "ruleRunsMustReferenceTheseHashes": true,
+    "noSyntheticObservations": true,
+    "providerFailuresRemainUnavailable": true
+  }
+}
