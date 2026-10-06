@@ -11,6 +11,13 @@ import type {
   RiskParameters,
   RiskReason,
 } from "@arcmemeperps/domain";
+import {
+  gateDisposition,
+  policyProfileForObservation,
+  RISK_POLICY_PROFILES,
+  type RiskPolicyProfile,
+  type RiskPolicyProfileId,
+} from "./policies.js";
 
 export const RISK_RULE_VERSION = "0.1.0";
 export const AUDITED_RISK_RULE_VERSION = "0.2.0";
@@ -86,9 +93,11 @@ export interface RiskEvaluationOptions {
   readonly assessedAt: string;
   readonly rules?: RiskRuleConfig;
   readonly mode?: RiskEvaluationMode;
+  readonly policyProfile?: RiskPolicyProfileId;
 }
 
 export interface IntegrityEvaluation {
+  readonly policyProfileId: RiskPolicyProfileId;
   readonly status: IntegrityStatus;
   readonly hardGates: readonly HardGateResult[];
   readonly rejectionReasons: readonly RiskReason[];
@@ -135,19 +144,76 @@ const thresholdAtMost = (value: number | null, maximum: number): GateState =>
 const thresholdAtLeast = (value: number | null, minimum: number): GateState =>
   value === null ? "UNKNOWN" : value >= minimum ? "PASS" : "FAIL";
 
-const completenessGate = (values: readonly unknown[]): GateState =>
-  values.every((value) => value !== null && value !== undefined) ? "PASS" : "UNKNOWN";
+function mandatoryEvidenceState(
+  observation: MarketObservation,
+  policyProfile: RiskPolicyProfile,
+): GateState {
+  const required = policyProfile.mandatoryHardGates
+    .filter((code) => code !== "INSUFFICIENT_EVIDENCE")
+    .map((code) => evidencePresentForGate(observation, code));
+  if (observation.token.chain === "SOLANA") {
+    required.push(observation.token.tokenProgram === "SPL_TOKEN" || observation.token.tokenProgram === "TOKEN_2022");
+  }
+  return required.every((value) => value === true) ? "PASS" : "UNKNOWN";
+}
+
+function evidencePresentForGate(observation: MarketObservation, code: HardGateCode): boolean {
+  const { authorities, liquidity, holders, deployer, activity } = observation;
+  switch (code) {
+    case "MINT_AUTHORITY_ACTIVE":
+      return authorities.mintAuthorityActive !== null;
+    case "FREEZE_AUTHORITY_ACTIVE":
+      return authorities.freezeAuthorityActive !== null;
+    case "DANGEROUS_OWNER_ADMIN_PRIVILEGE":
+      return authorities.dangerousOwnerAdminPrivileges !== null;
+    case "UPGRADEABILITY_RISK":
+      return authorities.upgradeable !== null;
+    case "HONEYPOT_OR_TRANSFER_RESTRICTION":
+      return authorities.honeypotDetected !== null && authorities.transferRestricted !== null;
+    case "LIQUIDITY_WITHDRAWABLE":
+      return liquidity.lpLockStatus !== "UNKNOWN" && liquidity.lpLockStatus !== "UNAVAILABLE";
+    case "LP_UNLOCK_TOO_SOON":
+      return ["BURNED", "PROTOCOL_CONTROLLED", "IMMUTABLE_MIGRATION_CONTROL", "DISTRIBUTED_NON_PRIVILEGED"].includes(liquidity.lpLockStatus)
+        || (liquidity.lpLockStatus !== "UNKNOWN" && liquidity.lpLockStatus !== "UNAVAILABLE" && liquidity.earliestLpUnlockAt !== null);
+    case "DEPLOYER_CONCENTRATION":
+      return deployer.deployerHoldingsPct !== null;
+    case "INDIVIDUAL_HOLDER_CONCENTRATION":
+      return individualOwnerConcentrationPct(holders) !== null;
+    case "CONNECTED_CLUSTER_CONCENTRATION":
+      return holders.connectedClusterPct !== null;
+    case "BUNDLED_LAUNCH_CONCENTRATION":
+      return holders.bundledLaunchPct !== null;
+    case "KNOWN_RISK_DEPLOYER":
+      return deployer.knownRisk !== null;
+    case "RELATED_WALLET_FUNDING":
+      return deployer.relatedWalletFundingDetected !== null;
+    case "SUSPICIOUS_EARLY_BUYERS":
+      return activity.suspiciousEarlyBuyers !== null;
+    case "WASH_TRADING":
+      return activity.washTradingDetected !== null;
+    case "VOLUME_FARMING":
+      return activity.volumeFarmingDetected !== null;
+    case "SUSPICIOUS_TRANSACTION_REPETITION":
+      return activity.suspiciousTransactionRepetition !== null;
+    case "INSUFFICIENT_EVIDENCE":
+      return true;
+  }
+}
 
 export function evaluateIntegrity(
   observation: MarketObservation,
   rules: RiskRuleConfig = DEVELOPMENT_RISK_RULES,
   assessedAt: string,
   mode: RiskEvaluationMode = rules.version === AUDITED_RISK_RULE_VERSION ? "AUDITED" : "LEGACY",
+  policyProfileId?: RiskPolicyProfileId,
 ): IntegrityEvaluation {
   const { authorities, liquidity, holders, deployer, activity } = observation;
+  const policyProfile = policyProfileId === undefined
+    ? policyProfileForObservation(observation)
+    : RISK_POLICY_PROFILES[policyProfileId];
   const normalize = (state: GateState): GateState =>
     mode === "AUDITED" ? state : legacyGateState(state);
-  const hardGates: HardGateResult[] = [
+  const rawHardGates: HardGateResult[] = [
     gate("MINT_AUTHORITY_ACTIVE", normalize(booleanGate(authorities.mintAuthorityActive)), {
       active: authorities.mintAuthorityActive,
     }),
@@ -180,8 +246,10 @@ export function evaluateIntegrity(
       deployerHoldingsPct: deployer.deployerHoldingsPct,
       maxDeployerHoldingsPct: rules.maxDeployerHoldingsPct,
     }),
-    gate("INDIVIDUAL_HOLDER_CONCENTRATION", normalize(thresholdAtMost(holders.topHolderPct, rules.maxIndividualHolderPct)), {
-      topHolderPct: holders.topHolderPct,
+    gate("INDIVIDUAL_HOLDER_CONCENTRATION", normalize(thresholdAtMost(individualOwnerConcentrationPct(holders), rules.maxIndividualHolderPct)), {
+      topHolderPct: individualOwnerConcentrationPct(holders),
+      topTokenAccountPct: holders.topTokenAccountPct ?? null,
+      evidenceScope: holders.evidenceScope ?? null,
       maxIndividualHolderPct: rules.maxIndividualHolderPct,
     }),
     gate(
@@ -217,34 +285,7 @@ export function evaluateIntegrity(
     }),
     gate(
       "INSUFFICIENT_EVIDENCE",
-      normalize(completenessGate([
-        liquidity.lpLockStatus === "UNKNOWN" || liquidity.lpLockStatus === "UNAVAILABLE" ? null : liquidity.lpLockStatus,
-        holders.holderCount,
-        holders.topHolderPct,
-        holders.topFivePct,
-        holders.connectedClusterPct,
-        holders.bundledLaunchPct,
-        holders.organicHolderGrowthPct24h,
-        liquidity.totalLiquidityUsd,
-        liquidity.venueCount,
-        liquidity.lpOwnershipConcentrationPct,
-        liquidity.suddenCollapsePct24h,
-        deployer.deployerAddress,
-        deployer.deployerHoldingsPct,
-        deployer.priorRugCount,
-        authorities.mintAuthorityActive,
-        authorities.freezeAuthorityActive,
-        authorities.dangerousOwnerAdminPrivileges,
-        authorities.upgradeable,
-        authorities.transferRestricted,
-        authorities.honeypotDetected,
-        deployer.knownRisk,
-        deployer.relatedWalletFundingDetected,
-        activity.suspiciousEarlyBuyers,
-        activity.washTradingDetected,
-        activity.volumeFarmingDetected,
-        activity.suspiciousTransactionRepetition,
-      ])),
+      normalize(mandatoryEvidenceState(observation, policyProfile)),
       {
         lpLockStatus: liquidity.lpLockStatus,
         authorityEvidenceComplete:
@@ -252,9 +293,22 @@ export function evaluateIntegrity(
       },
     ),
   ];
+  const hardGates = rawHardGates.map((item) => {
+    if (mode !== "AUDITED" || !policyProfile.notApplicableGates.includes(item.code)) return item;
+    return gate(item.code, "NOT_APPLICABLE", {
+      ...item.details,
+      applicability: "NOT_APPLICABLE",
+      policyProfile: policyProfile.id,
+    });
+  });
 
   const failed = hardGates.filter((item) => item.state === "FAIL");
-  const unknown = hardGates.filter((item) => item.state === "UNKNOWN");
+  const unknown = hardGates.filter(
+    (item) => item.state === "UNKNOWN" && gateDisposition(policyProfile, item.code) === "MANDATORY",
+  );
+  const optionalUnknown = hardGates.filter(
+    (item) => item.state === "UNKNOWN" && gateDisposition(policyProfile, item.code) === "OPTIONAL",
+  );
   const rejectionReasons = failed.map((item) =>
     reason(item.code, `hard gate failed: ${item.code}`, true, item.details),
   );
@@ -262,6 +316,14 @@ export function evaluateIntegrity(
     reason(item.code, `required evidence is unknown: ${item.code}`, true, item.details),
   );
   const warnings: RiskReason[] = [];
+  for (const item of optionalUnknown) {
+    warnings.push(
+      reason("OPTIONAL_EVIDENCE_UNKNOWN", `optional evidence is unknown: ${item.code}`, false, {
+        gate: item.code,
+        policyProfile: policyProfile.id,
+      }),
+    );
+  }
   if (
     liquidity.suddenCollapsePct24h !== null &&
     liquidity.suddenCollapsePct24h >= rules.warningLiquidityCollapsePct24h
@@ -281,6 +343,7 @@ export function evaluateIntegrity(
   }
 
   return {
+    policyProfileId: policyProfile.id,
     status: failed.length > 0 ? "REJECTED" : unknown.length > 0 ? "PENDING" : warnings.length > 0 ? "WATCH" : "QUALIFIED",
     hardGates,
     rejectionReasons,
@@ -494,7 +557,7 @@ export function assessRisk(
 ): RiskAssessment {
   const rules = options.rules ?? DEVELOPMENT_RISK_RULES;
   const mode = options.mode ?? (rules.version === AUDITED_RISK_RULE_VERSION ? "AUDITED" : "LEGACY");
-  const integrity = evaluateIntegrity(observation, rules, options.assessedAt, mode);
+  const integrity = evaluateIntegrity(observation, rules, options.assessedAt, mode, options.policyProfile);
   const derivatives = evaluateDerivativesCapacity(observation, integrity, rules, mode);
   return {
     token: observation.token,
@@ -533,6 +596,11 @@ function lpControlGate(status: MarketObservation["liquidity"]["lpLockStatus"]): 
     status === "DISTRIBUTED_NON_PRIVILEGED"
   ) return "PASS";
   return "UNKNOWN";
+}
+
+function individualOwnerConcentrationPct(holders: MarketObservation["holders"]): number | null {
+  if (holders.evidenceScope === "TOP_TOKEN_ACCOUNTS") return holders.resolvedTopOwnerPct ?? null;
+  return holders.resolvedTopOwnerPct ?? holders.topHolderPct;
 }
 
 function lpUnlockGate(

@@ -3,7 +3,7 @@ import { HttpJsonClient, HttpProviderError } from "./http.js";
 import { evidenceRecord, providerErrorEvidence } from "./evidence.js";
 import type { JsonValue, ProviderResult, SolanaMintEvidence } from "./types.js";
 
-const SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9SsAq1mD4";
+const SPL_TOKEN_PROGRAM = "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA";
 const TOKEN_2022_PROGRAM = "TokenzQdBNbLqP5VEhdkAS6EPFLC1PHnBqCXEpPxuEb";
 let nextRpcRequestAt = 0;
 

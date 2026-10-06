@@ -141,6 +141,49 @@ describe("provider boundaries", () => {
     expect(result.evidence[0]?.source.provider).toBe("geckoterminal");
   });
 
+  it("coalesces concurrent GeckoTerminal reads and serves the cached response", async () => {
+    let requests = 0;
+    const provider = new GeckoTerminalProvider(NETWORK_CONFIGS.BASE, {
+      minRequestIntervalMs: 0,
+      cacheTtlMs: 10_000,
+      client: new HttpJsonClient({
+        fetchImpl: () => {
+          requests += 1;
+          return Promise.resolve(new Response(JSON.stringify({ data: [] }), { status: 200 }));
+        },
+      }),
+    });
+    const [first, second] = await Promise.all([
+      provider.readToken("0xcoalesced", fetchedAt),
+      provider.readToken("0xcoalesced", fetchedAt),
+    ]);
+    const third = await provider.readToken("0xcoalesced", fetchedAt);
+    expect(first.status).toBe("AVAILABLE");
+    expect(second.status).toBe("AVAILABLE");
+    expect(third.status).toBe("AVAILABLE");
+    expect(requests).toBe(1);
+  });
+
+  it("backs off a public GeckoTerminal 429 before retrying", async () => {
+    let requests = 0;
+    const sleeps: number[] = [];
+    const provider = new GeckoTerminalProvider(NETWORK_CONFIGS.BASE, {
+      minRequestIntervalMs: 0,
+      client: new HttpJsonClient({
+        maxRetries: 0,
+        fetchImpl: () => {
+          requests += 1;
+          return Promise.resolve(new Response(JSON.stringify({ data: [] }), { status: requests === 1 ? 429 : 200 }));
+        },
+      }),
+      sleep: (milliseconds) => Promise.resolve().then(() => { sleeps.push(milliseconds); }),
+    });
+    const result = await provider.readToken("0xbackoff", fetchedAt);
+    expect(result.status).toBe("AVAILABLE");
+    expect(requests).toBe(2);
+    expect(sleeps.some((milliseconds) => milliseconds >= 2_000)).toBe(true);
+  });
+
   it("fails closed on malformed GeckoTerminal responses", async () => {
     const provider = new GeckoTerminalProvider(NETWORK_CONFIGS.BASE, {
       minRequestIntervalMs: 0,
@@ -294,7 +337,7 @@ describe("provider boundaries", () => {
               ? {
                   context: { slot: 99 },
                   value: {
-                    owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9SsAq1mD4",
+                    owner: "TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA",
                     data: [Buffer.from(data).toString("base64"), "base64"],
                   },
                 }

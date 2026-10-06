@@ -1,6 +1,6 @@
 import type { Hex, SupportedChain, SupportedNetworkConfig } from "@arcmemeperps/shared";
 import { canonicalJson, keccak256Hex } from "@arcmemeperps/shared";
-import { HttpJsonClient } from "./http.js";
+import { HttpJsonClient, HttpProviderError } from "./http.js";
 import { evidenceRecord, providerErrorEvidence } from "./evidence.js";
 import type { JsonValue, ProviderResult } from "./types.js";
 
@@ -49,6 +49,7 @@ export interface GeckoTerminalProviderOptions {
   /** The public API is rate limited; the default is deliberately conservative. */
   readonly minRequestIntervalMs?: number;
   readonly sleep?: (milliseconds: number) => Promise<void>;
+  readonly cacheTtlMs?: number;
 }
 
 export class GeckoTerminalProvider {
@@ -57,7 +58,12 @@ export class GeckoTerminalProvider {
   private readonly client: HttpJsonClient;
   private readonly minRequestIntervalMs: number;
   private readonly sleep: (milliseconds: number) => Promise<void>;
+  private readonly cacheTtlMs: number;
   private lastRequestAt = 0;
+  private queueTail: Promise<void> = Promise.resolve();
+  private readonly cache = new Map<string, { readonly expiresAt: number; readonly payload: JsonValue }>();
+  private readonly inFlight = new Map<string, Promise<JsonValue>>();
+  private backoffUntil = 0;
 
   public constructor(
     public readonly network: SupportedNetworkConfig,
@@ -67,6 +73,7 @@ export class GeckoTerminalProvider {
     this.client = options.client ?? new HttpJsonClient({ timeoutMs: 10_000, maxRetries: 2 });
     this.minRequestIntervalMs = options.minRequestIntervalMs ?? 6_100;
     this.sleep = options.sleep ?? ((milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds)));
+    this.cacheTtlMs = options.cacheTtlMs ?? 30_000;
   }
 
   public get geckoNetworkId(): string {
@@ -239,16 +246,47 @@ export class GeckoTerminalProvider {
   }
 
   private async get(endpoint: string): Promise<JsonValue> {
-    const now = Date.now();
-    const localWait = this.minRequestIntervalMs - (now - this.lastRequestAt);
-    const globalWait = nextPublicRequestAt - now;
-    const waitFor = Math.max(0, localWait, globalWait);
-    if (waitFor > 0) await this.sleep(waitFor);
-    this.lastRequestAt = Date.now();
-    nextPublicRequestAt = this.lastRequestAt + this.minRequestIntervalMs;
-    return this.client.get<JsonValue>(endpoint, {
-      accept: `application/json;version=${API_VERSION}`,
+    const cached = this.cache.get(endpoint);
+    if (cached !== undefined && cached.expiresAt > Date.now()) return cached.payload;
+    const pending = this.inFlight.get(endpoint);
+    if (pending !== undefined) return pending;
+    const request = this.enqueue(async () => {
+      const payload = await this.client.get<JsonValue>(endpoint, {
+        accept: `application/json;version=${API_VERSION}`,
+      });
+      this.cache.set(endpoint, { expiresAt: Date.now() + this.cacheTtlMs, payload });
+      return payload;
     });
+    this.inFlight.set(endpoint, request);
+    try {
+      return await request;
+    } finally {
+      this.inFlight.delete(endpoint);
+    }
+  }
+
+  private enqueue<T>(task: () => Promise<T>): Promise<T> {
+    const run = this.queueTail.then(async () => {
+      for (let attempt = 0; ; attempt += 1) {
+        const now = Date.now();
+        const localWait = this.minRequestIntervalMs - (now - this.lastRequestAt);
+        const globalWait = nextPublicRequestAt - now;
+        const providerBackoff = this.backoffUntil - now;
+        const waitFor = Math.max(0, localWait, globalWait, providerBackoff);
+        if (waitFor > 0) await this.sleep(waitFor);
+        this.lastRequestAt = Date.now();
+        nextPublicRequestAt = this.lastRequestAt + this.minRequestIntervalMs;
+        try {
+          return await task();
+        } catch (error) {
+          if (!(error instanceof HttpProviderError) || error.status !== 429 || attempt >= 2) throw error;
+          const delay = Math.min(30_000, 2_000 * 2 ** attempt);
+          this.backoffUntil = Date.now() + delay;
+        }
+      }
+    });
+    this.queueTail = run.then(() => undefined, () => undefined);
+    return run;
   }
 }
 

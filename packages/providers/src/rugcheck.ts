@@ -9,20 +9,40 @@ let nextPublicRequestAt = 0;
 
 export interface RugCheckTopHolder {
   readonly address: string;
+  readonly owner: string | null;
   readonly percentage: number | null;
   readonly amount: string | null;
+}
+
+export interface RugCheckGraphNode {
+  readonly id: string;
+  readonly holdings: number;
+}
+
+export interface RugCheckGraphLink {
+  readonly source: string;
+  readonly target: string;
+}
+
+export interface RugCheckInsiderGraph {
+  readonly networkId: string | null;
+  readonly nodes: readonly RugCheckGraphNode[];
+  readonly links: readonly RugCheckGraphLink[];
 }
 
 export interface RugCheckObservation {
   readonly mint: string;
   readonly creator: string | null;
+  readonly metadataUpdateAuthority: string | null;
   readonly mintAuthority: string | null;
   readonly freezeAuthority: string | null;
   readonly tokenProgram: string | null;
+  readonly supply: string | null;
   readonly score: number | null;
   readonly topHolders: readonly RugCheckTopHolder[];
   readonly risks: readonly { readonly name: string | null; readonly level: string | null }[];
   readonly insiderGraphAvailable: boolean;
+  readonly insiderGraphs: readonly RugCheckInsiderGraph[];
   readonly rawResponseHash: Hex;
 }
 
@@ -63,7 +83,7 @@ export class RugCheckProvider {
       } catch (error) {
         graphError = error instanceof Error ? error.message : "INSIDER_GRAPH_UNAVAILABLE";
       }
-      const value = parseReport(mint, report, graph !== null);
+      const value = parseReport(mint, report, graph);
       const evidence = [
         evidenceRecord({
           evidenceId: `${this.providerName}:report:${mint}`,
@@ -128,7 +148,7 @@ export class RugCheckProvider {
   }
 }
 
-function parseReport(mint: string, payload: JsonValue, graphAvailable: boolean): RugCheckObservation {
+function parseReport(mint: string, payload: JsonValue, graph: JsonValue | null): RugCheckObservation {
   if (!isObject(payload)) throw new Error("RugCheck report is not an object");
   const token = isObject(payload.token) ? payload.token : {};
   const risks = Array.isArray(payload.risks) ? payload.risks.flatMap((item) => {
@@ -139,20 +159,54 @@ function parseReport(mint: string, payload: JsonValue, graphAvailable: boolean):
     if (!isObject(item)) return [];
     const address = stringOrNull(item.address);
     if (address === null) return [];
-    return [{ address, percentage: numberOrNull(item.pct ?? item.percentage), amount: stringOrNull(item.amount) }];
+    return [{
+      address,
+      owner: stringOrNull(item.owner),
+      percentage: numberOrNull(item.pct ?? item.percentage),
+      amount: stringOrNull(item.amount),
+    }];
   }) : [];
+  const insiderGraphs = parseGraphs(graph);
   return {
     mint,
     creator: stringOrNull(payload.creator) ?? stringOrNull(token.creator),
+    metadataUpdateAuthority: isObject(payload.tokenMeta) ? stringOrNull(payload.tokenMeta.updateAuthority) : null,
     mintAuthority: stringOrNull(payload.mintAuthority) ?? stringOrNull(token.mintAuthority),
     freezeAuthority: stringOrNull(payload.freezeAuthority) ?? stringOrNull(token.freezeAuthority),
     tokenProgram: stringOrNull(payload.tokenProgram) ?? stringOrNull(token.tokenProgram),
+    supply: decimalStringOrNull(token.supply ?? payload.supply),
     score: numberOrNull(payload.score),
     topHolders: holders,
     risks,
-    insiderGraphAvailable: graphAvailable,
+    insiderGraphAvailable: graph !== null,
+    insiderGraphs,
     rawResponseHash: keccak256Hex(canonicalJson(payload)),
   };
+}
+
+function parseGraphs(value: JsonValue | null): readonly RugCheckInsiderGraph[] {
+  const payloads = value === null ? [] : Array.isArray(value) ? value : [value];
+  return payloads.flatMap((payload) => {
+    if (!isObject(payload)) return [];
+    const nodes = Array.isArray(payload.nodes)
+      ? payload.nodes.flatMap((item) => {
+          if (!isObject(item)) return [];
+          const id = stringOrNull(item.id);
+          const holdings = numberOrNull(item.holdings);
+          return id === null || holdings === null ? [] : [{ id, holdings }];
+        })
+      : [];
+    const links = Array.isArray(payload.links)
+      ? payload.links.flatMap((item) => {
+          if (!isObject(item)) return [];
+          const source = stringOrNull(item.source);
+          const target = stringOrNull(item.target);
+          return source === null || target === null ? [] : [{ source, target }];
+        })
+      : [];
+    if (nodes.length === 0 || links.length === 0) return [];
+    return [{ networkId: stringOrNull(payload.net_id), nodes, links }];
+  });
 }
 
 function isObject(value: JsonValue | undefined): value is { readonly [key: string]: JsonValue } {
@@ -161,6 +215,12 @@ function isObject(value: JsonValue | undefined): value is { readonly [key: strin
 
 function stringOrNull(value: JsonValue | undefined): string | null {
   return typeof value === "string" && value.length > 0 ? value : null;
+}
+
+function decimalStringOrNull(value: JsonValue | undefined): string | null {
+  if (typeof value === "string" && value.length > 0) return value;
+  if (typeof value === "number" && Number.isFinite(value)) return value.toString();
+  return null;
 }
 
 function numberOrNull(value: JsonValue | undefined): number | null {

@@ -279,6 +279,7 @@ export const FIXTURE_CASES: readonly FixtureCase[] = [
       token: {
         chain: "SOLANA",
         tokenAddress: "So11111111111111111111111111111111111111112",
+        tokenProgram: "SPL_TOKEN",
         originPlatform: "PUMP_STYLE",
         symbol: "NEW",
       },

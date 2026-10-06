@@ -324,7 +324,7 @@ export function buildMarketPassport(
     riskResult: {
       integrityStatus: risk.integrityStatus,
       derivativesStatus: risk.derivativesStatus,
-      hardGateCodes: risk.hardGates.filter((gate) => !gate.passed).map((gate) => gate.code),
+      hardGateCodes: risk.hardGates.filter((gate) => gate.state === "FAIL" || gate.state === "UNKNOWN").map((gate) => gate.code),
       rejectionReasons: risk.rejectionReasons.map((item) => item.code),
       warnings: risk.warnings.map((item) => item.code),
       ruleVersion: DEVELOPMENT_RISK_RULES.version,

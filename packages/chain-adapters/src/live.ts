@@ -572,6 +572,7 @@ function buildSolanaRecord(
   const token: TokenIdentity = {
     chain: "SOLANA",
     tokenAddress,
+    tokenProgram: r?.tokenProgram ?? "UNKNOWN",
     symbol: h?.symbol ?? null,
     name: h?.name ?? null,
     decimals: r?.decimals ?? null,
@@ -583,6 +584,7 @@ function buildSolanaRecord(
   const authorities: AuthorityState = {
     mintAuthorityActive: r === null ? null : r.mintAuthority !== null,
     freezeAuthorityActive: r === null ? null : r.freezeAuthority !== null,
+    metadataUpdateAuthority: rugCheck.value?.metadataUpdateAuthority ?? null,
     dangerousOwnerAdminPrivileges: null,
     upgradeable: null,
     upgradeAuthority: null,
@@ -590,9 +592,11 @@ function buildSolanaRecord(
     honeypotDetected: s?.isHoneypot ?? null,
   };
   const liquidity = liquidityState(d, gecko.value);
-  const holders = holderConcentration(b, r);
+  const holders = holderConcentration(b, r, rugCheck.value);
   const deployer: DeployerRisk = {
     deployerAddress: null,
+    creatorAddress: rugCheck.value?.creator ?? null,
+    fundingWallet: null,
     deployerHoldingsPct: null,
     knownRisk: null,
     priorRugCount: null,
@@ -790,6 +794,7 @@ function triOr(left: boolean | null, right: boolean | null): boolean | null {
 function holderConcentration(
   bubbles: BubblemapsObservation | null,
   mint: SolanaMintEvidence | null = null,
+  rugCheck: RugCheckObservation | null = null,
 ): HolderConcentration {
   if (bubbles !== null)
     return {
@@ -821,8 +826,28 @@ function holderConcentration(
       : [...owners.values()].map((amount) => Number((amount * 10_000n) / supply) / 100).sort((a, b) => b - a);
   const resolvedTopOwnerPct = ownerPercentages[0] ?? null;
   const resolvedTopFiveOwnerPct = ownerPercentages.length === 0 ? null : ownerPercentages.slice(0, 5).reduce((sum, value) => sum + value, 0);
+  if (resolvedTopOwnerPct === null && rugCheck !== null && rugCheck.topHolders.length > 0) {
+    const percentages = rugCheck.topHolders
+      .map((holder) => holder.percentage)
+      .filter((value): value is number => value !== null && Number.isFinite(value));
+    const topHolderPct = percentages[0] ?? null;
+    const topFivePct = percentages.length === 0 ? null : percentages.slice(0, 5).reduce((sum, value) => sum + value, 0);
+    return {
+      topHolderPct,
+      topFivePct,
+      connectedClusterPct: largestRugCheckClusterPct(rugCheck),
+      bundledLaunchPct: null,
+      individualWalletsUnderFivePct: topHolderPct === null ? null : topHolderPct < 5,
+      holderCount: null,
+      organicHolderGrowthPct24h: null,
+      evidenceScope: "TOP_TOKEN_ACCOUNTS",
+      topTokenAccountPct: topHolderPct,
+      resolvedTopOwnerPct: null,
+      resolvedTopFiveOwnerPct: null,
+    };
+  }
   return {
-    topHolderPct: resolvedTopOwnerPct,
+    topHolderPct: resolvedTopOwnerPct ?? tokenAccountPercent,
     topFivePct: resolvedTopFiveOwnerPct,
     connectedClusterPct: null,
     bundledLaunchPct: null,
@@ -835,6 +860,44 @@ function holderConcentration(
     resolvedTopOwnerPct,
     resolvedTopFiveOwnerPct,
   };
+}
+
+function largestRugCheckClusterPct(rugCheck: RugCheckObservation): number | null {
+  const supply = rugCheck.supply === null ? null : Number(rugCheck.supply);
+  if (supply === null || !Number.isFinite(supply) || supply <= 0) return null;
+  let largest = 0;
+  for (const graph of rugCheck.insiderGraphs) {
+    const parent = new Map<string, string>();
+    const holdings = new Map<string, number>();
+    const find = (value: string): string => {
+      const current = parent.get(value);
+      if (current === undefined) {
+        parent.set(value, value);
+        return value;
+      }
+      if (current === value) return current;
+      const root = find(current);
+      parent.set(value, root);
+      return root;
+    };
+    const union = (left: string, right: string): void => {
+      const leftRoot = find(left);
+      const rightRoot = find(right);
+      if (leftRoot !== rightRoot) parent.set(leftRoot, rightRoot);
+    };
+    for (const node of graph.nodes) {
+      find(node.id);
+      holdings.set(node.id, node.holdings);
+    }
+    for (const link of graph.links) union(link.source, link.target);
+    const componentHoldings = new Map<string, number>();
+    for (const [node, amount] of holdings) {
+      const root = find(node);
+      componentHoldings.set(root, (componentHoldings.get(root) ?? 0) + amount);
+    }
+    largest = Math.max(largest, ...[...componentHoldings.values()].map((amount) => amount / supply * 100));
+  }
+  return largest > 0 && largest <= 100 ? largest : null;
 }
 function oracleMetrics(
   dex: DexAggregate | null,

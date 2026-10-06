@@ -27,7 +27,7 @@ export type LifecycleStatus = (typeof LIFECYCLE_STATUSES)[number];
 export const INTEGRITY_STATUSES = ["PENDING", "WATCH", "QUALIFIED", "REJECTED"] as const;
 export type IntegrityStatus = (typeof INTEGRITY_STATUSES)[number];
 
-export const GATE_STATES = ["PASS", "FAIL", "UNKNOWN"] as const;
+export const GATE_STATES = ["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"] as const;
 export type GateState = (typeof GATE_STATES)[number];
 
 export const DERIVATIVES_STATUSES = [
@@ -54,6 +54,8 @@ export type OriginPlatform = (typeof ORIGIN_PLATFORMS)[number];
 export interface TokenIdentity {
   readonly chain: SupportedChain;
   readonly tokenAddress: string;
+  /** Canonical token-program classification when the chain exposes one. */
+  readonly tokenProgram?: "SPL_TOKEN" | "TOKEN_2022" | "UNKNOWN";
   readonly symbol: string | null;
   readonly name: string | null;
   readonly decimals: number | null;
@@ -72,6 +74,8 @@ export interface LifecycleSnapshot {
 export interface AuthorityState {
   readonly mintAuthorityActive: boolean | null;
   readonly freezeAuthorityActive: boolean | null;
+  /** Solana metadata authority is distinct from mint/freeze authority. */
+  readonly metadataUpdateAuthority?: string | null;
   readonly dangerousOwnerAdminPrivileges: boolean | null;
   readonly upgradeable: boolean | null;
   readonly upgradeAuthority: string | null;
@@ -120,6 +124,10 @@ export interface HolderConcentration {
 
 export interface DeployerRisk {
   readonly deployerAddress: string | null;
+  /** Solana launch creator is not an EVM contract deployer. */
+  readonly creatorAddress?: string | null;
+  /** Funding wallet is only populated when bounded transaction evidence proves it. */
+  readonly fundingWallet?: string | null;
   readonly deployerHoldingsPct: number | null;
   readonly knownRisk: boolean | null;
   readonly priorRugCount: number | null;

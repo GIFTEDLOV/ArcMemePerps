@@ -1,0 +1,1087 @@
+{
+  "schemaVersion": "pending-evidence-matrix/v1",
+  "generatedAt": "2026-10-06T15:48:49.922Z",
+  "rules": "0.2.0",
+  "source": "evidence/winner-rebuild/real-market-intelligence-phase3.json",
+  "candidates": [
+    {
+      "marketId": "0x1fdaab60f0afc38572116cc5d21e4811e4660e7bee27e929da446b12c7fc8f8d",
+      "chain": "ETHEREUM",
+      "tokenAddress": "0x8e9de09f9b28c262e06d10766093e5069b1dcf3e",
+      "symbol": "BULL",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x5d32a0f390fef996a7a6524563548569c1758135e0e598adf7ee93dc7a60324c",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0x52C4c365CF5317C89C817Cf2516141613D38d08c",
+      "symbol": "AOTTR",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x1536cb18fd438aa0e224364980bf665fc8a9b461006f7d33d23864dd55accf97",
+      "chain": "BASE",
+      "tokenAddress": "0x07b3d902783c3c12b077508c3b5c00113d1291d0",
+      "symbol": "xdp",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x61bac066de373643600cb687af5a5ac670f9968f6501f6fb7308f5a7b9ffa2b0",
+      "chain": "BNB",
+      "tokenAddress": "0x30ed6a37665c50f799125923185b0fc171d36f0c",
+      "symbol": "BTC",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0xb8591bd8f35a59d5db51e7e8a5dd46fa144a3034ffcee639a0f4675d13daf24c",
+      "chain": "ETHEREUM",
+      "tokenAddress": "0x622b6330f226bf08427dcad49c9ea9694604bf2d",
+      "symbol": "7AΩ∞",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x3c1478166cbd10f75776875a4cc74850550ffe4c38e9f32a9c85433cc6b85244",
+      "chain": "BASE",
+      "tokenAddress": "0xcbb7c0000ab88b473b1f5afd9ef808440eed33bf",
+      "symbol": "cbBTC",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x4475048e221d6309285d9d49f1dd706817a9fd072ec529b4462e2b98aeefbbe7",
+      "chain": "BNB",
+      "tokenAddress": "0x06bb166a33cf2734e09bc34022fc6e57d5350165",
+      "symbol": "Dr.Angel",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x5ed7fdba8b06c0aeb2fafbbadae09238fe6421a6335e9af06845e362bf321868",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0xee049979960d5e42b389b941ec45790ca7b6e1f7",
+      "symbol": "HI",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x00b0e14175008ea1ac77c570024a10c1c08cc2c8ab4c59de1f86cded51a592d6",
+      "chain": "BASE",
+      "tokenAddress": "0x940181a94a35a4569e4529a3cdfb74e38fd98631",
+      "symbol": "AERO",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0xfc08c5fa86ce6128ae6fd7f6440798542d26201e9ed58a27aa2d9c77994b4d8c",
+      "chain": "BNB",
+      "tokenAddress": "0x2919b42e28ba205b56712425d09d98d3bdeb7b1a",
+      "symbol": "WBTCBR",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0xa3f35304fe05d7b770296e917d0d95864a79e0466d8cd86df8ea289abc6d1cab",
+      "chain": "ROBINHOOD",
+      "tokenAddress": "0x6a6a57d1e94eb586c5b505a1c81434bda3d6ed97",
+      "symbol": "BABY",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0xe30c3774d1a70d169dbe8754b5a8a68b39a73832e71fc1d4d0c3e0c9a42050fc",
+      "chain": "BASE",
+      "tokenAddress": "0xb2000000000000000000004884b426556b92883d",
+      "symbol": "MSTRc",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    },
+    {
+      "marketId": "0x30c01b46dc654d8968b688dc53e9507dd90c10c874f04f84301860f47e27cab5",
+      "chain": "BNB",
+      "tokenAddress": "0x8bbe564a2736458e757792f4d01304290a877777",
+      "symbol": "GM",
+      "policyProfile": "EVM_STANDARD",
+      "missing": [
+        {
+          "gate": "MINT_AUTHORITY_ACTIVE",
+          "evidenceRequired": [
+            "canonical token authority or EVM mintability read"
+          ]
+        },
+        {
+          "gate": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+          "evidenceRequired": [
+            "EVM owner/admin/role and bytecode inspection"
+          ]
+        },
+        {
+          "gate": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+          "evidenceRequired": [
+            "chain-native transfer simulation or source-backed restriction check"
+          ]
+        },
+        {
+          "gate": "LIQUIDITY_WITHDRAWABLE",
+          "evidenceRequired": [
+            "venue pool/position state and privileged withdrawal authority"
+          ]
+        },
+        {
+          "gate": "LP_UNLOCK_TOO_SOON",
+          "evidenceRequired": [
+            "venue-native lock, burn, or immutable migration state"
+          ]
+        },
+        {
+          "gate": "DEPLOYER_CONCENTRATION",
+          "evidenceRequired": [
+            "creator/deployer identity plus holder ownership resolution"
+          ]
+        },
+        {
+          "gate": "INDIVIDUAL_HOLDER_CONCENTRATION",
+          "evidenceRequired": [
+            "largest accounts plus proven owner resolution"
+          ]
+        },
+        {
+          "gate": "CONNECTED_CLUSTER_CONCENTRATION",
+          "evidenceRequired": [
+            "underlying wallet relationship graph and supply denominator"
+          ]
+        },
+        {
+          "gate": "KNOWN_RISK_DEPLOYER",
+          "evidenceRequired": [
+            "completed documented risk-corpus check for creator/deployer"
+          ]
+        },
+        {
+          "gate": "WASH_TRADING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "VOLUME_FARMING",
+          "evidenceRequired": [
+            "completed observed trade-window activity analysis"
+          ]
+        },
+        {
+          "gate": "SUSPICIOUS_TRANSACTION_REPETITION",
+          "evidenceRequired": [
+            "completed observed transaction repetition analysis"
+          ]
+        }
+      ],
+      "derivedGate": "INSUFFICIENT_EVIDENCE",
+      "closureRule": "Resolve every listed mandatory applicable gate; the derived completeness gate then becomes PASS."
+    }
+  ]
+}
