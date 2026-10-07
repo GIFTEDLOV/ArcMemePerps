@@ -4,7 +4,7 @@ import {
   type MarketIntelligenceRecord,
   type MarketPassport,
 } from "@arcmemeperps/domain";
-import { assessRisk, DEVELOPMENT_RISK_RULES } from "@arcmemeperps/risk-engine";
+import { assessRisk, CORE_SAFETY_RISK_RULES } from "@arcmemeperps/risk-engine";
 import { PersistentJobQueue, type PersistenceStore } from "@arcmemeperps/persistence";
 import {
   canonicalJson,
@@ -114,7 +114,10 @@ export function evaluateExecutionGate(input: ExecutionGateInput): ExecutionGateR
     reasons.push("OI_CAP");
   if (input.riskIncreasing && input.sideOIUsdWad + input.sizeDeltaUsdWad > input.maxSideOIUsdWad)
     reasons.push("SIDE_OI_CAP");
-  if (input.riskIncreasing && input.currentPositionUsdWad + input.sizeDeltaUsdWad > input.maxPositionUsdWad)
+  if (
+    input.riskIncreasing &&
+    input.currentPositionUsdWad + input.sizeDeltaUsdWad > input.maxPositionUsdWad
+  )
     reasons.push("POSITION_CAP");
   if (input.riskIncreasing && input.sizeDeltaUsdWad > input.vaultCapacityUsdWad)
     reasons.push("VAULT_CAPACITY");
@@ -173,7 +176,7 @@ export function buildMarketPassport(
   now = new Date().toISOString(),
 ): MarketPassport {
   const risk = assessRisk(record, {
-    rules: DEVELOPMENT_RISK_RULES,
+    rules: CORE_SAFETY_RISK_RULES,
     assessedAt: record.oracle.observedAt,
   });
   const providerHealth = record.providerAvailability.map((provider) => ({
@@ -220,7 +223,8 @@ export function buildMarketPassport(
       sellCount24h: null,
       priceChange24hBps: null,
       volatilityBps:
-        record.activity.realizedVolatility30dPct === null || record.activity.realizedVolatility30dPct === 0
+        record.activity.realizedVolatility30dPct === null ||
+        record.activity.realizedVolatility30dPct === 0
           ? null
           : integer(record.activity.realizedVolatility30dPct * 100),
     },
@@ -267,7 +271,9 @@ export function buildMarketPassport(
       // Aggregator provider identity is not an independent economic source.
       independentSourceCount: null,
       dispersionBps:
-        record.oracle.disagreementPct === null ? null : integer(record.oracle.disagreementPct * 100),
+        record.oracle.disagreementPct === null
+          ? null
+          : integer(record.oracle.disagreementPct * 100),
       confidenceBps: record.oracle.confidenceBps,
       freshness:
         record.oracle.stale === true
@@ -324,10 +330,15 @@ export function buildMarketPassport(
     riskResult: {
       integrityStatus: risk.integrityStatus,
       derivativesStatus: risk.derivativesStatus,
-      hardGateCodes: risk.hardGates.filter((gate) => gate.state === "FAIL" || gate.state === "UNKNOWN").map((gate) => gate.code),
+      hardGateCodes: risk.hardGates
+        .filter((gate) => gate.state === "FAIL" || gate.state === "UNKNOWN")
+        .map((gate) => gate.code),
       rejectionReasons: risk.rejectionReasons.map((item) => item.code),
       warnings: risk.warnings.map((item) => item.code),
-      ruleVersion: DEVELOPMENT_RISK_RULES.version,
+      ruleVersion: CORE_SAFETY_RISK_RULES.version,
+      coreIntegrityStatus: risk.coreIntegrityStatus,
+      surveillanceStatus: risk.surveillanceStatus,
+      evidenceCoverage: risk.evidenceCoverage,
     },
     qualification: {
       eligible: risk.integrityStatus === "QUALIFIED" && risk.derivativesStatus === "ELIGIBLE",
@@ -429,7 +440,7 @@ export function buildMarketPassport(
     },
     arcMarketState: "UNREGISTERED" as const,
     providerHealth,
-    riskRuleVersion: DEVELOPMENT_RISK_RULES.version,
+    riskRuleVersion: CORE_SAFETY_RISK_RULES.version,
   };
   return MarketPassportSchema.parse(snapshot);
 }
@@ -553,7 +564,9 @@ function unique(values: readonly string[]): readonly string[] {
   return [...new Set(values)].sort();
 }
 function integer(value: number | null): string | null {
-  return value !== null && Number.isFinite(value) ? Math.max(0, Math.round(value)).toString() : null;
+  return value !== null && Number.isFinite(value)
+    ? Math.max(0, Math.round(value)).toString()
+    : null;
 }
 function usdWad(value: number | null): string | null {
   if (value === null || !Number.isFinite(value) || value < 0) return null;

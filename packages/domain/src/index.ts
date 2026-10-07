@@ -27,6 +27,44 @@ export type LifecycleStatus = (typeof LIFECYCLE_STATUSES)[number];
 export const INTEGRITY_STATUSES = ["PENDING", "WATCH", "QUALIFIED", "REJECTED"] as const;
 export type IntegrityStatus = (typeof INTEGRITY_STATUSES)[number];
 
+/** 0.3.0 separates core token safety from non-core intelligence signals. */
+export const CORE_INTEGRITY_STATUSES = ["PENDING", "QUALIFIED", "REJECTED"] as const;
+export type CoreIntegrityStatus = (typeof CORE_INTEGRITY_STATUSES)[number];
+
+export const SURVEILLANCE_STATUSES = ["CLEAR", "WATCH", "LIMITED", "HIGH_RISK"] as const;
+export type SurveillanceStatus = (typeof SURVEILLANCE_STATUSES)[number];
+
+export const EVIDENCE_COVERAGE_STATUSES = ["COMPLETE", "STRONG", "PARTIAL", "WEAK"] as const;
+export type EvidenceCoverageStatus = (typeof EVIDENCE_COVERAGE_STATUSES)[number];
+
+export const EVIDENCE_COVERAGE_DOMAINS = [
+  "authority",
+  "transferSafety",
+  "liquidityControl",
+  "holders",
+  "clusters",
+  "creator",
+  "funding",
+  "activity",
+  "history",
+  "depth",
+  "oracle",
+] as const;
+export type EvidenceCoverageDomain = (typeof EVIDENCE_COVERAGE_DOMAINS)[number];
+
+export interface EvidenceCoverageDomainResult {
+  readonly status: EvidenceCoverageStatus;
+  readonly knownFields: readonly string[];
+  readonly unknownFields: readonly string[];
+}
+
+export interface EvidenceCoverage {
+  readonly overall: EvidenceCoverageStatus;
+  readonly domains: Readonly<Record<EvidenceCoverageDomain, EvidenceCoverageDomainResult>>;
+  readonly unknownCoreGates: readonly HardGateCode[];
+  readonly unknownSurveillanceGates: readonly HardGateCode[];
+}
+
 export const GATE_STATES = ["PASS", "FAIL", "UNKNOWN", "NOT_APPLICABLE"] as const;
 export type GateState = (typeof GATE_STATES)[number];
 
@@ -116,7 +154,8 @@ export interface HolderConcentration {
   readonly holderCount: number | null;
   readonly organicHolderGrowthPct24h: number | null;
   /** Scope of the observation; top token accounts are not a full holder census. */
-  readonly evidenceScope?: "TOP_TOKEN_ACCOUNTS" | "RESOLVED_TOP_OWNERS" | "FULL_CENSUS" | "UNAVAILABLE";
+  readonly evidenceScope?:
+    "TOP_TOKEN_ACCOUNTS" | "RESOLVED_TOP_OWNERS" | "FULL_CENSUS" | "UNAVAILABLE";
   readonly topTokenAccountPct?: number | null;
   readonly resolvedTopOwnerPct?: number | null;
   readonly resolvedTopFiveOwnerPct?: number | null;
@@ -225,6 +264,10 @@ export interface RiskAssessment {
   readonly token: TokenIdentity;
   readonly lifecycle: LifecycleSnapshot;
   readonly integrityStatus: IntegrityStatus;
+  /** 0.3.0 core-safety projection. Legacy assessments retain integrityStatus semantics. */
+  readonly coreIntegrityStatus: CoreIntegrityStatus;
+  readonly surveillanceStatus: SurveillanceStatus;
+  readonly evidenceCoverage: EvidenceCoverage;
   readonly derivativesStatus: DerivativesStatus;
   readonly hardGates: readonly HardGateResult[];
   readonly riskMetrics: {

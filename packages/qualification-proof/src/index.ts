@@ -1,6 +1,7 @@
 import type {
   AssessmentPosition,
   AuthorityState,
+  CoreIntegrityStatus,
   DerivativesStatus,
   EvidenceBundle,
   EvidenceRecord,
@@ -11,6 +12,8 @@ import type {
   LiquidityState,
   MarketObservation,
   RiskAssessment,
+  SurveillanceStatus,
+  EvidenceCoverage,
 } from "@arcmemeperps/domain";
 import {
   canonicalJson,
@@ -53,6 +56,9 @@ export interface QualificationProof {
     readonly integrity: IntegrityStatus;
     readonly derivatives: DerivativesStatus;
   };
+  readonly coreIntegrityStatus?: CoreIntegrityStatus;
+  readonly surveillanceStatus?: SurveillanceStatus;
+  readonly evidenceCoverage?: EvidenceCoverage;
   readonly riskParameters: {
     readonly recommendedMaxLeverage: number;
     readonly recommendedMaxOI: number;
@@ -156,6 +162,9 @@ export function qualificationProofFromAssessment(
       integrity: assessment.integrityStatus,
       derivatives: assessment.derivativesStatus,
     },
+    coreIntegrityStatus: assessment.coreIntegrityStatus,
+    surveillanceStatus: assessment.surveillanceStatus,
+    evidenceCoverage: assessment.evidenceCoverage,
     riskParameters: {
       recommendedMaxLeverage: requireKnownNumber(
         assessment.recommendedMaxLeverage,

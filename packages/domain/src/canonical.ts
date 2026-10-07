@@ -32,6 +32,22 @@ const ORIGIN_PLATFORMS = [
   "UNKNOWN",
 ] as const;
 const INTEGRITY = ["PENDING", "WATCH", "QUALIFIED", "REJECTED"] as const;
+const CORE_INTEGRITY = ["PENDING", "QUALIFIED", "REJECTED"] as const;
+const SURVEILLANCE = ["CLEAR", "WATCH", "LIMITED", "HIGH_RISK"] as const;
+const COVERAGE = ["COMPLETE", "STRONG", "PARTIAL", "WEAK"] as const;
+const COVERAGE_DOMAINS = [
+  "authority",
+  "transferSafety",
+  "liquidityControl",
+  "holders",
+  "clusters",
+  "creator",
+  "funding",
+  "activity",
+  "history",
+  "depth",
+  "oracle",
+] as const;
 const DERIVATIVES = [
   "UNASSESSED",
   "WATCH",
@@ -146,7 +162,18 @@ export const MarketSnapshotSchema = z
         upgradeable: z.boolean().nullable(),
         transferRestricted: z.boolean().nullable(),
         honeypot: z.boolean().nullable(),
-        lpSecurity: z.enum(["LOCKED", "TIME_LOCKED", "BURNED", "PROTOCOL_CONTROLLED", "IMMUTABLE_MIGRATION_CONTROL", "DISTRIBUTED_NON_PRIVILEGED", "WITHDRAWABLE", "WITHDRAWABLE_BY_PRIVILEGED_ACTOR", "UNKNOWN", "UNAVAILABLE"]),
+        lpSecurity: z.enum([
+          "LOCKED",
+          "TIME_LOCKED",
+          "BURNED",
+          "PROTOCOL_CONTROLLED",
+          "IMMUTABLE_MIGRATION_CONTROL",
+          "DISTRIBUTED_NON_PRIVILEGED",
+          "WITHDRAWABLE",
+          "WITHDRAWABLE_BY_PRIVILEGED_ACTOR",
+          "UNKNOWN",
+          "UNAVAILABLE",
+        ]),
         evidenceIds: z.array(z.string()).readonly(),
       })
       .strict(),
@@ -223,6 +250,26 @@ export const MarketSnapshotSchema = z
         rejectionReasons: z.array(z.string()).readonly(),
         warnings: z.array(z.string()).readonly(),
         ruleVersion: z.string(),
+        coreIntegrityStatus: z.enum(CORE_INTEGRITY).optional(),
+        surveillanceStatus: z.enum(SURVEILLANCE).optional(),
+        evidenceCoverage: z
+          .object({
+            overall: z.enum(COVERAGE),
+            domains: z.record(
+              z.enum(COVERAGE_DOMAINS),
+              z
+                .object({
+                  status: z.enum(COVERAGE),
+                  knownFields: z.array(z.string()).readonly(),
+                  unknownFields: z.array(z.string()).readonly(),
+                })
+                .strict(),
+            ),
+            unknownCoreGates: z.array(z.string()).readonly(),
+            unknownSurveillanceGates: z.array(z.string()).readonly(),
+          })
+          .strict()
+          .optional(),
       })
       .strict(),
     qualification: z

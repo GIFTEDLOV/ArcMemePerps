@@ -13,11 +13,15 @@ export type PolicyGateDisposition = "MANDATORY" | "OPTIONAL" | "NOT_APPLICABLE";
 export interface RiskPolicyProfile {
   readonly id: RiskPolicyProfileId;
   readonly ruleVersion: string;
+  /** Versioned 0.3.0 core-safety projection; the legacy 0.2.0 partition remains above. */
+  readonly corePolicyVersion: "0.3.0";
   readonly authorityEvidence: readonly string[];
   readonly lpStates: readonly LpLockStatus[];
   readonly mandatoryHardGates: readonly HardGateCode[];
   readonly optionalHardGates: readonly HardGateCode[];
   readonly notApplicableGates: readonly HardGateCode[];
+  readonly coreMandatoryHardGates: readonly HardGateCode[];
+  readonly surveillanceHardGates: readonly HardGateCode[];
   readonly optionalEvidence: readonly string[];
   readonly softWarningSignals: readonly string[];
   readonly evidenceByGate: Partial<Record<HardGateCode, readonly string[]>>;
@@ -99,12 +103,74 @@ const VENUE_MANDATORY: readonly HardGateCode[] = [
   "INSUFFICIENT_EVIDENCE",
 ];
 
+const CORE_SOLANA: readonly HardGateCode[] = [
+  "MINT_AUTHORITY_ACTIVE",
+  "FREEZE_AUTHORITY_ACTIVE",
+  "HONEYPOT_OR_TRANSFER_RESTRICTION",
+  "LIQUIDITY_WITHDRAWABLE",
+  "LP_UNLOCK_TOO_SOON",
+  "INDIVIDUAL_HOLDER_CONCENTRATION",
+  "CONNECTED_CLUSTER_CONCENTRATION",
+];
+
+const CORE_EVM: readonly HardGateCode[] = [
+  "MINT_AUTHORITY_ACTIVE",
+  "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+  "UPGRADEABILITY_RISK",
+  "HONEYPOT_OR_TRANSFER_RESTRICTION",
+  "LIQUIDITY_WITHDRAWABLE",
+  "LP_UNLOCK_TOO_SOON",
+  "INDIVIDUAL_HOLDER_CONCENTRATION",
+  "CONNECTED_CLUSTER_CONCENTRATION",
+];
+
+const CORE_LAUNCHPAD: readonly HardGateCode[] = [
+  ...CORE_SOLANA,
+  "DEPLOYER_CONCENTRATION",
+  "BUNDLED_LAUNCH_CONCENTRATION",
+];
+
+const CORE_VENUE: readonly HardGateCode[] = [
+  ...CORE_EVM,
+  "FREEZE_AUTHORITY_ACTIVE",
+  "DEPLOYER_CONCENTRATION",
+  "BUNDLED_LAUNCH_CONCENTRATION",
+];
+
+const SURVEILLANCE_GATES: readonly HardGateCode[] = [
+  "DEPLOYER_CONCENTRATION",
+  "BUNDLED_LAUNCH_CONCENTRATION",
+  "KNOWN_RISK_DEPLOYER",
+  "RELATED_WALLET_FUNDING",
+  "SUSPICIOUS_EARLY_BUYERS",
+  "WASH_TRADING",
+  "VOLUME_FARMING",
+  "SUSPICIOUS_TRANSACTION_REPETITION",
+];
+
+function coreGatesForProfile(id: RiskPolicyProfileId): readonly HardGateCode[] {
+  switch (id) {
+    case "SOLANA_SPL":
+    case "SOLANA_TOKEN_2022":
+      return CORE_SOLANA;
+    case "LAUNCHPAD_CONTROLLED":
+      return CORE_LAUNCHPAD;
+    case "VENUE_SPECIFIC_LP_CONTROL":
+      return CORE_VENUE;
+    case "EVM_STANDARD":
+    case "EVM_PROXY":
+      return CORE_EVM;
+  }
+}
+
 const EVIDENCE_BY_GATE: Partial<Record<HardGateCode, readonly string[]>> = {
   MINT_AUTHORITY_ACTIVE: ["canonical token authority or EVM mintability read"],
   FREEZE_AUTHORITY_ACTIVE: ["canonical Solana freeze-authority RPC read"],
   DANGEROUS_OWNER_ADMIN_PRIVILEGE: ["EVM owner/admin/role and bytecode inspection"],
   UPGRADEABILITY_RISK: ["proxy implementation/admin and upgrade-authority inspection"],
-  HONEYPOT_OR_TRANSFER_RESTRICTION: ["chain-native transfer simulation or source-backed restriction check"],
+  HONEYPOT_OR_TRANSFER_RESTRICTION: [
+    "chain-native transfer simulation or source-backed restriction check",
+  ],
   LIQUIDITY_WITHDRAWABLE: ["venue pool/position state and privileged withdrawal authority"],
   LP_UNLOCK_TOO_SOON: ["venue-native lock, burn, or immutable migration state"],
   DEPLOYER_CONCENTRATION: ["creator/deployer identity plus holder ownership resolution"],
@@ -146,11 +212,14 @@ const profile = (
 ): RiskPolicyProfile => ({
   id,
   ruleVersion: "0.2.0",
+  corePolicyVersion: "0.3.0",
   authorityEvidence,
   lpStates,
   mandatoryHardGates,
   optionalHardGates,
   notApplicableGates,
+  coreMandatoryHardGates: coreGatesForProfile(id),
+  surveillanceHardGates: SURVEILLANCE_GATES,
   optionalEvidence,
   softWarningSignals,
   evidenceByGate: EVIDENCE_BY_GATE,
@@ -207,7 +276,13 @@ export const RISK_POLICY_PROFILES: Readonly<Record<RiskPolicyProfileId, RiskPoli
     LAUNCHPAD_MANDATORY,
     [],
     ["DANGEROUS_OWNER_ADMIN_PRIVILEGE", "UPGRADEABILITY_RISK"],
-    ["launchpadMigration", "bondingState", "migrationController", "mintAuthority", "freezeAuthority"],
+    [
+      "launchpadMigration",
+      "bondingState",
+      "migrationController",
+      "mintAuthority",
+      "freezeAuthority",
+    ],
     ["IMMUTABLE_MIGRATION_CONTROL", "PROTOCOL_CONTROLLED", "BURNED", "TIME_LOCKED"],
     ["launchpad-native migration state", "bounded launch-window transaction history"],
     LAUNCHPAD_WARNINGS,
@@ -219,7 +294,13 @@ export const RISK_POLICY_PROFILES: Readonly<Record<RiskPolicyProfileId, RiskPoli
     [],
     [],
     ["venuePosition", "lockerOrBurnEvidence", "withdrawalAuthority"],
-    ["BURNED", "TIME_LOCKED", "PROTOCOL_CONTROLLED", "IMMUTABLE_MIGRATION_CONTROL", "DISTRIBUTED_NON_PRIVILEGED"],
+    [
+      "BURNED",
+      "TIME_LOCKED",
+      "PROTOCOL_CONTROLLED",
+      "IMMUTABLE_MIGRATION_CONTROL",
+      "DISTRIBUTED_NON_PRIVILEGED",
+    ],
     ["venue-native LP position and custody state"],
     MATURE_WARNINGS,
     "This is a strict venue-control profile. It intentionally declares no gate non-applicable because it is an LP-control overlay and does not itself prove chain authority irrelevance.",
@@ -228,8 +309,10 @@ export const RISK_POLICY_PROFILES: Readonly<Record<RiskPolicyProfileId, RiskPoli
 
 export function policyProfileForObservation(observation: MarketObservation): RiskPolicyProfile {
   if (observation.token.chain === "SOLANA") {
-    if (observation.token.originPlatform === "PUMP_STYLE") return RISK_POLICY_PROFILES.LAUNCHPAD_CONTROLLED;
-    if (observation.token.tokenProgram === "TOKEN_2022") return RISK_POLICY_PROFILES.SOLANA_TOKEN_2022;
+    if (observation.token.originPlatform === "PUMP_STYLE")
+      return RISK_POLICY_PROFILES.LAUNCHPAD_CONTROLLED;
+    if (observation.token.tokenProgram === "TOKEN_2022")
+      return RISK_POLICY_PROFILES.SOLANA_TOKEN_2022;
     return RISK_POLICY_PROFILES.SOLANA_SPL;
   }
   if (observation.token.originPlatform === "FOUR_MEME_STYLE") {
@@ -237,13 +320,19 @@ export function policyProfileForObservation(observation: MarketObservation): Ris
       ? RISK_POLICY_PROFILES.EVM_PROXY
       : RISK_POLICY_PROFILES.EVM_STANDARD;
   }
-  if (observation.authorities.upgradeable === true || observation.authorities.upgradeAuthority !== null) {
+  if (
+    observation.authorities.upgradeable === true ||
+    observation.authorities.upgradeAuthority !== null
+  ) {
     return RISK_POLICY_PROFILES.EVM_PROXY;
   }
   return RISK_POLICY_PROFILES.EVM_STANDARD;
 }
 
-export function gateDisposition(profileValue: RiskPolicyProfile, code: HardGateCode): PolicyGateDisposition {
+export function gateDisposition(
+  profileValue: RiskPolicyProfile,
+  code: HardGateCode,
+): PolicyGateDisposition {
   if (profileValue.notApplicableGates.includes(code)) return "NOT_APPLICABLE";
   if (profileValue.mandatoryHardGates.includes(code)) return "MANDATORY";
   return "OPTIONAL";

@@ -1,0 +1,65 @@
+{
+  "version": "0.3.0",
+  "inheritsNumericThresholdsFrom": "0.2.0",
+  "numericThresholdsChanged": false,
+  "coreSafety": {
+    "individualHolderMaxPct": 5,
+    "connectedClusterMaxPct": 5,
+    "bundleMaxPct": 10,
+    "gates": [
+      "MINT_AUTHORITY_ACTIVE",
+      "FREEZE_AUTHORITY_ACTIVE",
+      "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+      "UPGRADEABILITY_RISK",
+      "HONEYPOT_OR_TRANSFER_RESTRICTION",
+      "LIQUIDITY_WITHDRAWABLE",
+      "LP_UNLOCK_TOO_SOON",
+      "INDIVIDUAL_HOLDER_CONCENTRATION",
+      "CONNECTED_CLUSTER_CONCENTRATION",
+      "BUNDLED_LAUNCH_CONCENTRATION"
+    ],
+    "unknownApplicableGate": "PENDING",
+    "explicitFailure": "REJECTED"
+  },
+  "surveillance": {
+    "statuses": ["CLEAR", "WATCH", "LIMITED", "HIGH_RISK"],
+    "gates": [
+      "DEPLOYER_CONCENTRATION",
+      "KNOWN_RISK_DEPLOYER",
+      "RELATED_WALLET_FUNDING",
+      "SUSPICIOUS_EARLY_BUYERS",
+      "WASH_TRADING",
+      "VOLUME_FARMING",
+      "SUSPICIOUS_TRANSACTION_REPETITION"
+    ],
+    "unknownDoesNotEqualClear": true,
+    "explicitSevereRiskBlocksDerivatives": true
+  },
+  "capacity": {
+    "spotLiquidityUsd": 500000,
+    "depth1PctUsd": 50000,
+    "depth2PctUsd": 100000,
+    "organicVolume24hUsd": 100000,
+    "maximumRealizedVolatilityPct": 150,
+    "minimumIndependentSources": 2,
+    "maximumOracleDisagreementPct": 3,
+    "minimumOracleConfidenceBps": 8500,
+    "minimumManipulationCostUsd": 100000,
+    "minimumLiquidationCapacityUsd": 100000,
+    "minimumSafeOpenInterestUsd": 25000,
+    "maximumLeverage": 5
+  },
+  "coverageDomains": [
+    "authority",
+    "transferSafety",
+    "liquidityControl",
+    "holders",
+    "clusters",
+    "creator",
+    "funding",
+    "activity",
+    "history",
+    "depth",
+    "oracle"
+  ]
+}

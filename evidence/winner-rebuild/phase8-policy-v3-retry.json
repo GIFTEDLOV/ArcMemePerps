@@ -1,0 +1,3441 @@
+{
+  "schemaVersion": "winner-rebuild/phase8-policy-v3-retry-v1",
+  "generatedAt": "2026-10-07T16:56:15.142Z",
+  "sourceArtifact": "evidence/winner-rebuild/phase7-indexed-evm-lane.json",
+  "ruleVersion": "0.3.0",
+  "numericThresholdsChanged": false,
+  "candidates": [
+    {
+      "chain": "ETHEREUM",
+      "tokenAddress": "0x6982508145454ce325ddbe47a25d4ec3d2311933",
+      "symbol": "PEPE",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "REJECTED",
+        "coreIntegrityStatus": "REJECTED",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "FAIL",
+            "hard": true,
+            "details": {
+              "topHolderPct": 8.83,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety gate failed: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": 8.83,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": 78823.84234966067,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INTEGRITY_NOT_QUALIFIED",
+            "message": "derivatives cannot qualify before token integrity qualifies",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "REJECTED"
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+            "hardGate": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+            "hardGate": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "estimated manipulation cost is too low",
+            "hardGate": false,
+            "details": {
+              "actual": 78823.84234966067,
+              "minimum": 100000
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "owner/admin privilege",
+                "upgradeability"
+              ],
+              "unknownFields": []
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ]
+            },
+            "holders": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "non-system holder concentration"
+              ],
+              "unknownFields": []
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "1% and 2% executable depth"
+              ],
+              "unknownFields": []
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "LIQUIDITY_WITHDRAWABLE",
+            "LP_UNLOCK_TOO_SOON",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    },
+    {
+      "chain": "ETHEREUM",
+      "tokenAddress": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+      "symbol": "SHIB",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "REJECTED",
+        "coreIntegrityStatus": "REJECTED",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "FAIL",
+            "hard": true,
+            "details": {
+              "topHolderPct": 41.04,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety gate failed: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": 41.04,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_SPOT_LIQUIDITY",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_SPOT_LIQUIDITY",
+            "hardGate": false,
+            "details": {
+              "actual": 317842.76,
+              "minimum": 500000
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          },
+          {
+            "code": "INTEGRITY_NOT_QUALIFIED",
+            "message": "derivatives cannot qualify before token integrity qualifies",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "REJECTED"
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "message": "core safety evidence is unknown: DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "hardGate": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+            "hardGate": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+            "hardGate": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_1_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_2_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SPOT_LIQUIDITY",
+            "message": "spot liquidity is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 317842.76,
+              "minimum": 500000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "PARTIAL",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "upgradeability"
+              ],
+              "unknownFields": [
+                "owner/admin privilege"
+              ]
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ]
+            },
+            "holders": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "non-system holder concentration"
+              ],
+              "unknownFields": []
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "1% and 2% executable depth"
+              ]
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "LIQUIDITY_WITHDRAWABLE",
+            "LP_UNLOCK_TOO_SOON",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    },
+    {
+      "chain": "BASE",
+      "tokenAddress": "0x532f27101965dd16442e59d40670faf5ebb142e4",
+      "symbol": "BRETT",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "PENDING",
+        "coreIntegrityStatus": "PENDING",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+            "hardGate": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+            "hardGate": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety evidence is unknown: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_1_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_2_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "INTEGRITY_EVIDENCE_PENDING",
+            "message": "derivatives cannot qualify before integrity evidence is complete",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "PENDING"
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "owner/admin privilege",
+                "upgradeability"
+              ],
+              "unknownFields": []
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ]
+            },
+            "holders": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "non-system holder concentration"
+              ]
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "1% and 2% executable depth"
+              ]
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "LIQUIDITY_WITHDRAWABLE",
+            "LP_UNLOCK_TOO_SOON",
+            "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    },
+    {
+      "chain": "BASE",
+      "tokenAddress": "0x07b3d902783c3c12b077508c3b5c00113d1291d0",
+      "symbol": "xdp",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "PENDING",
+        "coreIntegrityStatus": "PENDING",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "message": "core safety evidence is unknown: DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "hardGate": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+            "hardGate": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+            "hardGate": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety evidence is unknown: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_1_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_2_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "INTEGRITY_EVIDENCE_PENDING",
+            "message": "derivatives cannot qualify before integrity evidence is complete",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "PENDING"
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "PARTIAL",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "upgradeability"
+              ],
+              "unknownFields": [
+                "owner/admin privilege"
+              ]
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ]
+            },
+            "holders": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "non-system holder concentration"
+              ]
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "1% and 2% executable depth"
+              ]
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "LIQUIDITY_WITHDRAWABLE",
+            "LP_UNLOCK_TOO_SOON",
+            "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    },
+    {
+      "chain": "ETHEREUM",
+      "tokenAddress": "0xa606d433971e9ee140e234daa7c94c476e10ead1",
+      "symbol": "CLAUS",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "PENDING",
+        "coreIntegrityStatus": "PENDING",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "BURNED"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "BURNED",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "CAPACITY_INSUFFICIENT_SPOT_LIQUIDITY",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_SPOT_LIQUIDITY",
+            "hardGate": false,
+            "details": {
+              "actual": 467134.03,
+              "minimum": 500000
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_DEPTH_1_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": 1313.0724274553052,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_DEPTH_2_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": 2619.6604277306697,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": 1313.0724274553052,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "hardGate": false,
+            "details": {
+              "actual": 2619.6604277306697,
+              "minimum": 100000
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety evidence is unknown: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "INTEGRITY_EVIDENCE_PENDING",
+            "message": "derivatives cannot qualify before integrity evidence is complete",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "PENDING"
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SPOT_LIQUIDITY",
+            "message": "spot liquidity is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 467134.03,
+              "minimum": 500000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "1% market depth is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1313.0724274553052,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "2% market depth is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 2619.6604277306697,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "estimated manipulation cost is too low",
+            "hardGate": false,
+            "details": {
+              "actual": 1313.0724274553052,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "liquidation capacity is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 2619.6604277306697,
+              "minimum": 100000
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "owner/admin privilege",
+                "upgradeability"
+              ],
+              "unknownFields": []
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ],
+              "unknownFields": []
+            },
+            "holders": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "non-system holder concentration"
+              ]
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "1% and 2% executable depth"
+              ],
+              "unknownFields": []
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    },
+    {
+      "chain": "BASE",
+      "tokenAddress": "0xb49e16557bbb95ad6e3fca5768e994ab39367b07",
+      "symbol": "CLAUS",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "PENDING",
+        "coreIntegrityStatus": "PENDING",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "message": "core safety evidence is unknown: DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "hardGate": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+            "hardGate": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+            "hardGate": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety evidence is unknown: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": null,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_1_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_2_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "INTEGRITY_EVIDENCE_PENDING",
+            "message": "derivatives cannot qualify before integrity evidence is complete",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "PENDING"
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "PARTIAL",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "upgradeability"
+              ],
+              "unknownFields": [
+                "owner/admin privilege"
+              ]
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ]
+            },
+            "holders": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "non-system holder concentration"
+              ]
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "1% and 2% executable depth"
+              ]
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "LIQUIDITY_WITHDRAWABLE",
+            "LP_UNLOCK_TOO_SOON",
+            "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    },
+    {
+      "chain": "ETHEREUM",
+      "tokenAddress": "0xa9fb402446f6ac3A73013882b68242040405e7Db",
+      "symbol": "EPOCH",
+      "observationBasis": "phase7-indexed-evm-lane.json; no new provider calls",
+      "assessment": {
+        "integrityStatus": "REJECTED",
+        "coreIntegrityStatus": "REJECTED",
+        "surveillanceStatus": "LIMITED",
+        "derivativesStatus": "BLOCKED",
+        "ruleVersion": "0.3.0",
+        "hardGates": [
+          {
+            "code": "MINT_AUTHORITY_ACTIVE",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "active": false
+            }
+          },
+          {
+            "code": "FREEZE_AUTHORITY_ACTIVE",
+            "state": "NOT_APPLICABLE",
+            "hard": true,
+            "details": {
+              "active": null,
+              "applicability": "NOT_APPLICABLE",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "UPGRADEABILITY_RISK",
+            "state": "PASS",
+            "hard": true,
+            "details": {
+              "upgradeable": false,
+              "upgradeAuthority": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "DEPLOYER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "deployerHoldingsPct": null,
+              "maxDeployerHoldingsPct": 10
+            }
+          },
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "state": "FAIL",
+            "hard": true,
+            "details": {
+              "topHolderPct": 22.95,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "BUNDLED_LAUNCH_CONCENTRATION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "bundledLaunchPct": null,
+              "maxBundledLaunchPct": 10
+            }
+          },
+          {
+            "code": "KNOWN_RISK_DEPLOYER",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "knownRisk": null,
+              "priorRugCount": null
+            }
+          },
+          {
+            "code": "RELATED_WALLET_FUNDING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_EARLY_BUYERS",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "WASH_TRADING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "VOLUME_FARMING",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "detected": null
+            }
+          },
+          {
+            "code": "INSUFFICIENT_EVIDENCE",
+            "state": "UNKNOWN",
+            "hard": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN",
+              "authorityEvidenceComplete": false
+            }
+          }
+        ],
+        "rejectionReasons": [
+          {
+            "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+            "message": "core safety gate failed: INDIVIDUAL_HOLDER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "topHolderPct": 22.95,
+              "topTokenAccountPct": null,
+              "evidenceScope": "UNAVAILABLE",
+              "maxIndividualHolderPct": 5
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_SPOT_LIQUIDITY",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_SPOT_LIQUIDITY",
+            "hardGate": false,
+            "details": {
+              "actual": 43064.73,
+              "minimum": 500000
+            }
+          },
+          {
+            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
+            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          },
+          {
+            "code": "INTEGRITY_NOT_QUALIFIED",
+            "message": "derivatives cannot qualify before token integrity qualifies",
+            "hardGate": false,
+            "details": {
+              "integrityStatus": "REJECTED"
+            }
+          }
+        ],
+        "unknownReasons": [
+          {
+            "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "message": "core safety evidence is unknown: DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "hardGate": true,
+            "details": {
+              "active": null
+            }
+          },
+          {
+            "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "hardGate": true,
+            "details": {
+              "honeypotDetected": null,
+              "transferRestricted": null
+            }
+          },
+          {
+            "code": "LIQUIDITY_WITHDRAWABLE",
+            "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+            "hardGate": true,
+            "details": {
+              "lpLockStatus": "UNKNOWN"
+            }
+          },
+          {
+            "code": "LP_UNLOCK_TOO_SOON",
+            "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+            "hardGate": true,
+            "details": {
+              "earliestLpUnlockAt": null,
+              "minimumLpLockDays": 7
+            }
+          },
+          {
+            "code": "CONNECTED_CLUSTER_CONCENTRATION",
+            "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+            "hardGate": true,
+            "details": {
+              "connectedClusterPct": null,
+              "maxConnectedClusterPct": 5
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_1_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 50000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_DEPTH_2_PERCENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORGANIC_VOLUME",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_ORGANIC_VOLUME",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "EXCESSIVE_REALIZED_VOLATILITY",
+            "message": "required capacity evidence is unknown: EXCESSIVE_REALIZED_VOLATILITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 150
+            }
+          },
+          {
+            "code": "LOW_ORACLE_CONFIDENCE",
+            "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 8500
+            }
+          },
+          {
+            "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_MANIPULATION_RESISTANCE",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_LIQUIDATION_CAPACITY",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 100000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "minimum": 25000
+            }
+          },
+          {
+            "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+            "message": "safe open interest could not be derived",
+            "hardGate": false,
+            "details": {}
+          },
+          {
+            "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+            "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+            "hardGate": false,
+            "details": {}
+          }
+        ],
+        "warnings": [
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+            "hardGate": false,
+            "details": {
+              "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+            "hardGate": false,
+            "details": {
+              "gate": "RELATED_WALLET_FUNDING",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+            "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+            "hardGate": false,
+            "details": {
+              "gate": "SUSPICIOUS_EARLY_BUYERS",
+              "policyProfile": "EVM_STANDARD"
+            }
+          },
+          {
+            "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+            "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+            "hardGate": false,
+            "details": {
+              "unknownSignals": 8
+            }
+          },
+          {
+            "code": "INSUFFICIENT_SPOT_LIQUIDITY",
+            "message": "spot liquidity is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 43064.73,
+              "minimum": 500000
+            }
+          },
+          {
+            "code": "INSUFFICIENT_ORACLE_SOURCES",
+            "message": "oracle source count is below development minimum",
+            "hardGate": false,
+            "details": {
+              "actual": 1,
+              "minimum": 2
+            }
+          }
+        ],
+        "evidenceCoverage": {
+          "overall": "WEAK",
+          "domains": {
+            "authority": {
+              "status": "PARTIAL",
+              "knownFields": [
+                "mint authority",
+                "freeze authority",
+                "upgradeability"
+              ],
+              "unknownFields": [
+                "owner/admin privilege"
+              ]
+            },
+            "transferSafety": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "sellability and transfer restriction behavior"
+              ]
+            },
+            "liquidityControl": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "LP withdrawal control",
+                "LP unlock semantics"
+              ]
+            },
+            "holders": {
+              "status": "COMPLETE",
+              "knownFields": [
+                "non-system holder concentration"
+              ],
+              "unknownFields": []
+            },
+            "clusters": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "connected holder cluster"
+              ]
+            },
+            "creator": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "creator/deployer identity and risk"
+              ]
+            },
+            "funding": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "bounded related-wallet funding graph"
+              ]
+            },
+            "activity": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "wash/farm/repetition observation window"
+              ]
+            },
+            "history": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "realized volatility window"
+              ]
+            },
+            "depth": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "1% and 2% executable depth"
+              ]
+            },
+            "oracle": {
+              "status": "WEAK",
+              "knownFields": [],
+              "unknownFields": [
+                "source count, agreement, confidence, freshness"
+              ]
+            }
+          },
+          "unknownCoreGates": [
+            "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+            "HONEYPOT_OR_TRANSFER_RESTRICTION",
+            "LIQUIDITY_WITHDRAWABLE",
+            "LP_UNLOCK_TOO_SOON",
+            "CONNECTED_CLUSTER_CONCENTRATION"
+          ],
+          "unknownSurveillanceGates": [
+            "DEPLOYER_CONCENTRATION",
+            "BUNDLED_LAUNCH_CONCENTRATION",
+            "KNOWN_RISK_DEPLOYER",
+            "RELATED_WALLET_FUNDING",
+            "SUSPICIOUS_EARLY_BUYERS",
+            "WASH_TRADING",
+            "VOLUME_FARMING",
+            "SUSPICIOUS_TRANSACTION_REPETITION"
+          ]
+        },
+        "recommendedMaxLeverage": null,
+        "recommendedMaxOI": null,
+        "recommendedMaxPosition": null
+      }
+    }
+  ],
+  "counts": {
+    "evaluated": 7,
+    "coreQualified": 0,
+    "corePending": 4,
+    "coreRejected": 3,
+    "surveillanceClear": 0,
+    "surveillanceWatch": 0,
+    "surveillanceLimited": 7,
+    "surveillanceHighRisk": 0,
+    "derivativesEligible": 0,
+    "derivativesWatch": 0,
+    "derivativesBlocked": 7,
+    "derivativesUnassessed": 0
+  },
+  "testnetWritePerformed": false,
+  "mainnetWritePerformed": false,
+  "contractRedeploymentPerformed": false
+}
