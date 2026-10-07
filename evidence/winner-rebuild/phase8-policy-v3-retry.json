@@ -1,6 +1,6 @@
 {
   "schemaVersion": "winner-rebuild/phase8-policy-v3-retry-v1",
-  "generatedAt": "2026-10-07T16:56:15.142Z",
+  "generatedAt": "2026-10-07T17:24:53.188Z",
   "sourceArtifact": "evidence/winner-rebuild/phase7-indexed-evm-lane.json",
   "ruleVersion": "0.3.0",
   "numericThresholdsChanged": false,
@@ -188,15 +188,6 @@
             }
           },
           {
-            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
-            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
-            }
-          },
-          {
             "code": "CAPACITY_INSUFFICIENT_MANIPULATION_RESISTANCE",
             "message": "derivatives capacity hard gate failed: INSUFFICIENT_MANIPULATION_RESISTANCE",
             "hardGate": false,
@@ -269,6 +260,15 @@
             }
           },
           {
+            "code": "ORACLE_DISAGREEMENT",
+            "message": "required capacity evidence is unknown: ORACLE_DISAGREEMENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 3
+            }
+          },
+          {
             "code": "LOW_ORACLE_CONFIDENCE",
             "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
             "hardGate": false,
@@ -333,15 +333,6 @@
             "hardGate": false,
             "details": {
               "unknownSignals": 8
-            }
-          },
-          {
-            "code": "INSUFFICIENT_ORACLE_SOURCES",
-            "message": "oracle source count is below development minimum",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
             }
           },
           {
@@ -644,24 +635,6 @@
             }
           },
           {
-            "code": "CAPACITY_INSUFFICIENT_SPOT_LIQUIDITY",
-            "message": "derivatives capacity hard gate failed: INSUFFICIENT_SPOT_LIQUIDITY",
-            "hardGate": false,
-            "details": {
-              "actual": 317842.76,
-              "minimum": 500000
-            }
-          },
-          {
-            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
-            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
-            }
-          },
-          {
             "code": "INTEGRITY_NOT_QUALIFIED",
             "message": "derivatives cannot qualify before token integrity qualifies",
             "hardGate": false,
@@ -751,6 +724,15 @@
             }
           },
           {
+            "code": "ORACLE_DISAGREEMENT",
+            "message": "required capacity evidence is unknown: ORACLE_DISAGREEMENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 3
+            }
+          },
+          {
             "code": "LOW_ORACLE_CONFIDENCE",
             "message": "required capacity evidence is unknown: LOW_ORACLE_CONFIDENCE",
             "hardGate": false,
@@ -833,24 +815,6 @@
             "hardGate": false,
             "details": {
               "unknownSignals": 8
-            }
-          },
-          {
-            "code": "INSUFFICIENT_SPOT_LIQUIDITY",
-            "message": "spot liquidity is below development minimum",
-            "hardGate": false,
-            "details": {
-              "actual": 317842.76,
-              "minimum": 500000
-            }
-          },
-          {
-            "code": "INSUFFICIENT_ORACLE_SOURCES",
-            "message": "oracle source count is below development minimum",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
             }
           }
         ],
@@ -972,7 +936,7 @@
         "integrityStatus": "PENDING",
         "coreIntegrityStatus": "PENDING",
         "surveillanceStatus": "LIMITED",
-        "derivativesStatus": "BLOCKED",
+        "derivativesStatus": "UNASSESSED",
         "ruleVersion": "0.3.0",
         "hardGates": [
           {
@@ -1133,17 +1097,7 @@
             }
           }
         ],
-        "rejectionReasons": [
-          {
-            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
-            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
-            }
-          }
-        ],
+        "rejectionReasons": [],
         "unknownReasons": [
           {
             "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
@@ -1225,6 +1179,15 @@
             "details": {
               "actual": null,
               "maximum": 150
+            }
+          },
+          {
+            "code": "ORACLE_DISAGREEMENT",
+            "message": "required capacity evidence is unknown: ORACLE_DISAGREEMENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 3
             }
           },
           {
@@ -1318,15 +1281,6 @@
             "hardGate": false,
             "details": {
               "unknownSignals": 8
-            }
-          },
-          {
-            "code": "INSUFFICIENT_ORACLE_SOURCES",
-            "message": "oracle source count is below development minimum",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
             }
           }
         ],
@@ -1447,7 +1401,7 @@
         "integrityStatus": "PENDING",
         "coreIntegrityStatus": "PENDING",
         "surveillanceStatus": "LIMITED",
-        "derivativesStatus": "BLOCKED",
+        "derivativesStatus": "UNASSESSED",
         "ruleVersion": "0.3.0",
         "hardGates": [
           {
@@ -1608,17 +1562,7 @@
             }
           }
         ],
-        "rejectionReasons": [
-          {
-            "code": "CAPACITY_INSUFFICIENT_ORACLE_SOURCES",
-            "message": "derivatives capacity hard gate failed: INSUFFICIENT_ORACLE_SOURCES",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
-            }
-          }
-        ],
+        "rejectionReasons": [],
         "unknownReasons": [
           {
             "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
@@ -1708,6 +1652,15 @@
             "details": {
               "actual": null,
               "maximum": 150
+            }
+          },
+          {
+            "code": "ORACLE_DISAGREEMENT",
+            "message": "required capacity evidence is unknown: ORACLE_DISAGREEMENT",
+            "hardGate": false,
+            "details": {
+              "actual": null,
+              "maximum": 3
             }
           },
           {
@@ -1801,15 +1754,6 @@
             "hardGate": false,
             "details": {
               "unknownSignals": 8
-            }
-          },
-          {
-            "code": "INSUFFICIENT_ORACLE_SOURCES",
-            "message": "oracle source count is below development minimum",
-            "hardGate": false,
-            "details": {
-              "actual": 1,
-              "minimum": 2
             }
           }
         ],
@@ -3432,8 +3376,8 @@
     "surveillanceHighRisk": 0,
     "derivativesEligible": 0,
     "derivativesWatch": 0,
-    "derivativesBlocked": 7,
-    "derivativesUnassessed": 0
+    "derivativesBlocked": 5,
+    "derivativesUnassessed": 2
   },
   "testnetWritePerformed": false,
   "mainnetWritePerformed": false,

@@ -18,6 +18,7 @@ import {
   AUDITED_RISK_RULES,
   type ActivityTrade,
 } from "@arcmemeperps/risk-engine";
+import { classifySystemHolder } from "@arcmemeperps/intelligence";
 import {
   BlockscoutEvidenceProvider,
   BoundedEvmRpcPool,
@@ -188,7 +189,7 @@ async function evaluateCandidate(item: Phase6Candidate): Promise<Phase7Candidate
   const pools = uniquePools(pairs, geckoResult.value);
   const swapLogs = await readSwapLogs(blockscout, currentEvidence, pools, fetchedAt);
   const rpcCrossChecks = await crossCheckHolders(chain, holders, currentEvidence, tokenAddress);
-  const holderSummary = deriveHolderSummary(holders, currentEvidence, pools);
+  const holderSummary = deriveHolderSummary(holders, currentEvidence);
   const activity = deriveActivity(swapLogs, currentEvidence, pools);
   const history = await readHistory(gecko, pools, fetchedAt);
   const observation = buildObservation(
@@ -329,7 +330,6 @@ async function crossCheckHolders(
 function deriveHolderSummary(
   census: IndexedHolderCensus,
   evidence: EvmEvidenceSnapshot,
-  pools: readonly PoolSummary[],
 ): HolderSummary {
   const supply = census.totalSupply ?? evidence.totalSupply;
   if (supply === null)
@@ -344,13 +344,21 @@ function deriveHolderSummary(
       excludedAddresses: [],
     };
   const denominator = BigInt(supply);
-  const excluded = new Set([
-    "0x0000000000000000000000000000000000000000",
-    "0x0000000000000000000000000000000000000001",
-    "0x000000000000000000000000000000000000dead",
-    ...pools.map((pool) => pool.poolAddress.toLowerCase()).filter(isAddress),
-    ...evidence.pools.map((pool) => pool.pool.toLowerCase()).filter(isAddress),
-  ]);
+  const verifiedPools = evidence.pools
+    .filter((pool) => pool.status === "AVAILABLE")
+    .map((pool) => pool.pool.toLowerCase())
+    .filter(isAddress);
+  const excluded = new Set(
+    census.holders
+      .filter(
+        (holder) =>
+          classifySystemHolder({
+            address: holder.address,
+            canonicalPoolAddresses: verifiedPools,
+          }).excludedFromConcentration,
+      )
+      .map((holder) => holder.address.toLowerCase()),
+  );
   const entries = census.holders
     .map((holder) => ({ ...holder, amount: BigInt(holder.rawAmount) }))
     .filter((holder) => holder.amount > 0n && !excluded.has(holder.address.toLowerCase()))

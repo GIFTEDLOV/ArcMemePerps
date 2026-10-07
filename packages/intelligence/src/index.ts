@@ -1,7 +1,19 @@
 import type { WalletSnapshot } from "@arcmemeperps/domain";
 
+export * from "./holder-classification.js";
+
 export type AddressClassification =
-  "LP" | "BURN" | "DEX" | "BRIDGE" | "SYSTEM" | "CEX" | "KNOWN_PROTOCOL" | "UNKNOWN";
+  | "LP"
+  | "BURN"
+  | "DEX"
+  | "BRIDGE"
+  | "SYSTEM"
+  | "CEX"
+  | "KNOWN_PROTOCOL"
+  | "CANONICAL_POOL"
+  | "PROTOCOL_VAULT"
+  | "BRIDGE_ESCROW"
+  | "UNKNOWN";
 export type LiquiditySecurityStatus =
   "LOCKED" | "BURNED" | "PROTOCOL_CONTROLLED" | "WITHDRAWABLE" | "UNKNOWN";
 
@@ -95,8 +107,19 @@ export function analyzeHolderGraph(nodes: readonly HolderGraphNode[]): HolderGra
     if (old === undefined || node.shareBps > old.shareBps) unique.set(key, node);
   }
   const all = [...unique.values()];
+  const excludedClassifications = new Set<AddressClassification>([
+    "LP",
+    "BURN",
+    "DEX",
+    "BRIDGE",
+    "SYSTEM",
+    "KNOWN_PROTOCOL",
+    "CANONICAL_POOL",
+    "PROTOCOL_VAULT",
+    "BRIDGE_ESCROW",
+  ]);
   const excluded = all.filter(
-    (node) => node.classification !== "UNKNOWN" && node.evidenceIds.length > 0,
+    (node) => excludedClassifications.has(node.classification) && node.evidenceIds.length > 0,
   );
   const included = all.filter((node) => !excluded.includes(node));
   const sorted = [...included].sort((left, right) => right.shareBps - left.shareBps);
@@ -106,8 +129,7 @@ export function analyzeHolderGraph(nodes: readonly HolderGraphNode[]): HolderGra
       clusters.set(node.clusterId, (clusters.get(node.clusterId) ?? 0) + node.shareBps);
   return {
     largestHolderBps: sorted[0]?.shareBps ?? null,
-    largestNonSystemHolderBps:
-      sorted.find((node) => node.classification === "UNKNOWN")?.shareBps ?? null,
+    largestNonSystemHolderBps: sorted.find((node) => !excluded.includes(node))?.shareBps ?? null,
     top10NonSystemBps: sorted.slice(0, 10).reduce((sum, node) => sum + node.shareBps, 0),
     largestConnectedClusterBps: clusters.size === 0 ? null : Math.max(...clusters.values()),
     clusterCount: clusters.size,

@@ -8,6 +8,7 @@ import {
   rankTrending,
   scoreCompetition,
 } from "./index.js";
+import { classifyBurnAddress, classifySystemHolder } from "./holder-classification.js";
 
 describe("backend intelligence primitives", () => {
   it("keeps unknown holder wallets in concentration and requires evidence for exclusions", () => {
@@ -24,6 +25,131 @@ describe("backend intelligence primitives", () => {
     ]);
     expect(result.largestConnectedClusterBps).toBe(380);
     expect(result.exclusions).toHaveLength(1);
+  });
+
+  it("classifies conventional burn sinks without treating ordinary large holders as burns", () => {
+    const burn = classifyBurnAddress("0xdead000000000000000042069420694206942069");
+    expect(burn.classification).toBe("BURN");
+    expect(classifyBurnAddress("0x1111111111111111111111111111111111111111").classification).toBe(
+      "NOT_BURN",
+    );
+  });
+
+  it("keeps CEX and unknown addresses in concentration while excluding proven pools", () => {
+    const result = analyzeHolderGraph([
+      {
+        address: "burn",
+        shareBps: 4100,
+        classification: "BURN",
+        clusterId: null,
+        evidenceIds: ["burn:evidence"],
+      },
+      {
+        address: "wallet",
+        shareBps: 300,
+        classification: "UNKNOWN",
+        clusterId: null,
+        evidenceIds: [],
+      },
+      {
+        address: "cex",
+        shareBps: 4100,
+        classification: "CEX",
+        clusterId: null,
+        evidenceIds: ["cex:evidence"],
+      },
+      {
+        address: "pool",
+        shareBps: 1200,
+        classification: "CANONICAL_POOL",
+        clusterId: null,
+        evidenceIds: ["pool:evidence"],
+      },
+    ]);
+    expect(result.largestHolderBps).toBe(4100);
+    expect(result.largestNonSystemHolderBps).toBe(4100);
+    expect(result.exclusions.map((item) => item.classification)).toEqual([
+      "BURN",
+      "CANONICAL_POOL",
+    ]);
+    expect(classifySystemHolder({ address: "cex", knownCex: true }).excludedFromConcentration).toBe(
+      false,
+    );
+    expect(
+      classifySystemHolder({ address: "pool", canonicalPoolAddresses: ["pool"] }).classification,
+    ).toBe("CANONICAL_POOL");
+  });
+
+  it("preserves the 5 percent holder and connected-cluster boundaries", () => {
+    expect(
+      analyzeHolderGraph([
+        {
+          address: "burn",
+          shareBps: 4100,
+          classification: "BURN",
+          clusterId: null,
+          evidenceIds: ["e"],
+        },
+        {
+          address: "wallet",
+          shareBps: 300,
+          classification: "UNKNOWN",
+          clusterId: null,
+          evidenceIds: [],
+        },
+      ]).largestNonSystemHolderBps,
+    ).toBe(300);
+    expect(
+      analyzeHolderGraph([
+        {
+          address: "wallet",
+          shareBps: 4100,
+          classification: "UNKNOWN",
+          clusterId: null,
+          evidenceIds: [],
+        },
+      ]).largestNonSystemHolderBps,
+    ).toBe(4100);
+    expect(
+      analyzeHolderGraph([
+        {
+          address: "creator",
+          shareBps: 600,
+          classification: "UNKNOWN",
+          clusterId: null,
+          evidenceIds: [],
+        },
+      ]).largestNonSystemHolderBps,
+    ).toBe(600);
+    expect(
+      analyzeHolderGraph([
+        {
+          address: "a",
+          shareBps: 300,
+          classification: "UNKNOWN",
+          clusterId: "linked",
+          evidenceIds: [],
+        },
+        {
+          address: "b",
+          shareBps: 300,
+          classification: "UNKNOWN",
+          clusterId: "linked",
+          evidenceIds: [],
+        },
+      ]).largestConnectedClusterBps,
+    ).toBe(600);
+    expect(
+      analyzeHolderGraph([
+        {
+          address: "unknown",
+          shareBps: 4100,
+          classification: "UNKNOWN",
+          clusterId: null,
+          evidenceIds: [],
+        },
+      ]).exclusions,
+    ).toHaveLength(0);
   });
 
   it("does not call unproven LP security locked", () => {

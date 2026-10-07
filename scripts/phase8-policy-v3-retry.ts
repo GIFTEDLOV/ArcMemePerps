@@ -100,22 +100,23 @@ process.stdout.write(JSON.stringify({ output: outputPath, counts: output.counts 
 
 function observationFromPersistedEvidence(candidate: Phase7Candidate): MarketObservation {
   const evidence = candidate.currentEvidence;
-  const meaningfulPools = (candidate.dex?.pools ?? []).filter(
+  const meaningfulPools = uniquePersistedPools(candidate.dex, candidate.gecko).filter(
     (pool) =>
       pool.liquidityUsd !== null &&
       pool.liquidityUsd >= 10_000 &&
       pool.priceUsd !== null &&
       pool.priceUsd > 0,
   );
-  const totalLiquidity = candidate.dex?.totalObservedLiquidityUsd ?? null;
+  const totalLiquidity =
+    meaningfulPools.length === 0
+      ? null
+      : meaningfulPools.reduce((sum, pool) => sum + (pool.liquidityUsd ?? 0), 0);
   const directPools = evidence.pools.filter(
     (pool) => pool.status === "AVAILABLE" && pool.depth !== null,
   );
   const depth1 = conservativeDepth(directPools, "buyDepth1PctUsdWad", "sellDepth1PctUsdWad");
   const depth2 = conservativeDepth(directPools, "buyDepth2PctUsdWad", "sellDepth2PctUsdWad");
-  const sourceCount =
-    candidate.dex?.meaningfulPoolCount ??
-    (meaningfulPools.length === 0 ? null : meaningfulPools.length);
+  const sourceCount = meaningfulPools.length === 0 ? null : meaningfulPools.length;
   const activity = candidate.activity;
   const token: TokenIdentity = {
     chain: candidate.candidate.chain as SupportedChain,
@@ -236,6 +237,44 @@ function observationFromPersistedEvidence(candidate: Phase7Candidate): MarketObs
   };
 }
 
+function uniquePersistedPools(
+  dex: Phase7Candidate["dex"],
+  gecko: Phase7Candidate["gecko"],
+): readonly {
+  readonly poolAddress: string;
+  readonly dexId: string;
+  readonly liquidityUsd: number | null;
+  readonly priceUsd: number | null;
+}[] {
+  const pools = new Map<
+    string,
+    {
+      poolAddress: string;
+      dexId: string;
+      liquidityUsd: number | null;
+      priceUsd: number | null;
+    }
+  >();
+  for (const pool of dex?.pools ?? [])
+    pools.set(pool.pairAddress.toLowerCase(), {
+      poolAddress: pool.pairAddress,
+      dexId: pool.dexId,
+      liquidityUsd: pool.liquidityUsd,
+      priceUsd: pool.priceUsd,
+    });
+  for (const pool of gecko?.pools ?? []) {
+    const key = pool.poolAddress.toLowerCase();
+    const old = pools.get(key);
+    pools.set(key, {
+      poolAddress: old?.poolAddress ?? pool.poolAddress,
+      dexId: old?.dexId ?? pool.dexId,
+      liquidityUsd: Math.max(old?.liquidityUsd ?? 0, pool.liquidityUsd ?? 0) || null,
+      priceUsd: old?.priceUsd ?? pool.priceUsd,
+    });
+  }
+  return [...pools.values()];
+}
+
 function canonicalLpStatus(pools: readonly Phase7Pool[]): LiquidityState["lpLockStatus"] {
   if (pools.length === 0) return "UNKNOWN";
   if (pools.every((pool) => pool.lpControl === "BURNED")) return "BURNED";
@@ -305,6 +344,15 @@ interface Phase7Candidate {
     readonly meaningfulPoolCount: number;
     readonly totalObservedLiquidityUsd: number | null;
     readonly pools: readonly {
+      readonly pairAddress: string;
+      readonly dexId: string;
+      readonly liquidityUsd: number | null;
+      readonly priceUsd: number | null;
+    }[];
+  } | null;
+  readonly gecko: {
+    readonly pools: readonly {
+      readonly poolAddress: string;
       readonly dexId: string;
       readonly liquidityUsd: number | null;
       readonly priceUsd: number | null;

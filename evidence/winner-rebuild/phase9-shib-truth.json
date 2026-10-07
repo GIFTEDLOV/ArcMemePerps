@@ -1,0 +1,1187 @@
+{
+  "schemaVersion": "winner-rebuild/phase9-shib-truth-v1",
+  "generatedAt": "2026-10-07T17:24:55.034Z",
+  "policyVersion": "0.3.0",
+  "sourceArtifacts": [
+    "evidence/winner-rebuild/phase7-indexed-evm-lane.json"
+  ],
+  "noChainWrites": true,
+  "canonicalIdentity": {
+    "chain": "ETHEREUM",
+    "chainId": 1,
+    "token": "0x95ad61b0a150d79219dcf64e1e6cc01f0b64c4ce",
+    "symbol": "SHIB",
+    "decimals": 18,
+    "totalSupply": "999982329055139380064881851651014",
+    "currentBlock": "26141985",
+    "runtimeBytecodeLength": 9706,
+    "evidenceIds": [
+      "canonical-rpc:eth_chainId",
+      "canonical-rpc:eth_getCode",
+      "canonical-rpc:erc20-metadata"
+    ]
+  },
+  "phase8Reproduction": {
+    "holderAddress": "0xdead000000000000000042069420694206942069",
+    "rawBalance": "410437101371029681707200517225270",
+    "denominator": "999982329055139380064881851651014",
+    "percentage": 41.04,
+    "reproduced": true,
+    "previousClassification": "INCLUDED_BY_OLD_EXCLUSION_SET"
+  },
+  "burnClassifier": {
+    "holderAddress": "0xdead000000000000000042069420694206942069",
+    "classification": "BURN",
+    "rule": "DEAD_PREFIX_SINK",
+    "reason": "complete 0xdead-prefixed conventional sink form; runtime code 0x; nonce 0",
+    "evidenceIds": [
+      "holder-classifier:dead-address-pattern",
+      "canonical-rpc:eth_getCode",
+      "canonical-rpc:eth_getTransactionCount"
+    ]
+  },
+  "holderAudit": {
+    "indexedCoverage": "PARTIAL",
+    "rawLargestHolderPct": 41.0444,
+    "burnBalance": "410437101421029681707200517225270",
+    "burnPercent": 41.0444,
+    "largestNonSystemHolderPct": 6.3655,
+    "topFiveNonSystemPct": 18.3829,
+    "topTenNonSystemPct": 22.6813,
+    "poolHeldPct": 0.043,
+    "unclassifiedPct": 27.130000000000003,
+    "rows": [
+      {
+        "address": "0xdead000000000000000042069420694206942069",
+        "balance": "410437101421029681707200517225270",
+        "pct": 41.0444,
+        "classification": "BURN",
+        "excludedFromConcentration": true,
+        "reason": "the address matches the complete conventional dead-address sink form",
+        "evidenceIds": [
+          "holder-classifier:dead-address-pattern",
+          "holder-classifier:conventional-irrecoverable-sink"
+        ]
+      },
+      {
+        "address": "0x02e2201576fbbefb52812f2ee7f08eb4774b481e",
+        "balance": "63654697178518309752137210944002",
+        "pct": 6.3655,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x40b38765696e3d5d8d9d834d8aad4bb6e418e489",
+        "balance": "39273242865360935318703419931458",
+        "pct": 3.9273,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x5a52e96bacdabb82fd05763e25335261b270efcb",
+        "balance": "37604294060173908210260771799275",
+        "pct": 3.7604,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xa023f08c70a23abc7edfc5b6b5e171d78dfc947e",
+        "balance": "27257762972738048850445134598214",
+        "pct": 2.7258,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xa7060aece919e4b7d9928b8418a9d30731471fa9",
+        "balance": "16039355927753003306610866972353",
+        "pct": 1.6039,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x1d48963dd8fada6ab5c2c7b92eba81ecc5030270",
+        "balance": "14127896052917756678070836134880",
+        "pct": 1.4128,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x47ac0fb4f2d84898e4d9e7b4dab3c24507a6d503",
+        "balance": "9240000000103240000000000000000",
+        "pct": 0.924,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xf977814e90da44bfa03b6295a0616a897441acec",
+        "balance": "7000000000000000000000000000000",
+        "pct": 0.7,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x611f7bf868a6212f871e89f7e44684045ddfb09d",
+        "balance": "6753527933660946140000000000000",
+        "pct": 0.6753,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xcffad3200574698b78f32232aa9d63eabd290703",
+        "balance": "5863325850239309894673922414468",
+        "pct": 0.5863,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x2d7af085f2256f114c8a9f540969f0e0ab1c2e5e",
+        "balance": "5000004289901824004656900000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xe1474359c74e78fa8387d9cb58f393693e378de3",
+        "balance": "5000000058418875436060000000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xfd54ea5842fefc9e0df4ede3b4bb9950d4ede13e",
+        "balance": "5000000000103240000000000000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0xc35fff873c5751b04f64e565058acdf7f080a557",
+        "balance": "5000000000103240000000000000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x6feb9b158262aac3e01549692fd3723a7d29c93e",
+        "balance": "5000000000103240000000000000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x42aa1a233656be26fa29e40a562bc4f119caefe4",
+        "balance": "5000000000103240000000000000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x127f19e9e3dac0f00f2e7f2affe2ccf972062df0",
+        "balance": "5000000000103240000000000000000",
+        "pct": 0.5,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x2c4139a033ea0b995211c7b6fa74dc312e32ffe8",
+        "balance": "4812081452318271267563038423739",
+        "pct": 0.4812,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      },
+      {
+        "address": "0x48a61e3f74e4971e665fb34fa66d38a46da0872b",
+        "balance": "4675000000103240000000000000000",
+        "pct": 0.4675,
+        "classification": "UNKNOWN",
+        "excludedFromConcentration": false,
+        "reason": "no exclusion-class evidence was provided; address remains in concentration",
+        "evidenceIds": []
+      }
+    ],
+    "evidenceNote": "Indexed top-holder records are partial; RPC cross-checks were performed for the retained rows."
+  },
+  "poolAudit": {
+    "discoveredPoolCount": 20,
+    "meaningfulPoolCount": 10,
+    "verifiedPoolCount": 7,
+    "verifiedMeaningfulPoolCount": 7,
+    "aggregateLiquidityUsd": 4449311.7455,
+    "providerEvidenceIds": [
+      "dexscreener:tokens/v1",
+      "geckoterminal:api/v2/token-pools"
+    ],
+    "pools": [
+      {
+        "address": "0xcf6daab95c476106eca715d48de4b13287ffdeaa",
+        "venue": "shibaswap",
+        "model": "V2",
+        "verified": true,
+        "factory": "0x115934131916C8b277DD010Ee02de363c09d037c",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteSymbol": "WETH",
+        "feeTier": null,
+        "liquidityUsd": 2937434.3088,
+        "volume24hUsd": 78694.0673022723,
+        "priceUsd": 0.000005373215798,
+        "pairCreatedAt": "2022-01-04T09:47:46.000Z",
+        "underlyingSourceId": "V2:0xcf6daab95c476106eca715d48de4b13287ffdeaa",
+        "reserve0": "272741541973673236530750405784",
+        "reserve1": "571683250805292313190",
+        "directPriceQuotePerBase": "2.09606225244731826e-9",
+        "lpTotalSupply": "8018410118062343603876896",
+        "lpBurnedPct": 0.0065,
+        "v3Liquidity": null,
+        "directDepth": {
+          "status": "AVAILABLE",
+          "buy1Usd": 7309.268096207234,
+          "sell1Usd": 7323.979135798581,
+          "buy2Usd": 14582.440379481763,
+          "sell2Usd": 14685.264375452827,
+          "buy5Usd": 36190.614059468826,
+          "sell5Usd": 36998.75623787886,
+          "formulaVersion": "constant-product-reserve-quote-v1"
+        },
+        "reason": null
+      },
+      {
+        "address": "0x811beed0119b4afce20d2583eb608c6f7af1954f",
+        "venue": "uniswap_v2",
+        "model": "V2",
+        "verified": true,
+        "factory": "0x5C69bEe701ef814a2B6a3EDD4B1652CB9cc5aA6f",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteSymbol": "WETH",
+        "feeTier": null,
+        "liquidityUsd": 608980.7442,
+        "volume24hUsd": 29447.9843458228,
+        "priceUsd": 0.000005379180358,
+        "pairCreatedAt": "2021-10-11T01:35:36.000Z",
+        "underlyingSourceId": "V2:0x811beed0119b4afce20d2583eb608c6f7af1954f",
+        "reserve0": "56420871188412363461178427869",
+        "reserve1": "118445919973530069761",
+        "directPriceQuotePerBase": "2.09932809399540643e-9",
+        "lpTotalSupply": "154152962690000657950924",
+        "lpBurnedPct": 0,
+        "v3Liquidity": null,
+        "directDepth": {
+          "status": "AVAILABLE",
+          "buy1Usd": 1513.715335761214,
+          "sell1Usd": 1516.7619234552637,
+          "buy2Usd": 3019.955396997834,
+          "sell2Usd": 3041.249767041042,
+          "buy5Usd": 7494.907395838963,
+          "sell5Usd": 7662.269872195455,
+          "formulaVersion": "constant-product-reserve-quote-v1"
+        },
+        "reason": null
+      },
+      {
+        "address": "0x2F62f2B4c5fcd7570a709DeC05D68EA19c82A9ec",
+        "venue": "uniswap",
+        "model": "V3",
+        "verified": true,
+        "factory": "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteSymbol": "WETH",
+        "feeTier": 3000,
+        "liquidityUsd": 318779.11,
+        "volume24hUsd": 69529.7440723598,
+        "priceUsd": 0.000005387,
+        "pairCreatedAt": "2021-05-05T19:08:11.000Z",
+        "underlyingSourceId": "V3:0x2f62f2b4c5fcd7570a709dec05d68ea19c82a9ec",
+        "reserve0": null,
+        "reserve1": null,
+        "directPriceQuotePerBase": "sqrtPriceX96=3627294077818756821718380",
+        "lpTotalSupply": null,
+        "lpBurnedPct": null,
+        "v3Liquidity": "4390351172512913586307661",
+        "directDepth": {
+          "status": "UNAVAILABLE",
+          "buy1Usd": null,
+          "sell1Usd": null,
+          "buy2Usd": null,
+          "sell2Usd": null,
+          "buy5Usd": null,
+          "sell5Usd": null,
+          "formulaVersion": "uniswap-v3-full-tick-traversal-required"
+        },
+        "reason": "V3_STATE_VERIFIED_DEPTH_REQUIRES_TICK_TRAVERSAL"
+      },
+      {
+        "address": "0x0be16b24f634f1de1d529d44fc3e284462da11800613ceea662a70d6e57e258c",
+        "venue": "uniswap-v4-ethereum",
+        "model": "UNSUPPORTED",
+        "verified": false,
+        "factory": null,
+        "token0": null,
+        "token1": null,
+        "quoteToken": null,
+        "quoteSymbol": null,
+        "feeTier": null,
+        "liquidityUsd": 264798.9313,
+        "volume24hUsd": 115126.071565769,
+        "priceUsd": 0.000005393950625,
+        "pairCreatedAt": "2026-09-28T09:59:23.000Z",
+        "underlyingSourceId": "UNVERIFIED:0x0be16b24f634f1de1d529d44fc3e284462da11800613ceea662a70d6e57e258c",
+        "reserve0": null,
+        "reserve1": null,
+        "directPriceQuotePerBase": null,
+        "lpTotalSupply": null,
+        "lpBurnedPct": null,
+        "v3Liquidity": null,
+        "directDepth": null,
+        "reason": "POOL_ADDRESS_NOT_EVM_LENGTH"
+      },
+      {
+        "address": "0xff64cb7ba5717a10dabc4be3a41acd2c2f95ee22",
+        "venue": "shibaswap",
+        "model": "V2",
+        "verified": true,
+        "factory": "0x115934131916C8b277DD010Ee02de363c09d037c",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0x9813037ee2218799597d83D4a5B6F3b6778218d9",
+        "quoteToken": "0x9813037ee2218799597d83D4a5B6F3b6778218d9",
+        "quoteSymbol": "BONE",
+        "feeTier": null,
+        "liquidityUsd": 259805.4782,
+        "volume24hUsd": 5941.9373013902,
+        "priceUsd": 0.000005403618262,
+        "pairCreatedAt": "2022-01-04T09:47:46.000Z",
+        "underlyingSourceId": "V2:0xff64cb7ba5717a10dabc4be3a41acd2c2f95ee22",
+        "reserve0": "24031796041544434039276816035",
+        "reserve1": "2055349579511810249133552",
+        "directPriceQuotePerBase": "0.0000855262576279638102",
+        "lpTotalSupply": "108697260727472190795531080",
+        "lpBurnedPct": 0,
+        "v3Liquidity": null,
+        "directDepth": {
+          "status": "AVAILABLE",
+          "buy1Usd": 647.6780924364111,
+          "sell1Usd": 648.9816453961424,
+          "buy2Usd": 1292.1577158937835,
+          "sell2Usd": 1301.2690042869108,
+          "buy5Usd": 3206.8693567693917,
+          "sell5Usd": 3278.4792604752934,
+          "formulaVersion": "constant-product-reserve-quote-v1"
+        },
+        "reason": null
+      },
+      {
+        "address": "0x5764a6f2212d502bc5970f9f129ffcd61e5d7563",
+        "venue": "uniswap_v3",
+        "model": "V3",
+        "verified": true,
+        "factory": "0x1F98431c8aD98523631AE4a59f267346ea31F984",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteToken": "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+        "quoteSymbol": "WETH",
+        "feeTier": 10000,
+        "liquidityUsd": 258325.0106,
+        "volume24hUsd": 1003.3426719824,
+        "priceUsd": 0.000005380612323,
+        "pairCreatedAt": "2021-12-29T13:39:03.000Z",
+        "underlyingSourceId": "V3:0x5764a6f2212d502bc5970f9f129ffcd61e5d7563",
+        "reserve0": null,
+        "reserve1": null,
+        "directPriceQuotePerBase": "sqrtPriceX96=3644059498724467815054069",
+        "lpTotalSupply": null,
+        "lpBurnedPct": null,
+        "v3Liquidity": "268661324070711740453437",
+        "directDepth": {
+          "status": "UNAVAILABLE",
+          "buy1Usd": null,
+          "sell1Usd": null,
+          "buy2Usd": null,
+          "sell2Usd": null,
+          "buy5Usd": null,
+          "sell5Usd": null,
+          "formulaVersion": "uniswap-v3-full-tick-traversal-required"
+        },
+        "reason": "V3_STATE_VERIFIED_DEPTH_REQUIRES_TICK_TRAVERSAL"
+      },
+      {
+        "address": "0x98c2b0681d8bf07767826ea8bd3b11b0ca421631",
+        "venue": "shibaswap",
+        "model": "V2",
+        "verified": true,
+        "factory": "0x115934131916C8b277DD010Ee02de363c09d037c",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "quoteToken": "0xdAC17F958D2ee523a2206206994597C13D831ec7",
+        "quoteSymbol": "USDT",
+        "feeTier": null,
+        "liquidityUsd": 38121.6159,
+        "volume24hUsd": 1237.9430234018,
+        "priceUsd": 0.000005321121324,
+        "pairCreatedAt": "2022-01-04T10:34:12.000Z",
+        "underlyingSourceId": "V2:0x98c2b0681d8bf07767826ea8bd3b11b0ca421631",
+        "reserve0": "3556661674702237298942084532",
+        "reserve1": "19031609411",
+        "directPriceQuotePerBase": "0.00000535097547972237742",
+        "lpTotalSupply": "6275820808665571844",
+        "lpBurnedPct": 0,
+        "v3Liquidity": null,
+        "directDepth": {
+          "status": "AVAILABLE",
+          "buy1Usd": 94.3917490419504,
+          "sell1Usd": 94.58172712716707,
+          "buy2Usd": 188.31735744287312,
+          "sell2Usd": 189.6452245692996,
+          "buy5Usd": 467.364900973884,
+          "sell5Usd": 477.8012336806126,
+          "formulaVersion": "constant-product-reserve-quote-v1"
+        },
+        "reason": null
+      },
+      {
+        "address": "0x9379f5e035cf6148c6bbee1d6415795cc773b0a4",
+        "venue": "shibaswap",
+        "model": "V2",
+        "verified": true,
+        "factory": "0x115934131916C8b277DD010Ee02de363c09d037c",
+        "token0": "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE",
+        "token1": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "quoteToken": "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48",
+        "quoteSymbol": "USDC",
+        "feeTier": null,
+        "liquidityUsd": 27865.4778,
+        "volume24hUsd": 975.5276620693,
+        "priceUsd": 0.000005398782508,
+        "pairCreatedAt": "2022-01-04T12:18:56.000Z",
+        "underlyingSourceId": "V2:0x9379f5e035cf6148c6bbee1d6415795cc773b0a4",
+        "reserve0": "2577816656255043791213501607",
+        "reserve1": "13900295114",
+        "directPriceQuotePerBase": "0.00000539227453599971453",
+        "lpTotalSupply": "4661904702841861416",
+        "lpBurnedPct": 0,
+        "v3Liquidity": null,
+        "directDepth": {
+          "status": "AVAILABLE",
+          "buy1Usd": 69.41225838807844,
+          "sell1Usd": 69.5519613607744,
+          "buy2Usd": 138.4817339063764,
+          "sell2Usd": 139.45819908495454,
+          "buy5Usd": 343.68314600781775,
+          "sell5Usd": 351.35764541921696,
+          "formulaVersion": "constant-product-reserve-quote-v1"
+        },
+        "reason": null
+      },
+      {
+        "address": "0x284220e1aba6ce712aa7cd7f9d3eb1a9c25d082cceeb796beba70a3ff45f7379",
+        "venue": "uniswap-v4-ethereum",
+        "model": "UNSUPPORTED",
+        "verified": false,
+        "factory": null,
+        "token0": null,
+        "token1": null,
+        "quoteToken": null,
+        "quoteSymbol": null,
+        "feeTier": null,
+        "liquidityUsd": 27813.8246,
+        "volume24hUsd": 450.365280123,
+        "priceUsd": 0.000005436306218,
+        "pairCreatedAt": "2025-02-07T15:30:11.000Z",
+        "underlyingSourceId": "UNVERIFIED:0x284220e1aba6ce712aa7cd7f9d3eb1a9c25d082cceeb796beba70a3ff45f7379",
+        "reserve0": null,
+        "reserve1": null,
+        "directPriceQuotePerBase": null,
+        "lpTotalSupply": null,
+        "lpBurnedPct": null,
+        "v3Liquidity": null,
+        "directDepth": null,
+        "reason": "POOL_ADDRESS_NOT_EVM_LENGTH"
+      },
+      {
+        "address": "0xaf0ffc162b0d243378a07a51bf99968e4592b7c92c0721ae5b25c3ee86a02552",
+        "venue": "uniswap-v4-ethereum",
+        "model": "UNSUPPORTED",
+        "verified": false,
+        "factory": null,
+        "token0": null,
+        "token1": null,
+        "quoteToken": null,
+        "quoteSymbol": null,
+        "feeTier": null,
+        "liquidityUsd": 10860.2487,
+        "volume24hUsd": 258.5166235331,
+        "priceUsd": 0.000009274153592,
+        "pairCreatedAt": "2026-09-28T10:54:11.000Z",
+        "underlyingSourceId": "UNVERIFIED:0xaf0ffc162b0d243378a07a51bf99968e4592b7c92c0721ae5b25c3ee86a02552",
+        "reserve0": null,
+        "reserve1": null,
+        "directPriceQuotePerBase": null,
+        "lpTotalSupply": null,
+        "lpBurnedPct": null,
+        "v3Liquidity": null,
+        "directDepth": null,
+        "reason": "POOL_ADDRESS_NOT_EVM_LENGTH"
+      }
+    ]
+  },
+  "history": {
+    "pool": "0xcf6daab95c476106eca715d48de4b13287ffdeaa",
+    "status": "AVAILABLE",
+    "sampleCount": 100,
+    "firstTimestamp": "2026-06-30T00:00:00.000Z",
+    "lastTimestamp": "2026-10-07T00:00:00.000Z",
+    "realizedVolatilityPct": 77.31634951260047
+  },
+  "sourceIndependence": {
+    "meaningfulVerifiedSourceCount": 7,
+    "sourceIds": [
+      "V2:0xcf6daab95c476106eca715d48de4b13287ffdeaa",
+      "V2:0x811beed0119b4afce20d2583eb608c6f7af1954f",
+      "V3:0x2f62f2b4c5fcd7570a709dec05d68ea19c82a9ec",
+      "V2:0xff64cb7ba5717a10dabc4be3a41acd2c2f95ee22",
+      "V3:0x5764a6f2212d502bc5970f9f129ffcd61e5d7563",
+      "V2:0x98c2b0681d8bf07767826ea8bd3b11b0ca421631",
+      "V2:0x9379f5e035cf6148c6bbee1d6415795cc773b0a4"
+    ],
+    "providerDuplicatesDeduplicated": true
+  },
+  "activity": {
+    "status": "UNKNOWN",
+    "organicVolume24hUsd": 186830.54637929858,
+    "observationWindow": "NO_COMPLETE_CANONICAL_SWAP_WINDOW_IN_PHASE9"
+  },
+  "shibAssessment": {
+    "coreIntegrityStatus": "REJECTED",
+    "surveillanceStatus": "LIMITED",
+    "derivativesStatus": "BLOCKED",
+    "hardGates": [
+      {
+        "code": "MINT_AUTHORITY_ACTIVE",
+        "state": "PASS",
+        "passed": true,
+        "hard": true,
+        "details": {
+          "active": false
+        }
+      },
+      {
+        "code": "FREEZE_AUTHORITY_ACTIVE",
+        "state": "NOT_APPLICABLE",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "active": null,
+          "applicability": "NOT_APPLICABLE",
+          "policyProfile": "EVM_STANDARD"
+        }
+      },
+      {
+        "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "active": null
+        }
+      },
+      {
+        "code": "UPGRADEABILITY_RISK",
+        "state": "PASS",
+        "passed": true,
+        "hard": true,
+        "details": {
+          "upgradeable": false,
+          "upgradeAuthority": null
+        }
+      },
+      {
+        "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "honeypotDetected": null,
+          "transferRestricted": null
+        }
+      },
+      {
+        "code": "LIQUIDITY_WITHDRAWABLE",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "lpLockStatus": "UNKNOWN"
+        }
+      },
+      {
+        "code": "LP_UNLOCK_TOO_SOON",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "earliestLpUnlockAt": null,
+          "minimumLpLockDays": 7
+        }
+      },
+      {
+        "code": "DEPLOYER_CONCENTRATION",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "deployerHoldingsPct": null,
+          "maxDeployerHoldingsPct": 10
+        }
+      },
+      {
+        "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+        "state": "FAIL",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "topHolderPct": 6.3655,
+          "topTokenAccountPct": null,
+          "evidenceScope": "UNAVAILABLE",
+          "maxIndividualHolderPct": 5
+        }
+      },
+      {
+        "code": "CONNECTED_CLUSTER_CONCENTRATION",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "connectedClusterPct": null,
+          "maxConnectedClusterPct": 5
+        }
+      },
+      {
+        "code": "BUNDLED_LAUNCH_CONCENTRATION",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "bundledLaunchPct": null,
+          "maxBundledLaunchPct": 10
+        }
+      },
+      {
+        "code": "KNOWN_RISK_DEPLOYER",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "knownRisk": null,
+          "priorRugCount": null
+        }
+      },
+      {
+        "code": "RELATED_WALLET_FUNDING",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "detected": null
+        }
+      },
+      {
+        "code": "SUSPICIOUS_EARLY_BUYERS",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "detected": null
+        }
+      },
+      {
+        "code": "WASH_TRADING",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "detected": null
+        }
+      },
+      {
+        "code": "VOLUME_FARMING",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "detected": null
+        }
+      },
+      {
+        "code": "SUSPICIOUS_TRANSACTION_REPETITION",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "detected": null
+        }
+      },
+      {
+        "code": "INSUFFICIENT_EVIDENCE",
+        "state": "UNKNOWN",
+        "passed": false,
+        "hard": true,
+        "details": {
+          "lpLockStatus": "UNKNOWN",
+          "authorityEvidenceComplete": false
+        }
+      }
+    ],
+    "rejectionReasons": [
+      {
+        "code": "INDIVIDUAL_HOLDER_CONCENTRATION",
+        "message": "core safety gate failed: INDIVIDUAL_HOLDER_CONCENTRATION",
+        "hardGate": true,
+        "details": {
+          "topHolderPct": 6.3655,
+          "topTokenAccountPct": null,
+          "evidenceScope": "UNAVAILABLE",
+          "maxIndividualHolderPct": 5
+        }
+      },
+      {
+        "code": "CAPACITY_INSUFFICIENT_DEPTH_1_PERCENT",
+        "message": "derivatives capacity hard gate failed: INSUFFICIENT_DEPTH_1_PERCENT",
+        "hardGate": false,
+        "details": {
+          "actual": 9634.465531834887,
+          "minimum": 50000
+        }
+      },
+      {
+        "code": "CAPACITY_INSUFFICIENT_DEPTH_2_PERCENT",
+        "message": "derivatives capacity hard gate failed: INSUFFICIENT_DEPTH_2_PERCENT",
+        "hardGate": false,
+        "details": {
+          "actual": 19221.35258372263,
+          "minimum": 100000
+        }
+      },
+      {
+        "code": "CAPACITY_LOW_ORACLE_CONFIDENCE",
+        "message": "derivatives capacity hard gate failed: LOW_ORACLE_CONFIDENCE",
+        "hardGate": false,
+        "details": {
+          "actual": 8040,
+          "minimum": 8500
+        }
+      },
+      {
+        "code": "CAPACITY_INSUFFICIENT_MANIPULATION_RESISTANCE",
+        "message": "derivatives capacity hard gate failed: INSUFFICIENT_MANIPULATION_RESISTANCE",
+        "hardGate": false,
+        "details": {
+          "actual": 9634.465531834887,
+          "minimum": 100000
+        }
+      },
+      {
+        "code": "INTEGRITY_NOT_QUALIFIED",
+        "message": "derivatives cannot qualify before token integrity qualifies",
+        "hardGate": false,
+        "details": {
+          "integrityStatus": "REJECTED"
+        }
+      }
+    ],
+    "unknownReasons": [
+      {
+        "code": "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+        "message": "core safety evidence is unknown: DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+        "hardGate": true,
+        "details": {
+          "active": null
+        }
+      },
+      {
+        "code": "HONEYPOT_OR_TRANSFER_RESTRICTION",
+        "message": "core safety evidence is unknown: HONEYPOT_OR_TRANSFER_RESTRICTION",
+        "hardGate": true,
+        "details": {
+          "honeypotDetected": null,
+          "transferRestricted": null
+        }
+      },
+      {
+        "code": "LIQUIDITY_WITHDRAWABLE",
+        "message": "core safety evidence is unknown: LIQUIDITY_WITHDRAWABLE",
+        "hardGate": true,
+        "details": {
+          "lpLockStatus": "UNKNOWN"
+        }
+      },
+      {
+        "code": "LP_UNLOCK_TOO_SOON",
+        "message": "core safety evidence is unknown: LP_UNLOCK_TOO_SOON",
+        "hardGate": true,
+        "details": {
+          "earliestLpUnlockAt": null,
+          "minimumLpLockDays": 7
+        }
+      },
+      {
+        "code": "CONNECTED_CLUSTER_CONCENTRATION",
+        "message": "core safety evidence is unknown: CONNECTED_CLUSTER_CONCENTRATION",
+        "hardGate": true,
+        "details": {
+          "connectedClusterPct": null,
+          "maxConnectedClusterPct": 5
+        }
+      },
+      {
+        "code": "INSUFFICIENT_LIQUIDATION_CAPACITY",
+        "message": "required capacity evidence is unknown: INSUFFICIENT_LIQUIDATION_CAPACITY",
+        "hardGate": false,
+        "details": {
+          "actual": null,
+          "minimum": 100000
+        }
+      },
+      {
+        "code": "INSUFFICIENT_SAFE_OPEN_INTEREST",
+        "message": "required capacity evidence is unknown: INSUFFICIENT_SAFE_OPEN_INTEREST",
+        "hardGate": false,
+        "details": {
+          "actual": null,
+          "minimum": 25000
+        }
+      },
+      {
+        "code": "SAFE_OPEN_INTEREST_UNAVAILABLE",
+        "message": "safe open interest could not be derived",
+        "hardGate": false,
+        "details": {}
+      },
+      {
+        "code": "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
+        "message": "wash/farm/repetition telemetry is required for derivatives capacity",
+        "hardGate": false,
+        "details": {}
+      }
+    ],
+    "warnings": [
+      {
+        "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+        "message": "optional evidence is unknown: BUNDLED_LAUNCH_CONCENTRATION",
+        "hardGate": false,
+        "details": {
+          "gate": "BUNDLED_LAUNCH_CONCENTRATION",
+          "policyProfile": "EVM_STANDARD"
+        }
+      },
+      {
+        "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+        "message": "optional evidence is unknown: RELATED_WALLET_FUNDING",
+        "hardGate": false,
+        "details": {
+          "gate": "RELATED_WALLET_FUNDING",
+          "policyProfile": "EVM_STANDARD"
+        }
+      },
+      {
+        "code": "OPTIONAL_EVIDENCE_UNKNOWN",
+        "message": "optional evidence is unknown: SUSPICIOUS_EARLY_BUYERS",
+        "hardGate": false,
+        "details": {
+          "gate": "SUSPICIOUS_EARLY_BUYERS",
+          "policyProfile": "EVM_STANDARD"
+        }
+      },
+      {
+        "code": "SURVEILLANCE_EVIDENCE_LIMITED",
+        "message": "surveillance evidence is incomplete; core safety is evaluated separately",
+        "hardGate": false,
+        "details": {
+          "unknownSignals": 8
+        }
+      },
+      {
+        "code": "INSUFFICIENT_DEPTH_1_PERCENT",
+        "message": "1% market depth is below development minimum",
+        "hardGate": false,
+        "details": {
+          "actual": 9634.465531834887,
+          "minimum": 50000
+        }
+      },
+      {
+        "code": "INSUFFICIENT_DEPTH_2_PERCENT",
+        "message": "2% market depth is below development minimum",
+        "hardGate": false,
+        "details": {
+          "actual": 19221.35258372263,
+          "minimum": 100000
+        }
+      },
+      {
+        "code": "LOW_ORACLE_CONFIDENCE",
+        "message": "oracle confidence is below development minimum",
+        "hardGate": false,
+        "details": {
+          "actual": 8040,
+          "minimum": 8500
+        }
+      },
+      {
+        "code": "INSUFFICIENT_MANIPULATION_RESISTANCE",
+        "message": "estimated manipulation cost is too low",
+        "hardGate": false,
+        "details": {
+          "actual": 9634.465531834887,
+          "minimum": 100000
+        }
+      }
+    ],
+    "evidenceCoverage": {
+      "overall": "WEAK",
+      "domains": {
+        "authority": {
+          "status": "PARTIAL",
+          "knownFields": [
+            "mint authority",
+            "freeze authority",
+            "upgradeability"
+          ],
+          "unknownFields": [
+            "owner/admin privilege"
+          ]
+        },
+        "transferSafety": {
+          "status": "WEAK",
+          "knownFields": [],
+          "unknownFields": [
+            "sellability and transfer restriction behavior"
+          ]
+        },
+        "liquidityControl": {
+          "status": "WEAK",
+          "knownFields": [],
+          "unknownFields": [
+            "LP withdrawal control",
+            "LP unlock semantics"
+          ]
+        },
+        "holders": {
+          "status": "COMPLETE",
+          "knownFields": [
+            "non-system holder concentration"
+          ],
+          "unknownFields": []
+        },
+        "clusters": {
+          "status": "WEAK",
+          "knownFields": [],
+          "unknownFields": [
+            "connected holder cluster"
+          ]
+        },
+        "creator": {
+          "status": "WEAK",
+          "knownFields": [],
+          "unknownFields": [
+            "creator/deployer identity and risk"
+          ]
+        },
+        "funding": {
+          "status": "WEAK",
+          "knownFields": [],
+          "unknownFields": [
+            "bounded related-wallet funding graph"
+          ]
+        },
+        "activity": {
+          "status": "WEAK",
+          "knownFields": [],
+          "unknownFields": [
+            "wash/farm/repetition observation window"
+          ]
+        },
+        "history": {
+          "status": "COMPLETE",
+          "knownFields": [
+            "realized volatility window"
+          ],
+          "unknownFields": []
+        },
+        "depth": {
+          "status": "COMPLETE",
+          "knownFields": [
+            "1% and 2% executable depth"
+          ],
+          "unknownFields": []
+        },
+        "oracle": {
+          "status": "COMPLETE",
+          "knownFields": [
+            "source count, agreement, confidence, freshness"
+          ],
+          "unknownFields": []
+        }
+      },
+      "unknownCoreGates": [
+        "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+        "HONEYPOT_OR_TRANSFER_RESTRICTION",
+        "LIQUIDITY_WITHDRAWABLE",
+        "LP_UNLOCK_TOO_SOON",
+        "CONNECTED_CLUSTER_CONCENTRATION"
+      ],
+      "unknownSurveillanceGates": [
+        "DEPLOYER_CONCENTRATION",
+        "BUNDLED_LAUNCH_CONCENTRATION",
+        "KNOWN_RISK_DEPLOYER",
+        "RELATED_WALLET_FUNDING",
+        "SUSPICIOUS_EARLY_BUYERS",
+        "WASH_TRADING",
+        "VOLUME_FARMING",
+        "SUSPICIOUS_TRANSACTION_REPETITION"
+      ]
+    }
+  },
+  "transferSafety": {
+    "status": "UNKNOWN",
+    "reason": "No deterministic read-only sell simulation or complete current transfer-control proof was persisted."
+  },
+  "ownerAdmin": {
+    "status": "UNKNOWN",
+    "reason": "No owner() response and no proxy slots were observed, but unverified runtime bytecode does not prove all privilege paths absent."
+  },
+  "lpControl": {
+    "status": "UNKNOWN",
+    "reason": "V2 LP state was read; material V3 position ownership and complete lock/withdrawal semantics remain unresolved."
+  },
+  "connectedCluster": {
+    "status": "UNKNOWN",
+    "reason": "No complete relationship graph is persisted for SHIB holders."
+  },
+  "pePeEpochRegression": [
+    {
+      "symbol": "PEPE",
+      "chain": "ETHEREUM",
+      "topAddress": "0xf977814e90da44bfa03b6295a0616a897441acec",
+      "phase8TopHolderPct": 8.83,
+      "correctedClassification": "UNKNOWN",
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    },
+    {
+      "symbol": "EPOCH",
+      "chain": "ETHEREUM",
+      "topAddress": "0x000000000004444c5dc75cb358380d2e3de08a90",
+      "phase8TopHolderPct": 22.95,
+      "correctedClassification": "UNKNOWN",
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    }
+  ],
+  "fullCorpusHolderRegression": [
+    {
+      "symbol": "PEPE",
+      "chain": "ETHEREUM",
+      "topAddress": "0xf977814e90da44bfa03b6295a0616a897441acec",
+      "phase8TopHolderPct": 8.83,
+      "correctedClassification": "UNKNOWN",
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    },
+    {
+      "symbol": "SHIB",
+      "chain": "ETHEREUM",
+      "topAddress": "0xdead000000000000000042069420694206942069",
+      "phase8TopHolderPct": 41.04,
+      "correctedClassification": "BURN",
+      "correctedExclusion": true,
+      "result": "RECALCULATED_LIVE"
+    },
+    {
+      "symbol": "BRETT",
+      "chain": "BASE",
+      "topAddress": null,
+      "phase8TopHolderPct": null,
+      "correctedClassification": null,
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    },
+    {
+      "symbol": "xdp",
+      "chain": "BASE",
+      "topAddress": null,
+      "phase8TopHolderPct": null,
+      "correctedClassification": null,
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    },
+    {
+      "symbol": "CLAUS",
+      "chain": "ETHEREUM",
+      "topAddress": "0x000000000000000000000000000000000000dead",
+      "phase8TopHolderPct": null,
+      "correctedClassification": "BURN",
+      "correctedExclusion": true,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    },
+    {
+      "symbol": "CLAUS",
+      "chain": "BASE",
+      "topAddress": null,
+      "phase8TopHolderPct": null,
+      "correctedClassification": null,
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    },
+    {
+      "symbol": "EPOCH",
+      "chain": "ETHEREUM",
+      "topAddress": "0x000000000004444c5dc75cb358380d2e3de08a90",
+      "phase8TopHolderPct": 22.95,
+      "correctedClassification": "UNKNOWN",
+      "correctedExclusion": false,
+      "result": "NO_CLASSIFICATION_CHANGE"
+    }
+  ],
+  "testnetWritePerformed": false,
+  "mainnetWritePerformed": false,
+  "contractRedeploymentPerformed": false
+}
