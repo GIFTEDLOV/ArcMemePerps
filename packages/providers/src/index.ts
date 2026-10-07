@@ -3,6 +3,7 @@ export * from "./http.js";
 export * from "./evidence.js";
 export * from "./interfaces.js";
 export * from "./rpc.js";
+export * from "./evm-evidence.js";
 export * from "./solana-rpc.js";
 export * from "./pumpswap.js";
 export * from "./dexscreener.js";
