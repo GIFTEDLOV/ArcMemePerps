@@ -1,0 +1,1211 @@
+{
+  "schemaVersion": "indexed-holder-records-v1",
+  "provider": "BLOCKSCOUT_INSTANCE",
+  "chain": "ETHEREUM",
+  "token": "0xa606d433971e9ee140e234daa7c94c476e10ead1",
+  "fetchedAt": "2026-10-07T14:33:04.127Z",
+  "coverage": "PARTIAL",
+  "endpointFamily": "v2.tokens.holders",
+  "records": [
+    {
+      "address": "0x000000000000000000000000000000000000dead",
+      "rawAmount": "26187270237625658",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xc2da8a7f8233112dc5b216de23c4308063eaa631",
+      "rawAmount": "16092873696598555",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xfb68efcb2dc3f50117e2dfb0648471929b31cc6a",
+      "rawAmount": "4496671305647938",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x701006d89a715790b191c485b384dc78b32bc70b",
+      "rawAmount": "4307720706773213",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x7fd7c10fefae2589980d54ae8bb5c4ef08b9b009",
+      "rawAmount": "3763245929631816",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x782d1d85dc534126a0d542374ba27988dea97cd8",
+      "rawAmount": "3524074427945750",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xa8018fdc5dd50dd8697869b604d52203b36d1b4d",
+      "rawAmount": "2544825362591256",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x51c4f533fdc4b675c1f27adb0d4d2518814e679b",
+      "rawAmount": "2346215591994173",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x4149f6a40be17c1cc9d91b62302d7e45a0d13fe8",
+      "rawAmount": "2307279569064843",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x7a40e7976596b0425e4c1af2b51a87e45a72b579",
+      "rawAmount": "2035687689181004",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x48d63953946d4007e28bbf31ecb31957a699eb8c",
+      "rawAmount": "1981219773138176",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x2d590890e4993aab1e16dc7f7c1440dbd70e048c",
+      "rawAmount": "1979918300787938",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xbf7b857963023f3da7ac696fc601a74971608f52",
+      "rawAmount": "1969766210790398",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x3a20f251793610811578c8adc94898560a6d2c6a",
+      "rawAmount": "1854385916958368",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x69608775303baaf0334964ccef4f4b52677721d2",
+      "rawAmount": "1800904961458397",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x328f736d8e7427fe7458aae846c76635a79b2192",
+      "rawAmount": "1742217701102826",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xb31018f981cdea88b9034e4d6ed517be4282c578",
+      "rawAmount": "1674398916797216",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x7b665aae06e108d070ed0fce1996fe54e33a4852",
+      "rawAmount": "1628987266162380",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x9d9cffde9eacd6a0f54a824069b8abe11e128e28",
+      "rawAmount": "1625965656878163",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x99019765524a09de991122f3b943832ab45742a0",
+      "rawAmount": "1601705018936163",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x1cd8a0ab6e057885532ff693769c4ea290681ac6",
+      "rawAmount": "1601512320877866",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x587f654cb84ba434aee711c47f9ed749484f9860",
+      "rawAmount": "1601144241631188",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xd5ddc8daa7d7eae1da91bd87300eba318c534dea",
+      "rawAmount": "1596629685619168",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x4e648ec74510fa39ca4bf5094a4d37d1c343037d",
+      "rawAmount": "1581434720943067",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x236083a1139f1f3e6f547b46842d8fb4690c0004",
+      "rawAmount": "1568724147507795",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x4521df07d8daa436511f446b7db14c56e8ccf2f7",
+      "rawAmount": "1537370221212788",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x25b08fec11b8e505fdac99e6bad616c08758ea76",
+      "rawAmount": "1529603696857993",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x6fb452d89b194b9f6df4d515f4ee4b6b557cabf5",
+      "rawAmount": "1525611128061258",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xb965f601fd688135fb170bc22ffcc6738a6bf5bc",
+      "rawAmount": "1503614985702813",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x25b288e51bd369c21cf021c3109031871e89f9b8",
+      "rawAmount": "1493684459148029",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x5c5af19c5afc4e4aea1f00f6fff69630a4ad9aa6",
+      "rawAmount": "1489578146308619",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x77a4da5eec1ed1c2c4d67095ef4ba8a806549aca",
+      "rawAmount": "1482469816516453",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x2c9f4f65d804c944512695f9b18df8b770c5e3c8",
+      "rawAmount": "1477673718397148",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x98618f6f8e5012139aa8c50d462b4b84e214d748",
+      "rawAmount": "1456650720170323",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xf2b22656a7f37e41e6b7218efc5d26a1adce7b2a",
+      "rawAmount": "1403570664350462",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x17d06cb6927aa5a29fddb86f45703518c147a465",
+      "rawAmount": "1397515141539387",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x559c78e35e3445141dd2ab8b3ae657ad07fdae91",
+      "rawAmount": "1396326179277403",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x1c899c2b7fd28900068b0dea8103763f9c31cdbe",
+      "rawAmount": "1394018550854023",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x34bc8da7459b210e4cd3d4436216785c91f60870",
+      "rawAmount": "1364006173245557",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x2e30c6e6d1f2ee702480dee7d972b373221e0e81",
+      "rawAmount": "1360312335659479",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x3aaf2ad1cdbe665030dfe6f3925b3dc962e0205c",
+      "rawAmount": "1349154464523340",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x9d3c9adb61898cba1f2fae2f9ef4232bebce4b52",
+      "rawAmount": "1345496437014931",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x4cb71da34d69ac8ada69012fdb5a4697f1c88713",
+      "rawAmount": "1298470113411647",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x62bcbe27d784bb068ea1a39127c6c37297dfe095",
+      "rawAmount": "1289914519391497",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xc12c5b561d331f68b52b5a1011c6ffc7eb88eb05",
+      "rawAmount": "1289211761063180",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x7fb0184f71d27562f8ba2686d1ee4ff73c686eba",
+      "rawAmount": "1287609904466407",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xb880a24dd061ce1d88e258b647fb4738734de882",
+      "rawAmount": "1286842937374784",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0xf3bbacfd13d799a51cf9da0a8682ef35d824808b",
+      "rawAmount": "1257484640004701",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x93af0dcb95b5622d522711c24aa4612ff9d37fc5",
+      "rawAmount": "1257274251827746",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x8c2d7e54ea89cd3af45b27f592933cb2d847021e",
+      "rawAmount": "1246617763620704",
+      "page": 1,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xce8c9cb0c064c27fc6dc86f5bf49a2c82490cec7a9477c4f16fa1f66b6eb62d3"
+    },
+    {
+      "address": "0x2c508578e73cd5a983fd746cbe5f4c5db8d6815b",
+      "rawAmount": "1226147570779875",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x3f00c6ee62d82cfd42f9a144291f763102f5e319",
+      "rawAmount": "1223143178152635",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x975e5ddabb6444197b488a6c5df9f130568edf08",
+      "rawAmount": "1219116768060310",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xf713d3081153106dbca90a7ddeed53941f310b25",
+      "rawAmount": "1194104729217103",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xf437bd1fd01dcd7ec650eafe3716d31e517dbb48",
+      "rawAmount": "1187311577721740",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x6c2627837682bb3a60026b2b6ea3feb83f87111d",
+      "rawAmount": "1181236315162714",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xd9f6751565155238701498c52f50f0b124d9633d",
+      "rawAmount": "1180623356015359",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x310c8a951cce015b3f369bac0baeb9e088a09751",
+      "rawAmount": "1169253757109313",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x2c045547209a2e3d883f8332ca2d9bd26d655f74",
+      "rawAmount": "1157804598053894",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x1c49f7680cdd847cfe4d3dc3b51c85c57bf2420f",
+      "rawAmount": "1153811908546424",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xeaf789c01584210a5ba334846d6f9d13cebe95ee",
+      "rawAmount": "1150262438294321",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x6443e0f09d3d9f6fb230168a0b76c720c4a6ae8d",
+      "rawAmount": "1145192000722882",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x62e603051c706436e8056a92085d69fe0ac2f57f",
+      "rawAmount": "1144565659741807",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xc0b4fcea6095ba1782b01211ca41afc43bd57658",
+      "rawAmount": "1136329816489295",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x5803c94695c4d94f68f29f92d5be8e4805843dcd",
+      "rawAmount": "1133787796689755",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xc3dd11297aee1d32ff14a7b8ca8b2f41ab0daeb7",
+      "rawAmount": "1131905841918247",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x7a926bc40f8d12902669f187affd3d212e337fa3",
+      "rawAmount": "1128297440086731",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xa418d35f90f03f50c51593e20a1e86a0d861ef31",
+      "rawAmount": "1125544805896842",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xfb338f73b4c774c8d7d7a4a9236da63f721481a6",
+      "rawAmount": "1125405081629370",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x3a206434a5ae05a0936318252390080f4c940dac",
+      "rawAmount": "1122611244521168",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xb442cb5fdc0ee43a3f2566f42655b333f7ec2bc6",
+      "rawAmount": "1121546370972844",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x8b7c627aebe053f47521d7a1f999697eb792b99c",
+      "rawAmount": "1117645780215666",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x91e7eb48e7990029e31441fee80d872a47b7cd04",
+      "rawAmount": "1108454401804377",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x50310aa07b7f630a4bdf03a7200efa2f052f552d",
+      "rawAmount": "1106292682737074",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x3db498120bb7175094e30fbfeef7ca14ff312c83",
+      "rawAmount": "1100428943625552",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x43ff282a8d843a06f949fbb41a7f8c7ebd6b9f79",
+      "rawAmount": "1100112748502098",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xa44046559c5cf7a460a72c27009760151acb7084",
+      "rawAmount": "1097145836118214",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x8dcf38543f774bf716a60a6e85aebe0c32968f92",
+      "rawAmount": "1096384726392097",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x93c97cbf93da4896c64f62476c87253382b2dd41",
+      "rawAmount": "1091603984185863",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xf2bfe204aa352a544afad6b2e9d8291acc0d68f8",
+      "rawAmount": "1091412607411019",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xc86b99971a0290a2c9ab0fd047120b4fff18c809",
+      "rawAmount": "1090146569714903",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x3ee43b4401782f60187ce8052f5937d66b5f1b02",
+      "rawAmount": "1082573270597796",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xd1c2d0b26592fb11abd73e573bc14394d49185f8",
+      "rawAmount": "1081431470261371",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x77bc03e11b004537bf017a6cec62c0d988677e66",
+      "rawAmount": "1073780664581083",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x798217d51fd7c5e2fb55f75a331b1401ff8e1eca",
+      "rawAmount": "1072406694338702",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x7c4626f3f2280a815d0943bd3639a450a7af73ea",
+      "rawAmount": "1068903752189613",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x3c356fc1eb895d4bdf5fe17809aea3d7989a4468",
+      "rawAmount": "1056667721189099",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xa69f9dffe2e905959e2823c68b3cd8029007edfe",
+      "rawAmount": "1055200314304623",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x5086b88c7e99799db942654d05e294306f95b21a",
+      "rawAmount": "1053001871754506",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xc4d12689ff954e6e7a3a5e4c8c839732fa961155",
+      "rawAmount": "1049891634178931",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xdfc49c6aef8c3539111932d684e5b7b5936e20dc",
+      "rawAmount": "1048526238076272",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x453579b3c394c1cf66729ba73f779baf493d3acb",
+      "rawAmount": "1048207100036491",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x7d55eb47c2e3a6b57ab680624b630c04f8ea6b57",
+      "rawAmount": "1048034111739752",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x02575156da8ec45871daaff7a9c3931ded77432e",
+      "rawAmount": "1046121236797386",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x994c28942e1b88515456101208e2e7f7357ee6c6",
+      "rawAmount": "1045600886831688",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0xe0ed5d9f4b246ebb4cdffc94117d99e962f68afb",
+      "rawAmount": "1041260128296441",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x1d2acea0e7dfe9c37bef0668724ba2f286b3bb14",
+      "rawAmount": "1038624165076780",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x42f433c7a26f9c7d6f6c4fbe7e919aa0fb70b419",
+      "rawAmount": "1038541328161522",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x8f381c6bacd8260b034ac9951cb446a347c58c91",
+      "rawAmount": "1035525325113031",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x466ccc5aa6a4513182f8b12d8eb6e4843a88bc52",
+      "rawAmount": "1032580831858891",
+      "page": 2,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0x557ddd74ef697d6da9133b14673bca00a575a743ae175e15027b5fde0e1263b1"
+    },
+    {
+      "address": "0x22ae3a0f9ba0c489409073a201b640dd711cae56",
+      "rawAmount": "1032083710814524",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x4d4800dca474c7f8e32d7009f0e613cf2575e980",
+      "rawAmount": "1031802410934531",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xbb690bdac95e5c034bf5f38effe0353b1d38b5f1",
+      "rawAmount": "1030669642978483",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xb0a1e562c1a9312f21e0262a1ddd4bc7f05c954a",
+      "rawAmount": "1027645628450130",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xd55285e978d887dc2f1c953ec996730f94987b27",
+      "rawAmount": "1027152349283586",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xc980b733b323c61f125275833ac1b6f4ecf13222",
+      "rawAmount": "1025693355747599",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x684b40a1bc2281a7b998bed39fac3d2bb2d4fc53",
+      "rawAmount": "1025141093833522",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xab780d16095ce147669012ec6db65b66a607a0d3",
+      "rawAmount": "1025119985132563",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x7bbe62ac5031f8111b1d5cdf1a3df0d07c45e064",
+      "rawAmount": "1024250981487087",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xd10bb77859474cf6da1edd1c7f47466f66f48b29",
+      "rawAmount": "1023404364881361",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x9dee02d8b8347f45d3335224a9d136878048c9a3",
+      "rawAmount": "1018265082098765",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x19428741df72b67ee2a6d686ca992d376334f8bd",
+      "rawAmount": "1018146740220079",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x5f85ef89875b239936e9037277fbc9fdd11c3200",
+      "rawAmount": "1016980063117946",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x6aa6b4fedd3c77e98d4db991e64835b298d3dd91",
+      "rawAmount": "1016650811291565",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x38ab6af20f65a5504a5971d23b615a6d8634117f",
+      "rawAmount": "1016559654743978",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xa01a76ba07386641ad2cdbd883b69b5cc84ccf74",
+      "rawAmount": "1016516029871157",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x338184ef847dd845d6ad7d91d16f5f8bcbe1b152",
+      "rawAmount": "1014747467510182",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xea31cc14970198096d86650ca22579b263ec6c23",
+      "rawAmount": "1014303882337620",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x8e3e4be47b46941b1bb8f5a2923891866d5725dc",
+      "rawAmount": "1013063043384944",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x39b2010fa0298807505574a4bcba9e175b3b2f46",
+      "rawAmount": "1012121499158933",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xa0c8db55f9dce77b65831930871592709c3a7dd6",
+      "rawAmount": "1008634714123124",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xda9c46eb8c757f99c713be5ec78adfe859694bca",
+      "rawAmount": "1008134460951464",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xba904177b6522e5d66c0d9c253896cd7554bc608",
+      "rawAmount": "1007888126262863",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xb28f5fd13a9ea74ad906cc79638d57a38fcc52c3",
+      "rawAmount": "1007339241445066",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x7b4914dc4b839254714da312377595963310710c",
+      "rawAmount": "1005416163482932",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xacd3fd902d8465a02c139cf231eae3bb0436e8b9",
+      "rawAmount": "1004823493383659",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x1e9197ce9b3966abbc89b2bfe19c6f14050ae738",
+      "rawAmount": "1003650117384538",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xf8b7bc302248b3ecd55535a57d17e571391fda77",
+      "rawAmount": "1002566617164862",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x267ecf758eb13f0d987b14f2a7b698d9e16087e1",
+      "rawAmount": "1002006305608106",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x67d02e071a4dbcafe61e61e62c07421bb6e8d29e",
+      "rawAmount": "1001974059618600",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x2265ad10c07248fc5ca2c23bb7f2e471ff45967a",
+      "rawAmount": "1001701093185740",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xb4fd6f0528953893ed449608e833103cd0ada811",
+      "rawAmount": "1001541829371817",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x20481bfd272f4922a4f972cbbebe9d788e0c467b",
+      "rawAmount": "999371481235236",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xf74611610c94c5d18404d383765d77b41776d3d9",
+      "rawAmount": "997623832764893",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x39bfcc8f527be18c1f8e5bc12b5b0cd487841496",
+      "rawAmount": "994268326107869",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xf848eb99c237e8e79edcdc47d2a43fff6351d696",
+      "rawAmount": "993996691253824",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x99d3a5faa2760173ccfa1f6abfef8677c7a7db1b",
+      "rawAmount": "991274619014122",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x7987959f2613ee5462f96cf8feb16c1ad6b758cb",
+      "rawAmount": "989902068713381",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x3615491009e606cd9449d749fabf147a60523460",
+      "rawAmount": "986884347170939",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x4f40d04285c06f8e68b9f57987d006d16a45bbc6",
+      "rawAmount": "985639781298718",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xf1bd3216a5a5f0e67c0fa7964ffcaaf1d9a63265",
+      "rawAmount": "985038190570192",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x6e77a2e4d85d34ea8707bc9708644568026a486d",
+      "rawAmount": "981770999555267",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x205f1b3e542aaef3dcba0e72653e32c4f7bf6e78",
+      "rawAmount": "981643773071007",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x0b5eeefe46f8cec7dfee25c1ec620ccb9e2dab38",
+      "rawAmount": "981540139947123",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x2cc3044f2585179e2d93ef23a170ac19f39ade39",
+      "rawAmount": "977087558110721",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x1efd2d0976ce5ca9a846384cc6d819e308fc2c7d",
+      "rawAmount": "976726398492789",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x7e4a835a2fd70cdbde34df3a19fba43e40333944",
+      "rawAmount": "975500435789485",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x27f44de12305b58176d544c791776d87d38dd6ce",
+      "rawAmount": "975193706957916",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0x15436b18e1cab3898c49162d822075d4ccc6ea64",
+      "rawAmount": "974474981783493",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    },
+    {
+      "address": "0xb919f65a0abf2fb4d1ca46a6158f69b135ef9b23",
+      "rawAmount": "974032482024734",
+      "page": 3,
+      "fetchedAt": "2026-10-07T14:33:04.127Z",
+      "indexedBlock": null,
+      "rawResponseHash": "0xf67343a482bead4360509a994547050f6a392edf51e46b07a1c2d34e5b844924"
+    }
+  ]
+}
