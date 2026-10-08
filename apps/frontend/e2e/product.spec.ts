@@ -1,65 +1,114 @@
 import { expect, test } from "@playwright/test";
 
-test("landing explains the thesis and opens the terminal", async ({ page }) => {
+test("landing explains the product and opens Markets", async ({ page }) => {
   await page.goto("/");
-  await expect(page.getByRole("heading", { name: /Discover first/i })).toBeVisible();
-  await expect(page.getByText("Multichain meme-market intelligence")).toBeVisible();
-  await page.getByRole("link", { name: /Open terminal/i }).first().click();
+  await expect(page.getByRole("heading", { name: /Discover meme markets/i })).toBeVisible();
+  await expect(page.getByText(/Arc USDC settlement/i)).toBeVisible();
+  await page.getByRole("link", { name: /Explore markets/i }).first().click();
   await expect(page).toHaveURL(/\/markets$/);
-  await expect(page.getByRole("heading", { name: /Find the next market/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Markets" })).toBeVisible();
 });
 
-test("live discovery renders many real origin markets without canary defaults", async ({ page }) => {
+test("Markets is dense, real, and truthful about zero perps", async ({ page }) => {
   await page.goto("/markets");
-  const discovered = page.getByText(/\d+ discovered/);
-  await expect(discovered).toBeVisible({ timeout: 20_000 });
-  expect(Number((await discovered.innerText()).split(" ")[0])).toBeGreaterThanOrEqual(30);
-  await expect(page.getByText("ARC-PRODUCT")).not.toBeVisible();
-  await expect(page.getByText("0 Arc perp markets")).toBeVisible();
-  await expect(page.locator(".market-row").first().getByText("ORIGIN ONLY")).toBeVisible();
+  await expect(page.getByText(/\d+ observed/)).toBeVisible({ timeout: 20_000 });
+  expect(Number((await page.getByText(/\d+ observed/).innerText()).split(" ")[0])).toBeGreaterThanOrEqual(30);
+  await expect(page.getByText("0 live perp markets")).not.toBeVisible();
+  await expect(page.getByRole("tab", { name: /Perps/ })).toBeVisible();
+  await expect(page.locator(".market-row-link").first()).toBeVisible();
 });
 
-test("exact market search and risk passport remain truthful", async ({ page }) => {
+test("exact search and token terminal remain truthful", async ({ page }) => {
   await page.goto("/markets");
-  const search = page.getByPlaceholder(/Exact address/i);
+  const search = page.getByPlaceholder(/Search symbol/i);
   await search.fill("Alice");
   await search.press("Enter");
   await expect(page.getByText("Alice").first()).toBeVisible({ timeout: 20_000 });
   await page.getByRole("link", { name: /Alice/i }).first().click();
   await expect(page.getByText("Risk passport")).toBeVisible();
-  await expect(page.getByText("HISTORY_UNAVAILABLE")).toBeVisible();
-  await expect(page.getByText("Origin market only")).toBeVisible();
+  await expect(page.getByText(/History unavailable/i)).toBeVisible();
+  await expect(page.getByText(/Perps unavailable|Qualification in progress|Not eligible/i)).toBeVisible();
 });
 
-test("proof separates Product Testnet from destructive security evidence", async ({ page }) => {
+test("category and chain filters keep the zero-perp state explicit", async ({ page }) => {
+  await page.goto("/markets");
+  await page.getByRole("tab", { name: /Perps/ }).click();
+  await expect(page.getByText(/0 live perp markets/i)).toBeVisible();
+  await expect(page.getByText(/Perp markets appear here only/i)).toBeVisible();
+  await page.getByRole("tab", { name: "BASE" }).click();
+  await expect(page.getByRole("tab", { name: "BASE" })).toHaveClass(/active/);
+});
+
+test("detail tabs expose holders and provenance without JSON-first UI", async ({ page }) => {
+  await page.goto("/markets");
+  await page.getByRole("link", { name: /Alice/i }).first().click();
+  await page.getByRole("tab", { name: "Holders" }).click();
+  await expect(page.getByRole("heading", { name: /Holder concentration/i })).toBeVisible();
+  await page.getByRole("tab", { name: "Overview" }).click();
+  await page.getByRole("button", { name: /Admin control/i }).click();
+  await expect(page.getByRole("dialog", { name: /Admin control provenance/i })).toBeVisible();
+  await expect(page.getByText("Source")).toBeVisible();
+  await page.getByRole("button", { name: "Close provenance" }).click();
+});
+
+test("watchlist is local and portfolio/activity stay honest", async ({ page }) => {
+  await page.goto("/markets");
+  await page.getByRole("link", { name: /Alice/i }).first().click();
+  await page.getByRole("button", { name: /Watch/ }).click();
+  await page.goto("/watchlist");
+  await expect(page.getByText("Alice").first()).toBeVisible();
+  await page.goto("/portfolio");
+  await expect(page.getByText(/Connect to view your portfolio/i)).toBeVisible();
+  await page.goto("/activity");
+  await expect(page.getByText(/Connect to view activity/i)).toBeVisible();
+});
+
+test("proof keeps protocol details secondary and states the live count", async ({ page }) => {
   await page.goto("/proof");
-  await expect(page.getByRole("heading", { name: "Healthy application state" })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Stress deployment" })).toBeVisible();
-  await expect(page.getByText("Solvency blocked").nth(1)).toBeVisible();
+  await expect(page.getByRole("heading", { name: /0 registered live perp markets/i })).toBeVisible();
+  await expect(page.getByText(/Evidence before leverage/i)).toBeVisible();
 });
 
-test("mobile discovery has no horizontal overflow", async ({ page }) => {
+test("mobile markets and token detail do not overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/markets");
-  await expect(page.getByRole("heading", { name: /Find the next market/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Markets" })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole("link", { name: /Alice/i }).first().click();
-  await expect(page.getByText("Origin market only")).toBeVisible();
+  await expect(page.getByText("Risk passport")).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
 test("API outage is explicit instead of fabricated zeros", async ({ page }) => {
   await page.route("**/api/v1/markets**", (route) => route.abort());
   await page.goto("/markets");
-  await expect(page.getByText("Live market data unavailable.")).toBeVisible();
+  await expect(page.getByText("Market data is unavailable.")).toBeVisible();
   await expect(page.getByText("No markets match this view")).toBeVisible();
 });
 
-test("wallet wrong-network state is explicit", async ({ page }) => {
+test("hostile token metadata stays text-only and fails soft", async ({ page }) => {
+  await page.route("**/api/v1/markets**", async (route) => {
+    const response = await route.fetch();
+    const payload = await response.json() as { items?: Array<Record<string, unknown>> };
+    const first = payload.items?.[0];
+    if (first) {
+      first.name = "<img src=x onerror=alert(1)> & long token name";
+      first.symbol = "<script>alert(1)</script>";
+      first.imageUrl = "not-a-valid-image-url";
+    }
+    await route.fulfill({ response, json: payload });
+  });
+  await page.goto("/markets");
+  await expect(page.getByText("<script>alert(1)</script>", { exact: true })).toBeVisible({ timeout: 20_000 });
+  await expect(page.locator(".market-table script")).toHaveCount(0);
+});
+
+test("wallet wrong-network state is concise", async ({ page }) => {
   await page.addInitScript(() => {
     window.ethereum = {
       request: ({ method }: { method: string }) => {
         if (method === "eth_accounts") return Promise.resolve([]);
-        if (method === "eth_requestAccounts") return Promise.resolve(["0xc36fd43deaad e fb349acc61b0eb664ea4a18861c".replaceAll(" ", "")]);
+        if (method === "eth_requestAccounts") return Promise.resolve(["0xc36fd43deaad efb349acc61b0eb664ea4a18861c".replaceAll(" ", "")]);
         if (method === "eth_chainId") return Promise.resolve("0x1");
         return Promise.reject(new Error("unsupported"));
       },

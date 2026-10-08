@@ -4,7 +4,9 @@ Risk-gated multichain meme-asset perpetuals settled on Arc USDC.
 
 [Live App](https://arcmemeperps.vercel.app) · [GitHub](https://github.com/GIFTEDLOV/ArcMemePerps) · [Arc deployment](docs/ARC_TESTNET_DEPLOYMENTS.md) · [Architecture](docs/WINNER_ARCHITECTURE.md) · [Evidence](evidence/winner-rebuild/)
 
-![ArcMemePerps market terminal](evidence/winner-rebuild/screenshots/landing-1440.png)
+![ArcMemePerps market terminal](docs/assets/phase10/hero-markets.png)
+
+Local winner rebuild: [token terminal](docs/assets/phase10/token-terminal.png) · [Risk Passport](docs/assets/phase10/risk-passport.png) · [visual review](docs/FRONTEND_VISUAL_REVIEW.md)
 
 > The public v1.0.0 URL is the historical release. The `winner-rebuild` branch is the local product rebuild: a trader-first discovery terminal backed by real origin-market observations and explicit evidence boundaries.
 
