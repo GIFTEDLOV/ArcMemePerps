@@ -4,7 +4,7 @@ import {
   type MarketIntelligenceRecord,
   type MarketPassport,
 } from "@arcmemeperps/domain";
-import { assessRisk, CORE_SAFETY_RISK_RULES } from "@arcmemeperps/risk-engine";
+import { assessRisk, FINAL_RISK_RULES } from "@arcmemeperps/risk-engine";
 import { PersistentJobQueue, type PersistenceStore } from "@arcmemeperps/persistence";
 import {
   canonicalJson,
@@ -176,7 +176,7 @@ export function buildMarketPassport(
   now = new Date().toISOString(),
 ): MarketPassport {
   const risk = assessRisk(record, {
-    rules: CORE_SAFETY_RISK_RULES,
+    rules: FINAL_RISK_RULES,
     assessedAt: record.oracle.observedAt,
   });
   const providerHealth = record.providerAvailability.map((provider) => ({
@@ -335,7 +335,7 @@ export function buildMarketPassport(
         .map((gate) => gate.code),
       rejectionReasons: risk.rejectionReasons.map((item) => item.code),
       warnings: risk.warnings.map((item) => item.code),
-      ruleVersion: CORE_SAFETY_RISK_RULES.version,
+      ruleVersion: FINAL_RISK_RULES.version,
       coreIntegrityStatus: risk.coreIntegrityStatus,
       surveillanceStatus: risk.surveillanceStatus,
       evidenceCoverage: risk.evidenceCoverage,
@@ -440,7 +440,7 @@ export function buildMarketPassport(
     },
     arcMarketState: "UNREGISTERED" as const,
     providerHealth,
-    riskRuleVersion: CORE_SAFETY_RISK_RULES.version,
+    riskRuleVersion: FINAL_RISK_RULES.version,
   };
   return MarketPassportSchema.parse(snapshot);
 }

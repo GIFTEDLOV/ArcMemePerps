@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { readdir, readFile } from "node:fs/promises";
 import { join, relative } from "node:path";
-import { CORE_SAFETY_POLICY_VERSION } from "@arcmemeperps/risk-engine";
+import { FINAL_RISK_POLICY_VERSION } from "@arcmemeperps/risk-engine";
 
 const root = process.cwd();
 
@@ -40,7 +40,7 @@ const result = {
   contractSourceSha256: await hashTree(["contracts/src"], [".sol"]),
   backendSourceSha256: await hashTree(["apps", "packages", "scripts"], [".ts"]),
   schemaVersion: "backend-completion/v1",
-  riskRuleVersion: CORE_SAFETY_POLICY_VERSION,
+  riskRuleVersion: FINAL_RISK_POLICY_VERSION,
   qualificationProofVersion: "2",
   apiVersion: "v1",
 };

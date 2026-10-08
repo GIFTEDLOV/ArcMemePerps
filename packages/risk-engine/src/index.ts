@@ -29,6 +29,7 @@ import {
 export const RISK_RULE_VERSION = "0.1.0";
 export const AUDITED_RISK_RULE_VERSION = "0.2.0";
 export const CORE_SAFETY_POLICY_VERSION = "0.3.0";
+export const FINAL_RISK_POLICY_VERSION = "0.4.0";
 
 export * from "./activity.js";
 export * from "./economics.js";
@@ -61,6 +62,15 @@ export interface RiskRuleConfig {
   readonly minimumLiquidationCapacityUsd: number;
   readonly maximumLeverage: number;
   readonly minimumSafeOpenInterestUsd: number;
+  /** 0.4.0 makes market-size values capacity inputs instead of binary listing gates. */
+  readonly capacityModel?: "FIXED_MINIMUMS" | "DYNAMIC";
+  readonly minimumEconomicallyMeaningfulPositionUsd?: number;
+  readonly depthCapacityHaircut?: number;
+  readonly secondDepthCapacityHaircut?: number;
+  readonly organicVolumeCapacityFraction?: number;
+  readonly manipulationCapacityFraction?: number;
+  readonly liquidationCapacityHaircut?: number;
+  readonly protocolCapacityFraction?: number;
 }
 
 export const DEVELOPMENT_RISK_RULES: RiskRuleConfig = {
@@ -104,7 +114,28 @@ export const CORE_SAFETY_RISK_RULES: RiskRuleConfig = {
   version: CORE_SAFETY_POLICY_VERSION,
 };
 
-export type RiskEvaluationMode = "LEGACY" | "AUDITED" | "CORE_SAFETY_V3";
+/**
+ * Final policy projection. Numeric 0.3.0 integrity/oracle values are inherited;
+ * only the economic capacity composition is versioned here.
+ */
+export const FINAL_RISK_RULES: RiskRuleConfig = {
+  ...CORE_SAFETY_RISK_RULES,
+  version: FINAL_RISK_POLICY_VERSION,
+  capacityModel: "DYNAMIC",
+  minimumEconomicallyMeaningfulPositionUsd: 250,
+  depthCapacityHaircut: 0.5,
+  secondDepthCapacityHaircut: 0.5,
+  organicVolumeCapacityFraction: 0.1,
+  manipulationCapacityFraction: 0.05,
+  liquidationCapacityHaircut: 0.5,
+  protocolCapacityFraction: 0.1,
+};
+
+export type RiskEvaluationMode =
+  | "LEGACY"
+  | "AUDITED"
+  | "CORE_SAFETY_V3"
+  | "CORE_SAFETY_V4";
 
 export interface RiskEvaluationOptions {
   readonly assessedAt: string;
@@ -114,6 +145,7 @@ export interface RiskEvaluationOptions {
 }
 
 function defaultModeForRules(rules: RiskRuleConfig): RiskEvaluationMode {
+  if (rules.version === FINAL_RISK_POLICY_VERSION) return "CORE_SAFETY_V4";
   if (rules.version === CORE_SAFETY_POLICY_VERSION) return "CORE_SAFETY_V3";
   if (rules.version === AUDITED_RISK_RULE_VERSION) return "AUDITED";
   return "LEGACY";
@@ -492,7 +524,7 @@ export function evaluateIntegrity(
   mode: RiskEvaluationMode = defaultModeForRules(rules),
   policyProfileId?: RiskPolicyProfileId,
 ): IntegrityEvaluation {
-  if (mode === "CORE_SAFETY_V3")
+  if (mode === "CORE_SAFETY_V3" || mode === "CORE_SAFETY_V4")
     return evaluateCoreIntegrityV3(observation, rules, assessedAt, policyProfileId);
   const { authorities, liquidity, holders, deployer, activity } = observation;
   const policyProfile =
@@ -678,6 +710,7 @@ export function evaluateDerivativesCapacity(
   mode: RiskEvaluationMode = defaultModeForRules(rules),
 ): DerivativesEvaluation {
   const { liquidity, activity, oracle, derivatives } = observation;
+  const dynamicCapacity = rules.capacityModel === "DYNAMIC" || mode === "CORE_SAFETY_V4";
   const safeOpenInterestInputs = [
     derivatives.maximumSafeOpenInterestUsd,
     liquidity.depth1PctUsd,
@@ -685,11 +718,17 @@ export function evaluateDerivativesCapacity(
     oracle.manipulationCostUsd,
     derivatives.liquidationCapacityUsd,
   ];
-  const safeOpenInterest = minKnown(safeOpenInterestInputs, [1, 2, 0.5, 0.25, 0.8]);
+  const dynamicCapacityResult = dynamicCapacity
+    ? deriveDynamicCapacity(observation, rules)
+    : null;
+  const safeOpenInterest = dynamicCapacityResult?.safeOpenInterest ??
+    minKnown(safeOpenInterestInputs, [1, 2, 0.5, 0.25, 0.8]);
   const safePosition =
-    derivatives.maximumPositionSizeUsd === null ||
-    liquidity.depth1PctUsd === null ||
-    safeOpenInterest === null
+    dynamicCapacityResult !== null
+      ? dynamicCapacityResult.safePosition
+      : derivatives.maximumPositionSizeUsd === null ||
+          liquidity.depth1PctUsd === null ||
+          safeOpenInterest === null
       ? null
       : clampNonNegative(
           Math.min(
@@ -704,11 +743,24 @@ export function evaluateDerivativesCapacity(
       : derivatives.realizedVolatilityPct <= 0
         ? 1
         : Math.max(1, 100 / derivatives.realizedVolatilityPct);
+  const capacityLeverage =
+    dynamicCapacityResult === null || safeOpenInterest === null
+      ? null
+      : safeOpenInterest < rules.minimumSafeOpenInterestUsd * 2
+        ? 1.25
+        : safeOpenInterest < rules.minimumSafeOpenInterestUsd * 5
+          ? 2
+          : rules.maximumLeverage;
   const recommendedMaxLeverage =
-    derivatives.maximumLeverage === null || volatilityLeverage === null
+    derivatives.maximumLeverage === null || volatilityLeverage === null || capacityLeverage === null
       ? null
       : roundDown(
-          Math.min(derivatives.maximumLeverage, rules.maximumLeverage, volatilityLeverage),
+          Math.min(
+            derivatives.maximumLeverage,
+            rules.maximumLeverage,
+            volatilityLeverage,
+            capacityLeverage,
+          ),
           2,
         );
   const metrics: DerivativesCapacityMetrics = {
@@ -732,7 +784,7 @@ export function evaluateDerivativesCapacity(
   const rejectionReasons: RiskReason[] = [];
   const unknownReasons: RiskReason[] = [];
   const warnings: RiskReason[] = [];
-  const checks: readonly [
+  const fixedChecks: readonly [
     string,
     GateState,
     string,
@@ -849,10 +901,81 @@ export function evaluateDerivativesCapacity(
       { actual: safeOpenInterest, minimum: rules.minimumSafeOpenInterestUsd },
     ],
   ];
+  const dynamicChecks: readonly [
+    string,
+    GateState,
+    string,
+    Record<string, string | number | boolean | null>,
+  ][] = [
+    [
+      "INSUFFICIENT_ORACLE_SOURCES",
+      isTriStateMode(mode)
+        ? thresholdAtLeast(oracle.sourceCount, rules.minimumOracleSources)
+        : atLeast(oracle.sourceCount, rules.minimumOracleSources)
+          ? "PASS"
+          : "FAIL",
+      "fewer than the required independent economic price sources",
+      { actual: oracle.sourceCount, minimum: rules.minimumOracleSources },
+    ],
+    [
+      "ORACLE_DISAGREEMENT",
+      isTriStateMode(mode)
+        ? thresholdAtMost(oracle.disagreementPct, rules.maximumOracleDisagreementPct)
+        : atMost(oracle.disagreementPct, rules.maximumOracleDisagreementPct)
+          ? "PASS"
+          : "FAIL",
+      "oracle sources disagree beyond the hard dispersion bound",
+      { actual: oracle.disagreementPct, maximum: rules.maximumOracleDisagreementPct },
+    ],
+    [
+      "LOW_ORACLE_CONFIDENCE",
+      isTriStateMode(mode)
+        ? thresholdAtLeast(oracle.confidenceBps, rules.minimumOracleConfidenceBps)
+        : atLeast(oracle.confidenceBps, rules.minimumOracleConfidenceBps)
+          ? "PASS"
+          : "FAIL",
+      "oracle confidence is below the retained hard minimum",
+      { actual: oracle.confidenceBps, minimum: rules.minimumOracleConfidenceBps },
+    ],
+    [
+      "EXCESSIVE_REALIZED_VOLATILITY",
+      isTriStateMode(mode)
+        ? thresholdAtMost(derivatives.realizedVolatilityPct, rules.maximumRealizedVolatilityPct)
+        : atMost(derivatives.realizedVolatilityPct, rules.maximumRealizedVolatilityPct)
+          ? "PASS"
+          : "FAIL",
+      "realized volatility exceeds the conservative capacity ceiling",
+      { actual: derivatives.realizedVolatilityPct, maximum: rules.maximumRealizedVolatilityPct },
+    ],
+    [
+      "INSUFFICIENT_SAFE_OPEN_INTEREST",
+      isTriStateMode(mode)
+        ? thresholdAtLeast(safeOpenInterest, rules.minimumSafeOpenInterestUsd)
+        : atLeast(safeOpenInterest, rules.minimumSafeOpenInterestUsd)
+          ? "PASS"
+          : "FAIL",
+      "derived safe open interest is below the minimum economically meaningful market size",
+      { actual: safeOpenInterest, minimum: rules.minimumSafeOpenInterestUsd },
+    ],
+    [
+      "INSUFFICIENT_MAX_POSITION",
+      isTriStateMode(mode)
+        ? thresholdAtLeast(safePosition, rules.minimumEconomicallyMeaningfulPositionUsd ?? 0)
+        : atLeast(safePosition, rules.minimumEconomicallyMeaningfulPositionUsd ?? 0)
+          ? "PASS"
+          : "FAIL",
+      "derived maximum position is below the minimum economically meaningful position",
+      {
+        actual: safePosition,
+        minimum: rules.minimumEconomicallyMeaningfulPositionUsd ?? 0,
+      },
+    ],
+  ];
+  const checks = dynamicCapacity ? dynamicChecks : fixedChecks;
   for (const [code, state, message, details] of checks) {
     if (state === "FAIL") {
       warnings.push(reason(code, message, false, details));
-      if (mode === "CORE_SAFETY_V3") {
+      if (mode === "CORE_SAFETY_V3" || mode === "CORE_SAFETY_V4") {
         rejectionReasons.push(
           reason(
             `CAPACITY_${code}`,
@@ -915,13 +1038,23 @@ export function evaluateDerivativesCapacity(
       ),
     );
   }
-  if (mode === "CORE_SAFETY_V3") {
+  if (dynamicCapacityResult?.activityEvidenceLimited === true) {
+    warnings.push(
+      reason(
+        "SURVEILLANCE_ACTIVITY_LIMITED",
+        "wash/farm/repetition telemetry is incomplete; capacity uses a conservative volume haircut",
+        false,
+        { volumeHaircut: dynamicCapacityResult.activityVolumeHaircut },
+      ),
+    );
+  }
+  if (mode === "CORE_SAFETY_V3" || mode === "CORE_SAFETY_V4") {
     const activityUnknown = [
       observation.activity.washTradingDetected,
       observation.activity.volumeFarmingDetected,
       observation.activity.suspiciousTransactionRepetition,
     ].some((value) => value === null);
-    if (activityUnknown)
+    if (activityUnknown && !dynamicCapacity)
       unknownReasons.push(
         reason(
           "SURVEILLANCE_ACTIVITY_UNAVAILABLE",
@@ -1078,13 +1211,95 @@ function lpUnlockGate(
   return unlock - assessed >= rules.minimumLpLockDays * 86_400_000 ? "PASS" : "FAIL";
 }
 
-function parameters(metrics: DerivativesCapacityMetrics): RiskParameters {
+interface DynamicCapacityResult {
+  readonly safeOpenInterest: number | null;
+  readonly safePosition: number | null;
+  readonly activityEvidenceLimited: boolean;
+  readonly activityVolumeHaircut: number;
+}
+
+/**
+ * Derive exposure from measured capacity rather than treating development
+ * market-size defaults as universal listing requirements. Every bound remains
+ * conservative and a missing critical input remains unavailable.
+ */
+function deriveDynamicCapacity(
+  observation: MarketObservation,
+  rules: RiskRuleConfig,
+): DynamicCapacityResult {
+  const { liquidity, activity, oracle, derivatives } = observation;
+  const critical = [
+    liquidity.totalLiquidityUsd,
+    liquidity.depth1PctUsd,
+    liquidity.depth2PctUsd,
+    activity.organicVolume24hUsd,
+    derivatives.maximumSafeOpenInterestUsd,
+    oracle.manipulationCostUsd,
+    oracle.confidenceBps,
+    derivatives.liquidationCapacityUsd,
+  ];
+  if (critical.some((value) => value === null)) {
+    return {
+      safeOpenInterest: null,
+      safePosition: null,
+      activityEvidenceLimited: hasUnknownActivityEvidence(activity),
+      activityVolumeHaircut: hasUnknownActivityEvidence(activity) ? 0.5 : 1,
+    };
+  }
+
+  const activityEvidenceLimited = hasUnknownActivityEvidence(activity);
+  const activityVolumeHaircut = activityEvidenceLimited ? 0.5 : 1;
+  const activityVolume = activity.organicVolume24hUsd! * activityVolumeHaircut;
+  const bounds = [
+    liquidity.totalLiquidityUsd! * 0.1,
+    liquidity.depth1PctUsd! * (rules.depthCapacityHaircut ?? 0.5),
+    liquidity.depth2PctUsd! * (rules.secondDepthCapacityHaircut ?? 0.5),
+    activityVolume * (rules.organicVolumeCapacityFraction ?? 0.1),
+    oracle.manipulationCostUsd! * (rules.manipulationCapacityFraction ?? 0.05),
+    derivatives.liquidationCapacityUsd! * (rules.liquidationCapacityHaircut ?? 0.5),
+    derivatives.maximumSafeOpenInterestUsd! * (rules.protocolCapacityFraction ?? 0.1),
+  ];
+  const safeOpenInterest = clampNonNegative(
+    Math.min(...bounds) * oracleConfidenceFactor(oracle.confidenceBps),
+  );
+  const safePosition = clampNonNegative(
+    Math.min(
+      derivatives.maximumPositionSizeUsd ?? Number.POSITIVE_INFINITY,
+      liquidity.depth1PctUsd! * 0.25,
+      safeOpenInterest * 0.25,
+      derivatives.liquidationCapacityUsd! * 0.25,
+    ),
+  );
   return {
-    recommendedMaxLeverage: metrics.maximumLeverage,
+    safeOpenInterest,
+    safePosition,
+    activityEvidenceLimited,
+    activityVolumeHaircut,
+  };
+}
+
+function hasUnknownActivityEvidence(activity: ActivityQualityMetrics): boolean {
+  return [
+    activity.washTradingDetected,
+    activity.volumeFarmingDetected,
+    activity.suspiciousTransactionRepetition,
+  ].some((value) => value === null);
+}
+
+function oracleConfidenceFactor(confidenceBps: number | null): number {
+  if (confidenceBps === null) return 0;
+  return Math.max(0, Math.min(1, confidenceBps / 10_000));
+}
+
+function parameters(metrics: DerivativesCapacityMetrics): RiskParameters {
+  const leverage = metrics.maximumLeverage;
+  return {
+    recommendedMaxLeverage: leverage,
     recommendedMaxOI: metrics.maximumSafeOpenInterestUsd,
     recommendedMaxPosition: metrics.maximumPositionSizeUsd,
-    maintenanceMarginBps: 1_000,
-    liquidationPenaltyBps: 500,
+    maintenanceMarginBps:
+      leverage !== null && leverage <= 1.5 ? 2_000 : leverage !== null && leverage <= 3 ? 1_500 : 1_000,
+    liquidationPenaltyBps: leverage !== null && leverage <= 1.5 ? 1_000 : 500,
   };
 }
 

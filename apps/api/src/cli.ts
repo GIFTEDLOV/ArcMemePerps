@@ -7,7 +7,11 @@ import {
   qualificationProofFromAssessment,
   qualificationProofHash,
 } from "@arcmemeperps/qualification-proof";
-import { assessRisk, RISK_RULE_VERSION } from "@arcmemeperps/risk-engine";
+import {
+  assessRisk,
+  FINAL_RISK_POLICY_VERSION,
+  FINAL_RISK_RULES,
+} from "@arcmemeperps/risk-engine";
 import { NETWORK_CONFIGS, rpcUrlsForNetwork, type SupportedChain } from "@arcmemeperps/shared";
 
 interface CliOptions {
@@ -41,7 +45,10 @@ async function main(): Promise<void> {
           rpcUrls: rpcUrlsForNetwork(NETWORK_CONFIGS[options.chain]),
         });
   const record = await adapter.inspectToken(options.token, { noEnrichment: options.noEnrichment });
-  const assessment = assessRisk(record, { assessedAt: new Date().toISOString() });
+  const assessment = assessRisk(record, {
+    assessedAt: new Date().toISOString(),
+    rules: FINAL_RISK_RULES,
+  });
   const bundle: EvidenceBundle = {
     schemaVersion: record.evidenceSchemaVersion,
     records: record.evidence,
@@ -99,7 +106,7 @@ async function main(): Promise<void> {
         record.dataQuality.reconciliationStatus !== "MATERIAL_DIVERGENCE",
       proofHash: qualificationProofHash(proof),
       commitmentHash: qualificationCommitmentHash(proofCommitment),
-      ruleVersion: RISK_RULE_VERSION,
+      ruleVersion: FINAL_RISK_POLICY_VERSION,
     },
     explicitUnknowns: record.evidence
       .filter((item) => item.status !== "AVAILABLE")

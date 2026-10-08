@@ -1,0 +1,73 @@
+{
+  "version": "0.4.0",
+  "inherits": "0.3.0",
+  "numericThresholdsChanged": false,
+  "classificationChanges": [
+    "absolute spot/depth/volume/manipulation/liquidation/safe-OI values are capacity inputs rather than universal listing gates",
+    "surveillance activity UNKNOWN is displayed and receives a conservative capacity haircut instead of becoming core integrity failure",
+    "derived safe OI and max position must remain materially positive"
+  ],
+  "coreSafety": {
+    "individualHolderMaxPct": 5,
+    "connectedClusterMaxPct": 5,
+    "bundleMaxPct": 10,
+    "gates": [
+      "MINT_AUTHORITY_ACTIVE",
+      "FREEZE_AUTHORITY_ACTIVE",
+      "DANGEROUS_OWNER_ADMIN_PRIVILEGE",
+      "UPGRADEABILITY_RISK",
+      "HONEYPOT_OR_TRANSFER_RESTRICTION",
+      "LIQUIDITY_WITHDRAWABLE",
+      "LP_UNLOCK_TOO_SOON",
+      "INDIVIDUAL_HOLDER_CONCENTRATION",
+      "CONNECTED_CLUSTER_CONCENTRATION",
+      "BUNDLED_LAUNCH_CONCENTRATION_WHEN_APPLICABLE"
+    ],
+    "unknownApplicableGate": "PENDING",
+    "explicitFailure": "REJECTED"
+  },
+  "surveillance": {
+    "statuses": ["CLEAR", "WATCH", "LIMITED", "HIGH_RISK"],
+    "unknownDoesNotEqualClear": true,
+    "explicitSevereRiskBlocksDerivatives": true
+  },
+  "capacity": {
+    "model": "DYNAMIC_MINIMUM_OF_CONSERVATIVE_BOUNDS",
+    "inheritedDevelopmentValues": {
+      "spotLiquidityUsd": 500000,
+      "depth1PctUsd": 50000,
+      "depth2PctUsd": 100000,
+      "organicVolume24hUsd": 100000,
+      "maximumRealizedVolatilityPct": 150,
+      "minimumIndependentSources": 2,
+      "maximumOracleDisagreementPct": 3,
+      "minimumOracleConfidenceBps": 8500,
+      "minimumManipulationCostUsd": 100000,
+      "minimumLiquidationCapacityUsd": 100000,
+      "minimumSafeOpenInterestUsd": 25000,
+      "maximumLeverage": 5
+    },
+    "minimumEconomicallyMeaningfulPositionUsd": 250,
+    "depthCapacityHaircut": 0.5,
+    "secondDepthCapacityHaircut": 0.5,
+    "organicVolumeCapacityFraction": 0.1,
+    "manipulationCapacityFraction": 0.05,
+    "liquidationCapacityHaircut": 0.5,
+    "protocolCapacityFraction": 0.1,
+    "oracleConfidenceRemainsHardMinimum": true,
+    "volatilityRemainsHardCapacityCeiling": true
+  },
+  "coverageDomains": [
+    "authority",
+    "transferSafety",
+    "liquidityControl",
+    "holders",
+    "clusters",
+    "creator",
+    "funding",
+    "activity",
+    "history",
+    "depth",
+    "oracle"
+  ]
+}
