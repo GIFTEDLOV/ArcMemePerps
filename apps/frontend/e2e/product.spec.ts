@@ -34,6 +34,7 @@ test("category and chain filters keep the zero-perp state explicit", async ({ pa
   await page.goto("/markets");
   await page.getByRole("tab", { name: /Perps/ }).click();
   await expect(page.getByText(/0 live perp markets/i)).toBeVisible();
+  await expect(page.getByText(/No market currently meets the complete activation policy/i).last()).toBeVisible();
   await expect(page.getByText(/Perp markets appear here only/i)).toBeVisible();
   await page.getByRole("tab", { name: "BASE" }).click();
   await expect(page.getByRole("tab", { name: "BASE" })).toHaveClass(/active/);
@@ -67,12 +68,13 @@ test("proof keeps protocol details secondary and states the live count", async (
   await page.goto("/proof");
   await expect(page.getByRole("heading", { name: /0 registered live perp markets/i })).toBeVisible();
   await expect(page.getByText(/Evidence before leverage/i)).toBeVisible();
+  await expect(page.getByText("0.4.0", { exact: true })).toBeVisible();
 });
 
 test("mobile markets and token detail do not overflow", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/markets");
-  await expect(page.getByRole("heading", { name: "Markets" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Markets", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
   await page.getByRole("link", { name: /Alice/i }).first().click();
   await expect(page.getByText("Risk passport")).toBeVisible();

@@ -1,62 +1,153 @@
-# ◼ ArcMemePerps
+# ArcMemePerps
 
-Risk-gated multichain meme-asset perpetuals settled on Arc USDC.
+Discover meme markets. Inspect the evidence. Enable leverage only after a
+market earns it.
 
-[Live App](https://arcmemeperps.vercel.app) · [GitHub](https://github.com/GIFTEDLOV/ArcMemePerps) · [Arc deployment](docs/ARC_TESTNET_DEPLOYMENTS.md) · [Architecture](docs/WINNER_ARCHITECTURE.md) · [Evidence](evidence/winner-rebuild/)
+ArcMemePerps is a fail-closed, risk-gated perpetual protocol for multichain
+meme markets with Arc USDC settlement. Discovery is public; qualification and
+Arc activation are separate decisions.
 
-![ArcMemePerps market terminal](docs/assets/phase10/hero-markets.png)
+## Current release-candidate truth
 
-Local winner rebuild: [token terminal](docs/assets/phase10/token-terminal.png) · [Risk Passport](docs/assets/phase10/risk-passport.png) · [visual review](docs/FRONTEND_VISUAL_REVIEW.md)
+| Product fact | Current state |
+| --- | ---: |
+| Observed/discovered real markets | **262** |
+| Core-qualified real markets | **0** |
+| Derivatives-eligible real markets | **0** |
+| Registered real Arc perp markets | **0** |
+| **Currently activated real perps** | **0** |
+| Live real Arc perps | **0** |
 
-> The public v1.0.0 URL is the historical release. The `winner-rebuild` branch is the local product rebuild: a trader-first discovery terminal backed by real origin-market observations and explicit evidence boundaries.
+**No market currently meets the complete activation policy.** This is an
+intentional safety state: discovery and market intelligence remain available,
+while trading stays disabled until a real market satisfies the complete
+policy. No canary, synthetic market, or famous token is presented as a live
+production market.
 
-## What it is
+The current frontend and historical deployments are Testnet/evidence surfaces.
+No Mainnet deployment, Mainnet contract address, or Mainnet user position
+exists in this release candidate.
 
-Meme markets move quickly, but speed is not the same thing as readiness for leverage. ArcMemePerps discovers markets on their origin chains, normalizes lifecycle, surfaces integrity and liquidity evidence, and keeps derivatives eligibility separate from token popularity. Markets that qualify can settle perpetual positions in Arc USDC on Arc Testnet.
+## Screenshots
 
-The product loop is:
+![ArcMemePerps landing page](docs/assets/phase12/landing-desktop.png)
 
-`discover → inspect → qualify → review → wallet sign → keeper → chain → reconcile`
+| Discovery | Risk Passport | Zero-live-perp proof |
+| --- | --- | --- |
+| ![Markets](docs/assets/phase12/markets-desktop.png) | ![Risk Passport](docs/assets/phase12/risk-passport-desktop.png) | ![Protocol proof](docs/assets/phase12/protocol-proof-desktop.png) |
 
-Unknown data stays unavailable. A discovered origin token is not automatically an Arc perp market.
+| Token terminal | Portfolio empty state | Activity empty state |
+| --- | --- | --- |
+| ![Token terminal](docs/assets/phase12/token-terminal-desktop.png) | ![Portfolio](docs/assets/phase12/portfolio-desktop.png) | ![Activity](docs/assets/phase12/activity-desktop.png) |
+
+Mobile evidence is in [docs/assets/phase12](docs/assets/phase12/), including
+markets, Risk Passport, landing, portfolio, and token-terminal views.
+
+## What ArcMemePerps does
+
+- Discovers origin-chain meme markets and preserves canonical chain + token
+  identity.
+- Shows lifecycle, liquidity, holders, history, oracle, provenance, and
+  evidence coverage without turning unknown data into a pass.
+- Separates discovery, core safety, derivatives capacity, qualification, and
+  Arc activation.
+- Preserves a bounded execution path, keeper flow, liquidation, insurance,
+  ADL, LP, timelock, and reconciliation primitives for audited future use.
+
+## How activation works
+
+```text
+DISCOVERED
+    ↓
+CORE SAFETY
+    ↓
+DERIVATIVES CAPACITY
+    ↓
+QUALIFIED
+    ↓
+ARC ACTIVATION
+    ↓
+LIVE PERP
+```
+
+The frozen offchain policy is `risk-rules/0.4.0`. A discovery row is not a
+tradable perp, and qualification alone does not activate a market.
+
+## Risk Passport
+
+The Risk Passport keeps authority, transfer safety, liquidity control, holder
+and cluster concentration, activity, history, depth, oracle quality, and
+derivatives capacity separate. Evidence is labeled with its boundary;
+`UNKNOWN`, `PENDING`, and provider outage states are not silently converted to
+zero or clear.
 
 ## Why Arc
 
-Arc provides the USDC settlement layer for the perp venue. The Product Testnet deployment uses chain ID `5042002`. The frontend targets the healthy Product deployment; the separate Stress/Security deployment is preserved as destructive security evidence and is never the normal trading target.
-
-## Product surfaces
-
-- Market discovery across Solana, BNB, Base, Ethereum, Robinhood, and Arc where configured.
-- Lifecycle-aware rows: new, bonding, graduated, migrated, DEX live, and established only when supported by observations.
-- Risk Passport: integrity, provenance, freshness, spot liquidity, directional depth, oracle quality, and derivatives capacity remain separate.
-- Arc perp execution surface: collateral approval, vault deposit, immutable pretrade review, wallet authorization, keeper progression, and refresh recovery.
-- Public LP, portfolio, profile, activity, watchlist, competitions, and proof surfaces with truthful empty/unavailable states.
-
-## Security model
-
-The Qualification Gate is evidence-backed, not a popularity score. The Execution Gate binds account, chain, market, action, side, collateral, size, execution bound, oracle sequence, versions, nonce, and expiry. Oracle publication uses a 2-of-3 reporter model. The protocol includes governance/timelock, emergency risk reduction, insurance, ADL, and explicit terminal solvency blocking.
-
-The Stress/Security deployment exercised liquidation, insurance, bad debt, ADL, and terminal solvency blocking using the same frozen contract source. It is valuable evidence, not a healthy demo state. See [docs/WINNER_AUDIT.md](docs/WINNER_AUDIT.md) and [docs/ARC_TESTNET_DEPLOYMENTS.md](docs/ARC_TESTNET_DEPLOYMENTS.md).
+Arc provides USDC-native gas and settlement with deterministic finality. The
+Mainnet configuration model is documented in
+[docs/MAINNET_CONFIGURATION.md](docs/MAINNET_CONFIGURATION.md) using current
+official Arc references. The current product evidence environment remains Arc
+Testnet and must not be confused with Mainnet.
 
 ## Architecture
 
 ```text
 origin RPCs / provider readers
           ↓
-durable MarketUniverse (chain + canonical token identity)
+durable market universe: chain + canonical token identity
           ↓
-observations → lifecycle → integrity → derivatives capacity
+observations → lifecycle → core safety → derivatives capacity
           ↓
-Arc perp registry projection + qualification proof
+qualification proof → Arc registry projection → bounded execution
           ↓
-API / SSE → browser terminal → user wallet
-                                  ↓
-                         keeper → Arc Testnet → indexer
+API / SSE → browser terminal → wallet
+                              ↓
+                     keeper → Arc → indexer → reconciliation
 ```
 
-The current rebuild materializes a real DexScreener discovery snapshot through `pnpm winner:discover`. Configured enrichment providers remain explicitly unavailable until credentials and production readers are present; the application does not replace them with synthetic rows, scores, candles, or balances.
+The browser does not calculate qualification, liquidation eligibility,
+oracle validity, canonical PnL, or system health. Contract/indexer state is the
+authority after restart.
 
-## Quickstart
+## Contract and economic model
+
+The frozen Solidity source covers market identity, qualification binding,
+oracle quorum and replay protection, risk limits, USDC custody, positions,
+funding, liquidation, insurance, bad-debt accounting, ADL, public LP
+withdrawal controls, emergency reductions, and governance timelock.
+
+- Frozen contract source SHA:
+  `0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b`
+- Final policy: `risk-rules/0.4.0`
+- Mainnet genesis expectation: zero registered markets, zero live markets,
+  zero OI, zero positions, zero bad debt, and `solvencyBlocked = false`.
+
+## Testnet proof and security evidence
+
+Historical Product Testnet activity proves that signed order submission,
+keeper progression, positions, settlement, and reconciliation were exercised.
+The separate Stress/Security deployment proves insurance, liquidation, ADL,
+and terminal insolvency containment. It is intentionally insolvent in its test
+scenario and is never a frontend default, production target, or Mainnet
+target. Neither deployment is a real-token Mainnet trade.
+
+See [docs/FINAL_FEATURE_REALITY.md](docs/FINAL_FEATURE_REALITY.md) for the
+feature-by-feature reality labels and evidence boundaries.
+
+## Security and release safety
+
+- [Mainnet configuration model](docs/MAINNET_CONFIGURATION.md)
+- [Mainnet role plan](docs/MAINNET_ROLE_PLAN.md)
+- [Mainnet deployment runbook](docs/MAINNET_RUNBOOK.md)
+- [Final feature reality audit](docs/FINAL_FEATURE_REALITY.md)
+- [Security policy](SECURITY.md)
+
+Mainnet is not deployed by this release candidate. A future deployment must
+use a fresh deployment of the exact frozen source, a least-privilege role
+ceremony, explicit USDC/RPC checks, and the zero-market assertions in the
+runbook. There is no admin shortcut around qualification or oracle checks.
+
+## Tests and local development
 
 ```text
 pnpm install
@@ -66,22 +157,7 @@ $env:VITE_API_URL="http://127.0.0.1:8788/api/v1"
 pnpm frontend:dev
 ```
 
-The frontend runs on `http://127.0.0.1:3001` when available. A local Product API, indexer database, and SSE service are required for live records. The public release infrastructure is documented in [docs/RELEASE.md](docs/RELEASE.md); this rebuild does not replace it or deploy anything.
-
-## Repository map
-
-```text
-apps/frontend/       trader-first React/Vite terminal and browser tests
-apps/api/             versioned read API and realtime boundary
-apps/indexer/         ordered event identity and projection primitives
-packages/             domain, risk, lifecycle, providers, persistence, universe
-contracts/            frozen Arc Testnet Solidity suite
-scripts/              discovery, local service, deployment and operations tools
-docs/                 product, architecture, security and operations references
-evidence/             sanitized deployment and rebuild evidence
-```
-
-## Testing
+Validation commands:
 
 ```text
 pnpm lint
@@ -92,15 +168,40 @@ pnpm frontend:build
 pnpm e2e
 forge fmt --check
 forge build
-forge test -vvv
+forge test
 ```
 
-The contract source remains frozen at SHA `0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b`. ArcScan verification status is reported as an external limitation where the explorer exposes address-only records; local creation/runtime parity evidence remains authoritative.
+The current local release candidate passes the TypeScript, frontend, provider,
+risk, capacity, API, indexer, frontend build, and Solidity checks available in
+the workspace. See the final audit for any environment limitations on tool
+invocation.
+
+## Repository structure
+
+```text
+apps/frontend/       React/Vite discovery terminal and browser tests
+apps/api/             versioned read API and realtime boundary
+apps/indexer/         ordered event identity and projections
+apps/keeper/          bounded execution worker
+apps/reporter/        oracle report worker boundary
+packages/             domain, risk, lifecycle, providers, persistence, oracle
+contracts/            frozen Arc Solidity suite
+scripts/              discovery, services, deployment preflight, operations
+docs/                 product, security, operations, and release evidence
+evidence/             sanitized deployment and visual evidence
+```
 
 ## Known limitations
 
-The rebuild currently has a real discovery universe but no origin token has been promoted into a new Arc perp registration. Discovered markets therefore show `ORIGIN ONLY` and cannot be traded. Token integrity enrichment, directional depth, holders, clusters, and deployer history remain `PENDING` or `UNAVAILABLE` unless a configured provider supplies evidence. This is intentional and safer than presenting a one-token canary as a real market universe.
+No real market currently satisfies the complete `0.4.0` activation policy.
+Provider enrichment, holder/cluster coverage, direct depth, and deployer
+history remain explicitly unavailable or partial where a verifiable reader is
+not configured. Portfolio, activity, notifications, competitions, and LP
+surfaces remain truthful empty or primitive states until canonical records
+exist.
 
-## License
+The historical public URL is retained as a reference only:
+[arcmemeperps.vercel.app](https://arcmemeperps.vercel.app). This Phase 12 pass
+performed no Vercel deployment, Mainnet write, Git push, or public release.
 
 MIT. See [LICENSE](LICENSE).

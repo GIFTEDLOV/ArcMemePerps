@@ -4,6 +4,7 @@ export const WINNER_CONFIG = {
   deploymentId: "arc-testnet-product-v2",
   chainId: 5_042_002,
   chainName: "Arc Testnet",
+  riskRuleVersion: "0.4.0",
   rpcUrl: "https://rpc.testnet.arc.io",
   apiUrl: import.meta.env.VITE_API_URL ?? "/api/v1",
   marketId: productDeployment.productState.marketId as `0x${string}`,

@@ -1,0 +1,9 @@
+$ErrorActionPreference='Stop'
+Add-Type -TypeDefinition @'
+using System; using System.Runtime.InteropServices;
+public static class Gate4GPosDpapi { [StructLayout(LayoutKind.Sequential)] public struct DataBlob{public int cbData;public IntPtr pbData;} [DllImport("crypt32.dll",SetLastError=true)] static extern bool CryptUnprotectData(ref DataBlob i,IntPtr d,IntPtr e,IntPtr r,IntPtr p,int f,ref DataBlob o); [DllImport("kernel32.dll")] static extern IntPtr LocalFree(IntPtr m); public static byte[] U(byte[] b){var i=new DataBlob{cbData=b.Length,pbData=Marshal.AllocHGlobal(b.Length)};var o=new DataBlob();Marshal.Copy(b,0,i.pbData,b.Length);try{if(!CryptUnprotectData(ref i,IntPtr.Zero,IntPtr.Zero,IntPtr.Zero,IntPtr.Zero,0,ref o))throw new System.ComponentModel.Win32Exception(Marshal.GetLastWin32Error());var c=new byte[o.cbData];Marshal.Copy(o.pbData,c,0,o.cbData);return c;}finally{if(i.pbData!=IntPtr.Zero)Marshal.FreeHGlobal(i.pbData);if(o.pbData!=IntPtr.Zero)LocalFree(o.pbData);}}}
+'@
+$protected='C:\Users\DELL\.arcmemeperps\gate4g-recovered-keystore-password.protected';$pf=Join-Path ([IO.Path]::GetTempPath()) ([IO.Path]::GetRandomFileName());[IO.File]::WriteAllBytes($pf,[Gate4GPosDpapi]::U([Convert]::FromBase64String(([IO.File]::ReadAllText($protected)).Trim())))
+$rpc='https://rpc.testnet.arc.io';$engine='0x3c6489c312fde0009842fb1470705ae2971b19f5';$long='C:\Users\DELL\.arcmemeperps\gate4g-recovered-keystores\TRADER_LONG';$short='C:\Users\DELL\.arcmemeperps\gate4g-recovered-keystores\TRADER_SHORT'
+function S([string]$k,[string]$sig,[object[]]$ca){$a=@('send',$engine,$sig)+$ca+@('--rpc-url',$rpc,'--keystore',$k,'--password-file',$pf);$o=& 'C:\Users\DELL\.foundry\bin\cast.exe' @a;if($LASTEXITCODE-ne 0){throw "failed $sig"};$o}
+try{S $long 'reducePosition(uint256,uint256,uint256)' @('1','50000','30000');S $short 'closePosition(uint256)' @('2')}finally{if(Test-Path -LiteralPath $pf){Remove-Item -LiteralPath $pf -Force}}

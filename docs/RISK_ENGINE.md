@@ -5,7 +5,9 @@ The engine is two-stage:
 1. Token integrity evaluates hard structural/activity gates. Any failed gate produces an explicit machine-readable reason and forces `REJECTED`; a weighted score cannot override it.
 2. Derivatives capacity evaluates liquidity, depth, organic volume, volatility, oracle coverage/disagreement/confidence, manipulation cost, and liquidation capacity. A token can be structurally qualified and still be `WATCH` or `BLOCKED`.
 
-`RISK_RULE_VERSION` is `0.1.0`. Thresholds live in `DEVELOPMENT_RISK_RULES`; they are development defaults, not final production policy. Historical assessments retain their rule version.
+The frozen release policy is `risk-rules/0.4.0`. Historical assessments retain
+their recorded rule version; no historical `0.1.0` or `0.3.0` result is treated
+as a current production qualification.
 
 The initial connected-cluster development threshold is 5%. It is deliberately a tunable rule, not a universal theorem: four wallets at 2.1%, 1.7%, 1.4%, and 1.1% still fail when cluster evidence proves a 6.3% connection.
 

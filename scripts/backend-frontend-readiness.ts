@@ -61,8 +61,8 @@ for (const row of rows) {
 }
 if (matrix.includes("INTENTIONALLY_DEFERRED"))
   malformed.push("INTENTIONALLY_DEFERRED is not an allowed Gate 4E status");
-if (!persistenceSource.includes("PERSISTENCE_SCHEMA_VERSION = 3"))
-  incomplete.push("persistence schema migration v3");
+if (!persistenceSource.includes("PERSISTENCE_SCHEMA_VERSION = 4"))
+  incomplete.push("persistence schema migration v4");
 for (const requiredPath of requiredPaths) {
   try {
     await access(new URL(`../${requiredPath}`, import.meta.url));

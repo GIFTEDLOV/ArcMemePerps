@@ -1,0 +1,10 @@
+$ErrorActionPreference='Continue'
+$cast='C:\Users\DELL\.foundry\bin\cast.exe';$rpc='https://rpc.testnet.arc.io';$m='0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387';$zero='0x0000000000000000000000000000000000000000000000000000000000000000';$adlEp='0x8cd08c1f0c0afd0cb99639bc86be246ce2b991788f9c80eb4883f4aa0cd6bad9'
+function ExpectReject([string]$Name,[string[]]$CallArgs){$o=& $cast estimate '--rpc-url' $rpc @CallArgs 2>&1;$code=$LASTEXITCODE;if($code -eq 0){throw "$Name unexpectedly succeeded"};Write-Output "$Name=REJECTED";Write-Output ($o|Out-String)}
+ExpectReject 'UNAUTHORIZED_QUALIFICATION' @('0xc63ab21db792767f29750ce5d3f5bbf73e9758cd','approveQualification(bytes32,bytes32,bytes32,uint256,uint256,uint256,uint64)',$m,$zero,$zero,'1','1','1','1','--from','0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833')
+ExpectReject 'UNAUTHORIZED_PAUSE' @('0x6c6c4a62ef80863d4bf133a18b599234bface8c0','emergencySetStatus(bytes32,uint8)',$m,'1','--from','0xDAFBAB12B5456b633F0DdC9D8470B5361eA76e44')
+ExpectReject 'UNAUTHORIZED_LP_ACTIVATION' @('0xffb36018800aeaeb16fc2b04d26084f5f8774589','setPublicLpActive(bool)','false','--from','0xca48A7225DF1baec0a95b3c43D35F633cC3AE069')
+ExpectReject 'UNAUTHORIZED_REPORTER_CHANGE' @('0x2cab215a4eda6e4a38d94775e6fb91b6d2a5a25b','setReporter(address,bool)','0x245996aDE245356CC5e1dDbE34AC53101f4467a1','false','--from','0xDAFBAB12B5456b633F0DdC9D8470B5361eA76e44')
+ExpectReject 'UNAUTHORIZED_INSURANCE' @('0x49264e8002a6d56553305ed3a7b52831571f2aa9','fund(uint256)','1','--from','0x9202ea7BD1950510149F914A4fccF8a915b1C5fE')
+ExpectReject 'UNAUTHORIZED_ADL' @('0x7d7703b70f7e78a9ee1773fa4442f7b5b26c6440','execute(bytes32,uint256,uint256,uint256)',$adlEp,'1','1','1499000000000000000','--from','0x9202ea7BD1950510149F914A4fccF8a915b1C5fE')
+ExpectReject 'UNAUTHORIZED_TIMELOCK_QUEUE' @('0xde0c8dbd58d0eb2f742aaab167eacb2f1fe9c10e','queue(address,uint256,bytes,bytes32)','0xffb36018800aeaeb16fc2b04d26084f5f8774589','0','0x','0x0000000000000000000000000000000000000000000000000000000000000008','--from','0x9202ea7BD1950510149F914A4fccF8a915b1C5fE')

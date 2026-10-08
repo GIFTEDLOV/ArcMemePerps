@@ -6,7 +6,7 @@ import type { Pretrade, WalletState } from "./winner-types";
 type Eip1193Provider = { request(args: { method: string; params?: unknown[] }): Promise<unknown>; on?: (event: string, listener: (...args: unknown[]) => void) => void; removeListener?: (event: string, listener: (...args: unknown[]) => void) => void };
 declare global { interface Window { ethereum?: Eip1193Provider } }
 
-const arc = defineChain({ id: WINNER_CONFIG.chainId, name: WINNER_CONFIG.chainName, nativeCurrency: { name: "Arc", symbol: "ARC", decimals: 18 }, rpcUrls: { default: { http: [WINNER_CONFIG.rpcUrl] } } });
+const arc = defineChain({ id: WINNER_CONFIG.chainId, name: WINNER_CONFIG.chainName, nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 }, rpcUrls: { default: { http: [WINNER_CONFIG.rpcUrl] } } });
 const erc20Abi = [{ type: "function", name: "approve", stateMutability: "nonpayable", inputs: [{ name: "spender", type: "address" }, { name: "amount", type: "uint256" }], outputs: [{ name: "", type: "bool" }] }] as const;
 const vaultAbi = [{ type: "function", name: "deposit", stateMutability: "nonpayable", inputs: [{ name: "amount", type: "uint256" }], outputs: [] }] as const;
 const engineAbi = [{ type: "function", name: "submitOrder", stateMutability: "nonpayable", inputs: [{ name: "marketId", type: "bytes32" }, { name: "action", type: "uint8" }, { name: "isLong", type: "bool" }, { name: "sizeDelta", type: "uint256" }, { name: "collateralDelta", type: "uint256" }, { name: "acceptablePrice", type: "uint256" }, { name: "expiry", type: "uint64" }], outputs: [] }] as const;
