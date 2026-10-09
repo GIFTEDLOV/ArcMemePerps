@@ -60,6 +60,11 @@ guessed here.
 
 ## Configuration boundary
 
+The backend runtime requires Node `>=22.5.0` because its durable SQLite
+boundary uses the built-in `node:sqlite` API. Starting it on an older Node
+runtime is a configuration error, not a reason to fall back to in-memory or
+synthetic state.
+
 The current application remains Testnet-targeted for historical evidence. A
 future Mainnet environment must provide fresh values for:
 
@@ -98,3 +103,10 @@ MAINNET_PROTOCOL_TIMELOCK
 Database and checkpoint namespaces include chain ID, deployment ID, and the
 contract-address identity. This prevents Testnet events, checkpoints, orders,
 and positions from appearing in Mainnet projections.
+
+The production discovery API uses the durable canonical universe as
+`discoveryCount`, not the latest refresh snapshot. The current evidence
+boundary is 262 retained canonical records, 161 records in the latest provider
+refresh window, and 101 retained records outside that window. A refresh outage
+does not become a fabricated zero and does not turn a retained origin record
+into an Arc perp.

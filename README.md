@@ -11,7 +11,8 @@ Arc activation are separate decisions.
 
 | Product fact | Current state |
 | --- | ---: |
-| Observed/discovered real markets | **262** |
+| Canonical retained discovered real markets | **262** |
+| Latest provider refresh window | **161** |
 | Core-qualified real markets | **0** |
 | Derivatives-eligible real markets | **0** |
 | Registered real Arc perp markets | **0** |
@@ -23,6 +24,11 @@ intentional safety state: discovery and market intelligence remain available,
 while trading stays disabled until a real market satisfies the complete
 policy. No canary, synthetic market, or famous token is presented as a live
 production market.
+
+The 262 figure is the durable canonical discovery universe. The latest
+provider refresh window currently contains 161 of those records; the remaining
+101 are retained discovery records outside that refresh window and are never
+counted as newly observed activity.
 
 The current frontend and historical deployments are Testnet/evidence surfaces.
 No Mainnet deployment, Mainnet contract address, or Mainnet user position

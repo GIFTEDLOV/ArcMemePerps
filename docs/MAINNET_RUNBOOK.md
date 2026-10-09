@@ -114,8 +114,9 @@ suite.
 11. **Frontend target**
     - Point the frontend at the reviewed Mainnet read API only after zero-market
       assertions pass.
-    - Verify the UI says 262 observed origin markets only if that snapshot is
-      current, and says 0 activated perps until the registry proves otherwise.
+    - Verify the UI distinguishes the 262-record canonical retained discovery
+      universe from the latest 161-record provider refresh window, and says 0
+      activated perps until the registry proves otherwise.
 12. **Production smoke**
     - Run read-only landing, discovery, search, token detail, Risk Passport,
       proof, portfolio, and activity checks.

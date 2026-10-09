@@ -25,6 +25,12 @@ healthy and idle with zero registered markets and zero orders. The Mainnet
 indexer reports `WAITING_FOR_DEPLOYMENT`, never `SYNCED`, until fresh addresses
 and a real start block are supplied.
 
+Discovery count semantics are explicit: `discoveryCount=262` is the durable
+canonical retained universe; `currentlyObservedCount=161` is the latest
+provider refresh window; `staleRetainedCount=101` is the canonical subset not
+present in that refresh window. These counts are not synthetic backfill and do
+not imply qualification or Arc activation.
+
 ## Artifacts
 
 - [deployment manifest](../evidence/mainnet/deployment-manifest.json) — dry-run

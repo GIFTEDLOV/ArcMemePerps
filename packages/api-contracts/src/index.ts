@@ -71,6 +71,8 @@ export const ProtocolStatusSchema = z
     deploymentId: z.string().optional(),
     policyVersion: z.string().optional(),
     discoveryCount: z.number().int().nonnegative().optional(),
+    currentlyObservedCount: z.number().int().nonnegative().optional(),
+    staleRetainedCount: z.number().int().nonnegative().optional(),
     registeredPerpCount: z.number().int().nonnegative().optional(),
     livePerpCount: z.number().int().nonnegative().optional(),
     contracts: z.record(z.string(), z.string()).optional(),

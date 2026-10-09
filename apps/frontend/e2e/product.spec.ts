@@ -11,8 +11,9 @@ test("landing explains the product and opens Markets", async ({ page }) => {
 
 test("Markets is dense, real, and truthful about zero perps", async ({ page }) => {
   await page.goto("/markets");
-  await expect(page.getByText(/\d+ observed/)).toBeVisible({ timeout: 20_000 });
-  expect(Number((await page.getByText(/\d+ observed/).innerText()).split(" ")[0])).toBeGreaterThanOrEqual(30);
+  const discoveryCount = page.locator(".live-count");
+  await expect(discoveryCount).toBeVisible({ timeout: 20_000 });
+  expect(Number((await discoveryCount.innerText()).match(/\d+/)?.[0] ?? 0)).toBeGreaterThanOrEqual(30);
   await expect(page.getByText("0 live perp markets")).not.toBeVisible();
   await expect(page.getByRole("tab", { name: /Perps/ })).toBeVisible();
   await expect(page.locator(".market-row-link").first()).toBeVisible();
@@ -20,14 +21,19 @@ test("Markets is dense, real, and truthful about zero perps", async ({ page }) =
 
 test("exact search and token terminal remain truthful", async ({ page }) => {
   await page.goto("/markets");
+  const firstRow = page.locator(".market-row-link").first();
+  await expect(firstRow).toBeVisible({ timeout: 20_000 });
+  const href = await firstRow.getAttribute("href");
+  const marketId = decodeURIComponent(href?.split("/").at(-1) ?? "");
+  expect(marketId).not.toBe("");
   const search = page.getByPlaceholder(/Search symbol/i);
-  await search.fill("Alice");
+  await search.fill(marketId);
   await search.press("Enter");
-  await expect(page.getByText("Alice").first()).toBeVisible({ timeout: 20_000 });
-  await page.getByRole("link", { name: /Alice/i }).first().click();
-  await expect(page.getByText("Risk passport")).toBeVisible();
-  await expect(page.getByText(/History unavailable/i)).toBeVisible();
-  await expect(page.getByText(/Perps unavailable|Qualification in progress|Not eligible/i)).toBeVisible();
+  await expect(page.locator(`a[href*="${encodeURIComponent(marketId)}"]`).first()).toBeVisible({ timeout: 20_000 });
+  await page.locator(`a[href*="${encodeURIComponent(marketId)}"]`).first().click();
+  await expect(page.getByText("Risk passport", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Market chart/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Deployment pending|Perps unavailable|Qualification in progress|Not eligible/i })).toBeVisible();
 });
 
 test("category and chain filters keep the zero-perp state explicit", async ({ page }) => {
@@ -42,7 +48,7 @@ test("category and chain filters keep the zero-perp state explicit", async ({ pa
 
 test("detail tabs expose holders and provenance without JSON-first UI", async ({ page }) => {
   await page.goto("/markets");
-  await page.getByRole("link", { name: /Alice/i }).first().click();
+  await page.locator(".market-row-link").first().click();
   await page.getByRole("tab", { name: "Holders" }).click();
   await expect(page.getByRole("heading", { name: /Holder concentration/i })).toBeVisible();
   await page.getByRole("tab", { name: "Overview" }).click();
@@ -54,10 +60,10 @@ test("detail tabs expose holders and provenance without JSON-first UI", async ({
 
 test("watchlist is local and portfolio/activity stay honest", async ({ page }) => {
   await page.goto("/markets");
-  await page.getByRole("link", { name: /Alice/i }).first().click();
+  await page.locator(".market-row-link").first().click();
   await page.getByRole("button", { name: /Watch/ }).click();
   await page.goto("/watchlist");
-  await expect(page.getByText("Alice").first()).toBeVisible();
+  await expect(page.locator(".market-row-link").first()).toBeVisible();
   await page.goto("/portfolio");
   await expect(page.getByText(/Connect to view your portfolio/i)).toBeVisible();
   await page.goto("/activity");
@@ -76,8 +82,8 @@ test("mobile markets and token detail do not overflow", async ({ page }) => {
   await page.goto("/markets");
   await expect(page.getByRole("heading", { name: "Markets", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
-  await page.getByRole("link", { name: /Alice/i }).first().click();
-  await expect(page.getByText("Risk passport")).toBeVisible();
+  await page.locator(".market-row-link").first().click();
+  await expect(page.getByText("Risk passport", { exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
 });
 
@@ -118,5 +124,5 @@ test("wallet wrong-network state is concise", async ({ page }) => {
   });
   await page.goto("/markets");
   await page.getByRole("button", { name: "Connect wallet" }).click();
-  await expect(page.getByRole("button", { name: /Connect wallet|Switch to Arc Testnet/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /Connect wallet|Switch to Arc Mainnet/ })).toBeVisible();
 });

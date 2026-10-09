@@ -63,6 +63,8 @@ export interface MarketPage {
   nextCursor: string | null;
   total?: number | null;
   discoveryCount?: number | null;
+  currentlyObservedCount?: number | null;
+  staleRetainedCount?: number | null;
   perpCount?: number | null;
 }
 

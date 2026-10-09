@@ -8,7 +8,7 @@ import {
   WalletResponseSchema,
   API_VERSION,
 } from "@arcmemeperps/api-contracts";
-import type { ArcDeploymentConfig, HealthRecord } from "@arcmemeperps/shared";
+import { isSupportedChain, type ArcDeploymentConfig, type HealthRecord } from "@arcmemeperps/shared";
 import { RealtimeHub } from "./realtime.js";
 
 export interface ApiReadModel {
@@ -65,8 +65,17 @@ export interface ApiServerOptions {
 export interface ApiRuntimeStatus {
   readonly config: ArcDeploymentConfig;
   readonly discoveryCount: number;
+  readonly currentlyObservedCount?: number;
+  readonly staleRetainedCount?: number;
   readonly registeredPerpCount: number;
   readonly livePerpCount: number;
+}
+
+class ApiRequestError extends Error {
+  public constructor(public readonly code: string) {
+    super(code);
+    this.name = "ApiRequestError";
+  }
 }
 
 /** Read-only versioned API boundary. Mutations are intentionally not exposed in this gate. */
@@ -108,9 +117,11 @@ async function handleRequest(
     if (path === "/markets" || path === "/markets/trending" || path === "/markets/fresh") {
       const limit = parseLimit(url.searchParams.get("limit"));
       const offset = parseOffset(url.searchParams.get("cursor"));
+      const chain = url.searchParams.get("chain");
+      if (chain !== null && !isSupportedChain(chain)) throw new ApiRequestError("UNSUPPORTED_CHAIN");
       if (options.readModel.listUniverseMarkets) {
         const universe = await options.readModel.listUniverseMarkets({
-          ...(url.searchParams.has("chain") ? { chain: url.searchParams.get("chain")! } : {}),
+          ...(chain !== null ? { chain } : {}),
           ...(url.searchParams.has("lifecycle") ? { lifecycle: url.searchParams.get("lifecycle")! } : {}),
           ...(url.searchParams.has("perp") ? { perp: url.searchParams.get("perp")! } : {}),
           limit,
@@ -150,8 +161,12 @@ async function handleRequest(
       return;
     }
     if (path === "/markets/search") {
+      parseLimit(url.searchParams.get("limit"));
+      parseOffset(url.searchParams.get("cursor"));
+      const chain = url.searchParams.get("chain");
+      if (chain !== null && !isSupportedChain(chain)) throw new ApiRequestError("UNSUPPORTED_CHAIN");
       if (options.readModel.searchUniverseMarkets) {
-        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", url.searchParams.get("chain") ?? undefined);
+        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", chain ?? undefined);
         if (universe.discoveryCount > 0) {
           writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: null });
           return;
@@ -160,7 +175,7 @@ async function handleRequest(
       if (options.readModel.searchMarkets === undefined) throw new Error("SEARCH_UNAVAILABLE");
       const items = await options.readModel.searchMarkets(
         url.searchParams.get("q") ?? "",
-        url.searchParams.get("chain") ?? undefined,
+        chain ?? undefined,
       );
       writeJson(
         response,
@@ -222,7 +237,7 @@ async function handleRequest(
     }
     const walletActivity = /^\/wallet\/([^/]+)\/(activity|intelligence)$/.exec(path);
     if (walletActivity !== null) {
-      const address = decodeURIComponent(walletActivity[1]!);
+      const address = parseAddress(walletActivity[1]!);
       if (walletActivity[2] === "activity" && options.readModel.getWalletActivity !== undefined)
         writeJson(response, 200, {
           schemaVersion: API_VERSION,
@@ -241,7 +256,7 @@ async function handleRequest(
     }
     const wallet = /^\/wallet\/([^/]+)$/.exec(path);
     if (wallet !== null) {
-      const item = await options.readModel.getWallet(decodeURIComponent(wallet[1]!));
+      const item = await options.readModel.getWallet(parseAddress(wallet[1]!));
       if (item === null) {
         writeJson(response, 404, { error: "WALLET_NOT_FOUND" });
         return;
@@ -255,7 +270,7 @@ async function handleRequest(
     }
     const profileResource = /^\/profile\/([^/]+)\/(stats|watchlist)$/.exec(path);
     if (profileResource !== null) {
-      const address = decodeURIComponent(profileResource[1]!);
+      const address = parseAddress(profileResource[1]!);
       if (profileResource[2] === "stats" && options.readModel.getProfileStats !== undefined)
         writeJson(response, 200, {
           schemaVersion: API_VERSION,
@@ -280,7 +295,7 @@ async function handleRequest(
         schemaVersion: API_VERSION,
         data: await options.readModel.getCompetitionAccount(
           competitionAccount[1]!,
-          competitionAccount[2]!,
+          parseAddress(competitionAccount[2]!),
         ),
       });
       return;
@@ -316,7 +331,7 @@ async function handleRequest(
     }
     const profile = /^\/profile\/([^/]+)$/.exec(path);
     if (profile !== null) {
-      const item = await options.readModel.getProfile(decodeURIComponent(profile[1]!));
+      const item = await options.readModel.getProfile(parseAddress(profile[1]!));
       if (item === null) {
         writeJson(response, 404, { error: "PROFILE_NOT_FOUND" });
         return;
@@ -329,7 +344,7 @@ async function handleRequest(
       writeJson(response, 200, {
         ...NotificationListResponseSchema.parse({
           schemaVersion: API_VERSION,
-          items: await options.readModel.getNotifications(decodeURIComponent(notifications[1]!)),
+          items: await options.readModel.getNotifications(parseAddress(notifications[1]!)),
           nextCursor: null,
         }),
       });
@@ -340,7 +355,7 @@ async function handleRequest(
       if (options.readModel.getAttention === undefined) throw new Error("ATTENTION_UNAVAILABLE");
       writeJson(response, 200, {
         schemaVersion: API_VERSION,
-        items: await options.readModel.getAttention(decodeURIComponent(attention[1]!)),
+        items: await options.readModel.getAttention(parseAddress(attention[1]!)),
       });
       return;
     }
@@ -362,6 +377,8 @@ async function handleRequest(
                 deploymentId: options.runtime.config.deploymentId,
                 policyVersion: options.runtime.config.policyVersion,
                 discoveryCount: options.runtime.discoveryCount,
+                ...(options.runtime.currentlyObservedCount === undefined ? {} : { currentlyObservedCount: options.runtime.currentlyObservedCount }),
+                ...(options.runtime.staleRetainedCount === undefined ? {} : { staleRetainedCount: options.runtime.staleRetainedCount }),
                 registeredPerpCount: options.runtime.registeredPerpCount,
                 livePerpCount: options.runtime.livePerpCount,
                 contracts: options.runtime.config.addresses,
@@ -381,10 +398,11 @@ async function handleRequest(
     }
     writeJson(response, 404, { error: "ENDPOINT_NOT_FOUND" });
   } catch (error) {
-    writeJson(response, 503, {
-      error: "DATA_UNAVAILABLE",
-      detail: error instanceof Error ? error.message : "unknown",
-    });
+    if (error instanceof ApiRequestError || error instanceof URIError) {
+      writeJson(response, 400, { error: error instanceof ApiRequestError ? error.code : "MALFORMED_PATH" });
+    } else {
+      writeJson(response, 503, { error: "DATA_UNAVAILABLE" });
+    }
   }
 }
 
@@ -398,6 +416,7 @@ async function streamEvents(
     "cache-control": "no-cache",
     connection: "keep-alive",
   });
+  response.flushHeaders();
   for (const event of hub.recentEvents(afterId))
     response.write(
       `id: ${event.sequence.toString()}\nevent: ${event.type}\ndata: ${JSON.stringify({ ...event, sequence: event.sequence.toString() })}\n\n`,
@@ -413,15 +432,23 @@ function writeJson(response: ServerResponse, status: number, body: unknown): voi
 function parseLimit(value: string | null): number {
   if (value === null) return 100;
   const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) throw new Error("INVALID_LIMIT");
+  if (!Number.isInteger(parsed) || parsed < 1 || parsed > 100) throw new ApiRequestError("INVALID_LIMIT");
   return parsed;
 }
 
 function parseOffset(value: string | null): number {
   if (value === null || value.length === 0) return 0;
   const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed < 0) throw new Error("INVALID_CURSOR");
+  if (!Number.isInteger(parsed) || parsed < 0) throw new ApiRequestError("INVALID_CURSOR");
   return parsed;
+}
+
+function parseAddress(value: string): string {
+  const address = decodeURIComponent(value);
+  const validEvm = /^0x[0-9a-fA-F]{40}$/.test(address);
+  const validSolana = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/.test(address);
+  if (!validEvm && !validSolana) throw new ApiRequestError("MALFORMED_ADDRESS");
+  return address;
 }
 
 function nextCursorFor(length: number, limit: number, offset: number): string | null {
