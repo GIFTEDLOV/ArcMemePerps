@@ -1,0 +1,222 @@
+{
+  "schemaVersion": "arcmemeperps/mainnet-deployment-manifest/v1",
+  "broadcast": false,
+  "status": "PENDING_MAINNET_FUNDING",
+  "releaseCommit": "009437861a45042b66641481f3671e2897777222",
+  "contractSourceSha": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "policyVersion": "0.4.0",
+  "network": "Arc Mainnet",
+  "chainId": 5042,
+  "rpc": "https://rpc.mainnet.arc.io",
+  "explorer": "https://explorer.arc.io",
+  "usdc": "0x3600000000000000000000000000000000000000",
+  "deploymentId": "arc-mainnet-pending",
+  "deployer": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833",
+  "governanceSafe": null,
+  "safeRequirements": {
+    "minimumOwners": 2,
+    "preferredOwners": 3,
+    "threshold": 2,
+    "owners": []
+  },
+  "roleAddresses": {
+    "deployer": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833",
+    "governanceSafe": null,
+    "qualificationOperator": null,
+    "riskOperator": null,
+    "oracleAdmin": null,
+    "reporter1": null,
+    "reporter2": null,
+    "reporter3": null,
+    "keeper": null,
+    "emergencyAuthority": null,
+    "insuranceManager": null,
+    "lpRiskController": null,
+    "treasuryFeeRecipient": null
+  },
+  "deploymentOrder": [
+    "QualificationRegistry",
+    "MarketRegistry",
+    "OracleRouter",
+    "RiskConfig",
+    "USDCMarginVault",
+    "InsuranceFund",
+    "PerpEngine",
+    "PublicLPVault",
+    "ADLController",
+    "ProtocolTimelock"
+  ],
+  "constructorSchema": {
+    "QualificationRegistry": [],
+    "MarketRegistry": [
+      {
+        "name": "qualificationRegistry_",
+        "type": "address",
+        "value": "<QualificationRegistry>"
+      }
+    ],
+    "OracleRouter": [
+      {
+        "name": "maxStaleness_",
+        "type": "uint64",
+        "value": null
+      },
+      {
+        "name": "minimumConfidenceBps_",
+        "type": "uint256",
+        "value": null
+      }
+    ],
+    "RiskConfig": [
+      {
+        "name": "qualificationRegistry_",
+        "type": "address",
+        "value": "<QualificationRegistry>"
+      }
+    ],
+    "USDCMarginVault": [],
+    "PerpEngine": [
+      {
+        "name": "marketRegistry_",
+        "type": "address",
+        "value": "<MarketRegistry>"
+      },
+      {
+        "name": "riskConfig_",
+        "type": "address",
+        "value": "<RiskConfig>"
+      },
+      {
+        "name": "oracleRouter_",
+        "type": "address",
+        "value": "<OracleRouter>"
+      },
+      {
+        "name": "marginVault_",
+        "type": "address",
+        "value": "<USDCMarginVault>"
+      },
+      {
+        "name": "insuranceFund_",
+        "type": "address",
+        "value": "<InsuranceFund>"
+      }
+    ],
+    "InsuranceFund": [],
+    "PublicLPVault": [
+      {
+        "name": "asset_",
+        "type": "address",
+        "value": "0x3600000000000000000000000000000000000000"
+      },
+      {
+        "name": "withdrawalCooldown_",
+        "type": "uint256",
+        "value": null
+      }
+    ],
+    "ADLController": [
+      {
+        "name": "engine_",
+        "type": "address",
+        "value": "<PerpEngine>"
+      }
+    ],
+    "ProtocolTimelock": [
+      {
+        "name": "minDelay_",
+        "type": "uint256",
+        "value": null
+      }
+    ]
+  },
+  "artifacts": {
+    "MarketRegistry": {
+      "path": "out/MarketRegistry.sol/MarketRegistry.json",
+      "artifactFileSha256": "5f5605a000163490c66fc37306230337b50d7b9d7814b5b26c541bd1423b51a4",
+      "creationBytecodeHash": "0x961ed4888f545015abcf49d922184cbd3a1af54f88eb0c873cd57d038cb2f211",
+      "runtimeBytecodeHash": "0xb7d5e9487b4376ddd16962596c71f56e930e0c7a9a43a66ef62303eef3af3d69"
+    },
+    "QualificationRegistry": {
+      "path": "out/QualificationRegistry.sol/QualificationRegistry.json",
+      "artifactFileSha256": "f8ca35acb0480b932f268cdf228b1bcc7f9212b0ea9d361dade2ad15f91bd489",
+      "creationBytecodeHash": "0x548bd1f3a78c91e91231306dfc3489dffb9227a89fa04b1ca9f2960aa2c65abf",
+      "runtimeBytecodeHash": "0xbd8936a0a7918605012649ce52dcc323188757ca64aaf0b86298be0160f1edd7"
+    },
+    "OracleRouter": {
+      "path": "out/OracleRouter.sol/OracleRouter.json",
+      "artifactFileSha256": "d73b871a5346e9fec0138ad0059f5f3325dcb705d7c06962238289ce0fbad8d2",
+      "creationBytecodeHash": "0x7b80355c4429f8b7d8d21d57bfea826f6dc1e6c8efbac98bfcf71686e2f8e4d1",
+      "runtimeBytecodeHash": "0xe8de5cc0b81f31c79b9a3475548984467c98e4a8b4a83568d408c5e9cad9e4d9"
+    },
+    "RiskConfig": {
+      "path": "out/RiskConfig.sol/RiskConfig.json",
+      "artifactFileSha256": "c0841456d1d8234ed6b0136ff473b7cb2c897d3dd50cd4925e15fb05943816a6",
+      "creationBytecodeHash": "0x9c7d132374c4cbbd54e93b74ec0fde7268748ea7b4b0802b68fbbadca4d0d942",
+      "runtimeBytecodeHash": "0x637b6f88b2e80162c905bcd6f51c1ef4063b069cf4f8c9be2396d0333ae67bb7"
+    },
+    "USDCMarginVault": {
+      "path": "out/USDCMarginVault.sol/USDCMarginVault.json",
+      "artifactFileSha256": "0816fcbe69c59591b8baccc03f2bf1db3fc148e8c745cbdc00bba31ce01c097e",
+      "creationBytecodeHash": "0x21146130ba18db7e3c65d14894015f845b829ce4cf91dd0f120c147b1297b5cc",
+      "runtimeBytecodeHash": "0xa19d7e3e8751d5f20890d455430a29db0810086c651a62461ea225915944cddb"
+    },
+    "PerpEngine": {
+      "path": "out/PerpEngine.sol/PerpEngine.json",
+      "artifactFileSha256": "e24af7e019106f11d4510bc1b5f0bdedec042a8784c7fd8e0fbce1fea491bbdb",
+      "creationBytecodeHash": "0x93224941590695ec124cfe7a28e13a0ad8f2cf1ff60182df7b703d0353522114",
+      "runtimeBytecodeHash": "0x9334c4cf06600c849a44c0a90c1916d5e1de1cd8bec7d9d99e82ff3aa9858d8d"
+    },
+    "InsuranceFund": {
+      "path": "out/InsuranceFund.sol/InsuranceFund.json",
+      "artifactFileSha256": "28deee9d7994de5bcd87ef452aceafad113610d4d3514d572464d974a11f16c9",
+      "creationBytecodeHash": "0x08524572840c2ba4376c6efd7eeb743a7061b51b58ab34c9c5d72d91af21a821",
+      "runtimeBytecodeHash": "0xa044dff7fc3fbc0fe641346914923a2a83bd22d115713c3f08ce44e08438658c"
+    },
+    "PublicLPVault": {
+      "path": "out/PublicLPVault.sol/PublicLPVault.json",
+      "artifactFileSha256": "14ce534ecffc74615588172ac0756335194843adbc83b9ddde0afd6388d097ce",
+      "creationBytecodeHash": "0x57b6640a00fc3fde46193475a55ecfdc9df07751c1706167d920b731c687ef47",
+      "runtimeBytecodeHash": "0x9b6ed4b9a911f828779298f8f34637ac22cb01076e505c762515543d1f5863ea"
+    },
+    "ADLController": {
+      "path": "out/ADLController.sol/ADLController.json",
+      "artifactFileSha256": "053eb4ee2ae0868ccdb768b8360e40de71bee5c9abfbffb3ec5ba6a1ac534885",
+      "creationBytecodeHash": "0x68e51ec625bc6c49c074960d12067aa2bd023965e2ce05befaf728aab980c66e",
+      "runtimeBytecodeHash": "0x7b9615196e3ab1a36b8eb318d8e20f5049411d536e049e69a0bae296bf91b0d6"
+    },
+    "ProtocolTimelock": {
+      "path": "out/ProtocolTimelock.sol/ProtocolTimelock.json",
+      "artifactFileSha256": "eab511b3125c0361845be3d8b4e84b7303a7dedb9cfc04c690370c9717a687a7",
+      "creationBytecodeHash": "0x11db590b2b0fdd19c7b16e5d764ee3dc2ba1110de4a5eb3ba3b07f98657988e9",
+      "runtimeBytecodeHash": "0x9c2fb77a519d366963fb455fb5bbdeb633db499c2c3e1066c74ade9272252116"
+    }
+  },
+  "zeroMarketGenesis": {
+    "registeredRealPerps": 0,
+    "liveRealPerps": 0,
+    "oi": "0",
+    "positions": 0,
+    "badDebt": "0",
+    "solvencyBlocked": false,
+    "qualificationProofs": 0,
+    "oracleMarketSequences": 0
+  },
+  "stopConditions": [
+    "wrong chain",
+    "partial deployment progress",
+    "receipt failure",
+    "runtime bytecode mismatch",
+    "role mismatch",
+    "unexpected market or exposure",
+    "secret exposure"
+  ],
+  "unresolved": [
+    "funding",
+    "governance Safe creation",
+    "deployment addresses",
+    "deployment transaction hashes",
+    "deployment blocks",
+    "final runtime hashes"
+  ]
+}

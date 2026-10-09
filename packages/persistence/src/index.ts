@@ -84,6 +84,75 @@ export interface PersistenceTransaction extends PersistenceStore {
   health(): PersistenceHealth;
 }
 
+/**
+ * Logical network/deployment isolation over the portable persistence boundary.
+ * The wrapped store remains intact; every entity key is prefixed with the
+ * immutable deployment namespace so checkpoints and projections cannot bleed
+ * between Testnet and Mainnet.
+ */
+export class NamespacedPersistence implements PersistenceTransaction {
+  private readonly prefix: string;
+
+  public constructor(
+    private readonly inner: PersistenceStore,
+    namespace: string,
+  ) {
+    const normalized = namespace.trim();
+    if (normalized.length === 0) throw new Error("persistence namespace must not be empty");
+    this.prefix = `${normalized}::`;
+  }
+
+  public put(entity: PersistedEntity, id: string, payload: Readonly<Record<string, unknown>>, observedAt: string): void {
+    this.inner.put(entity, this.scoped(id), payload, observedAt);
+  }
+
+  public get(entity: PersistedEntity, id: string): PersistenceEnvelope | null {
+    const record = this.inner.get(entity, this.scoped(id));
+    return record === null ? null : { ...record, id: this.unscoped(record.id) };
+  }
+
+  public list(entity: PersistedEntity): readonly PersistenceEnvelope[] {
+    return this.inner
+      .list(entity)
+      .filter((record) => record.id.startsWith(this.prefix))
+      .map((record) => ({ ...record, id: this.unscoped(record.id) }));
+  }
+
+  public delete(entity: PersistedEntity, id: string): void {
+    this.inner.delete(entity, this.scoped(id));
+  }
+
+  public close(): void {
+    this.inner.close();
+  }
+
+  public transaction<T>(work: () => T): T {
+    const transactional = this.inner as PersistenceStore & { transaction?: <R>(callback: () => R) => R };
+    return transactional.transaction === undefined ? work() : transactional.transaction(work);
+  }
+
+  public health(): PersistenceHealth {
+    const healthProvider = this.inner as PersistenceStore & { health?: () => PersistenceHealth };
+    return healthProvider.health === undefined
+      ? {
+          status: "OPERATIONAL",
+          schemaVersion: PERSISTENCE_SCHEMA_VERSION,
+          checkedAt: new Date().toISOString(),
+          latencyMs: 0,
+          error: null,
+        }
+      : healthProvider.health();
+  }
+
+  private scoped(id: string): string {
+    return `${this.prefix}${id}`;
+  }
+
+  private unscoped(id: string): string {
+    return id.slice(this.prefix.length);
+  }
+}
+
 export interface PersistenceHealth {
   readonly status: "OPERATIONAL" | "DEGRADED" | "UNAVAILABLE";
   readonly schemaVersion: number;

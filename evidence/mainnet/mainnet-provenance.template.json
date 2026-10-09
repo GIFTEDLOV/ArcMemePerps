@@ -1,0 +1,63 @@
+{
+  "schemaVersion": "arcmemeperps/mainnet-provenance/v1",
+  "status": "PENDING_MAINNET_FUNDING",
+  "broadcast": false,
+  "releaseCommit": "009437861a45042b66641481f3671e2897777222",
+  "contractSourceSha": "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
+  "policyVersion": "0.4.0",
+  "chain": {
+    "name": "Arc Mainnet",
+    "chainId": 5042,
+    "rpc": "https://rpc.mainnet.arc.io",
+    "explorer": "https://explorer.arc.io",
+    "usdc": "0x3600000000000000000000000000000000000000"
+  },
+  "governanceSafe": null,
+  "safeOwners": [],
+  "safeThreshold": 2,
+  "deployment": {
+    "deploymentId": "arc-mainnet-pending",
+    "addresses": null,
+    "deploymentTransactions": [],
+    "configurationTransactions": [],
+    "blockRange": { "first": null, "last": null },
+    "runtimeHashes": null
+  },
+  "roles": {
+    "deployer": "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833",
+    "governanceAdmin": null,
+    "timelockExecutor": null,
+    "qualificationOperator": null,
+    "riskOperator": null,
+    "oracleAdmin": null,
+    "oracleReporters": [],
+    "keeper": null,
+    "emergencyAuthority": null,
+    "insuranceManager": null,
+    "lpRiskController": null,
+    "treasuryFeeRecipient": null
+  },
+  "timelock": { "minDelaySeconds": null, "proposer": null, "executor": null },
+  "genesisAssertions": {
+    "registeredRealPerps": 0,
+    "liveRealPerps": 0,
+    "oi": "0",
+    "positions": 0,
+    "badDebt": "0",
+    "solvencyBlocked": false
+  },
+  "backend": {
+    "deploymentIdentity": "arc-mainnet-pending",
+    "databaseNamespace": "arcmemeperps:mainnet:chain-5042:arc-mainnet-pending:contracts-pending",
+    "indexerNamespace": "PENDING_MAINNET_DEPLOYMENT",
+    "apiBaseUrl": null
+  },
+  "unresolved": [
+    "Safe creation transaction and address",
+    "contract addresses",
+    "deployment transactions and blocks",
+    "runtime hashes fetched from Mainnet",
+    "final public production frontend URL",
+    "builder profile and payout wallet"
+  ]
+}

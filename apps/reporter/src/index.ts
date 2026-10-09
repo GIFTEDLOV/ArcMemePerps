@@ -16,6 +16,7 @@ export interface ReporterSequenceStore {
 export class ReporterService {
   private lastSuccessAt: string | null = null;
   private lastError: string | null = null;
+  private marketCount: number | null = null;
   public constructor(
     private readonly observations: ReporterObservationSource,
     private readonly signer: ReporterSigner | null,
@@ -46,9 +47,17 @@ export class ReporterService {
       state: this.signer === null ? "UNAVAILABLE" : "OPERATIONAL",
       lastSuccessAt: this.lastSuccessAt,
       latencyMs: null,
-      error: this.signer === null ? "REPORTER_SIGNER_UNAVAILABLE" : this.lastError,
+      error: this.signer === null
+        ? "REPORTER_SIGNER_UNAVAILABLE"
+        : this.marketCount === 0
+          ? "HEALTHY_IDLE_ZERO_REGISTERED_MARKETS"
+          : this.lastError,
       freshness: this.signer === null || this.lastSuccessAt === null ? "UNAVAILABLE" : "FRESH",
     };
+  }
+
+  public setMarketCount(count: number): void {
+    this.marketCount = count;
   }
 }
 
@@ -74,6 +83,7 @@ export class ReporterProcess {
     markets: readonly `0x${string}`[],
     maxCycles = Number.POSITIVE_INFINITY,
   ): Promise<number> {
+    this.service.setMarketCount(markets.length);
     const sleep =
       this.options.sleep ??
       ((milliseconds) => new Promise<void>((resolve) => setTimeout(resolve, milliseconds)));

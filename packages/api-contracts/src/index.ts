@@ -65,6 +65,15 @@ export const ProtocolStatusSchema = z
       z.enum(["OPERATIONAL", "DEGRADED", "STALE", "UNAVAILABLE", "CRITICAL"]),
     ),
     readOnly: z.literal(true),
+    network: z.string().optional(),
+    chainId: z.number().int().positive().optional(),
+    deployment: z.enum(["DEPLOYMENT_PENDING", "DEPLOYED_ZERO_MARKETS", "LIVE_MARKETS_AVAILABLE"]).optional(),
+    deploymentId: z.string().optional(),
+    policyVersion: z.string().optional(),
+    discoveryCount: z.number().int().nonnegative().optional(),
+    registeredPerpCount: z.number().int().nonnegative().optional(),
+    livePerpCount: z.number().int().nonnegative().optional(),
+    contracts: z.record(z.string(), z.string()).optional(),
   })
   .strict();
 

@@ -28,6 +28,11 @@ The current frontend and historical deployments are Testnet/evidence surfaces.
 No Mainnet deployment, Mainnet contract address, or Mainnet user position
 exists in this release candidate.
 
+**Mainnet deployment: PENDING FUNDING / DEPLOYMENT CEREMONY.** The local
+production wiring targets Arc Mainnet in a truthful pending state; it does not
+claim that Mainnet contracts exist. The only remaining major functional step
+is the funded, one-shot deployment and verification ceremony.
+
 ## Screenshots
 
 ![ArcMemePerps landing page](docs/assets/phase12/landing-desktop.png)

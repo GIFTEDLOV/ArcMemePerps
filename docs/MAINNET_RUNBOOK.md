@@ -1,8 +1,56 @@
 # ArcMemePerps Mainnet deployment runbook
 
-This runbook is prepared but was not executed in Phase 12. It assumes a fresh
-deployment of the exact frozen contract source and an already-reviewed role
-plan. Any STOP condition ends the ceremony without continuing.
+This runbook is prepared but was not executed. Phase 13C is intentionally
+deployment-independent because the Arc Mainnet deployer is externally
+unfunded. Any STOP condition ends the ceremony without continuing.
+
+## Pending state before funding
+
+The only truthful production state before the ceremony is:
+
+```text
+network = Arc Mainnet
+deployment = DEPLOYMENT_PENDING
+registered perps = 0
+live perps = 0
+indexer = WAITING_FOR_DEPLOYMENT
+reporter = HEALTHY_IDLE_ZERO_REGISTERED_MARKETS
+keeper = HEALTHY_IDLE_ZERO_ORDERS
+```
+
+Never populate Mainnet variables with Testnet addresses. The pending state is
+implemented by `scripts/production-service.ts`; the historical Testnet service
+is not a Mainnet fallback.
+
+## Exact later command sequence
+
+1. `pnpm backend:freeze` and verify the canonical release commit, source SHA,
+   and policy version.
+2. Run the signer, Safe, balance, nonce, chain, fee, and USDC preflight from
+   the role plan. Do not proceed if funding or any role is ambiguous.
+3. Set the externally provisioned, secret-free role variables and constructor
+   inputs from `.env.example`; keep the deployer key in secure runtime
+   configuration only.
+4. Run `pnpm mainnet:manifest` and review
+   `evidence/mainnet/deployment-manifest.json`.
+5. Run `pnpm mainnet:deploy` exactly once. It asserts chain `5042`, deploys the
+   frozen suite in dependency order, persists every receipt, checks runtime
+   parity after each deployment, configures roles/timelock, finalizes
+   bootstrap, and records provenance. A partial progress file is a STOP, not a
+   redeployment invitation.
+6. Run `pnpm mainnet:verify` read-only. Require zero market/qualification/
+   oracle activity, zero OI/positions/bad debt, `solvencyBlocked=false`, and no
+   deployer role after bootstrap finalization.
+7. Switch the isolated backend/indexer/API configuration to the verified
+   addresses and start from the recorded deployment block. Restart once and
+   verify checkpoint continuity.
+8. Smoke protocol health, discovery, market detail, qualification state,
+   counts, SSE connection/replay/dedupe, reporter idle, keeper idle, and the
+   pending/zero-market wallet state.
+
+The command path never registers a canary, creates a dummy market, publishes a
+synthetic oracle value, opens a position, or automatically redeploys a failed
+suite.
 
 ## Ordered procedure
 

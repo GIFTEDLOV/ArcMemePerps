@@ -73,3 +73,28 @@ ARC_MAINNET_EXPLORER_URL=https://explorer.arc.io
 Contract addresses for ArcMemePerps itself are intentionally `TBD` until a
 fresh Mainnet deployment is authorized and verified. Testnet addresses must
 not be reused.
+
+## Pending deployment configuration
+
+The production configuration defaults to `ARCMEMEPERPS_DEPLOYMENT_NETWORK=MAINNET`.
+Until every fresh contract address and `MAINNET_START_BLOCK` is present, the
+runtime reports `DEPLOYMENT_PENDING`, keeps registered/live perp counts at
+zero, and does not substitute historical Testnet addresses. The explicit
+address variables are:
+
+```text
+MAINNET_MARKET_REGISTRY
+MAINNET_QUALIFICATION_REGISTRY
+MAINNET_ORACLE_ROUTER
+MAINNET_RISK_CONFIG
+MAINNET_USDC_MARGIN_VAULT
+MAINNET_PERP_ENGINE
+MAINNET_INSURANCE_FUND
+MAINNET_PUBLIC_LP_VAULT
+MAINNET_ADL_CONTROLLER
+MAINNET_PROTOCOL_TIMELOCK
+```
+
+Database and checkpoint namespaces include chain ID, deployment ID, and the
+contract-address identity. This prevents Testnet events, checkpoints, orders,
+and positions from appearing in Mainnet projections.

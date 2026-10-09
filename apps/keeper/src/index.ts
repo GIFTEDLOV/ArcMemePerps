@@ -35,6 +35,7 @@ export class KeeperService {
   private stopped = false;
   private lastSuccessAt: string | null = null;
   private lastError: string | null = null;
+  private orderCount: number | null = null;
   private readonly state: KeeperStateStore | null;
   private readonly nonces: KeeperNoncePort | null;
   public constructor(
@@ -62,7 +63,9 @@ export class KeeperService {
       reason?: string;
       txHash?: string;
     }[] = [];
-    for (const order of await this.reads.discoverExecutableOrders()) {
+    const orders = await this.reads.discoverExecutableOrders();
+    this.orderCount = orders.length;
+    for (const order of orders) {
       if (
         this.consumed.has(order.orderId) ||
         (this.state !== null && (await this.state.hasExecuted(order.orderId)))
@@ -123,7 +126,7 @@ export class KeeperService {
       state: this.stopped ? "DEGRADED" : "OPERATIONAL",
       lastSuccessAt: this.lastSuccessAt,
       latencyMs: null,
-      error: this.lastError,
+      error: this.orderCount === 0 && !this.stopped ? "HEALTHY_IDLE_ZERO_ORDERS" : this.lastError,
       freshness: this.lastSuccessAt === null ? "UNAVAILABLE" : "FRESH",
     };
   }

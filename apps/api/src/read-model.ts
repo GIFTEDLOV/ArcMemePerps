@@ -8,6 +8,7 @@ import {
   type WalletSnapshot,
 } from "@arcmemeperps/domain";
 import { BackendRepository, type PersistenceStore } from "@arcmemeperps/persistence";
+import { loadArcDeploymentConfig, type ArcDeploymentConfig } from "@arcmemeperps/shared";
 
 function refreshSnapshotFreshness(snapshot: MarketSnapshot): MarketSnapshot {
   const { observedAt, maxAgeSeconds } = snapshot.freshness;
@@ -34,6 +35,7 @@ export class PersistenceApiReadModel {
   public constructor(
     private readonly storage: PersistenceStore,
     private readonly repository = new BackendRepository(storage),
+    private readonly deployment: ArcDeploymentConfig = loadArcDeploymentConfig(),
   ) {}
 
   public listMarkets(): Promise<readonly MarketSnapshot[]> {
@@ -113,7 +115,7 @@ export class PersistenceApiReadModel {
     );
     const limit = Math.min(Math.max(options.limit ?? 100, 1), 100);
     const offset = Math.max(options.offset ?? 0, 0);
-    const perpCount = all.filter((market) => (market.perp as Record<string, unknown> | undefined)?.status !== "NOT_REGISTERED").length;
+    const perpCount = this.countRegisteredPerps(all);
     return Promise.resolve({ items: filtered.slice(offset, offset + limit), total: filtered.length, discoveryCount: all.length, perpCount });
   }
 
@@ -127,7 +129,7 @@ export class PersistenceApiReadModel {
       const name = typeof market.name === "string" ? market.name.toLowerCase() : "";
       return (chain === undefined || market.chain === chain) && (normalized.length === 0 || token === normalized || id === normalized || symbol.includes(normalized) || name.includes(normalized));
     });
-    const perpCount = all.filter((market) => (market.perp as Record<string, unknown> | undefined)?.status !== "NOT_REGISTERED").length;
+    const perpCount = this.countRegisteredPerps(all);
     return Promise.resolve({ items: matched, total: matched.length, discoveryCount: all.length, perpCount });
   }
 
@@ -144,7 +146,16 @@ export class PersistenceApiReadModel {
     if (resource === "activity") return Promise.resolve({ status: "UNAVAILABLE", reason: "ORIGIN_ACTIVITY_READER_NOT_CONFIGURED" });
     if (resource === "holders" || resource === "clusters" || resource === "deployer") return Promise.resolve({ status: "UNAVAILABLE", reason: "ENRICHMENT_PROVIDER_NOT_CONFIGURED" });
     if (resource === "depth") return Promise.resolve({ status: "UNAVAILABLE", reason: "DIRECTIONAL_DEPTH_NOT_OBSERVED" });
-    if (resource === "pretrade") return Promise.resolve({ status: "UNAVAILABLE", reason: "ARC_PERP_NOT_REGISTERED", marketId, chainId: 5042002, signer: { backendSigns: false, userWalletSigns: true } });
+    if (resource === "pretrade")
+      return Promise.resolve({
+        status: "UNAVAILABLE",
+        reason: this.deployment.lifecycle === "DEPLOYMENT_PENDING" ? "ARC_DEPLOYMENT_PENDING" : "ARC_PERP_NOT_REGISTERED",
+        marketId,
+        network: this.deployment.chainName,
+        chainId: this.deployment.chainId,
+        deploymentId: this.deployment.deploymentId,
+        signer: { backendSigns: false, userWalletSigns: true },
+      });
     throw new Error("RESOURCE_NOT_SUPPORTED");
   }
 
@@ -187,13 +198,17 @@ export class PersistenceApiReadModel {
     if (resource === "pretrade")
       return Promise.resolve({
         status:
-          snapshot.oracleEvidence.freshness === "FRESH"
-            ? "AVAILABLE"
-            : snapshot.oracleEvidence.freshness === "UNAVAILABLE"
-              ? "UNAVAILABLE"
-              : "STALE",
-        deploymentId: "arc-testnet-product-v2",
-        chainId: 5042002,
+          this.deployment.lifecycle === "DEPLOYMENT_PENDING"
+            ? "UNAVAILABLE"
+            : snapshot.oracleEvidence.freshness === "FRESH"
+              ? "AVAILABLE"
+              : snapshot.oracleEvidence.freshness === "UNAVAILABLE"
+                ? "UNAVAILABLE"
+                : "STALE",
+        reason: this.deployment.lifecycle === "DEPLOYMENT_PENDING" ? "ARC_DEPLOYMENT_PENDING" : undefined,
+        network: this.deployment.chainName,
+        deploymentId: this.deployment.deploymentId,
+        chainId: this.deployment.chainId,
         marketId,
         oracle: snapshot.oracleEvidence,
         qualification: snapshot.qualification,
@@ -212,6 +227,11 @@ export class PersistenceApiReadModel {
         .filter((record) => record.id.startsWith(`${marketId}:`))
         .map((record) => snapshotFromPassport(record.payload as never)),
     );
+  }
+
+  private countRegisteredPerps(markets: readonly Record<string, unknown>[]): number {
+    if (this.deployment.lifecycle === "DEPLOYMENT_PENDING") return 0;
+    return markets.filter((market) => (market.perp as Record<string, unknown> | undefined)?.status !== "NOT_REGISTERED").length;
   }
 
   public getWalletActivity(address: string): Promise<readonly Record<string, unknown>[]> {

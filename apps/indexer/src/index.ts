@@ -1,6 +1,6 @@
 import type { TokenIdentity } from "@arcmemeperps/domain";
 import type { ChainAdapter, DiscoverTokensQuery } from "@arcmemeperps/chain-adapters";
-import type { SupportedChain } from "@arcmemeperps/shared";
+import type { ArcDeploymentConfig, SupportedChain } from "@arcmemeperps/shared";
 import { canonicalJson, keccak256Hex } from "@arcmemeperps/shared";
 import type { PersistenceStore } from "@arcmemeperps/persistence";
 
@@ -25,19 +25,55 @@ export interface IndexerCheckpointStore {
 }
 
 export class PersistentIndexerCheckpointStore implements IndexerCheckpointStore {
-  public constructor(private readonly storage: PersistenceStore) {}
+  public constructor(
+    private readonly storage: PersistenceStore,
+    private readonly namespace = "",
+  ) {}
   public load(chain: SupportedChain): IndexerCheckpoint | null {
-    const record = this.storage.get("indexer_checkpoints", chain);
+    const record = this.storage.get("indexer_checkpoints", this.key(chain));
     return record === null ? null : (record.payload as unknown as IndexerCheckpoint);
   }
   public save(checkpoint: IndexerCheckpoint): void {
     this.storage.put(
       "indexer_checkpoints",
-      checkpoint.chain,
+      this.key(checkpoint.chain),
       checkpoint as unknown as Readonly<Record<string, unknown>>,
       checkpoint.lastObservedAt ?? new Date().toISOString(),
     );
   }
+
+  private key(chain: SupportedChain): string {
+    return this.namespace.length === 0 ? chain : `${this.namespace}::${chain}`;
+  }
+}
+
+export type MainnetIndexerLifecycle = "WAITING_FOR_DEPLOYMENT" | "SYNCED";
+
+export interface MainnetIndexerStatus {
+  readonly lifecycle: MainnetIndexerLifecycle;
+  readonly chainId: number;
+  readonly deploymentId: string;
+  readonly startBlock: string | null;
+  readonly checkpoint: IndexerCheckpoint | null;
+}
+
+/**
+ * Configuration boundary for the production protocol indexer. It deliberately
+ * refuses to report SYNCED until an actual Mainnet deployment and start block
+ * are present; discovery indexing remains independent of this state.
+ */
+export function mainnetIndexerStatus(
+  config: ArcDeploymentConfig,
+  checkpoint: IndexerCheckpoint | null,
+): MainnetIndexerStatus {
+  const ready = config.network === "MAINNET" && config.deploymentStatus === "DEPLOYED" && config.startBlock !== null;
+  return {
+    lifecycle: ready ? "SYNCED" : "WAITING_FOR_DEPLOYMENT",
+    chainId: config.chainId,
+    deploymentId: config.deploymentId,
+    startBlock: config.startBlock?.toString() ?? null,
+    checkpoint,
+  };
 }
 
 /** Provider-neutral discovery coordinator with a durable checkpoint boundary. */

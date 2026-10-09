@@ -1,7 +1,8 @@
 # ArcMemePerps microgrant submission package
 
-Prepared locally in Phase 12. Missing external identifiers remain explicit
-placeholders; no Mainnet deployment or public submission was performed.
+Prepared locally in Phase 13C. Missing external identifiers remain explicit
+placeholders; Mainnet funding is externally blocked, so no Mainnet deployment
+or public submission was performed.
 
 ## Project
 
@@ -45,6 +46,7 @@ market.
 - **Builder profile:** `TBD_BUILDER_PROFILE`
 - **USDC payout wallet:** `TBD_USDC_PAYOUT_WALLET`
 - **Frozen contract source SHA:** `0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b`
+- **Mainnet deployment status:** `PENDING FUNDING / DEPLOYMENT CEREMONY`
 
 ## Differentiators
 

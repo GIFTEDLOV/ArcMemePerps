@@ -8,7 +8,7 @@ import {
   WalletResponseSchema,
   API_VERSION,
 } from "@arcmemeperps/api-contracts";
-import type { HealthRecord } from "@arcmemeperps/shared";
+import type { ArcDeploymentConfig, HealthRecord } from "@arcmemeperps/shared";
 import { RealtimeHub } from "./realtime.js";
 
 export interface ApiReadModel {
@@ -59,6 +59,14 @@ export interface ApiServerOptions {
   readonly readModel: ApiReadModel;
   readonly health: () => readonly HealthRecord[];
   readonly realtime?: RealtimeHub;
+  readonly runtime?: ApiRuntimeStatus;
+}
+
+export interface ApiRuntimeStatus {
+  readonly config: ArcDeploymentConfig;
+  readonly discoveryCount: number;
+  readonly registeredPerpCount: number;
+  readonly livePerpCount: number;
 }
 
 /** Read-only versioned API boundary. Mutations are intentionally not exposed in this gate. */
@@ -345,6 +353,19 @@ async function handleRequest(
           asOf: new Date().toISOString(),
           health: Object.fromEntries(options.health().map((item) => [item.component, item.state])),
           readOnly: true,
+          ...(options.runtime === undefined
+            ? {}
+            : {
+                network: options.runtime.config.chainName,
+                chainId: options.runtime.config.chainId,
+                deployment: options.runtime.config.lifecycle,
+                deploymentId: options.runtime.config.deploymentId,
+                policyVersion: options.runtime.config.policyVersion,
+                discoveryCount: options.runtime.discoveryCount,
+                registeredPerpCount: options.runtime.registeredPerpCount,
+                livePerpCount: options.runtime.livePerpCount,
+                contracts: options.runtime.config.addresses,
+              }),
         }),
       );
       return;

@@ -4,6 +4,12 @@ This is a least-privilege plan, not a live role assignment. Every address is
 `TBD_HUMAN_PROVISIONED` until the fresh Mainnet deployment ceremony. No private
 key or mnemonic belongs in this repository.
 
+Current governance state: `PENDING_MAINNET_SAFE_CREATION`. The ceremony must
+create a genuine Safe with a minimum of two independently recoverable owners,
+preferably 2-of-3. A one-owner Safe is not acceptable. Until that transaction
+exists, `GOVERNANCE_ADMIN`, timelock proposer/canceller, and the final Safe
+address remain unresolved rather than being represented by a placeholder EOA.
+
 ## Role separation
 
 | Role | Intended authority | Boundary |
@@ -34,6 +40,14 @@ key or mnemonic belongs in this repository.
    provenance evidence.
 7. STOP if any private key appears in source, environment templates, logs,
    screenshots, evidence, or build output.
+
+The deployment workflow requires explicit, secret-free environment values for
+the external operators (`MAINNET_QUALIFICATION_OPERATOR`,
+`MAINNET_RISK_OPERATOR`, `MAINNET_ORACLE_ADMIN`, three reporter addresses,
+`MAINNET_KEEPER`, `MAINNET_EMERGENCY_AUTHORITY`,
+`MAINNET_INSURANCE_MANAGER`, `MAINNET_LP_RISK_CONTROLLER`, and the treasury
+recipient). Empty values keep the deployment pending; they never inherit
+historical Testnet actors.
 
 ## Genesis role constraint
 

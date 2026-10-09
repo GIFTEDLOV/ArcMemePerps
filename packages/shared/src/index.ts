@@ -209,3 +209,4 @@ export type { EvmNetworkConfig, SolanaNetworkConfig, SupportedNetworkConfig } fr
 export * from "./math.js";
 export * from "./arc-usdc.js";
 export * from "./health.js";
+export * from "./arc-deployment.js";
