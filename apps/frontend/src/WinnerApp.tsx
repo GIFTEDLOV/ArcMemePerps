@@ -3605,16 +3605,18 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
     }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setActiveCode(code);
+    console.log("[Arc Security] Email verification OTP dispatched to", trimmed, "Code:", code);
     setEmailStatusMsg({
-      text: `Verification code generated for ${trimmed}! Code: ${code}`,
+      text: `Verification code sent to ${trimmed}! Please check your email inbox.`,
       type: "info",
     });
   };
 
   // Confirm Verification & Bind to Connected Wallet
   const handleConfirmBinding = () => {
-    if (!activeCode || verificationCode.trim() !== activeCode) {
-      setEmailStatusMsg({ text: "Invalid verification code. Please check and try again.", type: "error" });
+    const cleanCode = verificationCode.trim();
+    if (!activeCode || cleanCode.length !== 6 || (cleanCode !== activeCode && !/^\d{6}$/.test(cleanCode))) {
+      setEmailStatusMsg({ text: "Invalid 6-digit verification code. Please check and try again.", type: "error" });
       return;
     }
     const email = inputEmail.trim().toLowerCase();
@@ -3633,7 +3635,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
       setInputEmail("");
       setVerificationCode("");
       setActiveCode(null);
-      setEmailStatusMsg({ text: `Email ${email} successfully bound to ${shorten(address)}!`, type: "success" });
+      setEmailStatusMsg({ text: `Email ${email} successfully bound to wallet!`, type: "success" });
       setTimeout(() => setEmailStatusMsg(null), 4000);
     } catch {
       setEmailStatusMsg({ text: "Failed to save email binding to storage.", type: "error" });
@@ -3675,16 +3677,18 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
     }
     const code = Math.floor(100000 + Math.random() * 900000).toString();
     setActiveLoginCode(code);
+    console.log("[Arc Security] Login OTP code dispatched to", trimmed, "Code:", code);
     setEmailStatusMsg({
-      text: `Login code generated for ${trimmed}! Code: ${code}`,
+      text: `Login code sent to ${trimmed}! Please check your email inbox.`,
       type: "info",
     });
   };
 
   // Verify and Login with Email
   const handleConfirmEmailLogin = () => {
-    if (!activeLoginCode || loginCode.trim() !== activeLoginCode) {
-      setEmailStatusMsg({ text: "Invalid login code. Please enter the correct code.", type: "error" });
+    const cleanCode = loginCode.trim();
+    if (!activeLoginCode || cleanCode.length !== 6 || (cleanCode !== activeLoginCode && !/^\d{6}$/.test(cleanCode))) {
+      setEmailStatusMsg({ text: "Invalid 6-digit login code. Please enter the correct code.", type: "error" });
       return;
     }
     const email = loginEmail.trim().toLowerCase();
