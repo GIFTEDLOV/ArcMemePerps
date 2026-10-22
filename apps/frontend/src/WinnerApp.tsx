@@ -791,37 +791,41 @@ function productState(market: OriginMarket) {
 
 function TickerMarquee({ markets }: { markets: OriginMarket[] }) {
   const featured = useMemo(() => {
-    return markets.slice(0, 12);
+    return markets.slice(0, 14);
   }, [markets]);
 
   if (!featured.length) return null;
 
+  const half = [...featured, ...featured];
+  const items = [...half, ...half];
+
   return (
     <div className="gmgn-ticker-tape" aria-label="Live market ticker">
       <div className="ticker-label">
-        <span></span>
         <strong>HOT</strong>
-        <span style={{ color: "var(--faint)", margin: "0 4px" }}>|</span>
+        <span className="ticker-divider">|</span>
       </div>
-      <div className="ticker-scroll">
-        {[...featured, ...featured].map((m, i) => {
-          const changeBps = m.priceChange24hBps ?? 0;
-          const isPos = changeBps >= 0;
-          return (
-            <Link
-              key={`${m.marketId}-${i}`}
-              to={`/markets/${encodeURIComponent(m.marketId)}`}
-              className="ticker-item"
-            >
-              <span className={`chain-dot chain-${m.chain.toLowerCase()}`} />
-              <span className="ticker-sym">${m.symbol ?? "TOKEN"}</span>
-              <span className="ticker-price">{displayed(m.priceUsd, formatUsd)}</span>
-              <span className={`ticker-change ${isPos ? "pos" : "neg"}`}>
-                {isPos ? "+" : ""}{(changeBps / 100).toFixed(2)}%
-              </span>
-            </Link>
-          );
-        })}
+      <div className="ticker-marquee-track-container">
+        <div className="ticker-marquee-track">
+          {items.map((m, i) => {
+            const changeBps = m.priceChange24hBps ?? 0;
+            const isPos = changeBps >= 0;
+            return (
+              <Link
+                key={`${m.marketId}-${i}`}
+                to={`/markets/${encodeURIComponent(m.marketId)}`}
+                className="ticker-item"
+              >
+                <span className={`chain-dot chain-${m.chain.toLowerCase()}`} />
+                <span className="ticker-sym">${m.symbol ?? "TOKEN"}</span>
+                <span className="ticker-price">{displayed(m.priceUsd, formatUsd)}</span>
+                <span className={`ticker-change ${isPos ? "pos" : "neg"}`}>
+                  {isPos ? "+" : ""}{(changeBps / 100).toFixed(2)}%
+                </span>
+              </Link>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
@@ -1485,7 +1489,7 @@ function Header({
             {shorten(wallet.state.address)}
           </button>
         ) : (
-          <button className="button button-primary compact" style={{ background: "#00f5a0", color: "#000", fontWeight: 700 }} onClick={() => void wallet.connect()}>
+          <button className="button button-primary compact" style={{ background: "#00f5a0", color: "#000", fontWeight: 500, fontSize: "10.5px", height: "26px", padding: "0 10px" }} onClick={() => void wallet.connect()}>
             Connect Wallet
           </button>
         )}
