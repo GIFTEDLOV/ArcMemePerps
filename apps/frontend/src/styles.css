@@ -412,14 +412,14 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   width: 24px;
   height: 24px;
   border-radius: 6px;
-  background: rgba(0, 245, 160, 0.08);
-  border: 1px solid rgba(0, 245, 160, 0.25);
-  box-shadow: 0 0 10px rgba(0, 245, 160, 0.15);
+  background: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
 }
 .cluster-logo-img {
   width: 18px;
   height: 18px;
-  filter: drop-shadow(0 0 5px rgba(0, 245, 160, 0.6));
+  filter: none;
 }
 .brand-text-col {
   display: flex;
@@ -437,9 +437,9 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   font-weight: 600;
   padding: 1px 4px;
   border-radius: 3px;
-  background: linear-gradient(135deg, rgba(0, 245, 160, 0.2), rgba(0, 212, 255, 0.2));
-  border: 1px solid rgba(0, 245, 160, 0.35);
-  color: #00f5a0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: #ffffff;
   font-family: var(--mono);
 }
 .hot-pill {

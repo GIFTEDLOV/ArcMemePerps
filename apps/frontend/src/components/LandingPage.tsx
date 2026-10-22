@@ -21,7 +21,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-[120px] h-16 flex items-center justify-between">
           <div className="flex items-center gap-8">
             <Link to="/markets" className="flex items-center gap-3 group">
-              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center p-1.5 transition-all group-hover:border-emerald-400">
+              <div className="w-8 h-8 rounded-lg bg-white border border-white/20 flex items-center justify-center p-1.5 transition-all group-hover:scale-105 shadow-sm">
                 <img src="/cluster-logo.svg" alt="CLUSTER Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
@@ -407,7 +407,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
       <footer className="w-full border-t border-white/10 bg-black py-12 px-6 md:px-12 lg:px-[120px] text-xs text-white/50">
         <div className="max-w-[1440px] mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
           <div className="flex items-center gap-3">
-            <div className="w-6 h-6 rounded bg-emerald-500/10 border border-emerald-500/20 p-1 flex items-center justify-center">
+            <div className="w-6 h-6 rounded bg-white border border-white/20 p-1 flex items-center justify-center shadow-sm">
               <img src="/cluster-logo.svg" alt="CLUSTER" className="w-full h-full object-contain" />
             </div>
             <span className="font-bold text-white">ArcMemePerps</span>

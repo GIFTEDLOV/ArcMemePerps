@@ -242,8 +242,10 @@ export function PnlShareModal({ position, onClose }: { position: StoredPosition 
         <div className={`pnl-card-graphic ${!isWin ? "is-loss" : ""}`}>
           <div className="pnl-card-brand">
             <div className="pnl-card-logo" style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <img src="/cluster-logo.svg" alt="CLUSTER" style={{ width: "20px", height: "20px" }} />
-              <span style={{ color: "#00f5a0", fontWeight: 800 }}>CLUSTER.AI</span>
+              <div style={{ width: "20px", height: "20px", background: "#ffffff", borderRadius: "5px", display: "grid", placeItems: "center" }}>
+                <img src="/cluster-logo.svg" alt="CLUSTER" style={{ width: "16px", height: "16px" }} />
+              </div>
+              <span style={{ color: "#ffffff", fontWeight: 800 }}>CLUSTER.AI</span>
             </div>
             <span className="pnl-card-chain">Arc Mainnet (5042)</span>
           </div>
