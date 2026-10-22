@@ -70,19 +70,19 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
         </div>
       </header>
 
-      {/* 2. Hero Section (Bigger headline, bigger subtitle, refined low-contrast CTAs) */}
-      <section className="relative pt-20 md:pt-32 pb-24 px-6 md:px-12 lg:px-[120px] overflow-hidden">
+      {/* 2. Hero Section (Shifted upwards towards the top of landing) */}
+      <section className="relative pt-3 md:pt-8 pb-20 px-6 md:px-12 lg:px-[120px] overflow-hidden">
         {/* Glow ambient background aura */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[400px] bg-emerald-500/10 blur-[160px] pointer-events-none rounded-full" />
-        <div className="absolute top-1/3 right-1/4 w-[500px] h-[350px] bg-cyan-500/8 blur-[140px] pointer-events-none rounded-full" />
+        <div className="absolute top-16 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[350px] bg-emerald-500/10 blur-[160px] pointer-events-none rounded-full" />
+        <div className="absolute top-24 right-1/4 w-[500px] h-[300px] bg-cyan-500/8 blur-[140px] pointer-events-none rounded-full" />
 
         <div className="max-w-[1440px] mx-auto relative z-10 flex flex-col items-center text-center">
-          {/* Main Headline (Much Bigger & Commanding) */}
+          {/* Main Headline (Shifted upwards toward the beginning of the page) */}
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl sm:text-7xl md:text-8xl lg:text-[88px] font-sans font-medium tracking-tight leading-[1.04] max-w-5xl mb-8 text-white mt-4"
+            className="text-5xl sm:text-7xl md:text-8xl lg:text-[88px] font-sans font-medium tracking-tight leading-[1.04] max-w-5xl mb-6 text-white mt-0"
           >
             Sub-Second Discovery. <br />
             <span className="font-dm-serif italic font-normal text-emerald-400">
@@ -92,10 +92,10 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
 
           {/* Subtitle (Bigger font, larger line-height) */}
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-2xl text-white/60 max-w-3xl font-light leading-relaxed mb-12"
+            className="text-lg md:text-2xl text-white/60 max-w-3xl font-light leading-relaxed mb-10"
           >
             CLUSTER delivers institutional mempool trenches intelligence, continuous anti-rug qualification, and bounded dynamic leverage settled natively on Arc Mainnet.
           </motion.p>
