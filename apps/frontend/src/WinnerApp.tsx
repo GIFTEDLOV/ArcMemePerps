@@ -1329,39 +1329,110 @@ function NotificationsPage({
   );
 }
 
-function Header({ wallet, stream, onSearch, onOpenImport, unreadCount = 0 }: { wallet: ReturnType<typeof useWallet>; stream: string; onSearch: (value: string) => void; onOpenImport: () => void; unreadCount?: number }) {
-  const [query, setQuery] = useState("");
-  const navigate = useNavigate();
+function Header({
+  wallet,
+  stream,
+  onOpenImport,
+  unreadCount = 0,
+}: {
+  wallet: ReturnType<typeof useWallet>;
+  stream: string;
+  onOpenImport: () => void;
+  unreadCount?: number;
+}) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const location = useLocation();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    if (query.trim()) {
-      onSearch(query.trim());
-      void navigate(`/markets?q=${encodeURIComponent(query.trim())}`);
+  // Close dropdown on click outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setDropdownOpen(false);
+      }
     }
-  };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close dropdown on route change
+  useEffect(() => {
+    setDropdownOpen(false);
+  }, [location.pathname]);
+
+  const moreItems = [
+    { to: "/new", label: "New Pairs", icon: "✨", desc: "Recently listed meme pairs" },
+    { to: "/watchlist", label: "Watchlist", icon: "⭐", desc: "Saved favorite pairs" },
+    { to: "/activity", label: "Activity", icon: "≡", desc: "Live order stream & events" },
+    { to: "/earn", label: "Earn / LP", icon: "💎", desc: "Deposit USDC & earn fees" },
+    { to: "/competitions", label: "Competitions", icon: "🏆", desc: "Trading leaderboard & prizes" },
+    { to: "/profile", label: "Profile", icon: "👤", desc: "Account stats & avatar" },
+    { to: "/proof", label: "Protocol / Proof", icon: "↗", desc: "On-chain verification" },
+    { to: "/settings", label: "Settings", icon: "⚙", desc: "Platform preferences" },
+  ];
 
   return (
     <header className="topbar">
-      <Logo />
-      <form className="global-search" onSubmit={submit}>
-        <span className="search-icon">🔍</span>
-        <input aria-label="Search markets" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Search token, address, or paste Arc contract..." />
-        <kbd>⌘ K</kbd>
-      </form>
+      <div className="topbar-left">
+        <Logo />
+        <nav className="header-nav">
+          <NavLink to="/markets" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
+            <span>📊</span> Markets
+          </NavLink>
+          <NavLink to="/portfolio" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
+            <span>💼</span> Portfolio
+          </NavLink>
+
+          {/* Clean Dropdown Replacing Sidebar */}
+          <div className="nav-dropdown-wrap" ref={dropdownRef}>
+            <button
+              type="button"
+              className={`nav-btn dropdown-trigger ${dropdownOpen ? "active" : ""}`}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
+              <span>🧭</span> More <span className="dropdown-arrow">{dropdownOpen ? "▴" : "▾"}</span>
+            </button>
+
+            {dropdownOpen && (
+              <div className="nav-dropdown-menu">
+                {moreItems.map((item) => (
+                  <NavLink
+                    key={item.to}
+                    to={item.to}
+                    className={({ isActive }) => `dropdown-item ${isActive ? "active" : ""}`}
+                  >
+                    <span className="dropdown-icon">{item.icon}</span>
+                    <div className="dropdown-text">
+                      <strong>{item.label}</strong>
+                      <small>{item.desc}</small>
+                    </div>
+                  </NavLink>
+                ))}
+              </div>
+            )}
+          </div>
+        </nav>
+      </div>
+
       <div className="top-actions">
         <button className="button button-secondary compact import-btn" onClick={onOpenImport}>
           ⚡ Import Arc Token
         </button>
-        <span className="network-chip">
+
+        <span className="network-chip" title="Connected to Arc Mainnet Layer 2 (5042)">
           <span className="network-dot" />
-          {WINNER_CONFIG.chainName}
+          Arc Mainnet (5042)
         </span>
+
         <span className={`stream-dot ${stream === "LIVE" ? "live" : ""}`} title={`Realtime ${stream}`} />
+
         <div className="bell-wrap">
-          <Link className="icon-button" to="/notifications" aria-label="Notifications">🔔</Link>
+          <Link className="icon-button" to="/notifications" aria-label="Notifications">
+            🔔
+          </Link>
           {unreadCount > 0 && <span className="unread-badge" />}
         </div>
+
         {wallet.state.address ? (
           <button className="wallet-button" onClick={() => void wallet.disconnect()}>
             <span className="wallet-dot" />
@@ -1377,18 +1448,9 @@ function Header({ wallet, stream, onSearch, onOpenImport, unreadCount = 0 }: { w
   );
 }
 
-const primary = [
-  { to: "/markets", label: "Markets", icon: "📊" },
-  { to: "/new", label: "New Pairs", icon: "✨" },
-  { to: "/watchlist", label: "Watchlist", icon: "⭐" },
-  { to: "/portfolio", label: "Portfolio", icon: "💼" },
-  { to: "/activity", label: "Activity", icon: "≡" },
-];
-
 function Shell({
   wallet,
   stream,
-  onSearch,
   onOpenImport,
   markets,
   positions,
@@ -1397,7 +1459,6 @@ function Shell({
 }: {
   wallet: ReturnType<typeof useWallet>;
   stream: string;
-  onSearch: (value: string) => void;
   onOpenImport: () => void;
   markets: OriginMarket[];
   positions: StoredPosition[];
@@ -1406,47 +1467,19 @@ function Shell({
 }) {
   return (
     <div className="app-shell">
-      <Header wallet={wallet} stream={stream} onSearch={onSearch} onOpenImport={onOpenImport} unreadCount={unreadCount} />
+      <Header
+        wallet={wallet}
+        stream={stream}
+        onOpenImport={onOpenImport}
+        unreadCount={unreadCount}
+      />
       <UrgentRiskBanner positions={positions} markets={markets} onClosePosition={onClosePosition} />
       <TickerMarquee markets={markets} />
       <div className="shell-body">
-        <aside className="side-nav">
-          <div className="side-section">
-            <span className="side-label">Trade</span>
-            {primary.map((item) => (
-              <NavLink key={item.to} to={item.to} className={({ isActive }) => `side-link ${isActive ? "active" : ""}`}>
-                <span>{item.icon}</span>
-                {item.label}
-              </NavLink>
-            ))}
-          </div>
-          <div className="side-section">
-            <span className="side-label">More</span>
-            <NavLink to="/earn" className="side-link"><span>💎</span>Earn / LP</NavLink>
-            <NavLink to="/competitions" className="side-link"><span>🏆</span>Competitions</NavLink>
-            <NavLink to="/profile" className="side-link"><span>👤</span>Profile</NavLink>
-          </div>
-          <div className="side-bottom">
-            <NavLink to="/proof" className="side-link"><span>↗</span>Protocol / Proof</NavLink>
-            <NavLink to="/settings" className="side-link"><span>⚙</span>Settings</NavLink>
-            <div className="side-footer">
-              <b>ARC MAINNET (5042)</b>
-              <span>Fail-closed meme perps with Arc USDC settlement</span>
-            </div>
-          </div>
-        </aside>
         <main className="content">
           <Outlet />
         </main>
       </div>
-      <nav className="mobile-nav">
-        {primary.slice(0, 5).map((item) => (
-          <NavLink key={item.to} to={item.to} className={({ isActive }) => isActive ? "active" : ""}>
-            <span>{item.icon}</span>
-            {item.label}
-          </NavLink>
-        ))}
-      </nav>
     </div>
   );
 }
@@ -3878,7 +3911,6 @@ export function WinnerApp() {
             <Shell
               wallet={wallet}
               stream={data.stream}
-              onSearch={(value) => { void navigate(`/markets?q=${encodeURIComponent(value)}`); }}
               onOpenImport={() => setImportOpen(true)}
               markets={data.page.items}
               positions={positions}
