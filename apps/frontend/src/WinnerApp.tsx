@@ -1767,9 +1767,11 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
 
 function MarketChart({ market }: { market: OriginMarket }) {
   const [range, setRange] = useState("1D");
-  const [chartMode, setChartMode] = useState<"CANDLE" | "LINE">("LINE");
+  const [chartMode, setChartMode] = useState<"CANDLE" | "LINE">("CANDLE");
+  const [embedView, setEmbedView] = useState<"NATIVE" | "DEXSCREENER">("NATIVE");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
+  const isArcNative = market.chain === "ARC" || !market.chain;
   const chainSlug = market.chain === "SOLANA" ? "solana" : market.chain === "BASE" ? "base" : market.chain === "BNB" ? "bsc" : market.chain === "ETHEREUM" ? "ethereum" : null;
   const tokenTarget = market.tokenAddress;
 
@@ -1901,24 +1903,63 @@ function MarketChart({ market }: { market: OriginMarket }) {
               🕯️ Candlesticks
             </button>
           </div>
+
+          {chainSlug && chartMode === "CANDLE" && (
+            <div style={{ display: "inline-flex", gap: "2px", background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.25)", borderRadius: "6px", padding: "2px", marginRight: "6px" }}>
+              <button
+                type="button"
+                className={embedView === "NATIVE" ? "active" : ""}
+                onClick={() => setEmbedView("NATIVE")}
+                style={{ padding: "4px 8px", fontSize: "10px", fontWeight: 600, borderRadius: "4px" }}
+              >
+                Native Candles
+              </button>
+              <button
+                type="button"
+                className={embedView === "DEXSCREENER" ? "active" : ""}
+                onClick={() => setEmbedView("DEXSCREENER")}
+                style={{ padding: "4px 8px", fontSize: "10px", fontWeight: 600, borderRadius: "4px" }}
+              >
+                DexScreener Embed
+              </button>
+            </div>
+          )}
+
           {["15M", "1H", "4H", "1D", "1W"].map((item) => (
             <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item}</button>
           ))}
         </div>
-        <span>{chartMode === "CANDLE" ? `${candles.length} Candles · OHLC Active` : `${historyPoints.length} points · 0ms Instant`}</span>
+
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          {isArcNative && (
+            <span style={{ fontSize: "10px", padding: "2px 7px", borderRadius: "4px", background: "rgba(215,240,184,0.1)", border: "1px solid rgba(215,240,184,0.3)", color: "var(--accent)" }}>
+              ⚡ Arc Native (5042)
+            </span>
+          )}
+          <span>{chartMode === "CANDLE" ? `${candles.length} Candles · OHLC Active` : `${historyPoints.length} points · 0ms Instant`}</span>
+        </div>
       </div>
 
-      {chartMode === "CANDLE" ? (
+      {chartMode === "CANDLE" && embedView === "DEXSCREENER" && chainSlug && tokenTarget ? (
+        <div style={{ position: "relative", width: "100%", height: "420px", marginTop: "12px", borderRadius: "8px", overflow: "hidden", background: "#0a0e10", border: "1px solid var(--line)" }}>
+          <iframe
+            src={`https://dexscreener.com/${chainSlug}/${tokenTarget}?embed=1&theme=dark&trades=0&info=0`}
+            style={{ width: "100%", height: "100%", border: 0 }}
+            title={`${market.symbol} Candlestick Chart`}
+            loading="lazy"
+          />
+        </div>
+      ) : chartMode === "CANDLE" ? (
         <div style={{ position: "relative", marginTop: "12px", background: "#0a0e10", border: "1px solid var(--line)", borderRadius: "8px", padding: "10px 14px" }}>
           {/* Interactive OHLC Bar */}
           {activeCandle && (
             <div style={{ display: "flex", alignItems: "center", gap: "14px", flexWrap: "wrap", fontSize: "11px", fontFamily: "var(--mono)", paddingBottom: "8px", borderBottom: "1px solid rgba(255,255,255,0.05)", color: "var(--muted)" }}>
               <span>Time: <b style={{ color: "#fff" }}>{activeCandle.time}</b></span>
-              <span>O: <b style={{ color: "#fff" }}>${formatUsd(String(activeCandle.open))}</b></span>
-              <span>H: <b style={{ color: "#00f076" }}>${formatUsd(String(activeCandle.high))}</b></span>
-              <span>L: <b style={{ color: "#ff3b69" }}>${formatUsd(String(activeCandle.low))}</b></span>
-              <span>C: <b style={{ color: activeCandle.isBull ? "#00f076" : "#ff3b69" }}>${formatUsd(String(activeCandle.close))}</b></span>
-              <span>Vol: <b style={{ color: "#fff" }}>${formatUsd(String(activeCandle.volume))}</b></span>
+              <span>O: <b style={{ color: "#fff" }}>{formatUsd(String(activeCandle.open))}</b></span>
+              <span>H: <b style={{ color: "#00f076" }}>{formatUsd(String(activeCandle.high))}</b></span>
+              <span>L: <b style={{ color: "#ff3b69" }}>{formatUsd(String(activeCandle.low))}</b></span>
+              <span>C: <b style={{ color: activeCandle.isBull ? "#00f076" : "#ff3b69" }}>{formatUsd(String(activeCandle.close))}</b></span>
+              <span>Vol: <b style={{ color: "#fff" }}>{formatUsd(String(activeCandle.volume))}</b></span>
               <span style={{ color: activeCandle.isBull ? "#00f076" : "#ff3b69" }}>
                 {activeCandle.changePct >= 0 ? "+" : ""}{activeCandle.changePct.toFixed(2)}%
               </span>
@@ -1941,7 +1982,7 @@ function MarketChart({ market }: { market: OriginMarket }) {
                   <g key={idx}>
                     <line x1="0" y1={y} x2="940" y2={y} stroke="rgba(255,255,255,0.06)" strokeDasharray="3 3" />
                     <text x="945" y={y + 3} fill="rgba(255,255,255,0.35)" fontSize="9" fontFamily="var(--mono)">
-                      ${formatUsd(String(p))}
+                      {formatUsd(String(p))}
                     </text>
                   </g>
                 );
@@ -2005,9 +2046,9 @@ function MarketChart({ market }: { market: OriginMarket }) {
           </div>
 
           <div className="chart-caption" style={{ display: "flex", justifyContent: "space-between", paddingTop: "6px" }}>
-            <span>Low: ${formatUsd(String(candleMinPrice))} · {candles[0]?.time}</span>
+            <span>Low: {formatUsd(String(candleMinPrice))} · {candles[0]?.time}</span>
             <span style={{ color: isGreen ? "#00f076" : "#ff3b69" }}>
-              High: ${formatUsd(String(candleMaxPrice))} · {candles.at(-1)?.time}
+              High: {formatUsd(String(candleMaxPrice))} · {candles.at(-1)?.time}
             </span>
           </div>
         </div>
@@ -2026,8 +2067,8 @@ function MarketChart({ market }: { market: OriginMarket }) {
             </svg>
           </div>
           <div className="chart-caption">
-            <span>Low: ${formatUsd(String(min))} · {safeDate(historyPoints[0]?.observedAt)}</span>
-            <span style={{ color: strokeColor }}>High: ${formatUsd(String(max))} · {safeDate(historyPoints.at(-1)?.observedAt)}</span>
+            <span>Low: {formatUsd(String(min))} · {safeDate(historyPoints[0]?.observedAt)}</span>
+            <span style={{ color: strokeColor }}>High: {formatUsd(String(max))} · {safeDate(historyPoints.at(-1)?.observedAt)}</span>
           </div>
         </>
       )}
