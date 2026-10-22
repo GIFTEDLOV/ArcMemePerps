@@ -217,7 +217,7 @@ export function PnlShareModal({ position, onClose }: { position: StoredPosition 
   const isWin = roiPct >= 0;
   const pnlUsd = (collateralNum * (roiPct / 100)).toFixed(2);
 
-  const tweetText = `Just printed on $${position.symbol} ${position.side} ${position.leverage} on @ClusterPerps!\n\n📈 ROI: ${isWin ? "+" : ""}${roiPct.toFixed(1)}% ($${pnlUsd} USDC)\n⚡ Settled in real USDC on Arc Mainnet\n\nTrade meme perps with leverage on https://arcmemeperps.vercel.app #Arc #CLUSTER #Perps`;
+  const tweetText = `Just printed on $${position.symbol} ${position.side} ${position.leverage} on @ClusterPerps!\n\nROI: ${isWin ? "+" : ""}${roiPct.toFixed(1)}% ($${pnlUsd} USDC)\nSettled in real USDC on Arc Mainnet\n\nTrade meme perps with leverage on https://arcmemeperps.vercel.app #Arc #CLUSTER #Perps`;
 
   const copySummary = async () => {
     try {
@@ -249,7 +249,7 @@ export function PnlShareModal({ position, onClose }: { position: StoredPosition 
           <div className="pnl-market-badge">
             <span className="pnl-market-title">${position.symbol}</span>
             <span className={`pnl-side-pill ${isLong ? "long" : "short"}`}>
-              {isLong ? "▲ LONG" : "▼ SHORT"} {position.leverage}
+              {isLong ? "LONG" : "SHORT"} {position.leverage}
             </span>
           </div>
 
@@ -287,13 +287,13 @@ export function PnlShareModal({ position, onClose }: { position: StoredPosition 
 
         <div className="pnl-modal-actions">
           <button className="share-x-btn" onClick={shareToX}>
-            <span>𝕏</span> Share on Twitter / X
+            Share on X
           </button>
           <button className="copy-pnl-btn" onClick={() => void copySummary()}>
-            {copied ? "✓ Copied!" : "Copy Text"}
+            {copied ? "Copied!" : "Copy Text"}
           </button>
           <button className="copy-pnl-btn" onClick={onClose}>
-            ✕
+            
           </button>
         </div>
       </div>
@@ -357,7 +357,7 @@ export function LiveTradeStream({ market }: { market: OriginMarket }) {
         {trades.map((t) => (
           <div className="trade-stream-row" key={t.id}>
             <span className={t.side === "LONG" ? "trade-tag-long" : t.side === "SHORT" ? "trade-tag-short" : "trade-tag-liq"}>
-              {t.side === "LONG" ? "▲ LONG" : t.side === "SHORT" ? "▼ SHORT" : "🔥 LIQ"}
+              {t.side === "LONG" ? "LONG" : t.side === "SHORT" ? "SHORT" : "LIQ"}
             </span>
             <strong>{t.sizeUsd}</strong>
             <span className="mono">{t.price}</span>
@@ -678,7 +678,7 @@ function useProductData() {
                   id: `delist-${m.marketId}-${Date.now()}`,
                   type: "DELISTING_WARNING",
                   symbol: m.symbol || "TOKEN",
-                  title: `⚠️ URGENT: Delisting Risk on $${m.symbol}`,
+                  title: `URGENT: Delisting Risk on $${m.symbol}`,
                   message: `Origin pool triggered Anti-Rug Risk Circuit-Breaker (${reason}). Close your position immediately, or the automated Arc Safety Keeper will auto-close it to protect remaining collateral.`,
                   urgent: true,
                   time: "Just now",
@@ -799,7 +799,7 @@ function TickerMarquee({ markets }: { markets: OriginMarket[] }) {
   return (
     <div className="gmgn-ticker-tape" aria-label="Live market ticker">
       <div className="ticker-label">
-        <span>⭐</span>
+        <span></span>
         <strong>HOT</strong>
         <span style={{ color: "var(--faint)", margin: "0 4px" }}>|</span>
       </div>
@@ -1060,7 +1060,7 @@ function UrgentRiskBanner({
   useEffect(() => {
     if (endangered) {
       playSecuritySiren();
-      sendDesktopPushAlert(`🚨 Delisting Alert: $${endangered.position.symbol}`, {
+      sendDesktopPushAlert(`Delisting Alert: $${endangered.position.symbol}`, {
         body: `Anti-rug circuit breaker triggered: ${endangered.reason}. Emergency close your position now to safeguard margin!`,
       });
     }
@@ -1085,7 +1085,7 @@ function UrgentRiskBanner({
         const perm = await Notification.requestPermission();
         setPushGranted(perm === "granted");
         if (perm === "granted") {
-          sendDesktopPushAlert("🛡️ ArcMemePerps Push Alerts Enabled", {
+          sendDesktopPushAlert("CLUSTER Push Alerts Enabled", {
             body: "You will now receive desktop notifications for emergency delisting and keeper actions.",
           });
         }
@@ -1100,7 +1100,7 @@ function UrgentRiskBanner({
   return (
     <div className="urgent-risk-banner">
       <div className="urgent-risk-content">
-        <span className="urgent-siren">🚨</span>
+        <span className="urgent-siren">!</span>
         <div className="urgent-risk-text">
           <strong>URGENT DELISTING NOTICE:</strong> Open position on <b>${endangered.position.symbol}</b> ({endangered.position.side} {endangered.position.leverage}) triggered Anti-Rug Circuit Breaker ({endangered.reason}). Close now or Arc Safety Keeper will auto-close it to protect your collateral.
         </div>
@@ -1111,7 +1111,7 @@ function UrgentRiskBanner({
           onClick={toggleSound}
           title={soundMuted ? "Unmute security alarm" : "Mute security alarm"}
         >
-          {soundMuted ? "🔇 Siren Muted" : "🔊 Siren On"}
+          {soundMuted ? "Siren Muted" : "Siren On"}
         </button>
         {!pushGranted && (
           <button
@@ -1119,14 +1119,14 @@ function UrgentRiskBanner({
             onClick={() => void handleRequestPush()}
             title="Enable desktop notifications"
           >
-            🔔 Push Alerts
+            Push Alerts
           </button>
         )}
         <button
           className="emergency-close-btn"
           onClick={() => onClosePosition(endangered.position.id, endangered.reason)}
         >
-          ⚡ Emergency Close ({endangered.position.collateral})
+          Emergency Close ({endangered.position.collateral})
         </button>
       </div>
     </div>
@@ -1146,7 +1146,7 @@ function RiskDisclosureModal({
     <div className="risk-modal-backdrop" role="dialog" aria-modal="true">
       <div className="risk-modal">
         <div className="risk-modal-head">
-          <span className="risk-icon-shield">🛡️</span>
+          <span className="risk-icon-shield">[Notice]</span>
           <div>
             <h2>Risk Disclosure &amp; Capital Protection Notice</h2>
             <span>First-Time Trader Onboarding · Arc Mainnet (5042)</span>
@@ -1188,7 +1188,7 @@ function RiskDisclosureModal({
             disabled={!acceptedCheckbox}
             onClick={onAccept}
           >
-            ✓ Agree &amp; Connect Wallet
+            Agree &amp; Connect Wallet
           </button>
         </div>
       </div>
@@ -1237,7 +1237,7 @@ function NotificationsPage({
         const perm = await Notification.requestPermission();
         setPushGranted(perm === "granted");
         if (perm === "granted") {
-          sendDesktopPushAlert("🛡️ ArcMemePerps Desktop Alerts Active", {
+          sendDesktopPushAlert("CLUSTER Desktop Alerts Active", {
             body: "You will now receive desktop notifications for emergency delisting warnings and keeper actions.",
           });
         }
@@ -1286,7 +1286,7 @@ function NotificationsPage({
         </div>
         <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
           <button className="alarm-toggle-btn" onClick={toggleSound}>
-            {soundMuted ? "🔇 Siren Muted" : "🔊 Siren Active"}
+            {soundMuted ? "Siren Muted" : "Siren Active"}
           </button>
           <button className="alarm-toggle-btn" onClick={() => playSecuritySiren(true)}>
             ▶ Test Siren
@@ -1295,7 +1295,7 @@ function NotificationsPage({
             className={`push-perm-btn ${pushGranted ? "granted" : ""}`}
             onClick={() => void handleRequestPush()}
           >
-            {pushGranted ? "✓ Push Alerts Enabled" : "🔔 Enable Push Alerts"}
+            {pushGranted ? "Push Alerts Enabled" : "Enable Push Alerts"}
           </button>
         </div>
       </div>
@@ -1314,7 +1314,7 @@ function NotificationsPage({
               <div key={n.id} className={`notification-card ${isDelist ? "urgent" : ""}`}>
                 <div className="notification-content">
                   <div className="notification-title">
-                    <span>{isDelist ? "🚨" : "🔔"}</span>
+                    <span>{isDelist ? "!" : "Alerts"}</span>
                     <span>{n.title}</span>
                     {isDelist && <span className="quarantined-tag">ACTION REQUIRED</span>}
                   </div>
@@ -1327,7 +1327,7 @@ function NotificationsPage({
                     className="emergency-close-btn"
                     onClick={() => onClosePosition(matchingPos.id, "Delisting notification action")}
                   >
-                    ⚡ Close Position ({matchingPos.collateral})
+                    Close Position ({matchingPos.collateral})
                   </button>
                 )}
               </div>
@@ -1379,14 +1379,14 @@ function Header({
   }, [location.pathname]);
 
   const moreItems = [
-    { to: "/new", label: "New Pairs", icon: "✨", desc: "Recently listed meme pairs" },
-    { to: "/watchlist", label: "Watchlist", icon: "⭐", desc: "Saved favorite pairs" },
-    { to: "/activity", label: "Activity", icon: "≡", desc: "Live order stream & events" },
-    { to: "/earn", label: "Earn / LP", icon: "💎", desc: "Deposit USDC & earn fees" },
-    { to: "/competitions", label: "Competitions", icon: "🏆", desc: "Trading leaderboard & prizes" },
-    { to: "/profile", label: "Profile", icon: "👤", desc: "Account stats & avatar" },
-    { to: "/proof", label: "Protocol / Proof", icon: "↗", desc: "On-chain verification" },
-    { to: "/settings", label: "Settings", icon: "⚙", desc: "Platform preferences" },
+    { to: "/new", label: "New Pairs", icon: "", desc: "Recently listed meme pairs" },
+    { to: "/watchlist", label: "Watchlist", icon: "", desc: "Saved favorite pairs" },
+    { to: "/activity", label: "Activity", icon: "", desc: "Live order stream & events" },
+    { to: "/earn", label: "Earn / LP", icon: "", desc: "Deposit USDC & earn fees" },
+    { to: "/competitions", label: "Competitions", icon: "", desc: "Trading leaderboard & prizes" },
+    { to: "/profile", label: "Profile", icon: "", desc: "Account stats & avatar" },
+    { to: "/proof", label: "Protocol / Proof", icon: "", desc: "On-chain verification" },
+    { to: "/settings", label: "Settings", icon: "", desc: "Platform preferences" },
   ];
 
   return (
@@ -1395,19 +1395,19 @@ function Header({
         <Logo />
         <nav className="header-nav">
           <NavLink to="/trenches" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
-            <span>🔥</span> Trenches
+            Trenches
           </NavLink>
           <NavLink to="/trending" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
-            <span>🚀</span> Trending
+            Trending
           </NavLink>
           <NavLink to="/markets" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
-            <span>📊</span> Markets
+            Markets
           </NavLink>
           <NavLink to="/markets/arc-mainnet-gf" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
-            <span>⚡</span> Perpetual <span className="hot-pill">HOT DEX</span>
+            Perpetual <span className="hot-pill">HOT DEX</span>
           </NavLink>
           <NavLink to="/portfolio" className={({ isActive }) => `nav-btn ${isActive ? "active" : ""}`}>
-            <span>💼</span> Portfolio
+            Portfolio
           </NavLink>
 
           {/* GMGN More Dropdown */}
@@ -1417,7 +1417,7 @@ function Header({
               className={`nav-btn dropdown-trigger ${dropdownOpen ? "active" : ""}`}
               onClick={() => setDropdownOpen(!dropdownOpen)}
             >
-              <span>🧭</span> More <span className="dropdown-arrow">{dropdownOpen ? "▴" : "▾"}</span>
+              More <span className="dropdown-arrow">{dropdownOpen ? "▴" : "▾"}</span>
             </button>
 
             {dropdownOpen && (
@@ -1454,27 +1454,27 @@ function Header({
             }
           }}
         >
-          <span>🔍</span>
+          
           <input name="q" placeholder="Search token, CA, symbol..." />
           <span className="search-shortcut-badge">/</span>
         </form>
 
         <button className="button button-secondary compact import-btn" onClick={onOpenImport}>
-          ⚡ Import Token
+          Import Token
         </button>
 
         <span className="network-chip" title="Connected to Arc Mainnet Layer 2 (5042)">
           <span className="network-dot" />
-          ⚡ ARC (5042)
+          ARC (5042)
         </span>
 
         <span className="network-chip" style={{ color: "#00f5a0", borderColor: "rgba(0,245,160,0.25)" }}>
-          🟢 12ms · Fast
+          12ms · Fast
         </span>
 
         <div className="bell-wrap">
           <Link className="icon-button" to="/notifications" aria-label="Notifications">
-            🔔
+            Alerts
           </Link>
           {unreadCount > 0 && <span className="unread-badge" />}
         </div>
@@ -1514,10 +1514,10 @@ function GmgnFooterBar() {
           <span>Gas:</span> <strong>12 Gwei</strong>
         </span>
         <span className="footer-badge-item">
-          <span>Cluster Radar:</span> <strong style={{ color: "#00f5a0" }}>● AUDITED SAFE</strong>
+          <span>Cluster Radar:</span> <strong style={{ color: "#00f5a0" }}>AUDITED SAFE</strong>
         </span>
         <span className="footer-badge-item">
-          <span>Sound:</span> <strong>🔊 ON</strong>
+          <span>Sound:</span> <strong>ON</strong>
         </span>
       </div>
     </footer>
@@ -1677,14 +1677,14 @@ function CategoryBar({ selected, onSelect, markets }: { selected: string; onSele
 
   const categories = [
     ["ALL", "All Safe Memes", safeMarkets.length],
-    ["ARC", "⚡ Arc Memes", safeMarkets.filter((m) => m.chain === "ARC").length],
-    ["NEW", "✨ New Pairs", safeMarkets.filter(isNewMarket).filter((m) => !m.isQuarantined).length],
-    ["TRENDING", "🔥 Trending", safeMarkets.filter((market) => (market.transactions24h ?? 0) > 0).length],
+    ["ARC", "Arc Memes", safeMarkets.filter((m) => m.chain === "ARC").length],
+    ["NEW", " New Pairs", safeMarkets.filter(isNewMarket).filter((m) => !m.isQuarantined).length],
+    ["TRENDING", "Trending", safeMarkets.filter((market) => (market.transactions24h ?? 0) > 0).length],
     ["BONDING", "Bonding", safeMarkets.filter(isBondingMarket).length],
     ["GRADUATED", "Graduated", safeMarkets.filter(isGraduatedMarket).length],
     ["DEX_LIVE", "DEX Live", safeMarkets.filter((market) => ["DEX_LIVE", "ESTABLISHED"].includes(market.lifecycle.status)).length],
-    ["PERPS", "🚀 Perps", safeMarkets.filter((market) => market.perp.status === "LIVE" || market.perp.status === "ELIGIBLE" || market.chain === "ARC").length],
-    ["QUARANTINE", "🛡️ Blocked Rugs", rugMarkets.length],
+    ["PERPS", "Perps", safeMarkets.filter((market) => market.perp.status === "LIVE" || market.perp.status === "ELIGIBLE" || market.chain === "ARC").length],
+    ["QUARANTINE", "Blocked Rugs", rugMarkets.length],
   ];
 
   return (
@@ -1753,13 +1753,13 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
         action={
           <div className="page-actions">
             <button className="button button-secondary compact" disabled={data.scanning} onClick={() => void data.scanLivePairs()}>
-              {data.scanning ? "Scanning Chains..." : "🔄 Scan Fresh Pairs"}
+              {data.scanning ? "Scanning Chains..." : "Scan Fresh Pairs"}
             </button>
             <button className="button button-primary compact" onClick={onOpenImport}>
-              ⚡ Import Arc Token
+              Import Arc Token
             </button>
             <span className="radar-badge">
-              🛡️ Radar Active ({data.page.items.filter((m) => m.isQuarantined).length} Rugs Blocked)
+               Radar Active ({data.page.items.filter((m) => m.isQuarantined).length} Rugs Blocked)
             </span>
             <span className="live-count">
               <span className="pulse" />
@@ -1770,7 +1770,7 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
       />
       <div className="market-toolbar">
         <div className="toolbar-search">
-          <span>🔍</span>
+          
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -1803,7 +1803,7 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
             className={`${chain === item ? "active" : ""} ${item === "ARC" ? "arc-tab" : ""}`}
             onClick={() => { setChain(item); apply({ chain: item }); }}
           >
-            {item === "ARC" ? "⚡ ARC" : item === "ALL" ? "All" : chainLabel(item)}
+            {item === "ARC" ? "ARC" : item === "ALL" ? "All" : chainLabel(item)}
           </button>
         ))}
       </div>
@@ -1811,16 +1811,16 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
       {category === "QUARANTINE" && (
         <div className="quarantine-banner">
           <div>
-            <strong>🛡️ Anti-Rug Radar: {data.page.items.filter((m) => m.isQuarantined).length} Dead &amp; Drained Pools Quarantined</strong>
+            <strong> Anti-Rug Radar: {data.page.items.filter((m) => m.isQuarantined).length} Dead &amp; Drained Pools Quarantined</strong>
             <span>These tokens were quarantined automatically under Chapter 3 &amp; 4 Playbook Filters (Liquidity floor &lt; $1,000, wash-trading bot volume ratio, or non-meme stablecoins). Derivatives trading is disabled on these pools to protect users from rug pulls.</span>
           </div>
-          <span className="radar-badge">🛡️ Protection Active</span>
+          <span className="radar-badge"> Protection Active</span>
         </div>
       )}
 
       {category === "PERPS" && (
         <div className="perp-truth">
-          <span className="perp-icon">↗</span>
+          <span className="perp-icon"></span>
           <div>
             <b>{data.page.perpCount ?? 0} live perp markets</b>
             <span>No market currently meets the complete activation policy. Perp markets appear here only after passing qualification and capacity policy.</span>
@@ -2019,7 +2019,7 @@ function MarketChart({ market }: { market: OriginMarket }) {
               onClick={() => setChartMode("DEXSCREENER")}
               style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 600, borderRadius: "4px" }}
             >
-              📊 DexScreener Live
+              DexScreener Live
             </button>
             <button
               type="button"
@@ -2027,7 +2027,7 @@ function MarketChart({ market }: { market: OriginMarket }) {
               onClick={() => setChartMode("CANDLE")}
               style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 600, borderRadius: "4px" }}
             >
-              🕯️ Native Candles
+              Native Candles
             </button>
             <button
               type="button"
@@ -2035,7 +2035,7 @@ function MarketChart({ market }: { market: OriginMarket }) {
               onClick={() => setChartMode("LINE")}
               style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 600, borderRadius: "4px" }}
             >
-              ⚡ Instant Line
+              Instant Line
             </button>
           </div>
 
@@ -2047,7 +2047,7 @@ function MarketChart({ market }: { market: OriginMarket }) {
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           {isArcNative && (
             <span style={{ fontSize: "10px", padding: "2px 7px", borderRadius: "4px", background: "rgba(215,240,184,0.1)", border: "1px solid rgba(215,240,184,0.3)", color: "var(--accent)" }}>
-              ⚡ Arc Native (5042)
+              Arc Native (5042)
             </span>
           )}
           <span>{chartMode === "DEXSCREENER" ? "DexScreener Live Feed" : chartMode === "CANDLE" ? `${candles.length} Candles · OHLC Active` : `${historyPoints.length} points · 0ms Instant`}</span>
@@ -2245,7 +2245,7 @@ function RiskPassport({ market, onProvenance }: { market: OriginMarket; onProven
       <div className="rug-summary-chips">
         {rug.details.map((d) => (
           <div key={d.label} className={`rug-chip ${d.pass ? "pass" : "caution"}`}>
-            <span>{d.pass ? "✓" : "!"}</span>
+            <span>{d.pass ? "" : "!"}</span>
             <b>{d.label}:</b> {d.note}
           </div>
         ))}
@@ -2257,7 +2257,7 @@ function RiskPassport({ market, onProvenance }: { market: OriginMarket; onProven
             <span>{row.label}</span>
             <strong className={row.tone === "warn" ? "unknown" : row.tone === "bad" ? "negative" : row.tone === "good" ? "positive" : ""}>{row.value}</strong>
             <small>{row.note}</small>
-            <span className="row-arrow">↗</span>
+            <span className="row-arrow"></span>
           </button>
         ))}
       </div>
@@ -2460,7 +2460,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
 
   return (
     <aside className="trade-rail">
-      <div className="rail-kicker">⚡ Arc Perpetual Engine</div>
+      <div className="rail-kicker">Perpetual Engine</div>
       <div className="rail-heading">
         <div>
           <h2>Trade {market.symbol ?? "Market"}</h2>
@@ -2497,14 +2497,14 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
           className={`gmgn-btn-buy ${side !== "LONG" ? "inactive" : ""}`}
           onClick={() => setSide("LONG")}
         >
-          ▲ Buy / Long
+          Buy / Long
         </button>
         <button
           type="button"
           className={`gmgn-btn-sell ${side !== "SHORT" ? "inactive" : ""}`}
           onClick={() => setSide("SHORT")}
         >
-          ▼ Sell / Short
+          Sell / Short
         </button>
       </div>
 
@@ -2645,12 +2645,12 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
       {testSuccess && (
         <div className="trade-success-box" style={{ flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
-            <span>✓</span>
+            <span></span>
             <p style={{ margin: 0 }}>{testSuccess}</p>
           </div>
           {sharePos && (
             <button className="share-pnl-trigger" style={{ marginTop: "4px" }} onClick={() => setSharePos(sharePos)}>
-              📸 Share PnL Flex Card
+              Share PnL Flex Card
             </button>
           )}
         </div>
@@ -2658,7 +2658,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
 
       {market.isQuarantined ? (
         <div className="notice notice-bad" style={{ margin: "10px 0" }}>
-          <b>🚫 Trading Disabled: Anti-Rug Quarantine</b>
+          <b>Trading Disabled: Anti-Rug Quarantine</b>
           <span style={{ fontSize: "11px" }}>This token fails Playbook Anti-Rug filters ({market.quarantineReason ?? "drained liquidity or wash bots"}). Position entry blocked for capital safety.</span>
         </div>
       ) : wallet.state.status === "DISCONNECTED" ? (
@@ -2678,8 +2678,8 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
       {/* GMGN On-Chain & Cluster Diagnostics Card */}
       <div className="gmgn-security-card">
         <div className="gmgn-security-head">
-          <span>⚡ CLUSTER RADAR</span>
-          <span style={{ color: "#00f5a0", fontSize: "10px" }}>● AUDITED SAFE</span>
+          <span>CLUSTER RADAR</span>
+          <span style={{ color: "#00f5a0", fontSize: "10px" }}>AUDITED SAFE</span>
         </div>
         <div className="gmgn-sec-grid">
           <div className="gmgn-sec-cell">
@@ -2710,7 +2710,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
       </div>
 
       <div className="rail-footer-note">
-        <span>🛡️ Protected by Arc 0.4.0 Fail-Closed Dynamic Capacity</span>
+        <span>Protected by Arc 0.4.0 Fail-Closed Dynamic Capacity</span>
       </div>
 
       {sharePos && <PnlShareModal position={sharePos} onClose={() => setSharePos(null)} />}
@@ -2843,21 +2843,21 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
               </button>
               {market.chain === "ARC" && (
                 <a className="explorer-link" href={`https://explorer.arc.io/token/${market.tokenAddress}`} target="_blank" rel="noreferrer">
-                  Explorer ↗
+                  Explorer 
                 </a>
               )}
             </div>
             <div className="social-links-row">
               {market.chain === "ARC" && (
                 <a className="social-badge arc-scan" href={`https://explorer.arc.io/token/${market.tokenAddress}`} target="_blank" rel="noreferrer">
-                  ⚡ ArcScan
+                  ArcScan
                 </a>
               )}
               <a className="social-badge twitter" href={`https://twitter.com/search?q=${encodeURIComponent(`$${market.symbol ?? "ARC"}`)}`} target="_blank" rel="noreferrer">
-                𝕏 Twitter
+                X
               </a>
               <a className="social-badge telegram" href="https://t.me/ArcNetworkOfficial" target="_blank" rel="noreferrer">
-                ✈ Telegram
+                Telegram
               </a>
               <a
                 className="social-badge"
@@ -2866,13 +2866,13 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
                 target="_blank"
                 rel="noreferrer"
               >
-                🫧 Bubblemaps Cluster
+                Bubblemaps
               </a>
               <span className="social-badge" title="Top 10 concentration safe">
-                🛡️ Top10: {((market.top10ConcentrationBps ?? 1850) / 100).toFixed(1)}%
+                Top 10: {((market.top10ConcentrationBps ?? 1850) / 100).toFixed(1)}%
               </span>
               <span className="social-badge" title="Dev holding safe">
-                🟢 Dev: 0% Held
+                Dev: 0% Held
               </span>
             </div>
             <span className="micro">Observed {ageLabel(market.lifecycle.observedAt)} · Arc Settlement</span>
@@ -2880,7 +2880,7 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
         </div>
         <div className="detail-actions">
           <button className={`watch-button ${watchlist.has(market.marketId) ? "saved" : ""}`} onClick={() => watchlist.toggle(market.marketId)}>
-            {watchlist.has(market.marketId) ? "★ Saved" : "☆ Watch"}
+            {watchlist.has(market.marketId) ? "Saved" : "Watch"}
           </button>
           <StatusPill value={state.label} tone={state.tone} label={state.label} />
         </div>
@@ -2942,7 +2942,7 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
       {market.isQuarantined && (
         <div className="quarantine-banner">
           <div>
-            <strong>🚫 Anti-Rug Radar: Quarantined Market ({market.quarantineReason ?? "Playbook Safety Violation"})</strong>
+            <strong>Anti-Rug Radar: Quarantined Market ({market.quarantineReason ?? "Playbook Safety Violation"})</strong>
             <span>This pool fails CLUSTER Chapter 3 &amp; 4 protection requirements. Perpetuals trading and leverage are disabled to safeguard collateral.</span>
           </div>
           <span className="quarantined-tag" style={{ padding: "4px 8px", fontSize: "11px" }}>TRADING DISABLED</span>
@@ -3102,7 +3102,7 @@ function DeployerPanel({ market }: { market: OriginMarket }) {
       <div className="evidence-table" style={{ marginTop: "16px" }}>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Deployer Address</span>
-          <code>{shorten(market.marketId, 12)} <span style={{ color: "var(--good)", marginLeft: "6px" }}>✓ Verified Contract Creator</span></code>
+          <code>{shorten(market.marketId, 12)} <span style={{ color: "var(--good)", marginLeft: "6px" }}>Verified Contract Creator</span></code>
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Admin Keys</span>
@@ -3119,7 +3119,7 @@ function DeployerPanel({ market }: { market: OriginMarket }) {
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Arc Margin Vault</span>
           <a href="https://explorer.arc.io/address/0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf" target="_blank" rel="noreferrer" style={{ color: "var(--accent)" }}>
-            0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf ↗
+            0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf 
           </a>
         </div>
       </div>
@@ -3144,29 +3144,29 @@ function ProofPanel({ market }: { market: OriginMarket }) {
       </div>
       <div style={{ marginTop: "16px", display: "grid", gap: "9px" }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: "1px solid var(--soft)", borderRadius: "6px", background: "rgba(0,240,118,0.04)" }}>
-          <span>✓ Rule 1: Origin Market Observed</span>
+          <span>Rule 1: Origin Market Observed</span>
           <strong style={{ color: "var(--good)", fontFamily: "var(--mono)", fontSize: "11px" }}>PASS ({market.chain} Verified Pool)</strong>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: "1px solid var(--soft)", borderRadius: "6px", background: "rgba(0,240,118,0.04)" }}>
-          <span>✓ Rule 2: Minimum Liquidity Gate</span>
+          <span>Rule 2: Minimum Liquidity Gate</span>
           <strong style={{ color: "var(--good)", fontFamily: "var(--mono)", fontSize: "11px" }}>PASS ({displayed(market.originSpotLiquidityUsd, formatUsd)} ≥ $1,000)</strong>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: "1px solid var(--soft)", borderRadius: "6px", background: "rgba(0,240,118,0.04)" }}>
-          <span>✓ Rule 3: 24h Volume Velocity</span>
+          <span>Rule 3: 24h Volume Velocity</span>
           <strong style={{ color: "var(--good)", fontFamily: "var(--mono)", fontSize: "11px" }}>PASS ({formatUsd(market.volume24hUsd)} ≥ $500)</strong>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: "1px solid var(--soft)", borderRadius: "6px", background: "rgba(0,240,118,0.04)" }}>
-          <span>✓ Rule 4: Anti-Honeypot & Mint Revocation</span>
+          <span>Rule 4: Anti-Honeypot & Mint Revocation</span>
           <strong style={{ color: "var(--good)", fontFamily: "var(--mono)", fontSize: "11px" }}>PASS (0% Tax / Clean Ownership)</strong>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: "1px solid var(--soft)", borderRadius: "6px", background: "rgba(0,240,118,0.04)" }}>
-          <span>✓ Rule 5: Arc Mainnet USDC Custody</span>
+          <span>Rule 5: Arc Mainnet USDC Custody</span>
           <strong style={{ color: "var(--good)", fontFamily: "var(--mono)", fontSize: "11px" }}>PASS (Moving Real USDC on Arc 5042)</strong>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 12px", border: "1px solid rgba(0,212,255,0.3)", borderRadius: "6px", background: "rgba(0,212,255,0.06)" }}>
-          <span>⚡ Verified Mainnet Deposit Proof:</span>
+          <span>Verified Mainnet Deposit Proof:</span>
           <a href="https://explorer.arc.io/tx/0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9" target="_blank" rel="noreferrer" style={{ color: "#00d4ff", fontFamily: "var(--mono)", fontSize: "11px", fontWeight: "700" }}>
-            0x7dd1dfed...4dc9 ↗
+            0x7dd1dfed...4dc9 
           </a>
         </div>
       </div>
@@ -3193,7 +3193,7 @@ function Landing({ data }: { data: ReturnType<typeof useProductData> }) {
           <h1>Discover meme markets.<br /><em>Trade only what earns it.</em></h1>
           <p>See the origin market, inspect its forensic evidence with the automated Risk Passport, and trade meme perpetuals settled in Arc USDC.</p>
           <div className="hero-actions">
-            <Link className="button button-primary" to="/markets">Explore markets ↗</Link>
+            <Link className="button button-primary" to="/markets">Explore markets </Link>
             <Link className="button button-secondary" to="/proof">How qualification works</Link>
           </div>
           <div className="landing-truth">
@@ -3395,7 +3395,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
                     <span>{p.entryPrice} / {p.currentPrice}</span>
                     <div style={{ display: "flex", gap: "5px", alignItems: "center" }}>
                       <button className="share-pnl-trigger" onClick={() => setSharePos(p)}>
-                        📸 Share
+                        Share
                       </button>
                       <button
                         className={`button ${isEndangered ? "emergency-close-btn" : "button-secondary"} compact`}
@@ -3405,7 +3405,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
                           else closePosition(p.id);
                         }}
                       >
-                        {isEndangered ? "⚡ Emergency Close" : "Close"}
+                        {isEndangered ? "Emergency Close" : "Close"}
                       </button>
                     </div>
                   </div>
@@ -3454,7 +3454,7 @@ function Activity({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
         <div className="activity-list">
           {events.map((evt, idx) => (
             <article key={idx}>
-              <span className="activity-icon">⚡</span>
+              <span className="activity-icon">•</span>
               <div>
                 <b>{evt.type}</b>
                 <p>{evt.msg}</p>
@@ -3537,7 +3537,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
   const [tempHandle, setTempHandle] = useState(handle);
 
   const [avatar, setAvatar] = useState<string>(() => {
-    return window.localStorage.getItem(`arcmemeperps.profile.avatar.${address}`) || "⚡";
+    return window.localStorage.getItem(`arcmemeperps.profile.avatar.${address}`) || "";
   });
 
   const [defaultLeverage, setDefaultLeverage] = useState<string>(() => {
@@ -3632,7 +3632,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
     }
   };
 
-  const avatars = ["⚡", "🚀", "🦁", "💎", "🐺", "👑", "🐻", "🤖"];
+  const avatars = ["P1", "P2", "P3", "P4", "T1", "T2", "X1", "X2"];
 
   return (
     <section className="page">
@@ -3682,7 +3682,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
                       style={{ background: "transparent", border: "0", color: "var(--muted)", cursor: "pointer", fontSize: "12px" }}
                       title="Edit handle"
                     >
-                      ✏️ Edit
+                      Edit
                     </button>
                   </>
                 )}
@@ -3698,18 +3698,18 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
                   rel="noreferrer"
                   style={{ color: "#00d4ff", fontSize: "11px", fontWeight: "600" }}
                 >
-                  ArcScan ↗
+                  ArcScan 
                 </a>
               </div>
               <div style={{ display: "flex", gap: "8px", marginTop: "10px", flexWrap: "wrap" }}>
                 <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "rgba(215,240,184,0.1)", border: "1px solid rgba(215,240,184,0.3)", color: "var(--accent)" }}>
-                  ⚡ Arc Pioneer Trader
+                  Arc Pioneer Trader
                 </span>
                 <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "rgba(0,212,255,0.1)", border: "1px solid rgba(0,212,255,0.3)", color: "#00d4ff" }}>
-                  🏆 DoraHacks Hackathon Cohort
+                   DoraHacks Hackathon Cohort
                 </span>
                 <span style={{ fontSize: "10px", padding: "2px 8px", borderRadius: "4px", background: "rgba(0,240,118,0.1)", border: "1px solid rgba(0,240,118,0.3)", color: "var(--good)" }}>
-                  🛡️ Moving Real USDC on Arc
+                  Moving Real USDC on Arc
                 </span>
               </div>
             </div>
@@ -3726,7 +3726,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
                 onClick={() => void wallet.switchToArc()}
                 style={{ background: "#ffb84d", borderColor: "#ffb84d", color: "#000", fontWeight: "700" }}
               >
-                ⚡ Switch to Arc Mainnet (5042)
+                Switch to Arc Mainnet (5042)
               </button>
             ) : (
               <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -3802,7 +3802,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
 
         {savedNotice && (
           <div style={{ padding: "8px 12px", marginBottom: "14px", borderRadius: "5px", background: "rgba(0,240,118,0.12)", border: "1px solid rgba(0,240,118,0.3)", color: "var(--good)", fontSize: "11px" }}>
-            ✓ {savedNotice}
+             {savedNotice}
           </div>
         )}
 
@@ -3909,7 +3909,7 @@ function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
                   className="share-pnl-trigger"
                   onClick={() => setSharePos(p)}
                 >
-                  📸 Share
+                  Share
                 </button>
               </div>
             ))}
@@ -4005,7 +4005,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
                 void navigator.clipboard?.writeText(m.tokenAddress);
               }}
             >
-              📋
+              Copy
             </button>
           </div>
 
@@ -4014,17 +4014,17 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             <span className="gmgn-tag-chain">{m.chain}</span>
             <span>{ageLabel(m.lifecycle.observedAt)}</span>
             <div className="gmgn-social-icons">
-              <span>🌐</span>
-              <span>𝕏</span>
-              <span>✈</span>
-              <span>📊</span>
+              <span>Web</span>
+              <span>X</span>
+              <span>TG</span>
+              <span>DS</span>
             </div>
-            <span>👥 {m.holders ?? 420}</span>
-            <span>🎯 6</span>
+            <span>Holders  {m.holders ?? 420}</span>
+            <span>Clusters  6</span>
           </div>
 
           <div className="gmgn-row-security">
-            <span className="gmgn-sec-stat good">🟢 {top10}%</span>
+            <span className="gmgn-sec-stat good"> {top10}%</span>
             <span>DS 1d</span>
             <span>0%</span>
             <span>0%</span>
@@ -4046,7 +4046,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
               navigate(`/markets/${encodeURIComponent(m.marketId)}`);
             }}
           >
-            ⚡ Buy
+            Buy
           </button>
         </div>
       </div>
@@ -4057,7 +4057,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
     <div className="trenches-page">
       <div className="trenches-header">
         <div className="trenches-title">
-          <span>🔥</span> Trenches &amp; Live Discovery
+          Trenches &amp; Live Discovery
         </div>
         <div className="trenches-filters">
           {["ALL", "ARC", "SOLANA", "BASE", "BNB"].map((c) => (
@@ -4093,7 +4093,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
             <div className="gmgn-col-tools">
               <div className="gmgn-mini-search">
-                <span>🔍</span>
+                
                 <input placeholder="Keyword, CA..." />
               </div>
               <div className="gmgn-col-presets">
@@ -4118,7 +4118,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
             <div className="gmgn-col-tools">
               <div className="gmgn-mini-search">
-                <span>🔍</span>
+                
                 <input placeholder="Keyword, CA..." />
               </div>
               <div className="gmgn-col-presets">
@@ -4142,7 +4142,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
             <div className="gmgn-col-tools">
               <div className="gmgn-mini-search">
-                <span>🔍</span>
+                
                 <input placeholder="Keyword, CA..." />
               </div>
               <div className="gmgn-col-presets">
@@ -4276,7 +4276,7 @@ export function WinnerApp() {
         const newAct: StoredActivity = {
           type: "POSITION_CLOSED",
           msg: isAuto
-            ? `🛡️ Position on $${target.symbol} auto-settled by Arc Safety Keeper due to pool risk. ${target.collateral} returned to vault.`
+            ? ` Position on $${target.symbol} auto-settled by Arc Safety Keeper due to pool risk. ${target.collateral} returned to vault.`
             : `Closed ${target.side} ${target.leverage} on $${target.symbol}. Margin returned to vault.`,
           time: "Just now",
         };
@@ -4285,7 +4285,7 @@ export function WinnerApp() {
         notifications.addNotification({
           type: "POSITION_CLOSED",
           symbol: target.symbol,
-          title: isAuto ? `🛡️ Auto-Closed: $${target.symbol}` : `✓ Closed $${target.symbol}`,
+          title: isAuto ? ` Auto-Closed: $${target.symbol}` : ` Closed $${target.symbol}`,
           message: isAuto
             ? `Your open position on $${target.symbol} was automatically closed by Arc Safety Keeper due to origin pool delisting risk (${reason}). ${target.collateral} collateral was returned to your vault.`
             : `Successfully closed ${target.side} ${target.leverage} on $${target.symbol}. Margin credited back to vault balance.`,
@@ -4293,7 +4293,7 @@ export function WinnerApp() {
         });
         if (isAuto) {
           playSecuritySiren();
-          sendDesktopPushAlert(`🛡️ Arc Safety Keeper Auto-Settled $${target.symbol}`, {
+          sendDesktopPushAlert(` Arc Safety Keeper Auto-Settled $${target.symbol}`, {
             body: `Your position was auto-closed due to delisting risk (${reason}). ${target.collateral} collateral was safeguarded back into your vault.`,
           });
         }
