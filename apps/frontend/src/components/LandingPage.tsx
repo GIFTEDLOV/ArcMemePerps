@@ -16,55 +16,55 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
 
   return (
     <div className="landing-page-pattern-bg font-sans text-white min-h-screen selection:bg-emerald-500/30 selection:text-emerald-300">
-      {/* 1. Floating Header Navigation (Top bar removed, buttons float on background) */}
-      <header className="sticky top-0 z-50 w-full bg-transparent border-none py-2">
-        <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-[120px] h-20 flex items-center justify-between">
-          <div className="flex items-center gap-10">
-            <Link to="/markets" className="flex items-center gap-3.5 group">
-              <div className="w-10 h-10 rounded-xl bg-white border border-white/20 flex items-center justify-center p-2 transition-all group-hover:scale-105 shadow-md">
+      {/* 1. Floating Header Navigation (Clean, compact, no black background, floating directly on texture) */}
+      <header className="sticky top-0 z-50 w-full bg-transparent border-none py-1">
+        <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-[120px] h-14 flex items-center justify-between">
+          <div className="flex items-center gap-7">
+            <Link to="/markets" className="flex items-center gap-2.5 group">
+              <div className="w-7 h-7 rounded-lg bg-white border border-white/20 flex items-center justify-center p-1 transition-all group-hover:scale-105 shadow-sm">
                 <img src="/cluster-logo.svg" alt="CLUSTER Logo" className="w-full h-full object-contain" />
               </div>
-              <span className="font-sans font-extrabold text-lg tracking-wider text-white">CLUSTER</span>
+              <span className="font-sans font-bold text-sm tracking-wider text-white">CLUSTER</span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-1.5">
-              <Link to="/memes" className="px-4 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all">
+            <nav className="hidden md:flex items-center gap-1">
+              <Link to="/memes" className="px-3 py-1 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Memes
               </Link>
-              <Link to="/trending" className="px-4 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all">
+              <Link to="/trending" className="px-3 py-1 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Trending
               </Link>
-              <Link to="/markets" className="px-4 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all">
+              <Link to="/markets" className="px-3 py-1 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Markets
               </Link>
-              <Link to="/earn" className="px-4 py-2 rounded-lg text-sm font-semibold text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all flex items-center gap-2">
+              <Link to="/earn" className="px-3 py-1 rounded-md text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all flex items-center gap-1.5">
                 <span>ALP Earn</span>
-                <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">18.4% APY</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">18.4% APY</span>
               </Link>
-              <Link to="/competitions" className="px-4 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all">
+              <Link to="/competitions" className="px-3 py-1 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Competitions
               </Link>
-              <Link to="/proof" className="px-4 py-2 rounded-lg text-sm font-semibold text-white/70 hover:text-white hover:bg-white/5 transition-all">
+              <Link to="/proof" className="px-3 py-1 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Proof
               </Link>
             </nav>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* Chain tag completely removed; buttons float cleanly with reduced contrast */}
+          <div className="flex items-center gap-2.5">
+            {/* Smaller header buttons floating cleanly on the background */}
             <Link
               to="/markets"
-              className="px-4 py-2 rounded-lg text-sm font-medium text-white/80 border border-white/15 bg-white/[0.04] backdrop-blur-md hover:bg-white/10 hover:border-white/30 transition-all"
+              className="px-3 py-1.5 rounded-md text-xs font-medium text-white/80 border border-white/12 bg-white/[0.04] backdrop-blur-xs hover:bg-white/10 hover:border-white/30 transition-all"
             >
               Explore
             </Link>
 
             <Link
               to="/memes"
-              className="px-5 py-2 rounded-lg text-sm font-medium text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-2"
+              className="px-3.5 py-1.5 rounded-md text-xs font-medium text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1.5"
             >
               <span>Launch Terminal</span>
-              <span className="text-sm">→</span>
+              <span className="text-xs">→</span>
             </Link>
           </div>
         </div>
@@ -77,12 +77,12 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
         <div className="absolute top-24 right-1/4 w-[500px] h-[300px] bg-cyan-500/8 blur-[140px] pointer-events-none rounded-full" />
 
         <div className="max-w-[1440px] mx-auto relative z-10 flex flex-col items-center text-center">
-          {/* Main Headline (Shifted upwards toward the beginning of the page) */}
+          {/* Main Headline (Bigger & commanding) */}
           <motion.h1
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="text-5xl sm:text-7xl md:text-8xl lg:text-[88px] font-sans font-medium tracking-tight leading-[1.04] max-w-5xl mb-6 text-white mt-0"
+            className="text-6xl sm:text-7xl md:text-8xl lg:text-[96px] font-sans font-medium tracking-tight leading-[1.03] max-w-6xl mb-7 text-white mt-0"
           >
             Sub-Second Discovery. <br />
             <span className="font-dm-serif italic font-normal text-emerald-400">
@@ -95,39 +95,39 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.2 }}
-            className="text-lg md:text-2xl text-white/60 max-w-3xl font-light leading-relaxed mb-10"
+            className="text-xl md:text-2xl text-white/65 max-w-4xl font-light leading-relaxed mb-12"
           >
             CLUSTER delivers institutional mempool trenches intelligence, continuous anti-rug qualification, and bounded dynamic leverage settled natively on Arc Mainnet.
           </motion.p>
 
-          {/* Action CTAs (Refined, lower contrast, elegant dark styling) */}
+          {/* Action CTAs (Bigger, refined, lower contrast) */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-wrap items-center justify-center gap-4 mb-20"
+            className="flex flex-wrap items-center justify-center gap-5 mb-20"
           >
             <Link
               to="/memes"
-              className="px-8 py-3.5 rounded-xl text-base font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all hover:scale-[1.01] flex items-center gap-2.5 backdrop-blur-sm"
+              className="px-9 py-4 rounded-xl text-lg font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all hover:scale-[1.01] flex items-center gap-2.5 backdrop-blur-sm"
             >
               <span>Launch Memes Terminal</span>
-              <span className="text-base">→</span>
+              <span className="text-lg">→</span>
             </Link>
 
             <Link
               to="/markets"
-              className="px-8 py-3.5 rounded-xl text-base font-medium text-white/80 bg-white/[0.04] border border-white/12 hover:bg-white/10 hover:border-white/25 transition-all hover:scale-[1.01] backdrop-blur-sm"
+              className="px-9 py-4 rounded-xl text-lg font-medium text-white/80 bg-white/[0.04] border border-white/12 hover:bg-white/10 hover:border-white/25 transition-all hover:scale-[1.01] backdrop-blur-sm"
             >
               Explore 166+ Live Markets
             </Link>
 
             <Link
               to="/proof"
-              className="px-6 py-3.5 rounded-xl text-base font-medium text-white/60 hover:text-white transition-all flex items-center gap-2"
+              className="px-7 py-4 rounded-xl text-lg font-medium text-white/60 hover:text-white transition-all flex items-center gap-2"
             >
               <span>Verify On-Chain Proof</span>
-              <span className="text-sm">↗</span>
+              <span className="text-base">↗</span>
             </Link>
           </motion.div>
 
@@ -136,7 +136,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.4 }}
-            className="w-full max-w-6xl rounded-2xl border border-white/12 bg-black/40 p-6 md:p-8 backdrop-blur-md shadow-2xl"
+            className="w-full max-w-6xl rounded-2xl border border-white/12 bg-black/40 p-7 md:p-9 backdrop-blur-md shadow-2xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-5 mb-5">
               <div className="flex items-center gap-3.5">
@@ -163,20 +163,20 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                   <Link
                     key={m.marketId}
                     to={`/markets/${encodeURIComponent(m.marketId)}`}
-                    className="p-4 rounded-xl border border-white/8 bg-white/[0.03] hover:bg-white/[0.08] hover:border-emerald-500/40 transition-all group"
+                    className="p-5 rounded-xl border border-white/8 bg-white/[0.03] hover:bg-white/[0.08] hover:border-emerald-500/40 transition-all group"
                   >
-                    <div className="flex items-center justify-between mb-2.5">
-                      <span className="font-bold text-base text-white group-hover:text-emerald-400 transition-colors">${m.symbol}</span>
-                      <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded ${isPos ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`}>
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="font-bold text-lg text-white group-hover:text-emerald-400 transition-colors">${m.symbol}</span>
+                      <span className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded ${isPos ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`}>
                         {formatPercentBps(m.priceChange24hBps ?? 0)}
                       </span>
                     </div>
-                    <div className="text-xl md:text-2xl font-mono font-bold text-white mb-2">
+                    <div className="text-2xl md:text-3xl font-mono font-bold text-white mb-2.5">
                       {formatUsd(m.priceUsd ?? "0")}
                     </div>
-                    <div className="flex items-center justify-between text-xs text-white/50">
+                    <div className="flex items-center justify-between text-sm text-white/50">
                       <span>Liq: {formatUsd(m.originSpotLiquidityUsd ?? "0")}</span>
-                      <span className="text-emerald-400/90 font-mono text-[11px] font-semibold">DEX LIVE</span>
+                      <span className="text-emerald-400/90 font-mono text-xs font-semibold">DEX LIVE</span>
                     </div>
                   </Link>
                 );
@@ -196,44 +196,44 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             <span className="text-xs md:text-sm font-mono uppercase tracking-widest text-emerald-400 mb-3 block font-bold">
               VERIFIED ARCHITECTURE
             </span>
-            <h2 className="text-4xl md:text-6xl font-sans font-medium tracking-tight leading-tight mb-5">
+            <h2 className="text-4xl md:text-6xl lg:text-7xl font-sans font-medium tracking-tight leading-tight mb-5">
               Built for High-Throughput <br />
               <span className="font-dm-serif italic font-normal text-emerald-400">Deterministic Solvency</span>
             </h2>
-            <p className="text-white/60 text-base md:text-lg leading-relaxed">
+            <p className="text-white/60 text-lg md:text-xl leading-relaxed">
               Every perpetual transaction is verified against live Arc Mainnet RPC nodes, backed by real Arc USDC, and bounded to preserve LP vault stability.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <div className="p-8 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
+            <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
               <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">01 · TRENCHES RADAR</span>
-              <h3 className="text-2xl font-semibold text-white mb-3">Sub-Second Discovery</h3>
-              <p className="text-sm text-white/60 leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Sub-Second Discovery</h3>
+              <p className="text-base text-white/60 leading-relaxed">
                 Indexes new Arc DEX pairs at creation block with instant dev holding percentage, cluster detection, and liquidity lock inspection.
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
+            <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
               <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">02 · RISK MODEL 0.4.0</span>
-              <h3 className="text-2xl font-semibold text-white mb-3">Dynamic Capacity</h3>
-              <p className="text-sm text-white/60 leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Dynamic Capacity</h3>
+              <p className="text-base text-white/60 leading-relaxed">
                 Replaces uncapped toxic leverage with mathematical depth ceilings. Safe open interest scales deterministically with real spot orderbook liquidity.
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
+            <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
               <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">03 · NATIVE ARC USDC</span>
-              <h3 className="text-2xl font-semibold text-white mb-3">100% Backed Clearing</h3>
-              <p className="text-sm text-white/60 leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">100% Backed Clearing</h3>
+              <p className="text-base text-white/60 leading-relaxed">
                 All collateral, margin, and realized PnL settle in native Arc USDC (0x3600...0000). Zero synthetic IOUs, zero bridging friction.
               </p>
             </div>
 
-            <div className="p-8 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
+            <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
               <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">04 · DORAHACKS PROOF</span>
-              <h3 className="text-2xl font-semibold text-white mb-3">Verifiable Pre-Trade Plans</h3>
-              <p className="text-sm text-white/60 leading-relaxed">
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Verifiable Pre-Trade Plans</h3>
+              <p className="text-base text-white/60 leading-relaxed">
                 Every order generates a deterministic sha256 plan hash verified before signing. What you inspect in the browser is exactly what the keeper executes.
               </p>
             </div>
@@ -255,32 +255,32 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                   Without Leaving the Trenches.
                 </span>
               </h2>
-              <p className="text-white/60 text-base md:text-lg leading-relaxed mb-10">
+              <p className="text-white/60 text-lg leading-relaxed mb-10">
                 Unified trading board, 1-click buy/sell, automated take-profit and stop-loss, and high-frequency live candlestick charting designed for degen speed with institutional risk limits.
               </p>
 
-              <div className="flex flex-col gap-5">
+              <div className="flex flex-col gap-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
+                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
                   <div>
-                    <strong className="text-base text-white block">Instant 1-Click Execution</strong>
-                    <span className="text-sm text-white/60">Execute bounded market and limit orders directly from your connected browser wallet.</span>
+                    <strong className="text-lg text-white block">Instant 1-Click Execution</strong>
+                    <span className="text-base text-white/60">Execute bounded market and limit orders directly from your connected browser wallet.</span>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
+                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
                   <div>
-                    <strong className="text-base text-white block">Anti-Rug Passport Forensics</strong>
-                    <span className="text-sm text-white/60">Comprehensive check of mint authority, freeze authority, LP lock, and top 10 holder concentration.</span>
+                    <strong className="text-lg text-white block">Anti-Rug Passport Forensics</strong>
+                    <span className="text-base text-white/60">Comprehensive check of mint authority, freeze authority, LP lock, and top 10 holder concentration.</span>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
+                  <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
                   <div>
-                    <strong className="text-base text-white block">18.4% APY ALP Liquidity Vault</strong>
-                    <span className="text-sm text-white/60">Stake Arc USDC to earn 70% of perpetual trading fees and liquidation penalties.</span>
+                    <strong className="text-lg text-white block">18.4% APY ALP Liquidity Vault</strong>
+                    <span className="text-base text-white/60">Stake Arc USDC to earn 70% of perpetual trading fees and liquidation penalties.</span>
                   </div>
                 </div>
               </div>
@@ -288,14 +288,14 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
               <div className="mt-10 flex gap-4">
                 <Link
                   to="/memes"
-                  className="px-7 py-3 rounded-xl text-sm font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all flex items-center gap-2"
+                  className="px-8 py-3.5 rounded-xl text-base font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all flex items-center gap-2"
                 >
                   <span>Open Live Terminal</span>
                   <span>→</span>
                 </Link>
                 <Link
                   to="/earn"
-                  className="px-7 py-3 rounded-xl text-sm font-medium text-white/80 border border-white/12 bg-white/[0.04] hover:bg-white/10 transition-all"
+                  className="px-8 py-3.5 rounded-xl text-base font-medium text-white/80 border border-white/12 bg-white/[0.04] hover:bg-white/10 transition-all"
                 >
                   Deposit to ALP Pool
                 </Link>
@@ -357,32 +357,32 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
         </div>
       </section>
 
-      {/* 6. Call to Action Banner (Bigger) */}
+      {/* 6. Call to Action Banner (Bigger & high-impact) */}
       <section className="py-24 px-6 md:px-12 lg:px-[120px] w-full border-t border-white/10 bg-gradient-to-b from-transparent to-emerald-950/20 text-center">
         <div className="max-w-4xl mx-auto">
           <span className="text-xs md:text-sm font-mono uppercase tracking-widest text-emerald-400 mb-4 block font-bold">
             GET STARTED NOW
           </span>
-          <h2 className="text-4xl md:text-6xl font-sans font-medium tracking-tight mb-6">
+          <h2 className="text-5xl md:text-7xl lg:text-[76px] font-sans font-medium tracking-tight mb-7 leading-[1.05]">
             Step Into the Next Generation of <br />
             <span className="font-dm-serif italic font-normal text-emerald-400">
               Arc Meme Perpetuals.
             </span>
           </h2>
-          <p className="text-white/60 text-lg md:text-xl leading-relaxed mb-10 max-w-2xl mx-auto font-light">
+          <p className="text-white/60 text-xl md:text-2xl leading-relaxed mb-12 max-w-3xl mx-auto font-light">
             Connect your Web3 wallet and trade with institutional confidence on Arc Mainnet.
           </p>
-          <div className="flex flex-wrap items-center justify-center gap-4">
+          <div className="flex flex-wrap items-center justify-center gap-5">
             <Link
               to="/memes"
-              className="px-8 py-3.5 rounded-xl text-base font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all hover:scale-[1.01] flex items-center gap-2"
+              className="px-10 py-4.5 rounded-xl text-lg font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all hover:scale-[1.01] flex items-center gap-2"
             >
               <span>Launch Memes Terminal</span>
               <span>→</span>
             </Link>
             <Link
               to="/markets"
-              className="px-8 py-3.5 rounded-xl text-base font-medium text-white/80 bg-white/[0.04] border border-white/12 hover:bg-white/10 hover:border-white/25 transition-all hover:scale-[1.01]"
+              className="px-9 py-4.5 rounded-xl text-lg font-medium text-white/80 bg-white/[0.04] border border-white/12 hover:bg-white/10 hover:border-white/25 transition-all hover:scale-[1.01]"
             >
               Browse All Markets
             </Link>
