@@ -31,8 +31,8 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             </Link>
 
             <nav className="hidden md:flex items-center gap-1">
-              <Link to="/trenches" className="px-3 py-1.5 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
-                Trenches
+              <Link to="/memes" className="px-3 py-1.5 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
+                Memes
               </Link>
               <Link to="/trending" className="px-3 py-1.5 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Trending
@@ -126,10 +126,10 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             className="flex flex-wrap items-center justify-center gap-4 mb-16"
           >
             <Link
-              to="/trenches"
+              to="/memes"
               className="px-6 py-3 rounded-lg text-sm font-bold text-black bg-emerald-400 hover:bg-emerald-300 transition-all shadow-[0_0_24px_rgba(52,211,153,0.35)] flex items-center gap-2"
             >
-              <span>Launch Trenches Terminal</span>
+              <span>Launch Memes Terminal</span>
               <span className="text-sm">→</span>
             </Link>
 
@@ -388,10 +388,10 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link
-              to="/trenches"
+              to="/memes"
               className="px-8 py-3.5 rounded-lg text-sm font-bold text-black bg-emerald-400 hover:bg-emerald-300 transition-all shadow-[0_0_30px_rgba(52,211,153,0.4)]"
             >
-              Launch Trenches Terminal →
+              Launch Memes Terminal →
             </Link>
             <Link
               to="/markets"
@@ -416,7 +416,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
           </div>
 
           <div className="flex flex-wrap items-center gap-6 text-white/60">
-            <Link to="/trenches" className="hover:text-white transition-colors">Trenches</Link>
+            <Link to="/memes" className="hover:text-white transition-colors">Memes</Link>
             <Link to="/markets" className="hover:text-white transition-colors">Markets</Link>
             <Link to="/portfolio" className="hover:text-white transition-colors">Portfolio</Link>
             <Link to="/earn" className="hover:text-white transition-colors">Earn LP</Link>
