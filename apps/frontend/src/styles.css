@@ -1378,8 +1378,17 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
     transform: scale(1) translateY(0);
   }
 }
+@keyframes ping {
+  75%, 100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
 .tour-card {
   will-change: transform, opacity;
+}
+.tour-spotlight-box {
+  animation: tourFadeIn 0.25s ease-out;
 }
 .avatar-badge-preview:hover {
   transform: scale(1.08);
