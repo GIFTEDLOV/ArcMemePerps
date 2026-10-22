@@ -7,6 +7,7 @@ import type { Health, MarketPage, OriginMarket, Pretrade, RealtimeEvent } from "
 import { isPretradeIntact } from "./lib/winner-plan";
 import { planHash, useWallet } from "./lib/winner-wallet";
 import fallbackSnapshot from "./lib/markets-snapshot.json";
+import { LandingPage } from "./components/LandingPage";
 
 const api = new WinnerApi(WINNER_CONFIG.apiUrl);
 const UNKNOWN = "—";
@@ -1385,6 +1386,7 @@ function Header({
   }, [location.pathname]);
 
   const moreItems = [
+    { to: "/landing", label: "Landing Page", icon: "", desc: "Overview, stats & mission" },
     { to: "/new", label: "New Pairs", icon: "", desc: "Recently listed meme pairs" },
     { to: "/watchlist", label: "Watchlist", icon: "", desc: "Saved favorite pairs" },
     { to: "/activity", label: "Activity", icon: "", desc: "Live order stream & events" },
@@ -3281,97 +3283,7 @@ function ProofPanel({ market }: { market: OriginMarket }) {
 }
 
 function Landing({ data }: { data: ReturnType<typeof useProductData> }) {
-  const preview = data.page.items[0];
-  return (
-    <section className="landing-page">
-      <nav className="landing-nav">
-        <Logo />
-        <div className="landing-links">
-          <Link to="/markets">Markets</Link>
-          <Link to="/new">New</Link>
-          <Link to="/proof">How it works</Link>
-        </div>
-        <Link className="button button-primary compact" to="/markets">Explore markets</Link>
-      </nav>
-      <div className="landing-hero">
-        <div>
-          <div className="eyebrow">Multichain meme-market intelligence</div>
-          <h1>Discover meme markets.<br /><em>Trade only what earns it.</em></h1>
-          <p>See the origin market, inspect its forensic evidence with the automated Risk Passport, and trade meme perpetuals settled in Arc USDC.</p>
-          <div className="hero-actions">
-            <Link className="button button-primary" to="/markets">Explore markets </Link>
-            <Link className="button button-secondary" to="/proof">How qualification works</Link>
-          </div>
-          <div className="landing-truth">
-            <span><b>{data.page.discoveryCount ?? "—"}</b> markets observed</span>
-            <span><b>{data.page.perpCount ?? 0}</b> live perps</span>
-            <span>Arc USDC settlement</span>
-          </div>
-        </div>
-        <div className="hero-preview">
-          {preview ? (
-            <>
-              <div className="preview-top">
-                <span>LIVE DISCOVERY</span>
-                <StatusPill value={productState(preview).label} tone={productState(preview).tone} label={productState(preview).label} />
-              </div>
-              <div className="preview-token">
-                <TokenAvatar market={preview} large />
-                <div>
-                  <strong>{preview.symbol || "TOKEN"}</strong>
-                  <span>{preview.name || preview.symbol || "Verified Token"}</span>
-                  <small>{chainLabel(preview.chain)} · {lifecycleLabel(preview.lifecycle.status)}</small>
-                </div>
-              </div>
-              <div className="preview-price">
-                <strong>{displayed(preview.priceUsd, formatUsd)}</strong>
-                <span className={(preview.priceChange24hBps ?? 280) >= 0 ? "positive" : "negative"}>
-                  {formatPercentBps(preview.priceChange24hBps ?? 280)} today
-                </span>
-              </div>
-              <div className="preview-grid">
-                <Metric label="Liquidity" value={displayed(preview.originSpotLiquidityUsd, formatUsd)} />
-                <Metric label="24h volume" value={displayed(preview.volume24hUsd, formatUsd)} />
-                <Metric label="Evidence" value={preview.integrity.status === "PENDING" ? "Partial" : preview.integrity.status} />
-              </div>
-              <div className="preview-footer">
-                <span>Canonical token identity</span>
-                <code>{shorten(preview.tokenAddress, 8)}</code>
-              </div>
-            </>
-          ) : (
-            <div className="preview-loading">
-              <span className="skeleton-line" />
-              <span className="skeleton-line short" />
-              <span className="skeleton-block" />
-            </div>
-          )}
-        </div>
-      </div>
-      <div className="landing-flow">
-        <div>
-          <span className="eyebrow">The product loop</span>
-          <h2>Fast discovery.<br />Visible evidence.</h2>
-        </div>
-        {[
-          ["01", "Discover", "Real origin markets, normalized by chain and canonical token identity."],
-          ["02", "Understand", "Risk passport, holders, liquidity, history, and coverage in one terminal."],
-          ["03", "Qualify", "Only evidence-backed markets can earn an Arc perp state."],
-          ["04", "Execute", "Review → wallet sign → keeper → chain → reconcile."],
-        ].map(([number, title, copy]) => (
-          <div className="flow-step" key={number}>
-            <span>{number}</span>
-            <h3>{title}</h3>
-            <p>{copy}</p>
-          </div>
-        ))}
-      </div>
-      <footer className="landing-footer">
-        <span>ArcMemePerps · ARC MAINNET (5042)</span>
-        <span>Built for Arc Microgrants 2 · Moving real USDC on Arc Mainnet</span>
-      </footer>
-    </section>
-  );
+  return <LandingPage markets={data.page.items} />;
 }
 
 function WalletEmpty({ title, copy, wallet }: { title: string; copy: string; wallet: ReturnType<typeof useWallet> }) {
