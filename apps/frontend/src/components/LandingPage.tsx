@@ -16,8 +16,8 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
 
   return (
     <div className="landing-page-pattern-bg font-sans text-white min-h-screen selection:bg-emerald-500/30 selection:text-emerald-300">
-      {/* 1. Header Navigation (Bigger, spacious, chain tag removed) */}
-      <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-black/75 backdrop-blur-md">
+      {/* 1. Floating Header Navigation (Top bar removed, buttons float on background) */}
+      <header className="sticky top-0 z-50 w-full bg-transparent border-none py-2">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-[120px] h-20 flex items-center justify-between">
           <div className="flex items-center gap-10">
             <Link to="/markets" className="flex items-center gap-3.5 group">
@@ -25,8 +25,8 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                 <img src="/cluster-logo.svg" alt="CLUSTER Logo" className="w-full h-full object-contain" />
               </div>
               <div className="flex flex-col">
-                <span className="font-sans font-extrabold text-base tracking-wider text-white">ArcMemePerps</span>
-                <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400">GMGN · AI Terminal</span>
+                <span className="font-sans font-extrabold text-base tracking-wider text-white">CLUSTER</span>
+                <span className="text-[10px] font-mono uppercase tracking-widest text-emerald-400">AI PERP TERMINAL</span>
               </div>
             </Link>
 
@@ -54,16 +54,16 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
           </div>
 
           <div className="flex items-center gap-4">
-            {/* Chain tag has been completely removed as requested */}
+            {/* Chain tag completely removed; buttons float cleanly */}
             <Link
               to="/markets"
-              className="px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 border border-white/15 hover:bg-white/10 hover:border-white/30 transition-all"
+              className="px-5 py-2.5 rounded-lg text-sm font-medium text-white/80 border border-white/15 bg-black/40 backdrop-blur-md hover:bg-white/10 hover:border-white/30 transition-all"
             >
               Explore
             </Link>
 
             <Link
-              to="/trenches"
+              to="/memes"
               className="px-6 py-2.5 rounded-lg text-sm font-bold text-black bg-emerald-400 hover:bg-emerald-300 transition-all shadow-[0_0_20px_rgba(52,211,153,0.35)] flex items-center gap-2"
             >
               <span>Launch Terminal</span>
@@ -111,7 +111,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg md:text-2xl text-white/60 max-w-3xl font-light leading-relaxed mb-12"
           >
-            ArcMemePerps delivers GMGN-grade mempool trenches intelligence, continuous anti-rug qualification, and bounded dynamic leverage settled natively on Arc Mainnet.
+            CLUSTER delivers institutional mempool trenches intelligence, continuous anti-rug qualification, and bounded dynamic leverage settled natively on Arc Mainnet.
           </motion.p>
 
           {/* Action CTAs (Bigger buttons) */}
@@ -270,7 +270,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                 </span>
               </h2>
               <p className="text-white/60 text-base md:text-lg leading-relaxed mb-10">
-                GMGN-style unified board, 1-click buy/sell, automated take-profit and stop-loss, and high-frequency live candlestick charting designed for degen speed with institutional risk limits.
+                Unified trading board, 1-click buy/sell, automated take-profit and stop-loss, and high-frequency live candlestick charting designed for degen speed with institutional risk limits.
               </p>
 
               <div className="flex flex-col gap-5">
@@ -301,7 +301,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
 
               <div className="mt-10 flex gap-5">
                 <Link
-                  to="/trenches"
+                  to="/memes"
                   className="px-8 py-3.5 rounded-xl text-sm font-bold text-black bg-emerald-400 hover:bg-emerald-300 transition-all shadow-[0_0_20px_rgba(52,211,153,0.35)]"
                 >
                   Open Live Terminal →
@@ -322,7 +322,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                   <span className="w-3 h-3 rounded-full bg-rose-500/70" />
                   <span className="w-3 h-3 rounded-full bg-amber-500/70" />
                   <span className="w-3 h-3 rounded-full bg-emerald-500/70" />
-                  <span className="text-white/50 ml-2 font-mono text-xs">terminal.arcmemeperps.io · $ARCPUP-PERP</span>
+                  <span className="text-white/50 ml-2 font-mono text-xs">terminal.cluster.io · $ARCPUP-PERP</span>
                 </div>
                 <span className="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold">LIVE FEED</span>
               </div>
@@ -409,7 +409,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             <div className="w-8 h-8 rounded-lg bg-white border border-white/20 p-1.5 flex items-center justify-center shadow-sm">
               <img src="/cluster-logo.svg" alt="CLUSTER" className="w-full h-full object-contain" />
             </div>
-            <span className="font-bold text-white text-base">ArcMemePerps</span>
+            <span className="font-bold text-white text-base">CLUSTER</span>
             <span className="text-white/30">·</span>
             <span className="font-mono text-xs text-white/70">ARC MAINNET (5042)</span>
           </div>

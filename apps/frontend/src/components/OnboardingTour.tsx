@@ -16,13 +16,13 @@ export interface TourStep {
 
 const TOUR_STEPS: TourStep[] = [
   {
-    title: "Welcome to ArcMemePerps",
+    title: "Welcome to CLUSTER",
     icon: "🚀",
     targetSelector: ".gmgn-brand",
     areaName: "Chain Identity & Solvency Hub",
     placement: "bottom",
     whatHappens:
-      "ArcMemePerps is an institutional meme perpetual DEX on Arc Mainnet (5042). Every trade is executed non-custodially on-chain, backed by a $5,000,000 USDC vault and $2,000,000 insurance fund.",
+      "CLUSTER is an institutional meme perpetual DEX on Arc Mainnet (5042). Every trade is executed non-custodially on-chain, backed by a $5,000,000 USDC vault and $2,000,000 insurance fund.",
     keyActions: [
       "Non-custodial trading directly from your Web3 wallet",
       "Instant USDC collateral margin and PnL settlement",

@@ -1,9 +1,9 @@
-# ArcMemePerps
+# CLUSTER
 
 Discover meme markets. Inspect the evidence. Enable leverage only after a
 market earns it.
 
-ArcMemePerps is a fail-closed, risk-gated perpetual protocol for multichain
+CLUSTER is a fail-closed, risk-gated perpetual protocol for multichain
 meme markets with Arc USDC settlement. Discovery is public; qualification and
 Arc activation are separate decisions.
 
@@ -41,7 +41,7 @@ is the funded, one-shot deployment and verification ceremony.
 
 ## Screenshots
 
-![ArcMemePerps landing page](docs/assets/phase12/landing-desktop.png)
+![CLUSTER landing page](docs/assets/phase12/landing-desktop.png)
 
 | Discovery | Risk Passport | Zero-live-perp proof |
 | --- | --- | --- |
@@ -54,7 +54,7 @@ is the funded, one-shot deployment and verification ceremony.
 Mobile evidence is in [docs/assets/phase12](docs/assets/phase12/), including
 markets, Risk Passport, landing, portfolio, and token-terminal views.
 
-## What ArcMemePerps does
+## What CLUSTER does
 
 - Discovers origin-chain meme markets and preserves canonical chain + token
   identity.
