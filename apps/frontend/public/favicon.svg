@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <defs>
+    <!-- Core Glows -->
+    <radialGradient id="centerCoreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFE600" stop-opacity="1" />
+      <stop offset="45%" stop-color="#00F5A0" stop-opacity="0.9" />
+      <stop offset="85%" stop-color="#00D4FF" stop-opacity="0.5" />
+      <stop offset="100%" stop-color="#00D4FF" stop-opacity="0" />
+    </radialGradient>
+    <radialGradient id="clusterGlowGreen" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#55FFB9" />
+      <stop offset="70%" stop-color="#00F5A0" />
+      <stop offset="100%" stop-color="#00A86B" />
+    </radialGradient>
+    <radialGradient id="clusterGlowCyan" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#80EAFF" />
+      <stop offset="70%" stop-color="#00D4FF" />
+      <stop offset="100%" stop-color="#0077B6" />
+    </radialGradient>
+    <radialGradient id="clusterGlowYellow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFF275" />
+      <stop offset="70%" stop-color="#FFD200" />
+      <stop offset="100%" stop-color="#FF9E00" />
+    </radialGradient>
+    <radialGradient id="clusterGlowMagenta" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FFA6F2" />
+      <stop offset="70%" stop-color="#D946EF" />
+      <stop offset="100%" stop-color="#8B5CF6" />
+    </radialGradient>
+    <filter id="neonBlur" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <!-- Ambient Glow Behind Cluster -->
+  <circle cx="60" cy="60" r="46" fill="url(#centerCoreGlow)" opacity="0.35" filter="url(#neonBlur)" />
+
+  <!-- Radiating Network Edges (Constellations) -->
+  <g stroke="rgba(255,255,255,0.22)" stroke-width="0.8">
+    <!-- Inner Spoke Radiations -->
+    <line x1="60" y1="60" x2="60" y2="28" stroke="rgba(0, 245, 160, 0.5)" />
+    <line x1="60" y1="60" x2="82" y2="38" stroke="rgba(0, 212, 255, 0.5)" />
+    <line x1="60" y1="60" x2="92" y2="60" stroke="rgba(217, 70, 239, 0.5)" />
+    <line x1="60" y1="60" x2="82" y2="82" stroke="rgba(255, 210, 0, 0.5)" />
+    <line x1="60" y1="60" x2="60" y2="92" stroke="rgba(0, 245, 160, 0.5)" />
+    <line x1="60" y1="60" x2="38" y2="82" stroke="rgba(0, 212, 255, 0.5)" />
+    <line x1="60" y1="60" x2="28" y2="60" stroke="rgba(217, 70, 239, 0.5)" />
+    <line x1="60" y1="60" x2="38" y2="38" stroke="rgba(255, 210, 0, 0.5)" />
+
+    <!-- Outer Satellites Links -->
+    <line x1="60" y1="28" x2="60" y2="12" stroke="rgba(0, 245, 160, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="82" y1="38" x2="102" y2="26" stroke="rgba(0, 212, 255, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="92" y1="60" x2="110" y2="60" stroke="rgba(217, 70, 239, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="82" y1="82" x2="102" y2="96" stroke="rgba(255, 210, 0, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="60" y1="92" x2="60" y2="110" stroke="rgba(0, 245, 160, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="38" y1="82" x2="18" y2="98" stroke="rgba(0, 212, 255, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="28" y1="60" x2="10" y2="60" stroke="rgba(217, 70, 239, 0.4)" stroke-dasharray="1.5 1.5" />
+    <line x1="38" y1="38" x2="18" y2="24" stroke="rgba(255, 210, 0, 0.4)" stroke-dasharray="1.5 1.5" />
+
+    <!-- Cross Cluster Connections -->
+    <line x1="60" y1="28" x2="82" y2="38" stroke="rgba(255,255,255,0.18)" />
+    <line x1="82" y1="38" x2="92" y2="60" stroke="rgba(255,255,255,0.18)" />
+    <line x1="92" y1="60" x2="82" y2="82" stroke="rgba(255,255,255,0.18)" />
+    <line x1="82" y1="82" x2="60" y2="92" stroke="rgba(255,255,255,0.18)" />
+    <line x1="60" y1="92" x2="38" y2="82" stroke="rgba(255,255,255,0.18)" />
+    <line x1="38" y1="82" x2="28" y2="60" stroke="rgba(255,255,255,0.18)" />
+    <line x1="28" y1="60" x2="38" y2="38" stroke="rgba(255,255,255,0.18)" />
+    <line x1="38" y1="38" x2="60" y2="28" stroke="rgba(255,255,255,0.18)" />
+  </g>
+
+  <!-- Inner Density Ring of Dense Bubbles (GMGN Neon Vibrant Palette) -->
+  <g>
+    <!-- Secondary Cluster Ring -->
+    <circle cx="60" cy="36" r="6" fill="url(#clusterGlowGreen)" />
+    <circle cx="74" cy="42" r="5" fill="url(#clusterGlowCyan)" />
+    <circle cx="82" cy="54" r="6.5" fill="url(#clusterGlowMagenta)" />
+    <circle cx="78" cy="68" r="5.5" fill="url(#clusterGlowYellow)" />
+    <circle cx="68" cy="78" r="6" fill="url(#clusterGlowGreen)" />
+    <circle cx="52" cy="80" r="5" fill="url(#clusterGlowCyan)" />
+    <circle cx="40" cy="70" r="6.5" fill="url(#clusterGlowMagenta)" />
+    <circle cx="38" cy="54" r="5.5" fill="url(#clusterGlowYellow)" />
+    <circle cx="48" cy="40" r="5" fill="url(#clusterGlowGreen)" />
+
+    <!-- Outer Interlocking Cluster Ring -->
+    <circle cx="60" cy="24" r="4.5" fill="url(#clusterGlowGreen)" />
+    <circle cx="76" cy="28" r="3.8" fill="url(#clusterGlowCyan)" />
+    <circle cx="90" cy="40" r="4.8" fill="url(#clusterGlowCyan)" />
+    <circle cx="96" cy="56" r="5.2" fill="url(#clusterGlowMagenta)" />
+    <circle cx="92" cy="72" r="4" fill="url(#clusterGlowMagenta)" />
+    <circle cx="82" cy="88" r="4.8" fill="url(#clusterGlowYellow)" />
+    <circle cx="64" cy="94" r="4.2" fill="url(#clusterGlowGreen)" />
+    <circle cx="46" cy="92" r="4.5" fill="url(#clusterGlowCyan)" />
+    <circle cx="30" cy="82" r="4.8" fill="url(#clusterGlowMagenta)" />
+    <circle cx="22" cy="64" r="4.2" fill="url(#clusterGlowYellow)" />
+    <circle cx="26" cy="46" r="4.6" fill="url(#clusterGlowCyan)" />
+    <circle cx="40" cy="28" r="3.8" fill="url(#clusterGlowGreen)" />
+
+    <!-- Distant Satellites (Bubblemaps Signature Network nodes) -->
+    <circle cx="60" cy="10" r="2.8" fill="#00F5A0" />
+    <circle cx="104" cy="22" r="3.2" fill="#00D4FF" />
+    <circle cx="112" cy="60" r="3.5" fill="#D946EF" />
+    <circle cx="104" cy="100" r="3.2" fill="#FFD200" />
+    <circle cx="60" cy="112" r="2.8" fill="#00F5A0" />
+    <circle cx="16" cy="102" r="3.2" fill="#00D4FF" />
+    <circle cx="8" cy="60" r="3" fill="#D946EF" />
+    <circle cx="16" cy="20" r="3" fill="#FFD200" />
+  </g>
+
+  <!-- Glowing Central Core Hub -->
+  <circle cx="60" cy="60" r="13" fill="#080B10" stroke="url(#clusterGlowCyan)" stroke-width="2.5" />
+  <circle cx="60" cy="60" r="8" fill="url(#centerCoreGlow)" />
+  <circle cx="60" cy="60" r="3" fill="#FFFFFF" opacity="0.9" />
+</svg>
