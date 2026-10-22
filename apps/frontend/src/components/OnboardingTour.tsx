@@ -4,7 +4,6 @@ import type { WalletActions } from "../lib/winner-wallet";
 
 export interface TourStep {
   title: string;
-  badge: string;
   icon: string;
   targetSelector: string;
   areaName: string;
@@ -12,32 +11,31 @@ export interface TourStep {
   keyActions: string[];
   tip?: string;
   route?: string;
-  preferredPosition?: "top" | "bottom" | "left" | "right" | "center";
+  placement: "bottom" | "top" | "left" | "right";
 }
 
 const TOUR_STEPS: TourStep[] = [
   {
     title: "Welcome to ArcMemePerps",
-    badge: "ARC MAINNET · 5042",
     icon: "🚀",
     targetSelector: ".gmgn-brand",
     areaName: "Chain Identity & Solvency Hub",
+    placement: "bottom",
     whatHappens:
-      "ArcMemePerps is an institutional-grade meme perpetual DEX running natively on Arc Mainnet (5042). Every trade is executed non-custodially on-chain, backed by a $5,000,000 USDC vault and $2,000,000 insurance reserve.",
+      "ArcMemePerps is an institutional meme perpetual DEX on Arc Mainnet (5042). Every trade is executed non-custodially on-chain, backed by a $5,000,000 USDC vault and $2,000,000 insurance fund.",
     keyActions: [
       "Non-custodial trading directly from your Web3 wallet",
       "Instant USDC collateral margin and PnL settlement",
       "Fail-closed solvency guard protecting against bad debt",
     ],
-    tip: "Look for the green 12ms network indicator in the top bar to verify ultra-fast low-latency block times.",
-    preferredPosition: "bottom",
+    tip: "Look for the green 12ms latency indicator in the top bar confirming high-speed blocks.",
   },
   {
     title: "Memes & Markets Navigation",
-    badge: "STEP 1 OF 6",
     icon: "🧭",
     targetSelector: ".header-nav",
     areaName: "Terminal Navigation Bar",
+    placement: "bottom",
     whatHappens:
       "This navigation bar lets you move between the different trading environments of the DEX without disconnecting or losing your active positions.",
     keyActions: [
@@ -47,14 +45,13 @@ const TOUR_STEPS: TourStep[] = [
       "Portfolio: View your collateral breakdown and closed trade history",
     ],
     tip: "Hover over 'More' in the top bar for Competitions, Liquidity Earn, and Platform Proofs.",
-    preferredPosition: "bottom",
   },
   {
     title: "Instant Token Search & Importer",
-    badge: "STEP 2 OF 6",
     icon: "🔍",
     targetSelector: ".gmgn-quick-search",
     areaName: "Universal Quick Search",
+    placement: "bottom",
     whatHappens:
       "Quickly find any meme coin or perpetual contract across Arc Mainnet. You can search by ticker symbol, token name, or paste any contract address directly.",
     keyActions: [
@@ -62,16 +59,15 @@ const TOUR_STEPS: TourStep[] = [
       "Paste any Arc contract address (CA) to view its live chart",
       "Use 'Import Token' to trade custom unlisted pairs via ArcScan",
     ],
-    tip: "You don't need to scroll through lists — typing just 2 letters brings up instant suggestions.",
-    preferredPosition: "bottom",
+    tip: "Typing just 2 letters brings up instant matching token suggestions.",
   },
   {
     title: "Real-Time Candlestick Charts",
-    badge: "STEP 3 OF 6",
     icon: "📈",
     targetSelector: ".chart-panel",
     route: "/markets/0x4152433a30783939393939393939393939393939393939393939393939393939",
     areaName: "DexScreener & TradingView Terminal",
+    placement: "right",
     whatHappens:
       "Live price discovery charts powered by sub-second websocket streaming. This area gives you deep technical visibility into candlestick movements, volume bars, and recent fills.",
     keyActions: [
@@ -80,15 +76,14 @@ const TOUR_STEPS: TourStep[] = [
       "Inspect token qualification proof to verify safety metrics and lockup",
     ],
     tip: "Green candles indicate net bullish buying pressure; red candles indicate selling pressure.",
-    preferredPosition: "bottom",
   },
   {
     title: "Execution Rail & Leverage (1x–10x)",
-    badge: "STEP 4 OF 6",
     icon: "⚡",
     targetSelector: ".trade-rail",
     route: "/markets/0x4152433a30783939393939393939393939393939393939393939393939393939",
     areaName: "Order Execution & Risk Rail",
+    placement: "left",
     whatHappens:
       "This is where you execute trades with USDC margin. You can profit when the market goes up (LONG) or when it goes down (SHORT).",
     keyActions: [
@@ -97,32 +92,14 @@ const TOUR_STEPS: TourStep[] = [
       "Enter your USDC collateral amount — the engine calculates sizeDelta automatically",
       "Set Take Profit (TP) and Stop Loss (SL) triggers to automate your exits",
     ],
-    tip: "Higher leverage magnifies profits, but moves your liquidation price closer. Beginners should start with 2x–3x.",
-    preferredPosition: "left",
-  },
-  {
-    title: "Active Positions & PnL Share Cards",
-    badge: "STEP 5 OF 6",
-    icon: "🏆",
-    targetSelector: ".detail-main",
-    route: "/markets/0x4152433a30783939393939393939393939393939393939393939393939393939",
-    areaName: "Positions Desk & PnL Generator",
-    whatHappens:
-      "Once you submit an order, your active position appears here. You can monitor your entry price, current mark price, unrealized PnL, and liquidation distance in real time.",
-    keyActions: [
-      "Close positions anytime with 1 click to lock in profits",
-      "Click 'Share PnL' on any trade to generate an institutional brag card",
-      "Autonomous Arc Keeper bot monitors your pool against drained liquidity",
-    ],
-    tip: "PnL cards render directly in high resolution, ready to share on X / Twitter.",
-    preferredPosition: "top",
+    tip: "Higher leverage magnifies profits, but moves liquidation closer. Beginners should start with 2x–3x.",
   },
   {
     title: "Trader Profile & Custom Avatars",
-    badge: "STEP 6 OF 6",
     icon: "👑",
     targetSelector: ".wallet-button",
     areaName: "Profile & Identity Customization",
+    placement: "bottom",
     whatHappens:
       "Your trader hub! Customize your public persona for the Arc Mainnet leaderboard, top bar badge, and PnL brag cards.",
     keyActions: [
@@ -132,7 +109,6 @@ const TOUR_STEPS: TourStep[] = [
       "Replay this visual tour anytime from Profile > Trading Defaults",
     ],
     tip: "Click on your wallet address in the top bar to open your Profile at any time.",
-    preferredPosition: "bottom",
   },
 ];
 
@@ -207,7 +183,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
     const el = document.querySelector(selector) as HTMLElement | null;
     if (el) {
       const r = el.getBoundingClientRect();
-      // Scroll into view if out of visible bounds
+      // Scroll into view smoothly if out of visible bounds
       if (r.top < 60 || r.bottom > window.innerHeight - 60) {
         el.scrollIntoView({ behavior: "smooth", block: "center" });
       }
@@ -225,7 +201,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
   }, [isOpen, currentStep.targetSelector]);
 
   useEffect(() => {
-    const timer = setTimeout(updateTargetRect, 150);
+    const timer = setTimeout(updateTargetRect, 180);
     window.addEventListener("resize", updateTargetRect);
     window.addEventListener("scroll", updateTargetRect, true);
     return () => {
@@ -263,65 +239,65 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
 
   if (!isOpen) return null;
 
-  const progressPercent = Math.round(((stepIndex + 1) / TOUR_STEPS.length) * 100);
+  const totalSteps = TOUR_STEPS.length;
+  const progressPercent = Math.round(((stepIndex + 1) / totalSteps) * 100);
 
-  // Compute smart positioning for the explanation card relative to the target element
+  // Compute smart, non-overlapping positioning for the explanation card
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const cardWidth = isMobile ? window.innerWidth - 32 : 420;
+  const cardEstimatedHeight = 350;
+  const pad = 16;
+
   let cardStyle: React.CSSProperties = {
     position: "fixed",
     zIndex: 10002,
-    width: "100%",
-    maxWidth: "460px",
+    width: `${cardWidth}px`,
     background: "#0c0e14",
-    border: "1.5px solid rgba(0, 245, 160, 0.4)",
+    border: "1.5px solid rgba(0, 245, 160, 0.45)",
     borderRadius: "14px",
-    boxShadow: "0 24px 60px rgba(0, 0, 0, 0.9), 0 0 35px rgba(0, 245, 160, 0.2)",
+    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.95), 0 0 35px rgba(0, 245, 160, 0.25)",
     overflow: "hidden",
     animation: "tourFadeIn 0.25s ease-out",
   };
 
-  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
-
   if (isMobile) {
-    // On mobile, pin explanation box cleanly at bottom
     cardStyle = {
       ...cardStyle,
       bottom: "16px",
       left: "16px",
       right: "16px",
-      maxWidth: "calc(100vw - 32px)",
     };
   } else if (targetRect) {
-    const pad = 16;
-    const cardWidth = 460;
-    const cardEstimatedHeight = 440;
+    let top = 0;
+    let left = 0;
 
-    // Determine vertical placement
-    const spaceBelow = window.innerHeight - targetRect.bottom;
-    const spaceAbove = targetRect.top;
-
-    let topPos: number;
-    if (currentStep.preferredPosition === "top" && spaceAbove > cardEstimatedHeight) {
-      topPos = Math.max(pad, targetRect.top - cardEstimatedHeight - pad);
-    } else if (spaceBelow >= 360 || spaceBelow >= spaceAbove) {
-      topPos = Math.min(window.innerHeight - cardEstimatedHeight - pad, targetRect.bottom + pad);
+    if (currentStep.placement === "left") {
+      // Place to the left of the highlighted element (e.g. for trade-rail on the right)
+      left = Math.max(pad, targetRect.left - cardWidth - 20);
+      top = Math.max(pad, Math.min(window.innerHeight - cardEstimatedHeight - pad, targetRect.top + 10));
+    } else if (currentStep.placement === "right") {
+      // Place to the right of the highlighted element (e.g. for chart panel on the left)
+      left = Math.min(window.innerWidth - cardWidth - pad, targetRect.right + 20);
+      top = Math.max(pad, Math.min(window.innerHeight - cardEstimatedHeight - pad, targetRect.top + 10));
+    } else if (currentStep.placement === "top") {
+      // Place above the element
+      top = Math.max(pad, targetRect.top - cardEstimatedHeight - 16);
+      left = Math.max(pad, Math.min(window.innerWidth - cardWidth - pad, targetRect.left));
     } else {
-      topPos = Math.max(pad, targetRect.top - cardEstimatedHeight - pad);
+      // Default: place below the element (e.g. for topbar, nav, search, wallet button)
+      top = targetRect.bottom + 16;
+      if (top + cardEstimatedHeight > window.innerHeight - pad) {
+        top = Math.max(pad, targetRect.top - cardEstimatedHeight - 16);
+      }
+      left = Math.max(pad, Math.min(window.innerWidth - cardWidth - pad, targetRect.left));
     }
-
-    // Determine horizontal placement
-    let leftPos = targetRect.left;
-    if (leftPos + cardWidth > window.innerWidth - pad) {
-      leftPos = Math.max(pad, window.innerWidth - cardWidth - pad);
-    }
-    if (leftPos < pad) leftPos = pad;
 
     cardStyle = {
       ...cardStyle,
-      top: `${Math.max(16, topPos)}px`,
-      left: `${leftPos}px`,
+      top: `${top}px`,
+      left: `${left}px`,
     };
   } else {
-    // Centered fallback if element not yet measured
     cardStyle = {
       ...cardStyle,
       top: "50%",
@@ -330,9 +306,39 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
     };
   }
 
+  // Calculate polygon clip-path cutout hole so the target element is 100% UNBLURRED and SHARP
+  let backdropClipPath: string | undefined = undefined;
+  let spotlightX = 0;
+  let spotlightY = 0;
+  let spotlightW = 0;
+  let spotlightH = 0;
+
+  if (targetRect) {
+    spotlightX = Math.max(0, Math.round(targetRect.left - 6));
+    spotlightY = Math.max(0, Math.round(targetRect.top - 6));
+    spotlightW = Math.round(targetRect.width + 12);
+    spotlightH = Math.round(targetRect.height + 12);
+    const x2 = spotlightX + spotlightW;
+    const y2 = spotlightY + spotlightH;
+
+    // Even-odd inverted rectangle: fills the whole screen EXCEPT the target area!
+    backdropClipPath = `polygon(
+      0% 0%,
+      0% 100%,
+      ${spotlightX}px 100%,
+      ${spotlightX}px ${spotlightY}px,
+      ${x2}px ${spotlightY}px,
+      ${x2}px ${y2}px,
+      ${spotlightX}px ${y2}px,
+      ${spotlightX}px 100%,
+      100% 100%,
+      100% 0%
+    )`;
+  }
+
   return (
     <>
-      {/* 1. Deeply Blurred Full-Screen Backdrop Overlay */}
+      {/* 1. Deeply Blurred Full-Screen Backdrop Overlay WITH CUTOUT HOLE over the active function */}
       <div
         className="tour-overlay-backdrop"
         role="dialog"
@@ -342,35 +348,38 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
           position: "fixed",
           inset: 0,
           zIndex: 9999,
-          background: "rgba(3, 5, 8, 0.76)",
-          backdropFilter: "blur(10px)",
-          WebkitBackdropFilter: "blur(10px)",
-          transition: "backdrop-filter 0.3s ease, background 0.3s ease",
+          background: "rgba(3, 5, 8, 0.78)",
+          backdropFilter: "blur(9px)",
+          WebkitBackdropFilter: "blur(9px)",
+          clipPath: backdropClipPath,
+          WebkitClipPath: backdropClipPath,
+          transition: "clip-path 0.3s cubic-bezier(0.16, 1, 0.3, 1), -webkit-clip-path 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+          pointerEvents: "auto",
         }}
         onClick={(e) => {
           if (e.target === e.currentTarget) handleSkipOrComplete();
         }}
       />
 
-      {/* 2. Visual Spotlight Cutout & Glowing Pointer Box over the highlighted function */}
+      {/* 2. Visual Spotlight Glowing Border & Sonar Beacon pointing to the function */}
       {targetRect && (
         <div
           className="tour-spotlight-box"
           style={{
             position: "fixed",
-            top: `${Math.max(0, targetRect.top - 6)}px`,
-            left: `${Math.max(0, targetRect.left - 6)}px`,
-            width: `${targetRect.width + 12}px`,
-            height: `${targetRect.height + 12}px`,
+            top: `${spotlightY}px`,
+            left: `${spotlightX}px`,
+            width: `${spotlightW}px`,
+            height: `${spotlightH}px`,
             borderRadius: "10px",
             border: "2px solid #00f5a0",
-            boxShadow: "0 0 30px rgba(0, 245, 160, 0.7), inset 0 0 15px rgba(0, 245, 160, 0.25)",
+            boxShadow: "0 0 30px rgba(0, 245, 160, 0.75), inset 0 0 15px rgba(0, 245, 160, 0.25)",
             zIndex: 10001,
             pointerEvents: "none",
             transition: "all 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
           }}
         >
-          {/* Sonar Beacon Ping Animation */}
+          {/* Sonar Beacon Ping */}
           <span
             style={{
               position: "absolute",
@@ -407,7 +416,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
             />
           </span>
 
-          {/* Area Tag on spotlight */}
+          {/* Feature Badge above spotlight */}
           <div
             style={{
               position: "absolute",
@@ -420,7 +429,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
               padding: "2px 8px",
               borderRadius: "4px",
               fontFamily: "var(--mono)",
-              letterSpacing: "0.05em",
+              letterSpacing: "0.06em",
               textTransform: "uppercase",
               boxShadow: "0 2px 8px rgba(0,0,0,0.6)",
               whiteSpace: "nowrap",
@@ -431,7 +440,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
         </div>
       )}
 
-      {/* 3. Explanation Box with Skip and Next Buttons */}
+      {/* 3. Non-Overlapping Explanation Box */}
       <div ref={cardRef} className="tour-card" style={cardStyle}>
         {/* Animated Progress Bar */}
         <div style={{ width: "100%", height: "3px", background: "rgba(255, 255, 255, 0.08)" }}>
@@ -445,34 +454,31 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
           />
         </div>
 
-        {/* Card Header with Skip Button */}
+        {/* Card Header with Consistent Step Badge & Skip Button */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 18px 10px",
+            padding: "12px 18px 10px",
             borderBottom: "1px solid rgba(255, 255, 255, 0.08)",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <span
               style={{
-                fontSize: "10px",
+                fontSize: "10.5px",
                 fontFamily: "var(--mono)",
-                fontWeight: 700,
+                fontWeight: 800,
                 letterSpacing: "0.08em",
                 padding: "2px 8px",
                 borderRadius: "4px",
-                background: "rgba(0, 245, 160, 0.14)",
+                background: "rgba(0, 245, 160, 0.15)",
                 color: "#00f5a0",
                 border: "1px solid rgba(0, 245, 160, 0.35)",
               }}
             >
-              {currentStep.badge}
-            </span>
-            <span style={{ fontSize: "11px", color: "rgba(255, 255, 255, 0.4)", fontFamily: "var(--mono)" }}>
-              {stepIndex + 1} of {TOUR_STEPS.length}
+              STEP {stepIndex + 1} OF {totalSteps}
             </span>
           </div>
 
@@ -504,32 +510,32 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
               e.currentTarget.style.background = "rgba(255, 255, 255, 0.06)";
               e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.15)";
             }}
-            title="Close and skip the interactive demo"
+            title="Close and skip the visual demo"
           >
             Skip Tour <span style={{ fontSize: "12px", lineHeight: 1 }}>✕</span>
           </button>
         </div>
 
-        {/* Card Body — Explaining What Happens in This Area */}
-        <div style={{ padding: "18px 20px" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "12px" }}>
+        {/* Card Body — Clear Explanation of What Happens in This Area */}
+        <div style={{ padding: "16px 18px 14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
             <div
               style={{
-                width: "44px",
-                height: "44px",
-                borderRadius: "10px",
-                background: "linear-gradient(135deg, rgba(0, 245, 160, 0.18), rgba(0, 212, 255, 0.18))",
-                border: "1.5px solid rgba(0, 245, 160, 0.35)",
+                width: "38px",
+                height: "38px",
+                borderRadius: "8px",
+                background: "linear-gradient(135deg, rgba(0, 245, 160, 0.2), rgba(0, 212, 255, 0.2))",
+                border: "1px solid rgba(0, 245, 160, 0.4)",
                 display: "grid",
                 placeItems: "center",
-                fontSize: "22px",
+                fontSize: "20px",
                 flexShrink: 0,
               }}
             >
               {currentStep.icon}
             </div>
             <div>
-              <h3 style={{ margin: 0, fontSize: "16px", fontWeight: 700, color: "#ffffff", letterSpacing: "-0.01em" }}>
+              <h3 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#ffffff", letterSpacing: "-0.01em" }}>
                 {currentStep.title}
               </h3>
               <span style={{ fontSize: "11px", color: "#00f5a0", fontWeight: 600 }}>
@@ -541,31 +547,28 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
           {/* What happens explanation */}
           <div
             style={{
-              fontSize: "12.5px",
-              lineHeight: 1.6,
+              fontSize: "12px",
+              lineHeight: 1.55,
               color: "rgba(255, 255, 255, 0.88)",
-              marginBottom: "14px",
+              marginBottom: "10px",
               background: "rgba(255, 255, 255, 0.03)",
-              padding: "10px 12px",
-              borderRadius: "8px",
+              padding: "8px 10px",
+              borderRadius: "6px",
               border: "1px solid rgba(255, 255, 255, 0.07)",
             }}
           >
-            <strong style={{ color: "#00f5a0", display: "block", marginBottom: "4px", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <strong style={{ color: "#00f5a0", display: "block", marginBottom: "3px", fontSize: "10.5px", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               What happens in this area:
             </strong>
             {currentStep.whatHappens}
           </div>
 
           {/* Key actions checklist */}
-          {currentStep.keyActions && currentStep.keyActions.length > 0 && (
-            <div style={{ marginBottom: "14px" }}>
-              <span style={{ fontSize: "11px", color: "rgba(255, 255, 255, 0.5)", textTransform: "uppercase", letterSpacing: "0.05em", display: "block", marginBottom: "6px" }}>
-                Key functions &amp; controls:
-              </span>
-              <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "12px", color: "rgba(255, 255, 255, 0.8)", lineHeight: 1.55 }}>
+          {currentStep.keyActions && (
+            <div style={{ marginBottom: "10px" }}>
+              <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "11.5px", color: "rgba(255, 255, 255, 0.78)", lineHeight: 1.5 }}>
                 {currentStep.keyActions.map((action, idx) => (
-                  <li key={idx} style={{ marginBottom: "3px" }}>
+                  <li key={idx} style={{ marginBottom: "2px" }}>
                     {action}
                   </li>
                 ))}
@@ -580,16 +583,16 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
                 display: "flex",
                 alignItems: "flex-start",
                 gap: "8px",
-                padding: "8px 12px",
+                padding: "7px 10px",
                 borderRadius: "6px",
                 background: "rgba(0, 245, 160, 0.06)",
                 border: "1px solid rgba(0, 245, 160, 0.2)",
-                fontSize: "11.5px",
-                color: "rgba(255, 255, 255, 0.8)",
-                lineHeight: 1.45,
+                fontSize: "11px",
+                color: "rgba(255, 255, 255, 0.82)",
+                lineHeight: 1.4,
               }}
             >
-              <span style={{ color: "#00f5a0", fontSize: "14px" }}>💡</span>
+              <span style={{ color: "#00f5a0", fontSize: "13px" }}>💡</span>
               <div>
                 <strong style={{ color: "#00f5a0", marginRight: "4px" }}>Pro Tip:</strong>
                 {currentStep.tip}
@@ -604,13 +607,13 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "14px 20px 16px",
+            padding: "12px 18px 14px",
             borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-            background: "rgba(0, 0, 0, 0.3)",
+            background: "rgba(0, 0, 0, 0.35)",
           }}
         >
           {/* Step dots */}
-          <div style={{ display: "flex", gap: "6px" }}>
+          <div style={{ display: "flex", gap: "5px" }}>
             {TOUR_STEPS.map((_, i) => (
               <button
                 key={i}
@@ -618,7 +621,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
                 onClick={() => setStepIndex(i)}
                 aria-label={`Go to step ${i + 1}`}
                 style={{
-                  width: i === stepIndex ? "18px" : "6px",
+                  width: i === stepIndex ? "16px" : "6px",
                   height: "6px",
                   borderRadius: "3px",
                   border: "none",
@@ -632,12 +635,12 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {/* Secondary Skip button */}
+            {/* Secondary Skip Button */}
             <button
               type="button"
               className="button button-secondary compact"
               onClick={handleSkipOrComplete}
-              style={{ fontSize: "11px", height: "30px", padding: "0 10px", color: "rgba(255, 255, 255, 0.6)" }}
+              style={{ fontSize: "11px", height: "28px", padding: "0 10px", color: "rgba(255, 255, 255, 0.6)" }}
             >
               Skip
             </button>
@@ -647,7 +650,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
               <button
                 type="button"
                 className="button button-secondary compact"
-                style={{ fontSize: "11px", height: "30px", padding: "0 12px" }}
+                style={{ fontSize: "11px", height: "28px", padding: "0 12px" }}
                 onClick={handlePrev}
               >
                 ← Back
@@ -659,9 +662,9 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
               type="button"
               className="button button-primary compact"
               style={{
-                fontSize: "11.5px",
+                fontSize: "11px",
                 fontWeight: 700,
-                height: "30px",
+                height: "28px",
                 padding: "0 16px",
                 background: "#00f5a0",
                 color: "#000000",
@@ -670,7 +673,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
               }}
               onClick={handleNext}
             >
-              {stepIndex === TOUR_STEPS.length - 1 ? "Finish & Trade 🚀" : "Next →"}
+              {stepIndex === totalSteps - 1 ? "Finish & Trade 🚀" : "Next →"}
             </button>
           </div>
         </div>
