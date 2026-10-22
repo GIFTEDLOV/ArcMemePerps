@@ -15,3 +15,4 @@ export * from "./rugcheck.js";
 export * from "./reconciliation.js";
 export * from "./pool.js";
 export * from "./blockscout.js";
+export * from "./alerts.js";

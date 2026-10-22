@@ -181,6 +181,12 @@ kbd { padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; color
 .urgent-risk-content { display: flex; align-items: center; gap: 12px; }
 .urgent-siren { font-size: 20px; animation: siren-wiggle 1s infinite alternate; }
 .urgent-risk-text strong { color: #ff5577; }
+.urgent-banner-actions { display: flex; align-items: center; gap: 10px; }
+.alarm-toggle-btn { background: rgba(0, 0, 0, 0.35); border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; border-radius: 6px; padding: 6px 10px; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all .15s ease; }
+.alarm-toggle-btn:hover { background: rgba(255, 255, 255, 0.1); }
+.push-perm-btn { background: rgba(0, 240, 118, 0.12); border: 1px solid rgba(0, 240, 118, 0.3); color: #00f076; border-radius: 6px; padding: 6px 10px; font-size: 11px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: all .15s ease; }
+.push-perm-btn:hover { background: rgba(0, 240, 118, 0.22); }
+.push-perm-btn.granted { background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.15); color: var(--muted); cursor: default; }
 .emergency-close-btn { background: #ff3b69; color: #fff; border: 0; border-radius: 6px; padding: 7px 14px; font-weight: 700; font-size: 11px; cursor: pointer; white-space: nowrap; box-shadow: 0 0 12px rgba(255, 59, 105, 0.4); transition: all .15s ease; }
 .emergency-close-btn:hover { background: #ff527c; transform: translateY(-1px); }
 @keyframes siren-wiggle { from { transform: scale(1); } to { transform: scale(1.15) rotate(5deg); } }

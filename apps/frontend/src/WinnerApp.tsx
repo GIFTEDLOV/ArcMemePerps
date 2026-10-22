@@ -951,6 +951,55 @@ function ImportTokenModal({ open, onClose, onImport }: { open: boolean; onClose:
   );
 }
 
+function playSecuritySiren(force = false) {
+  if (typeof window === "undefined") return;
+  try {
+    const isMuted = window.localStorage.getItem("arcmemeperps.sound_muted") === "true";
+    if (isMuted && !force) return;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    if (ctx.state === "suspended") {
+      void ctx.resume();
+    }
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+    osc.type = "sawtooth";
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(440, now + 0.22);
+    osc.frequency.setValueAtTime(880, now + 0.26);
+    osc.frequency.exponentialRampToValueAtTime(440, now + 0.48);
+
+    gain.gain.setValueAtTime(0.12, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.5);
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start(now);
+    osc.stop(now + 0.5);
+  } catch {
+    /* ignore audio policy block */
+  }
+}
+
+function sendDesktopPushAlert(title: string, options?: NotificationOptions) {
+  if (typeof window === "undefined" || !("Notification" in window)) return;
+  if (Notification.permission === "granted") {
+    try {
+      new Notification(title, {
+        icon: "https://arcmemeperps.vercel.app/favicon.ico",
+        badge: "https://arcmemeperps.vercel.app/favicon.ico",
+        ...options,
+      });
+    } catch {
+      /* ignore */
+    }
+  }
+}
+
 function UrgentRiskBanner({
   positions,
   markets,
@@ -960,6 +1009,18 @@ function UrgentRiskBanner({
   markets: OriginMarket[];
   onClosePosition: (id: string, reason?: string) => void;
 }) {
+  const [soundMuted, setSoundMuted] = useState(() => {
+    try {
+      return window.localStorage.getItem("arcmemeperps.sound_muted") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const [pushGranted, setPushGranted] = useState(() => {
+    return typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted";
+  });
+
   const endangered = useMemo(() => {
     for (const pos of positions) {
       const matchingMarket = markets.find(
@@ -978,6 +1039,44 @@ function UrgentRiskBanner({
     return null;
   }, [positions, markets]);
 
+  useEffect(() => {
+    if (endangered) {
+      playSecuritySiren();
+      sendDesktopPushAlert(`🚨 Delisting Alert: $${endangered.position.symbol}`, {
+        body: `Anti-rug circuit breaker triggered: ${endangered.reason}. Emergency close your position now to safeguard margin!`,
+      });
+    }
+  }, [endangered]);
+
+  const toggleSound = () => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    try {
+      window.localStorage.setItem("arcmemeperps.sound_muted", String(next));
+    } catch {
+      /* ignore */
+    }
+    if (!next) {
+      playSecuritySiren(true);
+    }
+  };
+
+  const handleRequestPush = async () => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        setPushGranted(perm === "granted");
+        if (perm === "granted") {
+          sendDesktopPushAlert("🛡️ ArcMemePerps Push Alerts Enabled", {
+            body: "You will now receive desktop notifications for emergency delisting and keeper actions.",
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  };
+
   if (!endangered) return null;
 
   return (
@@ -988,12 +1087,30 @@ function UrgentRiskBanner({
           <strong>URGENT DELISTING NOTICE:</strong> Open position on <b>${endangered.position.symbol}</b> ({endangered.position.side} {endangered.position.leverage}) triggered Anti-Rug Circuit Breaker ({endangered.reason}). Close now or Arc Safety Keeper will auto-close it to protect your collateral.
         </div>
       </div>
-      <button
-        className="emergency-close-btn"
-        onClick={() => onClosePosition(endangered.position.id, endangered.reason)}
-      >
-        ⚡ Emergency Close ({endangered.position.collateral})
-      </button>
+      <div className="urgent-banner-actions">
+        <button
+          className="alarm-toggle-btn"
+          onClick={toggleSound}
+          title={soundMuted ? "Unmute security alarm" : "Mute security alarm"}
+        >
+          {soundMuted ? "🔇 Siren Muted" : "🔊 Siren On"}
+        </button>
+        {!pushGranted && (
+          <button
+            className="push-perm-btn"
+            onClick={() => void handleRequestPush()}
+            title="Enable desktop notifications"
+          >
+            🔔 Push Alerts
+          </button>
+        )}
+        <button
+          className="emergency-close-btn"
+          onClick={() => onClosePosition(endangered.position.id, endangered.reason)}
+        >
+          ⚡ Emergency Close ({endangered.position.collateral})
+        </button>
+      </div>
     </div>
   );
 }
@@ -1072,9 +1189,47 @@ function NotificationsPage({
   positions: StoredPosition[];
   onClosePosition: (id: string, reason?: string) => void;
 }) {
+  const [soundMuted, setSoundMuted] = useState(() => {
+    try {
+      return window.localStorage.getItem("arcmemeperps.sound_muted") === "true";
+    } catch {
+      return false;
+    }
+  });
+
+  const [pushGranted, setPushGranted] = useState(() => {
+    return typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted";
+  });
+
   useEffect(() => {
     notifications.markAllRead();
   }, [notifications]);
+
+  const toggleSound = () => {
+    const next = !soundMuted;
+    setSoundMuted(next);
+    try {
+      window.localStorage.setItem("arcmemeperps.sound_muted", String(next));
+    } catch {
+      /* ignore */
+    }
+  };
+
+  const handleRequestPush = async () => {
+    if (typeof window !== "undefined" && "Notification" in window) {
+      try {
+        const perm = await Notification.requestPermission();
+        setPushGranted(perm === "granted");
+        if (perm === "granted") {
+          sendDesktopPushAlert("🛡️ ArcMemePerps Desktop Alerts Active", {
+            body: "You will now receive desktop notifications for emergency delisting warnings and keeper actions.",
+          });
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+  };
 
   return (
     <section className="page notifications-page">
@@ -1092,6 +1247,42 @@ function NotificationsPage({
           </div>
         }
       />
+
+      <div
+        className="panel"
+        style={{
+          marginBottom: "16px",
+          padding: "14px 18px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          flexWrap: "wrap",
+          gap: "12px",
+        }}
+      >
+        <div>
+          <strong style={{ display: "block", fontSize: "13px", color: "#fff" }}>
+            Real-Time Siren &amp; Desktop Alert Channels
+          </strong>
+          <span style={{ fontSize: "11px", color: "var(--muted)" }}>
+            Instant audio sirens and browser push notifications for emergency delisting and keeper auto-close events.
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
+          <button className="alarm-toggle-btn" onClick={toggleSound}>
+            {soundMuted ? "🔇 Siren Muted" : "🔊 Siren Active"}
+          </button>
+          <button className="alarm-toggle-btn" onClick={() => playSecuritySiren(true)}>
+            ▶ Test Siren
+          </button>
+          <button
+            className={`push-perm-btn ${pushGranted ? "granted" : ""}`}
+            onClick={() => void handleRequestPush()}
+          >
+            {pushGranted ? "✓ Push Alerts Enabled" : "🔔 Enable Push Alerts"}
+          </button>
+        </div>
+      </div>
 
       {notifications.items.length > 0 ? (
         <div className="notifications-list">
@@ -3434,6 +3625,12 @@ export function WinnerApp() {
             : `Successfully closed ${target.side} ${target.leverage} on $${target.symbol}. Margin credited back to vault balance.`,
           urgent: false,
         });
+        if (isAuto) {
+          playSecuritySiren();
+          sendDesktopPushAlert(`🛡️ Arc Safety Keeper Auto-Settled $${target.symbol}`, {
+            body: `Your position was auto-closed due to delisting risk (${reason}). ${target.collateral} collateral was safeguarded back into your vault.`,
+          });
+        }
       }
     } catch {
       /* ignore */
