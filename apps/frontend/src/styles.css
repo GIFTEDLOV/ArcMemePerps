@@ -36,8 +36,40 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; background: var(--bg); overflow-x: hidden; max-width: 100vw; font-size: 13px; }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at 85% -10%, rgba(215, 240, 184, .08), transparent 33%), var(--bg); overflow-x: hidden; width: 100%; max-width: 100vw; font-size: 12px; line-height: 1.4; }
+html {
+  min-width: 320px;
+  background: var(--bg);
+  overflow-x: hidden;
+  max-width: 100vw;
+  font-size: 13px;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: radial-gradient(circle at 85% -10%, rgba(215, 240, 184, .08), transparent 33%), var(--bg);
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+  font-size: 12px;
+  line-height: 1.4;
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* Hide visible scrollbar across all browsers while allowing natural scrolling */
+::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+* {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
 body, button, input, select { font: inherit; }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { color: inherit; }
@@ -1392,4 +1424,26 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 }
 .avatar-badge-preview:hover {
   transform: scale(1.08);
+}
+
+/* Patterned Faded Background for Landing Page (Scrolls with the page) */
+.landing-page-pattern-bg {
+  background-color: #030406;
+  background-image:
+    linear-gradient(to right, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    radial-gradient(circle at 1px 1px, rgba(0, 245, 160, 0.16) 1.5px, transparent 0),
+    radial-gradient(ellipse 80% 60% at 50% 0%, rgba(0, 245, 160, 0.09) 0%, transparent 65%),
+    radial-gradient(ellipse 70% 50% at 90% 35%, rgba(0, 212, 255, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 50% at 10% 70%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+  background-size:
+    48px 48px,
+    48px 48px,
+    48px 48px,
+    100% 1200px,
+    100% 1400px,
+    100% 1400px;
+  background-repeat: repeat, repeat, repeat, no-repeat, no-repeat, no-repeat;
+  background-position: 0 0, 0 0, 0 0, center top, right center, left center;
+  background-attachment: scroll;
 }

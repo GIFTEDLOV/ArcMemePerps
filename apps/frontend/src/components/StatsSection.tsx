@@ -122,7 +122,7 @@ export function StatsSection() {
   return (
     <section
       id="stats"
-      className="bg-black text-white py-8 md:py-24 px-6 md:px-12 lg:px-[120px] w-full border-t border-white/10 overflow-hidden"
+      className="bg-black/40 backdrop-blur-xs text-white py-12 md:py-28 px-6 md:px-12 lg:px-[120px] w-full border-t border-white/10 overflow-hidden"
     >
       <div className="w-full max-w-[1440px] mx-auto">
         <div className="flex flex-col lg:flex-row gap-16 lg:gap-[160px] items-stretch">
