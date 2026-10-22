@@ -1541,8 +1541,11 @@ function Shell({
   onClosePosition: (id: string, reason?: string) => void;
   unreadCount?: number;
 }) {
+  const location = useLocation();
+  const isTrenches = location.pathname === "/" || location.pathname === "/trenches";
+
   return (
-    <div className="app-shell" style={{ paddingBottom: "32px" }}>
+    <div className="app-shell" style={{ paddingBottom: isTrenches ? 0 : "32px" }}>
       <Header
         wallet={wallet}
         stream={stream}
@@ -1552,7 +1555,7 @@ function Shell({
       <UrgentRiskBanner positions={positions} markets={markets} onClosePosition={onClosePosition} />
       <TickerMarquee markets={markets} />
       <div className="shell-body">
-        <main className="content">
+        <main className={`content ${isTrenches ? "trenches-content" : ""}`}>
           <Outlet />
         </main>
       </div>
@@ -4046,6 +4049,9 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
               navigate(`/markets/${encodeURIComponent(m.marketId)}`);
             }}
           >
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="currentColor" style={{ marginRight: 3, verticalAlign: -1 }}>
+              <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+            </svg>
             Buy
           </button>
         </div>
@@ -4093,7 +4099,6 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
             <div className="gmgn-col-tools">
               <div className="gmgn-mini-search">
-                
                 <input placeholder="Keyword, CA..." />
               </div>
               <div className="gmgn-col-presets">
@@ -4104,7 +4109,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
           </div>
           <div className="gmgn-col-rows">
-            {newTokens.slice(0, 15).map(renderRow)}
+            {newTokens.slice(0, 60).map(renderRow)}
           </div>
         </div>
 
@@ -4118,7 +4123,6 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
             <div className="gmgn-col-tools">
               <div className="gmgn-mini-search">
-                
                 <input placeholder="Keyword, CA..." />
               </div>
               <div className="gmgn-col-presets">
@@ -4129,7 +4133,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
           </div>
           <div className="gmgn-col-rows">
-            {bondedTokens.slice(0, 15).map(renderRow)}
+            {bondedTokens.slice(0, 60).map(renderRow)}
           </div>
         </div>
 
@@ -4142,7 +4146,6 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
             <div className="gmgn-col-tools">
               <div className="gmgn-mini-search">
-                
                 <input placeholder="Keyword, CA..." />
               </div>
               <div className="gmgn-col-presets">
@@ -4153,7 +4156,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
             </div>
           </div>
           <div className="gmgn-col-rows">
-            {migratedTokens.slice(0, 15).map(renderRow)}
+            {migratedTokens.slice(0, 60).map(renderRow)}
           </div>
         </div>
       </div>
