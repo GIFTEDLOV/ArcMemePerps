@@ -9,6 +9,8 @@ import { planHash, useWallet } from "./lib/winner-wallet";
 import fallbackSnapshot from "./lib/markets-snapshot.json";
 import { LandingPage } from "./components/LandingPage";
 import { ProfilePage } from "./components/ProfilePage";
+import { OnboardingTour, triggerAppTour } from "./components/OnboardingTour";
+import { getTraderAvatar } from "./lib/avatars";
 
 const api = new WinnerApi(WINNER_CONFIG.apiUrl);
 const UNKNOWN = "—";
@@ -1514,16 +1516,57 @@ function Header({
         </div>
 
         {wallet.state.address ? (
-          <Link to="/profile" className="wallet-button" title="View Profile & Bound Email">
-            <span className="wallet-dot" />
-            {shorten(wallet.state.address)}
-          </Link>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+            <button
+              type="button"
+              className="button button-secondary compact"
+              onClick={triggerAppTour}
+              style={{ fontSize: "10px", padding: "0 8px", height: "26px", color: "#00f5a0", borderColor: "rgba(0, 245, 160, 0.3)" }}
+              title="Launch interactive visual tour of the DEX"
+            >
+              Tour
+            </button>
+            <Link to="/profile" className="wallet-button" title="View Profile & Settings">
+              {(() => {
+                const avatarId = window.localStorage.getItem(`arcmemeperps.profile.avatar.${wallet.state.address}`) || "arc";
+                const userAvatar = getTraderAvatar(avatarId);
+                return (
+                  <span
+                    style={{
+                      width: "16px",
+                      height: "16px",
+                      borderRadius: "50%",
+                      background: userAvatar.bgGradient,
+                      display: "inline-grid",
+                      placeItems: "center",
+                      fontSize: "9px",
+                      marginRight: "4px",
+                      border: `1px solid ${userAvatar.borderColor}`,
+                    }}
+                  >
+                    {userAvatar.icon}
+                  </span>
+                );
+              })()}
+              {shorten(wallet.state.address)}
+            </Link>
+          </div>
         ) : (
           <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-            <Link to="/profile" className="button button-secondary compact" style={{ fontSize: "10px", padding: "0 8px", height: "26px" }}>
-              Email Login
-            </Link>
-            <button className="button button-primary compact" style={{ background: "#00f5a0", color: "#000", fontWeight: 500, fontSize: "10.5px", height: "26px", padding: "0 10px" }} onClick={() => void wallet.connect()}>
+            <button
+              type="button"
+              className="button button-secondary compact"
+              onClick={triggerAppTour}
+              style={{ fontSize: "10px", padding: "0 8px", height: "26px" }}
+              title="Preview DEX features"
+            >
+              Tour
+            </button>
+            <button
+              className="button button-primary compact"
+              style={{ background: "#00f5a0", color: "#000", fontWeight: 500, fontSize: "10.5px", height: "26px", padding: "0 10px" }}
+              onClick={() => void wallet.connect()}
+            >
               Connect Wallet
             </button>
           </div>
@@ -4330,6 +4373,7 @@ export function WinnerApp() {
           onCancel={handleCancelRiskModal}
         />
       )}
+      <OnboardingTour wallet={wallet} />
     </>
   );
 }

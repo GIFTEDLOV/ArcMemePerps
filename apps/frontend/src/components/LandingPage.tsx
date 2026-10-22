@@ -384,7 +384,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             </span>
           </h2>
           <p className="text-white/50 text-sm md:text-base leading-relaxed mb-8 max-w-xl mx-auto">
-            Connect your browser wallet or log in with verified email. Trade with confidence on Arc Mainnet.
+            Connect your Web3 wallet and trade with institutional confidence on Arc Mainnet.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-4">
             <Link

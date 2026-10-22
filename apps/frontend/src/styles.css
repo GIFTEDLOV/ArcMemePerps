@@ -1366,3 +1366,21 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   border: 1px solid rgba(255, 59, 105, 0.3);
   color: #ff5577;
 }
+
+/* Onboarding Product Tour & Avatar Styles */
+@keyframes tourFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+.tour-card {
+  will-change: transform, opacity;
+}
+.avatar-badge-preview:hover {
+  transform: scale(1.08);
+}
