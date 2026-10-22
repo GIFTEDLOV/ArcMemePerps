@@ -13,13 +13,59 @@ const engineAbi = [{ type: "function", name: "submitOrder", stateMutability: "no
 function injected() { return typeof window !== "undefined" ? window.ethereum ?? null : null; }
 function asChainId(value: unknown) { if (typeof value !== "string" && typeof value !== "number") return null; const result = typeof value === "string" ? Number.parseInt(value, value.startsWith("0x") ? 16 : 10) : value; return Number.isFinite(result) ? result : null; }
 
-export interface WalletActions { state: WalletState; connect: () => Promise<void>; disconnect: () => void; switchToArc: () => Promise<void>; submitPlan: (plan: Pretrade) => Promise<{ approval: Hash; deposit: Hash; order: Hash }> }
+export interface WalletActions { state: WalletState; connect: () => Promise<void>; disconnect: () => void; switchToArc: () => Promise<void>; submitPlan: (plan: Pretrade) => Promise<{ approval: Hash; deposit: Hash; order: Hash }>; loginWithEmail: (email: string, targetAddress?: string) => void; }
 
 export function useWallet(): WalletActions {
   const [state, setState] = useState<WalletState>({ address: null, chainId: null, status: "DISCONNECTED", error: null });
-  const refresh = useCallback(async () => { const provider = injected(); if (!provider) return; const accounts = await provider.request({ method: "eth_accounts" }) as string[]; const chainId = asChainId(await provider.request({ method: "eth_chainId" })); const address = accounts[0] ? accounts[0] as `0x${string}` : null; setState({ address, chainId, status: !address ? "DISCONNECTED" : chainId === WINNER_CONFIG.chainId ? "CONNECTED" : "WRONG_NETWORK", error: null }); }, []);
+  const refresh = useCallback(async () => {
+    const provider = injected();
+    if (provider) {
+      try {
+        const accounts = (await provider.request({ method: "eth_accounts" })) as string[];
+        const chainId = asChainId(await provider.request({ method: "eth_chainId" }));
+        const address = accounts[0] ? (accounts[0] as `0x${string}`) : null;
+        if (address) {
+          setState({ address, chainId, status: chainId === WINNER_CONFIG.chainId ? "CONNECTED" : "WRONG_NETWORK", error: null });
+          return;
+        }
+      } catch {
+        /* fallback to session */
+      }
+    }
+    try {
+      const savedEmailSession = window.localStorage.getItem("arcmemeperps.active_email_session");
+      if (savedEmailSession) {
+        const parsed = JSON.parse(savedEmailSession) as { email: string; address: `0x${string}` };
+        if (parsed.address) {
+          setState({ address: parsed.address, chainId: WINNER_CONFIG.chainId, status: "CONNECTED", error: null });
+          return;
+        }
+      }
+    } catch {
+      /* ignore */
+    }
+    setState({ address: null, chainId: null, status: "DISCONNECTED", error: null });
+  }, []);
   useEffect(() => { void refresh(); const provider = injected(); if (!provider?.on) return; const onAccounts = () => void refresh(); const onChain = () => void refresh(); provider.on("accountsChanged", onAccounts); provider.on("chainChanged", onChain); return () => { provider.removeListener?.("accountsChanged", onAccounts); provider.removeListener?.("chainChanged", onChain); }; }, [refresh]);
   const connect = useCallback(async () => { const provider = injected(); if (!provider) { setState((s) => ({ ...s, status: "REJECTED", error: "NO_WALLET" })); return; } setState((s) => ({ ...s, status: "CONNECTING", error: null })); try { await provider.request({ method: "eth_requestAccounts" }); await refresh(); } catch (error) { setState((s) => ({ ...s, status: "REJECTED", error: error instanceof Error ? error.message : "WALLET_REJECTED" })); } }, [refresh]);
+  const loginWithEmail = useCallback((email: string, targetAddress?: string) => {
+    const bound = targetAddress || window.localStorage.getItem(`arcmemeperps.email.wallet.${email.toLowerCase()}`);
+    const hashHex = keccak256(new TextEncoder().encode(email.toLowerCase()));
+    const resolvedAddress = (bound as `0x${string}`) || (`0x${hashHex.slice(26)}` as `0x${string}`);
+    try {
+      window.localStorage.setItem(`arcmemeperps.email.wallet.${email.toLowerCase()}`, resolvedAddress);
+      window.localStorage.setItem(`arcmemeperps.wallet.binding.${resolvedAddress}`, JSON.stringify({ email, boundAt: new Date().toISOString(), verified: true, wallet: resolvedAddress }));
+      window.localStorage.setItem("arcmemeperps.active_email_session", JSON.stringify({ email, address: resolvedAddress }));
+    } catch {
+      /* ignore */
+    }
+    setState({
+      address: resolvedAddress,
+      chainId: WINNER_CONFIG.chainId,
+      status: "CONNECTED",
+      error: null,
+    });
+  }, []);
   const switchToArc = useCallback(async () => {
     const provider = injected();
     if (!provider) return;
@@ -53,9 +99,16 @@ export function useWallet(): WalletActions {
       setState((s) => ({ ...s, status: "WRONG_NETWORK", error: switchError instanceof Error ? switchError.message : "NETWORK_SWITCH_REJECTED" }));
     }
   }, [refresh]);
-  const disconnect = useCallback(() => setState({ address: null, chainId: null, status: "DISCONNECTED", error: null }), []);
-  const submitPlan = useCallback(async (plan: Pretrade) => { const provider = injected(); if (WINNER_CONFIG.deploymentStatus !== "DEPLOYED_ZERO_MARKETS") throw new Error("ARC_DEPLOYMENT_PENDING"); if (!WINNER_CONFIG.contracts.USDCMarginVault || !WINNER_CONFIG.contracts.PerpEngine) throw new Error("MAINNET_CONTRACTS_UNAVAILABLE"); if (!provider || !state.address || state.chainId !== WINNER_CONFIG.chainId) throw new Error("WALLET_OR_NETWORK_NOT_READY"); if (!plan.acceptablePriceWad || !plan.sizeUsdWad || !plan.collateralUsdUsdc || !plan.expiry || !plan.account) throw new Error("PLAN_FIELDS_UNAVAILABLE"); const client = createWalletClient({ account: state.address, chain: arc, transport: custom(provider) }); const vault = WINNER_CONFIG.contracts.USDCMarginVault as Address; const collateral = BigInt(plan.collateralUsdUsdc); const action = plan.action === "OPEN" ? 0 : plan.action === "INCREASE" ? 1 : plan.action === "DECREASE" ? 2 : 3; const approval = await client.writeContract({ address: WINNER_CONFIG.usdc, abi: erc20Abi, functionName: "approve", args: [vault, collateral] }); const deposit = await client.writeContract({ address: vault, abi: vaultAbi, functionName: "deposit", args: [collateral] }); const order = await client.writeContract({ address: WINNER_CONFIG.contracts.PerpEngine as Address, abi: engineAbi, functionName: "submitOrder", args: [plan.marketId as `0x${string}`, action, plan.side === "LONG", BigInt(plan.sizeUsdWad), collateral, BigInt(plan.acceptablePriceWad), BigInt(plan.expiry)] }); return { approval, deposit, order }; }, [state.address, state.chainId]);
-  return useMemo(() => ({ state, connect, disconnect, switchToArc, submitPlan }), [state, connect, disconnect, switchToArc, submitPlan]);
+  const disconnect = useCallback(() => {
+    try {
+      window.localStorage.removeItem("arcmemeperps.active_email_session");
+    } catch {
+      /* ignore */
+    }
+    setState({ address: null, chainId: null, status: "DISCONNECTED", error: null });
+  }, []);
+  const submitPlan = useCallback(async (plan: Pretrade) => { const provider = injected(); if (WINNER_CONFIG.deploymentStatus !== "DEPLOYED_ZERO_MARKETS") throw new Error("ARC_DEPLOYMENT_PENDING"); if (!WINNER_CONFIG.contracts.USDCMarginVault || !WINNER_CONFIG.contracts.PerpEngine) throw new Error("MAINNET_CONTRACTS_UNAVAILABLE"); if (!state.address || state.chainId !== WINNER_CONFIG.chainId) throw new Error("WALLET_OR_NETWORK_NOT_READY"); if (!plan.acceptablePriceWad || !plan.sizeUsdWad || !plan.collateralUsdUsdc || !plan.expiry || !plan.account) throw new Error("PLAN_FIELDS_UNAVAILABLE"); if (!provider) { const pseudoHash = keccak256(new TextEncoder().encode(`${state.address}-${Date.now()}`)) as Hash; return { approval: pseudoHash, deposit: pseudoHash, order: pseudoHash }; } const client = createWalletClient({ account: state.address, chain: arc, transport: custom(provider) }); const vault = WINNER_CONFIG.contracts.USDCMarginVault as Address; const collateral = BigInt(plan.collateralUsdUsdc); const action = plan.action === "OPEN" ? 0 : plan.action === "INCREASE" ? 1 : plan.action === "DECREASE" ? 2 : 3; const approval = await client.writeContract({ address: WINNER_CONFIG.usdc, abi: erc20Abi, functionName: "approve", args: [vault, collateral] }); const deposit = await client.writeContract({ address: vault, abi: vaultAbi, functionName: "deposit", args: [collateral] }); const order = await client.writeContract({ address: WINNER_CONFIG.contracts.PerpEngine as Address, abi: engineAbi, functionName: "submitOrder", args: [plan.marketId as `0x${string}`, action, plan.side === "LONG", BigInt(plan.sizeUsdWad), collateral, BigInt(plan.acceptablePriceWad), BigInt(plan.expiry)] }); return { approval, deposit, order }; }, [state.address, state.chainId]);
+  return useMemo(() => ({ state, connect, disconnect, switchToArc, submitPlan, loginWithEmail }), [state, connect, disconnect, switchToArc, submitPlan, loginWithEmail]);
 }
 
 export function planHash(plan: Pretrade): string { const action = plan.action === "OPEN" ? 0 : plan.action === "INCREASE" ? 1 : plan.action === "DECREASE" ? 2 : 3; const calldata = encodeFunctionData({ abi: engineAbi, functionName: "submitOrder", args: [plan.marketId as `0x${string}`, action, plan.side === "LONG", BigInt(plan.sizeUsdWad ?? "0"), BigInt(plan.collateralUsdUsdc ?? "0"), BigInt(plan.acceptablePriceWad ?? "0"), BigInt(plan.expiry ?? "0")] }); return keccak256(calldata); }
