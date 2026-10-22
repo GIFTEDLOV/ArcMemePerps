@@ -528,7 +528,7 @@ code, .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   align-items: center;
   gap: 6px;
   will-change: transform;
-  animation: ticker-marquee-loop 45s linear infinite;
+  animation: ticker-marquee-loop 130s linear infinite;
 }
 .ticker-marquee-track:hover {
   animation-play-state: paused;
