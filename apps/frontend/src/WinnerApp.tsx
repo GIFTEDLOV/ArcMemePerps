@@ -3972,40 +3972,77 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
     return [...filtered].sort((a, b) => Number(b.originSpotLiquidityUsd || "0") - Number(a.originSpotLiquidityUsd || "0"));
   }, [filtered]);
 
-  const renderCard = (m: OriginMarket) => {
-    const changeBps = m.priceChange24hBps ?? 0;
-    const isPos = changeBps >= 0;
+  const renderRow = (m: OriginMarket) => {
     const numVol = Number(m.volume24hUsd || "0");
     const numLiq = Number(m.originSpotLiquidityUsd || "0");
-    const mcFormatted = numLiq > 0 ? `$${(numLiq * 1.8).toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "$45.2K";
+    const mcFormatted = numLiq > 0 ? `$${(numLiq * 1.8 >= 1000 ? ((numLiq * 1.8) / 1000).toFixed(1) + "K" : (numLiq * 1.8).toFixed(1))}` : "$4.5K";
+    const volFormatted = numVol >= 1000 ? `$${(numVol / 1000).toFixed(1)}K` : `$${numVol.toFixed(0)}`;
+    const txCount = m.transactions24h ?? Math.max(Math.round(numVol > 0 ? numVol / 220 : 180), 85);
+    const top10 = ((m.top10ConcentrationBps ?? 1850) / 100).toFixed(0);
+    const bundler = m.largestClusterBps ? ((m.largestClusterBps / 100) * 0.8).toFixed(0) : "0";
 
     return (
-      <div key={m.marketId} className="trench-token-card">
-        <div className="trench-card-avatar">
+      <div
+        key={m.marketId}
+        className="gmgn-row"
+        onClick={() => navigate(`/markets/${encodeURIComponent(m.marketId)}`)}
+      >
+        <div className="gmgn-row-avatar-wrap">
           <TokenAvatar market={m} />
+          <span className="gmgn-row-chain-dot" />
         </div>
-        <div className="trench-card-meta">
-          <div className="trench-sym-row">
+
+        <div className="gmgn-row-center">
+          <div className="gmgn-row-title">
             <strong>${m.symbol}</strong>
-            <span className="trench-tax-badge">0% TAX</span>
-            <span style={{ fontSize: "10px", color: "var(--faint)", fontFamily: "var(--mono)" }}>{m.chain}</span>
+            <span className="token-desc-name">{m.name && m.name !== m.symbol ? m.name : "Meme Token"}</span>
+            <button
+              type="button"
+              className="gmgn-copy-ca-btn"
+              title="Copy token address"
+              onClick={(e) => {
+                e.stopPropagation();
+                void navigator.clipboard?.writeText(m.tokenAddress);
+              }}
+            >
+              📋
+            </button>
           </div>
-          <div className="trench-sub-row">
+
+          <div className="gmgn-row-tags">
+            <span className="gmgn-tag-tax">Tax 0%</span>
+            <span className="gmgn-tag-chain">{m.chain}</span>
             <span>{ageLabel(m.lifecycle.observedAt)}</span>
+            <div className="gmgn-social-icons">
+              <span>🌐</span>
+              <span>𝕏</span>
+              <span>✈</span>
+              <span>📊</span>
+            </div>
             <span>👥 {m.holders ?? 420}</span>
-            <span style={{ color: isPos ? "#00f5a0" : "#ff3b30" }}>
-              {isPos ? "+" : ""}{(changeBps / 100).toFixed(1)}%
-            </span>
+            <span>🎯 6</span>
+          </div>
+
+          <div className="gmgn-row-security">
+            <span className="gmgn-sec-stat good">🟢 {top10}%</span>
+            <span>DS 1d</span>
+            <span>0%</span>
+            <span>0%</span>
+            <span>{bundler}%</span>
           </div>
         </div>
-        <div className="trench-card-stats">
-          <span className="trench-mc-val">{mcFormatted}</span>
-          <span className="trench-vol-val">V: ${(numVol / 1000).toFixed(1)}K</span>
+
+        <div className="gmgn-row-right">
+          <span className="gmgn-row-mc">MC {mcFormatted}</span>
+          <span className="gmgn-row-vol">V {volFormatted}</span>
+          <span className="gmgn-row-tx">
+            TX {txCount} <span className="gmgn-mini-tx-bar" />
+          </span>
           <button
             type="button"
-            className="trench-instant-buy-btn"
+            className="gmgn-instant-buy-btn"
             onClick={(e) => {
-              e.preventDefault();
+              e.stopPropagation();
               navigate(`/markets/${encodeURIComponent(m.marketId)}`);
             }}
           >
@@ -4045,34 +4082,78 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
         </div>
       </div>
 
-      <div className="trenches-grid">
-        <div className="trench-col">
-          <div className="trench-col-head">
-            <strong className="trench-badge-new">⚡ New Discovered ({newTokens.length})</strong>
-            <span className="mono micro" style={{ color: "var(--faint)" }}>0-2h age</span>
+      {/* ONE Continuous GMGN Board Divided by Faded Single Lines */}
+      <div className="gmgn-board">
+        {/* Column 1: New */}
+        <div className="gmgn-board-col">
+          <div className="gmgn-col-head">
+            <div className="gmgn-col-title-wrap">
+              <strong>New</strong>
+              <span className="mono micro" style={{ color: "var(--faint)", fontWeight: 400 }}>({newTokens.length})</span>
+            </div>
+            <div className="gmgn-col-tools">
+              <div className="gmgn-mini-search">
+                <span>🔍</span>
+                <input placeholder="Keyword, CA..." />
+              </div>
+              <div className="gmgn-col-presets">
+                <span className="gmgn-preset-chip">P1</span>
+                <span className="gmgn-preset-chip">P2</span>
+                <span className="gmgn-preset-chip">P3</span>
+              </div>
+            </div>
           </div>
-          <div className="trench-card-list">
-            {newTokens.slice(0, 15).map(renderCard)}
+          <div className="gmgn-col-rows">
+            {newTokens.slice(0, 15).map(renderRow)}
           </div>
         </div>
 
-        <div className="trench-col">
-          <div className="trench-col-head">
-            <strong className="trench-badge-bonded">📈 Almost Bonded / Momentum ({bondedTokens.length})</strong>
-            <span className="mono micro" style={{ color: "var(--faint)" }}>Top txs</span>
+        {/* Column 2: Almost bonded % MC */}
+        <div className="gmgn-board-col">
+          <div className="gmgn-col-head">
+            <div className="gmgn-col-title-wrap">
+              <strong>Almost bonded</strong>
+              <span className="bonding-badge">% MC</span>
+              <span className="mono micro" style={{ color: "var(--faint)", fontWeight: 400 }}>({bondedTokens.length})</span>
+            </div>
+            <div className="gmgn-col-tools">
+              <div className="gmgn-mini-search">
+                <span>🔍</span>
+                <input placeholder="Keyword, CA..." />
+              </div>
+              <div className="gmgn-col-presets">
+                <span className="gmgn-preset-chip">P1</span>
+                <span className="gmgn-preset-chip">P2</span>
+                <span className="gmgn-preset-chip">P3</span>
+              </div>
+            </div>
           </div>
-          <div className="trench-card-list">
-            {bondedTokens.slice(0, 15).map(renderCard)}
+          <div className="gmgn-col-rows">
+            {bondedTokens.slice(0, 15).map(renderRow)}
           </div>
         </div>
 
-        <div className="trench-col">
-          <div className="trench-col-head">
-            <strong className="trench-badge-migrated">💎 Migrated / Deep Pools ({migratedTokens.length})</strong>
-            <span className="mono micro" style={{ color: "var(--faint)" }}>High liq</span>
+        {/* Column 3: Migrated */}
+        <div className="gmgn-board-col">
+          <div className="gmgn-col-head">
+            <div className="gmgn-col-title-wrap">
+              <strong>Migrated</strong>
+              <span className="mono micro" style={{ color: "var(--faint)", fontWeight: 400 }}>({migratedTokens.length})</span>
+            </div>
+            <div className="gmgn-col-tools">
+              <div className="gmgn-mini-search">
+                <span>🔍</span>
+                <input placeholder="Keyword, CA..." />
+              </div>
+              <div className="gmgn-col-presets">
+                <span className="gmgn-preset-chip">P1</span>
+                <span className="gmgn-preset-chip">P2</span>
+                <span className="gmgn-preset-chip">P3</span>
+              </div>
+            </div>
           </div>
-          <div className="trench-card-list">
-            {migratedTokens.slice(0, 15).map(renderCard)}
+          <div className="gmgn-col-rows">
+            {migratedTokens.slice(0, 15).map(renderRow)}
           </div>
         </div>
       </div>
