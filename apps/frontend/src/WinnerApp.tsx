@@ -1800,13 +1800,30 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
 
 function MarketChart({ market }: { market: OriginMarket }) {
   const [range, setRange] = useState("1D");
-  const [chartMode, setChartMode] = useState<"CANDLE" | "LINE">("CANDLE");
-  const [embedView, setEmbedView] = useState<"NATIVE" | "DEXSCREENER">("NATIVE");
+  const [chartMode, setChartMode] = useState<"DEXSCREENER" | "CANDLE" | "LINE">("DEXSCREENER");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
   const isArcNative = market.chain === "ARC" || !market.chain;
-  const chainSlug = market.chain === "SOLANA" ? "solana" : market.chain === "BASE" ? "base" : market.chain === "BNB" ? "bsc" : market.chain === "ETHEREUM" ? "ethereum" : null;
-  const tokenTarget = market.tokenAddress;
+
+  const dexscreenerUrl = useMemo(() => {
+    if (market.sourceUrl && market.sourceUrl.includes("dexscreener.com")) {
+      const clean = market.sourceUrl.split("?")[0];
+      return `${clean}?embed=1&theme=dark&trades=0&info=0`;
+    }
+    const c = (market.chain || "").toUpperCase();
+    let slug = "solana";
+    if (c === "BASE") slug = "base";
+    else if (c === "BNB" || c === "BSC") slug = "bsc";
+    else if (c === "ETHEREUM" || c === "ETH") slug = "ethereum";
+    else if (c === "ROBINHOOD") slug = "robinhood";
+    else if (c === "ARBITRUM") slug = "arbitrum";
+    else if (c === "POLYGON") slug = "polygon";
+    else if (c === "AVALANCHE") slug = "avalanche";
+    else if (c === "ARC") slug = "solana";
+
+    const target = market.tokenAddress || market.marketId;
+    return `https://dexscreener.com/${slug}/${target}?embed=1&theme=dark&trades=0&info=0`;
+  }, [market.sourceUrl, market.chain, market.tokenAddress, market.marketId]);
 
   const historyPoints = useMemo(() => {
     if (market.history && market.history.length >= 2) {
@@ -1917,46 +1934,33 @@ function MarketChart({ market }: { market: OriginMarket }) {
     <div className="chart-wrap">
       <div className="chart-controls">
         <div className="range-tabs" style={{ display: "flex", alignItems: "center", gap: "6px", flexWrap: "wrap" }}>
-          {/* Always Available Candlestick vs Line Toggle for ALL pairs */}
+          {/* Universal 3-Mode Selector: DexScreener Live (Default) | Native Candles | Instant Line */}
           <div style={{ display: "inline-flex", gap: "2px", background: "rgba(255,255,255,0.06)", borderRadius: "6px", padding: "2px", marginRight: "6px" }}>
             <button
               type="button"
-              className={chartMode === "LINE" ? "active" : ""}
-              onClick={() => setChartMode("LINE")}
-              style={{ padding: "4px 9px", fontSize: "10px", fontWeight: 600, borderRadius: "4px" }}
+              className={chartMode === "DEXSCREENER" ? "active" : ""}
+              onClick={() => setChartMode("DEXSCREENER")}
+              style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 600, borderRadius: "4px" }}
             >
-              ⚡ Instant Line
+              📊 DexScreener Live
             </button>
             <button
               type="button"
               className={chartMode === "CANDLE" ? "active" : ""}
               onClick={() => setChartMode("CANDLE")}
-              style={{ padding: "4px 9px", fontSize: "10px", fontWeight: 600, borderRadius: "4px" }}
+              style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 600, borderRadius: "4px" }}
             >
-              🕯️ Candlesticks
+              🕯️ Native Candles
+            </button>
+            <button
+              type="button"
+              className={chartMode === "LINE" ? "active" : ""}
+              onClick={() => setChartMode("LINE")}
+              style={{ padding: "4px 10px", fontSize: "11px", fontWeight: 600, borderRadius: "4px" }}
+            >
+              ⚡ Instant Line
             </button>
           </div>
-
-          {chainSlug && chartMode === "CANDLE" && (
-            <div style={{ display: "inline-flex", gap: "2px", background: "rgba(0,212,255,0.08)", border: "1px solid rgba(0,212,255,0.25)", borderRadius: "6px", padding: "2px", marginRight: "6px" }}>
-              <button
-                type="button"
-                className={embedView === "NATIVE" ? "active" : ""}
-                onClick={() => setEmbedView("NATIVE")}
-                style={{ padding: "4px 8px", fontSize: "10px", fontWeight: 600, borderRadius: "4px" }}
-              >
-                Native Candles
-              </button>
-              <button
-                type="button"
-                className={embedView === "DEXSCREENER" ? "active" : ""}
-                onClick={() => setEmbedView("DEXSCREENER")}
-                style={{ padding: "4px 8px", fontSize: "10px", fontWeight: 600, borderRadius: "4px" }}
-              >
-                DexScreener Embed
-              </button>
-            </div>
-          )}
 
           {["15M", "1H", "4H", "1D", "1W"].map((item) => (
             <button key={item} className={range === item ? "active" : ""} onClick={() => setRange(item)}>{item}</button>
@@ -1969,16 +1973,16 @@ function MarketChart({ market }: { market: OriginMarket }) {
               ⚡ Arc Native (5042)
             </span>
           )}
-          <span>{chartMode === "CANDLE" ? `${candles.length} Candles · OHLC Active` : `${historyPoints.length} points · 0ms Instant`}</span>
+          <span>{chartMode === "DEXSCREENER" ? "DexScreener Live Feed" : chartMode === "CANDLE" ? `${candles.length} Candles · OHLC Active` : `${historyPoints.length} points · 0ms Instant`}</span>
         </div>
       </div>
 
-      {chartMode === "CANDLE" && embedView === "DEXSCREENER" && chainSlug && tokenTarget ? (
-        <div style={{ position: "relative", width: "100%", height: "420px", marginTop: "12px", borderRadius: "8px", overflow: "hidden", background: "#0a0e10", border: "1px solid var(--line)" }}>
+      {chartMode === "DEXSCREENER" ? (
+        <div style={{ position: "relative", width: "100%", height: "460px", marginTop: "12px", borderRadius: "8px", overflow: "hidden", background: "#0a0e10", border: "1px solid var(--line)" }}>
           <iframe
-            src={`https://dexscreener.com/${chainSlug}/${tokenTarget}?embed=1&theme=dark&trades=0&info=0`}
+            src={dexscreenerUrl}
             style={{ width: "100%", height: "100%", border: 0 }}
-            title={`${market.symbol} Candlestick Chart`}
+            title={`${market.symbol} DexScreener Live Candlestick Chart`}
             loading="lazy"
           />
         </div>
