@@ -122,19 +122,19 @@ export function StatsSection() {
   return (
     <section
       id="stats"
-      className="bg-black/40 backdrop-blur-xs text-white py-12 md:py-28 px-6 md:px-12 lg:px-[120px] w-full border-t border-white/10 overflow-hidden"
+      className="bg-black/40 backdrop-blur-xs text-white py-12 md:py-24 px-6 md:px-12 lg:px-16 w-full border-t border-white/10 overflow-hidden"
     >
-      <div className="w-full max-w-[1440px] mx-auto">
-        <div className="flex flex-col lg:flex-row gap-16 lg:gap-[160px] items-stretch">
-          {/* Left Column */}
+      <div className="w-full max-w-[1140px] mx-auto">
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-16 items-center justify-center">
+          {/* Left Column (Shifted towards middle) */}
           <motion.div
-            className="flex-1 flex flex-col justify-start"
+            className="flex-1 max-w-xl flex flex-col justify-center"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: "-100px" }}
             variants={leftColumnVariants}
           >
-            <h2 className="text-[clamp(1.5rem,4vw,3.5rem)] font-medium tracking-tight mb-6 leading-[1.1] w-[590px] max-w-full">
+            <h2 className="text-[clamp(1.5rem,3.5vw,3rem)] font-medium tracking-tight mb-6 leading-[1.1] max-w-lg">
               <Typewriter text="Powering Harvests" delay={0} speed={0.012} />
               <br />
               <Typewriter text="that " delay={0.25} speed={0.012} />
@@ -143,7 +143,7 @@ export function StatsSection() {
               </span>
             </h2>
 
-            <p className="text-base md:text-lg text-white/40 leading-relaxed font-light max-w-lg whitespace-normal mb-16">
+            <p className="text-base md:text-lg text-white/40 leading-relaxed font-light max-w-md whitespace-normal mb-12">
               <Typewriter
                 text="For over a decade, the region's most demanding agricultural operations have relied on our modern machinery and skilled crews to secure their crops efficiently and reduce loss."
                 delay={0.1}
@@ -152,12 +152,12 @@ export function StatsSection() {
             </p>
 
             <motion.div
-              className="grid grid-cols-2 md:grid-cols-[max-content_max-content] gap-8 md:gap-x-16 lg:gap-x-24"
+              className="grid grid-cols-2 md:grid-cols-[max-content_max-content] gap-8 md:gap-x-14 lg:gap-x-20"
               variants={statsGridVariants}
             >
               {/* Stat 1 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
-                <div className="text-4xl md:text-5xl lg:text-[56px] font-dm-serif tracking-tight mb-3">
+                <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
                   <AnimatedCounter value={500} suffix="K+" />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
@@ -167,7 +167,7 @@ export function StatsSection() {
 
               {/* Stat 2 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
-                <div className="text-4xl md:text-5xl lg:text-[56px] font-dm-serif tracking-tight mb-3">
+                <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
                   <AnimatedCounter value={99.8} decimals={1} suffix="%" />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
@@ -177,7 +177,7 @@ export function StatsSection() {
 
               {/* Stat 3 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
-                <div className="text-4xl md:text-5xl lg:text-[56px] font-dm-serif tracking-tight mb-3">
+                <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
                   <AnimatedCounter value={50} suffix="+" />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
@@ -187,7 +187,7 @@ export function StatsSection() {
 
               {/* Stat 4 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
-                <div className="text-4xl md:text-5xl lg:text-[56px] font-dm-serif tracking-tight mb-3">
+                <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
                   <AnimatedCounter value={15} suffix="+" />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
@@ -197,7 +197,7 @@ export function StatsSection() {
 
               {/* Stat 5 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
-                <div className="text-4xl md:text-5xl lg:text-[56px] font-dm-serif tracking-tight mb-3">
+                <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
                   <AnimatedCounter value={24} suffix="/7" />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
@@ -207,12 +207,12 @@ export function StatsSection() {
             </motion.div>
           </motion.div>
 
-          {/* Right Column: Logo-Masked Video */}
-          <div className="flex justify-center lg:justify-end items-center shrink-0 lg:w-1/2">
+          {/* Right Column: Logo-Masked Video (Shifted towards middle) */}
+          <div className="flex justify-center items-center shrink-0 lg:w-[460px]">
             <motion.div
-              className="w-full max-w-[500px] lg:max-w-none lg:w-[120%] aspect-square origin-center"
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1.2 }}
+              className="w-full max-w-[420px] aspect-square origin-center"
+              initial={{ opacity: 0, scale: 0.95 }}
+              whileInView={{ opacity: 1, scale: 1.05 }}
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, delay: 0, ease: "easeOut" }}
               style={{
