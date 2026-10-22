@@ -1,0 +1,32 @@
+{
+  "network": "Arc Mainnet",
+  "chainId": 5042,
+  "deployer": "0xB65685037041Ff56574a53FC49B1F5dB88ABe043",
+  "vaultAddress": "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf",
+  "contracts": {
+    "USDCMarginVault": "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf",
+    "USDC": "0x3600000000000000000000000000000000000000"
+  },
+  "transactions": {
+    "deployUSDCMarginVault": "0x48447140a7634399a78db4dc59e99c97d31ef0ab70b746b7b71d609fc9b42f82",
+    "setCollateralToken": "0x8825bff90af0ad1fb8e86b8d87fc0c20a16c7329de363d561f3350f3b3ed56f6",
+    "approveUSDC": "0xee17c35b84df614865f8e0467a7e19af72dec71088a50c7f1f754673b06329ba",
+    "depositCollateral": "0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9"
+  },
+  "proof": {
+    "action": "Real Arc USDC moved into USDCMarginVault on Arc Mainnet",
+    "amountMoved": "1.000000 USDC",
+    "vaultBalance": "1 USDC",
+    "blockNumber": "27246895",
+    "txHash": "0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9",
+    "explorerUrl": "https://explorer.arc.io/tx/0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9"
+  },
+  "verifiedExplorerUrls": [
+    "https://explorer.arc.io/tx/0x48447140a7634399a78db4dc59e99c97d31ef0ab70b746b7b71d609fc9b42f82",
+    "https://explorer.arc.io/tx/0x8825bff90af0ad1fb8e86b8d87fc0c20a16c7329de363d561f3350f3b3ed56f6",
+    "https://explorer.arc.io/tx/0xee17c35b84df614865f8e0467a7e19af72dec71088a50c7f1f754673b06329ba",
+    "https://explorer.arc.io/tx/0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9",
+    "https://explorer.arc.io/address/0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf"
+  ],
+  "timestamp": "2026-10-22T07:21:53.635Z"
+}

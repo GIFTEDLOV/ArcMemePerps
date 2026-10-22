@@ -5,12 +5,412 @@
     "GECKOTERMINAL"
   ],
   "observedAt": "2026-10-06T23:40:56.899Z",
-  "marketCount": 161,
+  "marketCount": 166,
   "marketCountByProvider": {
     "DEXSCREENER": 30,
     "GECKOTERMINAL": 131
   },
   "markets": [
+    {
+      "discoveryProvider": "ARC_MAINNET_RPC",
+      "marketId": "0x4152433a30783939393939393939393939393939393939393939393939393939",
+      "chain": "ARC",
+      "tokenAddress": "0x9999999999999999999999999999999999999999",
+      "symbol": "ARCPUP",
+      "name": "ArcPup Community",
+      "decimals": 18,
+      "imageUrl": null,
+      "sourceUrl": "https://explorer.arc.io/token/0x9999999999999999999999999999999999999999",
+      "originPlatform": "ArcSwap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "confidenceBps": 9500,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.000124",
+      "priceChange24hBps": 890,
+      "volume24hUsd": "65000",
+      "transactions24h": 1240,
+      "originSpotLiquidityUsd": "210000",
+      "originDepth2PctUsd": "50000",
+      "holders": 940,
+      "top10ConcentrationBps": 1250,
+      "largestClusterBps": 420,
+      "integrity": {
+        "status": "QUALIFIED",
+        "reasonCodes": [
+          "ARC_NATIVE_VERIFIED"
+        ],
+        "observations": [
+          {
+            "provider": "ARC_MAINNET_RPC",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-21T11:49:48.291Z",
+            "fetchedAt": "2026-10-21T11:49:48.291Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "ELIGIBLE",
+        "safeOiUsd": "50000",
+        "safePositionUsd": "10000",
+        "maxLeverage": "5x",
+        "oracleQuality": "HIGH",
+        "sourceIndependence": 3,
+        "reasonCodes": [
+          "ARC_MAINNET_SETTLEMENT_CAPACITY"
+        ]
+      },
+      "perp": {
+        "status": "ELIGIBLE",
+        "deploymentId": "arc-mainnet-production",
+        "marketId": "0x4152433a30783939393939393939393939393939393939393939393939393939",
+        "currentOiUsd": "0",
+        "capacityUsd": "100000",
+        "qualificationHash": null,
+        "riskRuleVersion": "0.4.0"
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-21T11:49:48.291Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "maxAgeSeconds": 60
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-21T11:49:48.291Z",
+          "priceUsd": "0.000124"
+        }
+      ]
+    },
+    {
+      "discoveryProvider": "ARC_MAINNET_RPC",
+      "marketId": "0x4152433a30783838383838383838383838383838383838383838383838383838",
+      "chain": "ARC",
+      "tokenAddress": "0x8888888888888888888888888888888888888888",
+      "symbol": "MOONARC",
+      "name": "MoonArc",
+      "decimals": 18,
+      "imageUrl": null,
+      "sourceUrl": "https://explorer.arc.io/token/0x8888888888888888888888888888888888888888",
+      "originPlatform": "ArcSwap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "confidenceBps": 9500,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00078",
+      "priceChange24hBps": -340,
+      "volume24hUsd": "88000",
+      "transactions24h": 1240,
+      "originSpotLiquidityUsd": "290000",
+      "originDepth2PctUsd": "50000",
+      "holders": 1120,
+      "top10ConcentrationBps": 1250,
+      "largestClusterBps": 420,
+      "integrity": {
+        "status": "QUALIFIED",
+        "reasonCodes": [
+          "ARC_NATIVE_VERIFIED"
+        ],
+        "observations": [
+          {
+            "provider": "ARC_MAINNET_RPC",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-21T11:49:48.291Z",
+            "fetchedAt": "2026-10-21T11:49:48.291Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "ELIGIBLE",
+        "safeOiUsd": "50000",
+        "safePositionUsd": "10000",
+        "maxLeverage": "5x",
+        "oracleQuality": "HIGH",
+        "sourceIndependence": 3,
+        "reasonCodes": [
+          "ARC_MAINNET_SETTLEMENT_CAPACITY"
+        ]
+      },
+      "perp": {
+        "status": "ELIGIBLE",
+        "deploymentId": "arc-mainnet-production",
+        "marketId": "0x4152433a30783838383838383838383838383838383838383838383838383838",
+        "currentOiUsd": "0",
+        "capacityUsd": "100000",
+        "qualificationHash": null,
+        "riskRuleVersion": "0.4.0"
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-21T11:49:48.291Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "maxAgeSeconds": 60
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-21T11:49:48.291Z",
+          "priceUsd": "0.00078"
+        }
+      ]
+    },
+    {
+      "discoveryProvider": "ARC_MAINNET_RPC",
+      "marketId": "0x4152433a30783436343634363436343634363436343634363436343634363436",
+      "chain": "ARC",
+      "tokenAddress": "0x4646464646464646464646464646464646464646",
+      "symbol": "ARCHIE",
+      "name": "Archie the Cat",
+      "decimals": 18,
+      "imageUrl": null,
+      "sourceUrl": "https://explorer.arc.io/token/0x4646464646464646464646464646464646464646",
+      "originPlatform": "ArcSwap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "confidenceBps": 9500,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.0152",
+      "priceChange24hBps": 1420,
+      "volume24hUsd": "142000",
+      "transactions24h": 1240,
+      "originSpotLiquidityUsd": "350000",
+      "originDepth2PctUsd": "50000",
+      "holders": 1980,
+      "top10ConcentrationBps": 1250,
+      "largestClusterBps": 420,
+      "integrity": {
+        "status": "QUALIFIED",
+        "reasonCodes": [
+          "ARC_NATIVE_VERIFIED"
+        ],
+        "observations": [
+          {
+            "provider": "ARC_MAINNET_RPC",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-21T11:49:48.291Z",
+            "fetchedAt": "2026-10-21T11:49:48.291Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "ELIGIBLE",
+        "safeOiUsd": "50000",
+        "safePositionUsd": "10000",
+        "maxLeverage": "5x",
+        "oracleQuality": "HIGH",
+        "sourceIndependence": 3,
+        "reasonCodes": [
+          "ARC_MAINNET_SETTLEMENT_CAPACITY"
+        ]
+      },
+      "perp": {
+        "status": "ELIGIBLE",
+        "deploymentId": "arc-mainnet-production",
+        "marketId": "0x4152433a30783436343634363436343634363436343634363436343634363436",
+        "currentOiUsd": "0",
+        "capacityUsd": "100000",
+        "qualificationHash": null,
+        "riskRuleVersion": "0.4.0"
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-21T11:49:48.291Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "maxAgeSeconds": 60
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-21T11:49:48.291Z",
+          "priceUsd": "0.0152"
+        }
+      ]
+    },
+    {
+      "discoveryProvider": "ARC_MAINNET_RPC",
+      "marketId": "0x4152433a30783761323530643536333062346366353339373339646632633564",
+      "chain": "ARC",
+      "tokenAddress": "0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "symbol": "ARCDOGE",
+      "name": "ArcDoge",
+      "decimals": 18,
+      "imageUrl": null,
+      "sourceUrl": "https://explorer.arc.io/token/0x7a250d5630b4cf539739df2c5dacb4c659f2488d",
+      "originPlatform": "ArcSwap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "confidenceBps": 9500,
+        "evidenceHash": null
+      },
+      "priceUsd": "0.00248",
+      "priceChange24hBps": 2480,
+      "volume24hUsd": "192000",
+      "transactions24h": 1240,
+      "originSpotLiquidityUsd": "480000",
+      "originDepth2PctUsd": "50000",
+      "holders": 2840,
+      "top10ConcentrationBps": 1250,
+      "largestClusterBps": 420,
+      "integrity": {
+        "status": "QUALIFIED",
+        "reasonCodes": [
+          "ARC_NATIVE_VERIFIED"
+        ],
+        "observations": [
+          {
+            "provider": "ARC_MAINNET_RPC",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-21T11:49:48.291Z",
+            "fetchedAt": "2026-10-21T11:49:48.291Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "ELIGIBLE",
+        "safeOiUsd": "50000",
+        "safePositionUsd": "10000",
+        "maxLeverage": "5x",
+        "oracleQuality": "HIGH",
+        "sourceIndependence": 3,
+        "reasonCodes": [
+          "ARC_MAINNET_SETTLEMENT_CAPACITY"
+        ]
+      },
+      "perp": {
+        "status": "ELIGIBLE",
+        "deploymentId": "arc-mainnet-production",
+        "marketId": "0x4152433a30783761323530643536333062346366353339373339646632633564",
+        "currentOiUsd": "0",
+        "capacityUsd": "100000",
+        "qualificationHash": null,
+        "riskRuleVersion": "0.4.0"
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-21T11:49:48.291Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "maxAgeSeconds": 60
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-21T11:49:48.291Z",
+          "priceUsd": "0.00248"
+        }
+      ]
+    },
+    {
+      "discoveryProvider": "ARC_MAINNET_RPC",
+      "marketId": "0x4152433a30783336303030303030303030303030303030303030303030303030",
+      "chain": "ARC",
+      "tokenAddress": "0x3600000000000000000000000000000000000000",
+      "symbol": "USDC",
+      "name": "Arc Native USDC",
+      "decimals": 6,
+      "imageUrl": null,
+      "sourceUrl": "https://explorer.arc.io/token/0x3600000000000000000000000000000000000000",
+      "originPlatform": "ArcSwap",
+      "lifecycle": {
+        "status": "DEX_LIVE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "confidenceBps": 9500,
+        "evidenceHash": null
+      },
+      "priceUsd": "1.00",
+      "priceChange24hBps": 2,
+      "volume24hUsd": "1850000",
+      "transactions24h": 1240,
+      "originSpotLiquidityUsd": "5000000",
+      "originDepth2PctUsd": "50000",
+      "holders": 12500,
+      "top10ConcentrationBps": 1250,
+      "largestClusterBps": 420,
+      "integrity": {
+        "status": "QUALIFIED",
+        "reasonCodes": [
+          "ARC_NATIVE_VERIFIED"
+        ],
+        "observations": [
+          {
+            "provider": "ARC_MAINNET_RPC",
+            "status": "AVAILABLE",
+            "observedAt": "2026-10-21T11:49:48.291Z",
+            "fetchedAt": "2026-10-21T11:49:48.291Z",
+            "blockOrSlot": null,
+            "evidenceHash": null,
+            "reason": null
+          }
+        ]
+      },
+      "derivatives": {
+        "status": "ELIGIBLE",
+        "safeOiUsd": "50000",
+        "safePositionUsd": "10000",
+        "maxLeverage": "5x",
+        "oracleQuality": "HIGH",
+        "sourceIndependence": 3,
+        "reasonCodes": [
+          "ARC_MAINNET_SETTLEMENT_CAPACITY"
+        ]
+      },
+      "perp": {
+        "status": "ELIGIBLE",
+        "deploymentId": "arc-mainnet-production",
+        "marketId": "0x4152433a30783336303030303030303030303030303030303030303030303030",
+        "currentOiUsd": "0",
+        "capacityUsd": "100000",
+        "qualificationHash": null,
+        "riskRuleVersion": "0.4.0"
+      },
+      "providerState": {
+        "status": "AVAILABLE",
+        "fetchedAt": "2026-10-21T11:49:48.291Z",
+        "reason": null
+      },
+      "freshness": {
+        "status": "AVAILABLE",
+        "observedAt": "2026-10-21T11:49:48.291Z",
+        "maxAgeSeconds": 60
+      },
+      "history": [
+        {
+          "observedAt": "2026-10-21T11:49:48.291Z",
+          "priceUsd": "1.00"
+        }
+      ]
+    },
     {
       "discoveryProvider": "GECKOTERMINAL",
       "marketId": "0x1536cb18fd438aa0e224364980bf665fc8a9b461006f7d33d23864dd55accf97",

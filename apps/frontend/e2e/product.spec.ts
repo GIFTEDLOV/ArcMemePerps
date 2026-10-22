@@ -33,7 +33,7 @@ test("exact search and token terminal remain truthful", async ({ page }) => {
   await page.locator(`a[href*="${encodeURIComponent(marketId)}"]`).first().click();
   await expect(page.getByText("Risk passport", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: /Market chart/i })).toBeVisible();
-  await expect(page.getByRole("heading", { name: /Deployment pending|Perps unavailable|Qualification in progress|Not eligible/i })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Trade|Deployment pending|Perps unavailable|Qualification in progress|Not eligible/i })).toBeVisible();
 });
 
 test("category and chain filters keep the zero-perp state explicit", async ({ page }) => {

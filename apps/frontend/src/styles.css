@@ -24,8 +24,8 @@
 }
 
 * { box-sizing: border-box; }
-html { min-width: 320px; background: var(--bg); }
-body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at 85% -10%, rgba(215, 240, 184, .08), transparent 33%), var(--bg); }
+html { min-width: 320px; background: var(--bg); overflow-x: hidden; max-width: 100vw; }
+body { margin: 0; min-width: 320px; min-height: 100vh; background: radial-gradient(circle at 85% -10%, rgba(215, 240, 184, .08), transparent 33%), var(--bg); overflow-x: hidden; width: 100%; max-width: 100vw; }
 body, button, input, select { font: inherit; }
 button, a, input, select { -webkit-tap-highlight-color: transparent; }
 button, a { color: inherit; }
@@ -124,9 +124,219 @@ kbd { padding: 3px 6px; border: 1px solid var(--line); border-radius: 4px; color
 .token-avatar.large { width: 54px; height: 54px; border-radius: 13px; font-size: 15px; }
 .chain-cell { display: inline-flex; align-items: center; gap: 5px; }
 .chain-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--faint); }
+.chain-arc { background: #00d4ff; box-shadow: 0 0 8px rgba(0, 212, 255, .6); }
 .chain-solana { background: #b9a3f3; }.chain-base { background: #8fb8ee; }.chain-bnb { background: #f0cb71; }.chain-ethereum { background: #a7adb7; }.chain-robinhood { background: #91dba4; }
+
+/* Arc & Degen Terminal Enhancements */
+.brand-badge { margin-left: 6px; padding: 2px 6px; border: 1px solid rgba(0, 212, 255, .4); border-radius: 4px; color: #00d4ff; font-family: var(--mono); font-size: 9px; font-weight: 700; background: rgba(0, 212, 255, .1); }
+.arc-tab.active { color: #00d4ff !important; background: rgba(0, 212, 255, .15) !important; border-color: rgba(0, 212, 255, .4) !important; }
+.arc-tag { display: inline-block; margin-left: 5px; padding: 1px 4px; border-radius: 3px; font-size: 8px; font-weight: 700; color: #00d4ff; background: rgba(0, 212, 255, .12); border: 1px solid rgba(0, 212, 255, .3); }
+.import-btn { border-color: rgba(0, 212, 255, .4); color: #00d4ff; background: rgba(0, 212, 255, .08); }
+.import-btn:hover { background: rgba(0, 212, 255, .18); }
+.page-actions { display: flex; align-items: center; gap: 10px; }
+
+/* Live Ticker Marquee */
+.ticker-bar { width: 100%; height: 32px; overflow: hidden; background: rgba(0, 0, 0, .45); border-bottom: 1px solid var(--line); display: flex; align-items: center; white-space: nowrap; position: relative; }
+.ticker-track { display: flex; align-items: center; gap: 24px; animation: ticker-scroll 35s linear infinite; }
+.ticker-track:hover { animation-play-state: paused; }
+.ticker-item { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--muted); padding: 0 4px; }
+.ticker-item:hover { color: var(--text); }
+.ticker-item strong { color: var(--text); font-weight: 600; }
+.ticker-item small { font-family: var(--mono); font-size: 10px; }
+@keyframes ticker-scroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
+
+/* RugCheck & Risk Badge */
+.rug-badge { display: inline-flex; align-items: center; padding: 3px 7px; border-radius: 4px; font-family: var(--mono); font-size: 9px; font-weight: 700; }
+.rug-safe { background: rgba(0, 240, 118, .12); color: #00f076; border: 1px solid rgba(0, 240, 118, .3); }
+.rug-medium { background: rgba(229, 189, 117, .12); color: #e5bd75; border: 1px solid rgba(229, 189, 117, .3); }
+.rug-risky { background: rgba(239, 150, 152, .12); color: #ef9698; border: 1px solid rgba(239, 150, 152, .3); }
+.rug-rug { background: rgba(255, 68, 68, .18); color: #ff5555; border: 1px solid rgba(255, 68, 68, .45); }
+
+/* Rug Gauge */
+.rug-score-gauge { display: flex; align-items: center; gap: 12px; }
+.gauge-circle { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 50%; font-family: var(--mono); border: 2px solid; }
+.gauge-circle span { font-size: 15px; font-weight: 800; line-height: 1; }
+.gauge-circle small { font-size: 8px; color: var(--faint); }
+.gauge-safe { border-color: #00f076; color: #00f076; background: rgba(0, 240, 118, .08); box-shadow: 0 0 12px rgba(0, 240, 118, .2); }
+.gauge-medium { border-color: #e5bd75; color: #e5bd75; background: rgba(229, 189, 117, .08); }
+.gauge-risky { border-color: #ef9698; color: #ef9698; background: rgba(239, 150, 152, .08); }
+.gauge-rug { border-color: #ff5555; color: #ff5555; background: rgba(255, 68, 68, .1); box-shadow: 0 0 12px rgba(255, 68, 68, .2); }
+.gauge-label { display: grid; gap: 2px; }
+.gauge-label strong { font-size: 12px; letter-spacing: .05em; }
+.gauge-label span { font-size: 10px; color: var(--muted); }
+
+.rug-summary-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 14px 0 10px; }
+.rug-chip { display: inline-flex; align-items: center; gap: 5px; padding: 4px 8px; border-radius: 4px; font-size: 10px; border: 1px solid; }
+.rug-chip.pass { background: rgba(0, 240, 118, .06); border-color: rgba(0, 240, 118, .25); color: #00f076; }
+.rug-chip.caution { background: rgba(229, 189, 117, .06); border-color: rgba(229, 189, 117, .25); color: #e5bd75; }
+.rug-chip.fail { background: rgba(255, 68, 68, .08); border-color: rgba(255, 68, 68, .35); color: #ff5555; }
+
+.quarantine-banner { display: flex; align-items: center; justify-content: space-between; gap: 14px; background: rgba(255, 68, 68, .08); border: 1px solid rgba(255, 68, 68, .35); border-radius: 8px; padding: 12px 16px; margin: 14px 0; color: #ff9999; font-size: 12px; line-height: 1.5; }
+.quarantine-banner strong { color: #ffffff; display: block; margin-bottom: 2px; font-size: 13px; }
+.radar-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: rgba(0, 240, 118, .1); border: 1px solid rgba(0, 240, 118, .3); color: #00f076; }
+.quarantined-tag { background: rgba(255, 68, 68, .2); color: #ff5555; border: 1px solid rgba(255, 68, 68, .4); font-size: 9px; font-family: var(--mono); padding: 1px 5px; border-radius: 3px; font-weight: 700; margin-left: 6px; }
+
+/* Urgent Delisting Warning Banner */
+.urgent-risk-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; background: linear-gradient(90deg, rgba(255, 59, 105, 0.22), rgba(255, 85, 85, 0.14)); border-bottom: 2px solid #ff3b69; padding: 12px 24px; color: #fff; font-size: 13px; z-index: 30; }
+.urgent-risk-content { display: flex; align-items: center; gap: 12px; }
+.urgent-siren { font-size: 20px; animation: siren-wiggle 1s infinite alternate; }
+.urgent-risk-text strong { color: #ff5577; }
+.emergency-close-btn { background: #ff3b69; color: #fff; border: 0; border-radius: 6px; padding: 7px 14px; font-weight: 700; font-size: 11px; cursor: pointer; white-space: nowrap; box-shadow: 0 0 12px rgba(255, 59, 105, 0.4); transition: all .15s ease; }
+.emergency-close-btn:hover { background: #ff527c; transform: translateY(-1px); }
+@keyframes siren-wiggle { from { transform: scale(1); } to { transform: scale(1.15) rotate(5deg); } }
+
+/* First-Time Sign-In Risk Disclosure Modal */
+.risk-modal-backdrop { position: fixed; inset: 0; z-index: 100; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); display: grid; place-items: center; padding: 16px; }
+.risk-modal { width: min(600px, 96vw); background: #0f1416; border: 1px solid rgba(255, 85, 85, 0.45); box-shadow: 0 24px 80px rgba(0,0,0,0.8), 0 0 35px rgba(255, 85, 85, 0.2); border-radius: 12px; padding: 28px; display: grid; gap: 16px; }
+.risk-modal-head { display: flex; align-items: center; gap: 14px; border-bottom: 1px solid var(--soft); padding-bottom: 14px; }
+.risk-icon-shield { font-size: 32px; }
+.risk-modal-head h2 { margin: 0; font-size: 20px; color: #ffffff; }
+.risk-modal-head span { font-size: 11px; color: var(--muted); }
+.risk-modal-body { display: grid; gap: 11px; font-size: 12px; line-height: 1.55; color: #cbd5e1; }
+.risk-clause { background: rgba(255, 255, 255, 0.03); border: 1px solid var(--soft); border-left: 3px solid var(--accent); border-radius: 6px; padding: 10px 14px; }
+.risk-clause.danger { border-left-color: #ff3b69; }
+.risk-clause strong { display: block; margin-bottom: 2px; color: #fff; font-size: 13px; }
+.risk-agreement-check { display: flex; align-items: center; gap: 10px; font-size: 12px; color: #fff; cursor: pointer; margin-top: 6px; user-select: none; }
+.risk-modal-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px; }
+
+/* Notifications System */
+.notifications-page { max-width: 820px; margin: 0 auto; }
+.notifications-list { display: grid; gap: 10px; margin-top: 16px; }
+.notification-card { padding: 16px; border-radius: 8px; background: var(--surface); border: 1px solid var(--line); display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.notification-card.urgent { background: rgba(255, 59, 105, 0.06); border-color: rgba(255, 59, 105, 0.35); }
+.notification-content { display: grid; gap: 4px; }
+.notification-title { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; color: #fff; }
+.notification-message { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.notification-time { font-size: 10px; color: var(--faint); font-family: var(--mono); }
+.bell-wrap { position: relative; display: inline-flex; }
+.unread-badge { position: absolute; top: -2px; right: -2px; width: 8px; height: 8px; background: #ff3b69; border-radius: 50%; box-shadow: 0 0 6px #ff3b69; }
+
+/* Interactive Trading Rail */
+.order-type-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; background: rgba(0, 0, 0, .3); padding: 2px; border-radius: 5px; margin-top: 14px; }
+.order-type-tabs button { padding: 6px 0; border: 0; background: transparent; color: var(--muted); font-size: 11px; font-weight: 600; border-radius: 4px; }
+.order-type-tabs button.active { background: var(--surface-3); color: var(--text); }
+
+.side-toggle { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin: 12px 0; padding: 3px; background: rgba(0, 0, 0, .25); border-radius: 6px; }
+.side-toggle .long-btn { height: 38px; border-radius: 5px; border: 0; font-weight: 700; font-size: 13px; color: #00f076; background: rgba(0, 240, 118, .08); transition: all .15s ease; }
+.side-toggle .long-btn.selected { color: #041208; background: #00f076; box-shadow: 0 0 14px rgba(0, 240, 118, .4); }
+.side-toggle .short-btn { height: 38px; border-radius: 5px; border: 0; font-weight: 700; font-size: 13px; color: #ff3b69; background: rgba(255, 59, 105, .08); transition: all .15s ease; }
+.side-toggle .short-btn.selected { color: #1a0409; background: #ff3b69; box-shadow: 0 0 14px rgba(255, 59, 105, .4); }
+
+.leverage-section { margin: 14px 0 10px; }
+.leverage-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 11px; color: var(--muted); }
+.leverage-slider { width: 100%; accent-color: var(--accent); cursor: pointer; }
+.leverage-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 6px; }
+.leverage-presets button { padding: 4px 0; border: 1px solid var(--line); border-radius: 4px; background: rgba(255, 255, 255, .03); color: var(--muted); font-family: var(--mono); font-size: 10px; }
+.leverage-presets button.active, .leverage-presets button:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+
+.field-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 10px; color: var(--muted); }
+.margin-presets { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 5px; }
+.margin-presets button { padding: 3px 0; border: 1px solid var(--soft); border-radius: 3px; background: transparent; color: var(--faint); font-family: var(--mono); font-size: 9px; }
+.margin-presets button:hover { border-color: var(--line); color: var(--text); }
+
+.trade-breakdown { margin: 16px 0; padding: 12px; background: rgba(0, 0, 0, .2); border: 1px solid var(--soft); border-radius: 6px; display: grid; gap: 7px; }
+.breakdown-row { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--muted); }
+.breakdown-row strong { color: var(--text); font-size: 11px; }
+.breakdown-row strong.warn { color: #ffb84d; }
+
+.trade-action-btn { height: 44px; font-size: 13px; font-weight: 700; border-radius: 7px; letter-spacing: .02em; }
+.btn-long { background: #00f076; color: #051409; border: 0; box-shadow: 0 0 16px rgba(0, 240, 118, .25); }
+.btn-long:hover { background: #1dfc88; }
+.btn-short { background: #ff3b69; color: #fff; border: 0; box-shadow: 0 0 16px rgba(255, 59, 105, .25); }
+.btn-short:hover { background: #ff527c; }
+
+.trade-success-box { margin: 12px 0; padding: 10px 12px; border-radius: 6px; background: rgba(0, 240, 118, .08); border: 1px solid rgba(0, 240, 118, .3); color: #00f076; font-size: 11px; display: flex; gap: 8px; align-items: center; }
+.trade-success-box p { margin: 0; }
+.rail-footer-note { margin-top: 14px; text-align: center; color: var(--faint); font-size: 9px; }
+
+/* Import Arc Token Modal */
+.import-modal { width: min(520px, 94vw); background: #111719; border: 1px solid var(--line); border-radius: 10px; padding: 24px; box-shadow: 0 24px 80px rgba(0,0,0,.6); position: relative; margin: auto; }
+.import-head { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.import-head h2 { margin: 4px 0 0; font-size: 20px; }
+.preset-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 14px 0; font-size: 11px; color: var(--muted); }
+.preset-chip { padding: 4px 8px; border-radius: 4px; border: 1px solid rgba(0, 212, 255, .3); background: rgba(0, 212, 255, .08); color: #00d4ff; font-family: var(--mono); font-size: 10px; font-weight: 600; cursor: pointer; }
+.preset-chip:hover { background: rgba(0, 212, 255, .18); }
+.explorer-link { color: #00d4ff; font-size: 10px; margin-left: 8px; }
+.explorer-link:hover { text-decoration: underline; }
+
 .price-cell { color: var(--text); font-weight: 600; }
 .muted-text { color: var(--muted); }.positive { color: var(--good); }.negative { color: var(--bad); }.unknown { color: var(--warn); }
+
+/* GMGN Sentiment & Open Interest Bar */
+.sentiment-bar-wrap { margin: 12px 0 6px; display: grid; gap: 4px; }
+.sentiment-labels { display: flex; justify-content: space-between; font-size: 10px; font-family: var(--mono); }
+.sentiment-long-label { color: #00f076; font-weight: 700; }
+.sentiment-short-label { color: #ff3b69; font-weight: 700; }
+.sentiment-track { height: 6px; width: 100%; border-radius: 3px; background: rgba(255, 255, 255, .05); overflow: hidden; display: flex; }
+.sentiment-long-fill { background: linear-gradient(90deg, #00d4ff, #00f076); height: 100%; transition: width .3s ease; box-shadow: 0 0 8px rgba(0, 240, 118, .4); }
+.sentiment-short-fill { background: linear-gradient(90deg, #ff3b69, #ff708d); height: 100%; transition: width .3s ease; box-shadow: 0 0 8px rgba(255, 59, 105, .4); }
+
+/* GMGN TP / SL Controls */
+.tpsl-container { margin: 12px 0; padding: 10px 12px; background: rgba(0, 0, 0, .25); border: 1px solid var(--soft); border-radius: 6px; display: grid; gap: 9px; }
+.tpsl-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; font-weight: 600; color: var(--muted); }
+.tpsl-toggle-group { display: grid; gap: 8px; }
+.tpsl-row { display: grid; gap: 4px; }
+.tpsl-row-head { display: flex; justify-content: space-between; align-items: center; font-size: 10px; }
+.tpsl-row-head label { display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text); font-weight: 600; }
+.tpsl-pills { display: flex; gap: 4px; }
+.tpsl-pill { padding: 2px 6px; font-size: 9px; font-family: var(--mono); border-radius: 3px; border: 1px solid var(--line); background: transparent; color: var(--muted); cursor: pointer; }
+.tpsl-pill.active { background: var(--surface-3); border-color: var(--accent); color: var(--accent); font-weight: 700; }
+.tpsl-prices { display: flex; justify-content: space-between; font-size: 10px; font-family: var(--mono); padding: 2px 0; }
+.tp-highlight { color: #00f076; font-weight: 600; }
+.sl-highlight { color: #ff3b69; font-weight: 600; }
+
+/* GMGN Social & Token Intelligence Links */
+.social-links-row { display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0; align-items: center; }
+.social-badge { display: inline-flex; align-items: center; gap: 4px; padding: 3px 8px; border-radius: 4px; font-size: 10px; font-weight: 600; text-decoration: none; border: 1px solid var(--line); background: rgba(255, 255, 255, .03); color: var(--muted); transition: all .15s ease; }
+.social-badge:hover { color: var(--text); background: rgba(255, 255, 255, .08); border-color: var(--text); }
+.social-badge.twitter { border-color: rgba(29, 155, 240, .3); color: #1d9bf0; background: rgba(29, 155, 240, .06); }
+.social-badge.telegram { border-color: rgba(0, 136, 204, .3); color: #0088cc; background: rgba(0, 136, 204, .06); }
+.social-badge.arc-scan { border-color: rgba(0, 212, 255, .3); color: #00d4ff; background: rgba(0, 212, 255, .06); }
+
+/* GMGN Live Trade Stream (The Tape) */
+.trade-stream-table { width: 100%; border-collapse: collapse; font-family: var(--mono); font-size: 10px; }
+.trade-stream-head { display: grid; grid-template-columns: 80px 1fr 1fr 1fr 70px; padding: 8px 12px; color: var(--faint); font-size: 9px; text-transform: uppercase; border-bottom: 1px solid var(--line); }
+.trade-stream-row { display: grid; grid-template-columns: 80px 1fr 1fr 1fr 70px; padding: 7px 12px; align-items: center; border-bottom: 1px solid var(--soft); animation: trade-appear .3s ease-out; }
+.trade-stream-row:hover { background: rgba(255, 255, 255, .03); }
+@keyframes trade-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+.trade-tag-long { color: #00f076; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+.trade-tag-short { color: #ff3b69; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+.trade-tag-liq { color: #ffb84d; font-weight: 700; display: inline-flex; align-items: center; gap: 3px; }
+.pulse-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; }
+.pulse-green { background: #00f076; box-shadow: 0 0 6px #00f076; }
+.pulse-red { background: #ff3b69; box-shadow: 0 0 6px #ff3b69; }
+
+/* GMGN Viral PnL Share Modal & Flex Card */
+.pnl-modal-backdrop { position: fixed; inset: 0; background: rgba(0, 0, 0, .85); backdrop-filter: blur(10px); z-index: 1000; display: grid; place-items: center; padding: 16px; }
+.pnl-modal { width: min(440px, 95vw); background: #0d1214; border: 1px solid rgba(0, 212, 255, .3); border-radius: 14px; box-shadow: 0 30px 100px rgba(0, 0, 0, .8), 0 0 40px rgba(0, 212, 255, .15); overflow: hidden; position: relative; }
+.pnl-card-graphic { padding: 28px 24px 20px; background: radial-gradient(circle at top right, rgba(0, 240, 118, .12), transparent 60%), radial-gradient(circle at bottom left, rgba(0, 212, 255, .1), #0d1214 70%); border-bottom: 1px solid var(--line); position: relative; }
+.pnl-card-graphic.is-loss { background: radial-gradient(circle at top right, rgba(255, 59, 105, .12), transparent 60%), radial-gradient(circle at bottom left, rgba(0, 212, 255, .1), #0d1214 70%); }
+.pnl-card-brand { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.pnl-card-logo { font-size: 13px; font-weight: 800; letter-spacing: .08em; color: var(--text); display: flex; align-items: center; gap: 6px; }
+.pnl-card-logo span { color: #00d4ff; }
+.pnl-card-chain { font-family: var(--mono); font-size: 9px; padding: 2px 6px; border-radius: 4px; background: rgba(0, 212, 255, .15); border: 1px solid rgba(0, 212, 255, .3); color: #00d4ff; font-weight: 700; }
+.pnl-market-badge { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.pnl-market-title { font-size: 20px; font-weight: 800; }
+.pnl-side-pill { padding: 2px 7px; border-radius: 4px; font-size: 11px; font-weight: 800; font-family: var(--mono); }
+.pnl-side-pill.long { background: rgba(0, 240, 118, .2); color: #00f076; border: 1px solid rgba(0, 240, 118, .4); }
+.pnl-side-pill.short { background: rgba(255, 59, 105, .2); color: #ff3b69; border: 1px solid rgba(255, 59, 105, .4); }
+.pnl-hero-roi { font-size: 48px; font-weight: 900; line-height: 1.05; letter-spacing: -.03em; margin: 10px 0 4px; font-family: var(--mono); }
+.pnl-hero-roi.win { color: #00f076; text-shadow: 0 0 24px rgba(0, 240, 118, .5); }
+.pnl-hero-roi.loss { color: #ff3b69; text-shadow: 0 0 24px rgba(255, 59, 105, .5); }
+.pnl-hero-usd { font-size: 14px; font-family: var(--mono); color: var(--muted); margin-bottom: 20px; font-weight: 600; }
+.pnl-stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; padding: 12px; background: rgba(0, 0, 0, .35); border-radius: 8px; border: 1px solid var(--soft); font-size: 11px; }
+.pnl-stat-cell { display: grid; gap: 2px; }
+.pnl-stat-cell span { color: var(--faint); font-size: 9px; text-transform: uppercase; }
+.pnl-stat-cell strong { font-family: var(--mono); color: var(--text); }
+.pnl-card-footer { margin-top: 16px; display: flex; justify-content: space-between; align-items: center; color: var(--faint); font-size: 9px; font-family: var(--mono); }
+.pnl-modal-actions { padding: 16px 20px; display: flex; gap: 10px; background: #0a0e10; }
+.share-x-btn { flex: 1; height: 40px; background: #1d9bf0; color: #fff; font-weight: 700; font-size: 12px; border-radius: 6px; border: 0; display: flex; align-items: center; justify-content: center; gap: 6px; cursor: pointer; }
+.share-x-btn:hover { background: #0c8bd9; }
+.copy-pnl-btn { height: 40px; padding: 0 16px; border: 1px solid var(--line); background: transparent; color: var(--text); border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; }
+.copy-pnl-btn:hover { background: var(--surface-3); }
+.share-pnl-trigger { padding: 2px 7px; border-radius: 4px; font-size: 9px; font-weight: 700; background: rgba(0, 212, 255, .1); color: #00d4ff; border: 1px solid rgba(0, 212, 255, .3); cursor: pointer; }
+.share-pnl-trigger:hover { background: rgba(0, 212, 255, .2); }
+
 .max-lev { color: var(--faint); }
 .status-pill { display: inline-flex; align-items: center; gap: 5px; width: max-content; max-width: 100%; padding: 5px 7px; border: 1px solid transparent; border-radius: 4px; font-family: var(--mono); font-size: 8px; letter-spacing: .035em; line-height: 1; text-transform: uppercase; white-space: nowrap; }
 .status-pill i { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }

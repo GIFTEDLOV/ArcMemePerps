@@ -56,6 +56,8 @@ export interface OriginMarket {
   providerState: { status: Availability; fetchedAt: string | null; reason: string | null };
   freshness: { status: Availability; observedAt: string | null; maxAgeSeconds: number | null };
   history: Array<{ observedAt: string; priceUsd: string }>;
+  isQuarantined?: boolean;
+  quarantineReason?: string | null;
 }
 
 export interface MarketPage {

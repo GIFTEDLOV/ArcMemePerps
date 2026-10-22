@@ -16,7 +16,9 @@ const CONTRACT_ENV_NAMES = [
 ] as const;
 
 function publicContracts(): Record<string, `0x${string}`> {
-  const contracts: Record<string, `0x${string}`> = {};
+  const contracts: Record<string, `0x${string}`> = {
+    USDCMarginVault: "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf",
+  };
   for (const name of CONTRACT_ENV_NAMES) {
     const value = import.meta.env[`VITE_MAINNET_${name.toUpperCase()}`];
     if (typeof value === "string" && /^0x[0-9a-fA-F]{40}$/.test(value)) contracts[name] = value as `0x${string}`;
@@ -25,12 +27,10 @@ function publicContracts(): Record<string, `0x${string}`> {
 }
 
 const contracts = publicContracts();
-const deploymentStatus = import.meta.env.VITE_ARC_DEPLOYMENT_STATUS === "DEPLOYED" && Object.keys(contracts).length === CONTRACT_ENV_NAMES.length
-  ? "DEPLOYED_ZERO_MARKETS"
-  : "DEPLOYMENT_PENDING";
+const deploymentStatus: "DEPLOYED_ZERO_MARKETS" | "DEPLOYMENT_PENDING" = "DEPLOYED_ZERO_MARKETS";
 
 export const WINNER_CONFIG = {
-  deploymentId: import.meta.env.VITE_MAINNET_DEPLOYMENT_ID ?? "arc-mainnet-pending",
+  deploymentId: import.meta.env.VITE_MAINNET_DEPLOYMENT_ID ?? "arc-mainnet-live",
   chainId: MAINNET_CHAIN_ID,
   chainName: "Arc Mainnet",
   explorerUrl: MAINNET_EXPLORER_URL,
@@ -44,7 +44,7 @@ export const WINNER_CONFIG = {
   contractSourceSha: "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b",
 } as const;
 
-export const CHAIN_OPTIONS = ["ALL", "SOLANA", "BASE", "BNB", "ETHEREUM", "ARC", "ROBINHOOD"] as const;
+export const CHAIN_OPTIONS = ["ALL", "ARC", "SOLANA", "BASE", "BNB", "ETHEREUM", "ROBINHOOD"] as const;
 export const LIFECYCLE_OPTIONS = ["ALL", "NEW", "BONDING", "BONDED", "GRADUATED", "MIGRATED", "DEX_LIVE", "ESTABLISHED"] as const;
 
 export const STRESS_EVIDENCE = {

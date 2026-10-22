@@ -10,8 +10,9 @@ coverage/
 *.local
 artifacts/
 broadcast/
-lib/
+/lib/
 apps/frontend/test-results/
+evidence/phase10-playwright-report/
 evidence/gate5/playwright-report/
 evidence/gate6/market-detail-mobile.png
 *.key

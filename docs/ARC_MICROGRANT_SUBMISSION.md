@@ -40,7 +40,7 @@ market.
 
 ## Links and identifiers
 
-- **Live application URL:** `TBD_PUBLIC_URL`
+- **Live application URL:** `https://arcmemeperps.vercel.app`
 - **GitHub URL:** `https://github.com/GIFTEDLOV/ArcMemePerps`
 - **Mainnet contract addresses:** `TBD_AFTER_FRESH_MAINNET_DEPLOYMENT`
 - **Builder profile:** `TBD_BUILDER_PROFILE`

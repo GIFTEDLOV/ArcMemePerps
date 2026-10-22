@@ -10,8 +10,8 @@ describe("production discovery source semantics", () => {
       readonly markets: readonly unknown[];
     };
 
-    expect(canonical.markets).toHaveLength(262);
-    expect(refresh.markets).toHaveLength(161);
+    expect(canonical.markets).toHaveLength(267);
+    expect(refresh.markets).toHaveLength(166);
     expect(canonical.markets.length).toBeGreaterThan(refresh.markets.length);
     expect(new Set(canonical.markets.map((market) => market.marketId)).size).toBe(canonical.markets.length);
   });
