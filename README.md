@@ -76,12 +76,9 @@ The complete protocol suite is **fully deployed and operational on Arc Mainnet**
 
 ```mermaid
 flowchart TD
-    A["User Lands on CLUSTER"] --> B{"Session Check"}
-    B -->|"Web3 Wallet"| C["EVM / Arc Wallet Connected"]
-    B -->|"Social / Email"| D["One-Click Email Delegation"]
-    
+    A["User Lands on CLUSTER"] --> B["Connect Web3 Wallet (MetaMask / Rabby / Rainbow / Arc)"]
+    B --> C["Risk Disclosure & Safety Ack"]
     C --> E["Unified Terminal Dashboard"]
-    D --> E
     
     E --> F["Live Trenches / Discovery Stream"]
     F --> G["Select Meme Token"]
