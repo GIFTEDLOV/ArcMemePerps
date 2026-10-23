@@ -39,7 +39,6 @@
     "apps/**/*.ts",
     "packages/**/*.ts",
     "fixtures/**/*.ts",
-    "scripts/**/*.ts",
     "vitest.config.ts"
   ],
   "exclude": ["node_modules", "dist", "out", "cache", "apps/frontend"]

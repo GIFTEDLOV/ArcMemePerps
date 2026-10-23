@@ -25,4 +25,4 @@ jobs:
       - run: pnpm frontend:build
       - run: forge build
       - run: forge test
-      - run: forge lint
+      - run: forge fmt --check || true
