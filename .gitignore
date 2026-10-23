@@ -22,5 +22,6 @@ wallets/
 *.keystore
 evidence/gate4i/*.sqlite*
 evidence/winner-rebuild/*.sqlite*
+!evidence/winner-rebuild/winner.sqlite
 
 .vercel
