@@ -383,96 +383,96 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
 
       {/* TAB 1: OVERVIEW */}
       {activeTab === "Overview" && (
-        <div style={{ display: "grid", gap: "16px" }}>
+        <div style={{ display: "grid", gap: "6px" }}>
           {/* Quick Account Summary */}
           <div className="profile-content-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <div>
                 <div className="profile-eyebrow-chip">Account Overview</div>
-                <h2 style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+                <h2 style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: 700, color: "#fff" }}>
                   Trader Performance &amp; Risk Metrics
                 </h2>
               </div>
               <span className="profile-badge-tag highlight">🛡️ Anti-Rug Protected</span>
             </div>
 
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "6px" }}>
               <div
                 style={{
                   background: "rgba(255, 255, 255, 0.02)",
                   border: "1px solid rgba(255, 255, 255, 0.07)",
-                  borderRadius: "8px",
-                  padding: "14px",
+                  borderRadius: "5px",
+                  padding: "8px 10px",
                 }}
               >
-                <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
+                <span style={{ fontSize: "9.5px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
                   Win Rate
                 </span>
-                <strong style={{ color: "var(--good)", fontSize: "18px", fontFamily: "var(--mono)", display: "block", margin: "4px 0 2px" }}>
+                <strong style={{ color: "var(--good)", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
                   75.0%
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "10.5px" }}>3 Won / 1 Lost</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>3 Won / 1 Lost</small>
               </div>
 
               <div
                 style={{
                   background: "rgba(255, 255, 255, 0.02)",
                   border: "1px solid rgba(255, 255, 255, 0.07)",
-                  borderRadius: "8px",
-                  padding: "14px",
+                  borderRadius: "5px",
+                  padding: "8px 10px",
                 }}
               >
-                <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
+                <span style={{ fontSize: "9.5px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
                   Total Volume
                 </span>
-                <strong style={{ color: "#fff", fontSize: "18px", fontFamily: "var(--mono)", display: "block", margin: "4px 0 2px" }}>
+                <strong style={{ color: "#fff", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
                   $1,250.00
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "10.5px" }}>Arc Mainnet Swaps &amp; Perps</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Arc Mainnet Swaps &amp; Perps</small>
               </div>
 
               <div
                 style={{
                   background: "rgba(255, 255, 255, 0.02)",
                   border: "1px solid rgba(255, 255, 255, 0.07)",
-                  borderRadius: "8px",
-                  padding: "14px",
+                  borderRadius: "5px",
+                  padding: "8px 10px",
                 }}
               >
-                <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
+                <span style={{ fontSize: "9.5px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
                   Meme Pair Exposure
                 </span>
-                <strong style={{ color: "#fff", fontSize: "18px", fontFamily: "var(--mono)", display: "block", margin: "4px 0 2px" }}>
+                <strong style={{ color: "#fff", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
                   ${(Number(vaultCollateral) + Number(usdcBalance)).toFixed(2)}
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "10.5px" }}>Arc USDC Margin</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Arc USDC Margin</small>
               </div>
 
               <div
                 style={{
                   background: "rgba(255, 255, 255, 0.02)",
                   border: "1px solid rgba(255, 255, 255, 0.07)",
-                  borderRadius: "8px",
-                  padding: "14px",
+                  borderRadius: "5px",
+                  padding: "8px 10px",
                 }}
               >
-                <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
+                <span style={{ fontSize: "9.5px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
                   Solvency Model
                 </span>
-                <strong style={{ color: "var(--accent)", fontSize: "18px", fontFamily: "var(--mono)", display: "block", margin: "4px 0 2px" }}>
+                <strong style={{ color: "var(--accent)", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
                   0.4.0 Dynamic
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "10.5px" }}>Fail-Closed Capacity</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Fail-Closed Capacity</small>
               </div>
             </div>
           </div>
 
           {/* Persona Card */}
           <div className="profile-content-panel">
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
               <div>
                 <div className="profile-eyebrow-chip">Trader Persona</div>
-                <h2 style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+                <h2 style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: 700, color: "#fff" }}>
                   Active Avatar: {currentAvatar.name}
                 </h2>
               </div>
@@ -489,24 +489,24 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
               style={{
                 display: "flex",
                 alignItems: "center",
-                gap: "18px",
+                gap: "12px",
                 background: "rgba(255, 255, 255, 0.02)",
-                padding: "16px",
-                borderRadius: "10px",
+                padding: "10px 12px",
+                borderRadius: "6px",
                 border: "1px solid rgba(255, 255, 255, 0.07)",
               }}
             >
               <div
                 style={{
-                  width: "56px",
-                  height: "56px",
+                  width: "42px",
+                  height: "42px",
                   borderRadius: "50%",
                   background: currentAvatar.bgGradient,
                   border: `2px solid ${currentAvatar.borderColor}`,
-                  boxShadow: `0 0 16px ${currentAvatar.glowColor}`,
+                  boxShadow: `0 0 12px ${currentAvatar.glowColor}`,
                   display: "grid",
                   placeItems: "center",
-                  fontSize: "26px",
+                  fontSize: "20px",
                   flexShrink: 0,
                 }}
               >
@@ -514,10 +514,10 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
               </div>
 
               <div style={{ flex: 1 }}>
-                <strong style={{ fontSize: "15px", color: "#fff", display: "block", marginBottom: "3px" }}>
+                <strong style={{ fontSize: "13.5px", color: "#fff", display: "block", marginBottom: "1px" }}>
                   {currentAvatar.name}
                 </strong>
-                <span style={{ fontSize: "12px", color: "var(--muted)" }}>
+                <span style={{ fontSize: "11px", color: "var(--muted)" }}>
                   {currentAvatar.title} · Category:{" "}
                   <span style={{ textTransform: "capitalize", color: currentAvatar.borderColor, fontWeight: 600 }}>
                     {currentAvatar.category}
@@ -540,25 +540,25 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
       {/* TAB 2: AVATAR GALLERY */}
       {activeTab === "Avatars" && (
         <div className="profile-content-panel">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
             <div>
               <div className="profile-eyebrow-chip">Trader Avatars &amp; Persona</div>
-              <h2 style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+              <h2 style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: 700, color: "#fff" }}>
                 Meme &amp; Cyberpunk Avatar Gallery
               </h2>
             </div>
             <span className="profile-badge-tag highlight">Active: {currentAvatar.name}</span>
           </div>
 
-          <p style={{ margin: "0 0 18px", fontSize: "12px", color: "var(--muted)", lineHeight: 1.5 }}>
+          <p style={{ margin: "0 0 10px", fontSize: "11px", color: "var(--muted)", lineHeight: 1.4 }}>
             Choose your public trader identity for the Arc Mainnet leaderboard, top navigation, and PnL brag cards.
           </p>
 
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(135px, 1fr))",
-              gap: "12px",
+              gridTemplateColumns: "repeat(auto-fill, minmax(110px, 1fr))",
+              gap: "6px",
             }}
           >
             {AVATAR_LIST.map((a: TraderAvatar) => {
@@ -571,20 +571,20 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    padding: "16px 12px",
-                    borderRadius: "10px",
+                    padding: "10px 6px",
+                    borderRadius: "6px",
                     background: isSelected ? "rgba(0, 245, 160, 0.08)" : "rgba(255, 255, 255, 0.03)",
                     border: isSelected
                       ? `2px solid ${a.borderColor}`
                       : "1px solid rgba(255, 255, 255, 0.08)",
                     cursor: "pointer",
-                    transition: "all 0.16s ease",
+                    transition: "all 0.14s ease",
                     position: "relative",
                   }}
                   onMouseEnter={(e) => {
                     if (!isSelected) {
                       e.currentTarget.style.borderColor = "rgba(255, 255, 255, 0.28)";
-                      e.currentTarget.style.transform = "translateY(-2px)";
+                      e.currentTarget.style.transform = "translateY(-1px)";
                     }
                   }}
                   onMouseLeave={(e) => {
@@ -598,14 +598,14 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                     <span
                       style={{
                         position: "absolute",
-                        top: "6px",
-                        right: "6px",
-                        width: "16px",
-                        height: "16px",
+                        top: "4px",
+                        right: "4px",
+                        width: "14px",
+                        height: "14px",
                         borderRadius: "50%",
                         background: "#00f5a0",
                         color: "#000",
-                        fontSize: "10px",
+                        fontSize: "9px",
                         fontWeight: 800,
                         display: "grid",
                         placeItems: "center",
@@ -616,29 +616,29 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                   )}
                   <div
                     style={{
-                      width: "50px",
-                      height: "50px",
+                      width: "38px",
+                      height: "38px",
                       borderRadius: "50%",
                       background: a.bgGradient,
-                      border: `2px solid ${a.borderColor}`,
-                      boxShadow: isSelected ? `0 0 16px ${a.glowColor}` : "none",
+                      border: `1.5px solid ${a.borderColor}`,
+                      boxShadow: isSelected ? `0 0 10px ${a.glowColor}` : "none",
                       display: "grid",
                       placeItems: "center",
-                      fontSize: "26px",
-                      marginBottom: "8px",
+                      fontSize: "20px",
+                      marginBottom: "4px",
                     }}
                   >
                     {a.icon}
                   </div>
-                  <strong style={{ fontSize: "12px", color: "#fff", textAlign: "center" }}>
+                  <strong style={{ fontSize: "11px", color: "#fff", textAlign: "center" }}>
                     {a.name}
                   </strong>
                   <small
                     style={{
-                      fontSize: "10px",
+                      fontSize: "9px",
                       color: "rgba(255, 255, 255, 0.45)",
                       textAlign: "center",
-                      marginTop: "2px",
+                      marginTop: "1px",
                     }}
                   >
                     {a.title}
@@ -653,60 +653,61 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
       {/* TAB 3: OPEN POSITIONS */}
       {activeTab === "Positions" && (
         <div className="profile-content-panel">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
             <div>
               <div className="profile-eyebrow-chip">Active Risk &amp; Orders</div>
-              <h2 style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+              <h2 style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: 700, color: "#fff" }}>
                 Open Perpetual Positions
               </h2>
             </div>
-            <Link to="/markets" className="button button-primary compact">
+            <Link to="/markets" className="button button-primary compact" style={{ padding: "0 8px", minHeight: "24px", fontSize: "9.5px" }}>
               + New Position
             </Link>
           </div>
 
           {positions.length > 0 ? (
             <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "12px" }}>
+              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
                 <thead>
                   <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)", color: "var(--muted)", textAlign: "left" }}>
-                    <th style={{ padding: "10px 12px" }}>Position</th>
-                    <th style={{ padding: "10px 12px" }}>Side</th>
-                    <th style={{ padding: "10px 12px" }}>Leverage</th>
-                    <th style={{ padding: "10px 12px", textAlign: "right" }}>Collateral</th>
-                    <th style={{ padding: "10px 12px", textAlign: "right" }}>Size</th>
-                    <th style={{ padding: "10px 12px", textAlign: "right" }}>PnL (USDC)</th>
-                    <th style={{ padding: "10px 12px", textAlign: "center" }}>Action</th>
+                    <th style={{ padding: "6px 8px" }}>Position</th>
+                    <th style={{ padding: "6px 8px" }}>Side</th>
+                    <th style={{ padding: "6px 8px" }}>Leverage</th>
+                    <th style={{ padding: "6px 8px", textAlign: "right" }}>Collateral</th>
+                    <th style={{ padding: "6px 8px", textAlign: "right" }}>Size</th>
+                    <th style={{ padding: "6px 8px", textAlign: "right" }}>PnL (USDC)</th>
+                    <th style={{ padding: "6px 8px", textAlign: "center" }}>Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {positions.map((p) => (
                     <tr key={p.id} style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
-                      <td style={{ padding: "12px", fontWeight: 700, color: "#fff" }}>${p.symbol}</td>
-                      <td style={{ padding: "12px" }}>
+                      <td style={{ padding: "8px", fontWeight: 700, color: "#fff" }}>${p.symbol}</td>
+                      <td style={{ padding: "8px" }}>
                         <span
                           style={{
                             color: p.side === "LONG" ? "var(--good)" : "var(--bad)",
                             fontWeight: 700,
-                            padding: "2px 6px",
-                            borderRadius: "4px",
+                            padding: "1px 5px",
+                            borderRadius: "3px",
+                            fontSize: "10px",
                             background: p.side === "LONG" ? "rgba(0, 245, 160, 0.1)" : "rgba(255, 59, 48, 0.1)",
                           }}
                         >
                           {p.side}
                         </span>
                       </td>
-                      <td style={{ padding: "12px", fontFamily: "var(--mono)" }}>{p.leverage}</td>
-                      <td style={{ padding: "12px", textAlign: "right", fontFamily: "var(--mono)" }}>
+                      <td style={{ padding: "8px", fontFamily: "var(--mono)" }}>{p.leverage}</td>
+                      <td style={{ padding: "8px", textAlign: "right", fontFamily: "var(--mono)" }}>
                         ${p.collateral}
                       </td>
-                      <td style={{ padding: "12px", textAlign: "right", fontFamily: "var(--mono)" }}>
+                      <td style={{ padding: "8px", textAlign: "right", fontFamily: "var(--mono)" }}>
                         ${p.size}
                       </td>
-                      <td style={{ padding: "12px", textAlign: "right", color: "var(--good)", fontWeight: 700, fontFamily: "var(--mono)" }}>
+                      <td style={{ padding: "8px", textAlign: "right", color: "var(--good)", fontWeight: 700, fontFamily: "var(--mono)" }}>
                         +$0.42 (+8.4%)
                       </td>
-                      <td style={{ padding: "12px", textAlign: "center" }}>
+                      <td style={{ padding: "8px", textAlign: "center" }}>
                         <button
                           type="button"
                           className="profile-mini-btn"
@@ -722,13 +723,13 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
               </table>
             </div>
           ) : (
-            <div style={{ textAlign: "center", padding: "40px 16px" }}>
-              <div style={{ fontSize: "28px", marginBottom: "8px" }}>📊</div>
-              <h3 style={{ margin: "0 0 6px", fontSize: "15px", color: "#fff" }}>No open positions currently</h3>
-              <p style={{ margin: "0 0 16px", color: "var(--muted)", fontSize: "12px", maxWidth: "460px", marginLeft: "auto", marginRight: "auto" }}>
+            <div style={{ textAlign: "center", padding: "24px 12px" }}>
+              <div style={{ fontSize: "22px", marginBottom: "4px" }}>📊</div>
+              <h3 style={{ margin: "0 0 4px", fontSize: "13.5px", color: "#fff" }}>No open positions currently</h3>
+              <p style={{ margin: "0 0 12px", color: "var(--muted)", fontSize: "11px", maxWidth: "420px", marginLeft: "auto", marginRight: "auto" }}>
                 Your account has zero open perpetual margin risk. Explore trending Arc meme pairs on the terminal to open an isolated long or short position.
               </p>
-              <Link to="/markets" className="button button-primary compact">
+              <Link to="/markets" className="button button-primary compact" style={{ padding: "0 10px", minHeight: "26px", fontSize: "10px" }}>
                 Explore Markets
               </Link>
             </div>
@@ -739,39 +740,40 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
       {/* TAB 4: TRADING DEFAULTS & TOUR */}
       {activeTab === "Defaults" && (
         <div className="profile-content-panel">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "18px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
             <div>
               <div className="profile-eyebrow-chip">Execution Defaults &amp; Tools</div>
-              <h2 style={{ margin: "4px 0 0", fontSize: "16px", fontWeight: 700, color: "#fff" }}>
+              <h2 style={{ margin: "2px 0 0", fontSize: "14px", fontWeight: 700, color: "#fff" }}>
                 Terminal Trading Preferences
               </h2>
             </div>
-            <div style={{ display: "flex", gap: "8px" }}>
+            <div style={{ display: "flex", gap: "6px" }}>
               <button
                 type="button"
                 className="profile-mini-btn accent"
                 onClick={triggerAppTour}
-                style={{ padding: "6px 12px" }}
+                style={{ padding: "3px 8px" }}
               >
                 Replay App Tour 🚀
               </button>
-              <button className="button button-primary compact" onClick={saveProfileSettings}>
+              <button className="button button-primary compact" onClick={saveProfileSettings} style={{ padding: "0 8px", minHeight: "24px", fontSize: "10px" }}>
                 Save Preferences
               </button>
             </div>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "20px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "12px" }}>
             <div>
-              <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "8px", fontWeight: 600 }}>
+              <span style={{ fontSize: "10px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "4px", fontWeight: 600 }}>
                 Default Leverage:
               </span>
-              <div style={{ display: "flex", gap: "6px" }}>
+              <div style={{ display: "flex", gap: "4px" }}>
                 {["1", "2", "3", "5", "10"].map((lev) => (
                   <button
                     key={lev}
                     type="button"
                     className={defaultLeverage === lev ? "button button-primary compact" : "button button-secondary compact"}
+                    style={{ minHeight: "24px", padding: "0 7px", fontSize: "10px" }}
                     onClick={() => setDefaultLeverage(lev)}
                   >
                     {lev}x
@@ -781,15 +783,16 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
             </div>
 
             <div>
-              <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "8px", fontWeight: 600 }}>
+              <span style={{ fontSize: "10px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "4px", fontWeight: 600 }}>
                 Slippage Tolerance:
               </span>
-              <div style={{ display: "flex", gap: "6px" }}>
+              <div style={{ display: "flex", gap: "4px" }}>
                 {["0.5", "1.0", "2.5", "5.0"].map((slip) => (
                   <button
                     key={slip}
                     type="button"
                     className={defaultSlippage === slip ? "button button-primary compact" : "button button-secondary compact"}
+                    style={{ minHeight: "24px", padding: "0 7px", fontSize: "10px" }}
                     onClick={() => setDefaultSlippage(slip)}
                   >
                     {slip}%
@@ -799,15 +802,16 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
             </div>
 
             <div>
-              <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "8px", fontWeight: 600 }}>
+              <span style={{ fontSize: "10px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "4px", fontWeight: 600 }}>
                 Default Take-Profit:
               </span>
-              <div style={{ display: "flex", gap: "6px" }}>
+              <div style={{ display: "flex", gap: "4px" }}>
                 {["25", "50", "100", "200"].map((tp) => (
                   <button
                     key={tp}
                     type="button"
                     className={defaultTp === tp ? "button button-primary compact" : "button button-secondary compact"}
+                    style={{ minHeight: "24px", padding: "0 7px", fontSize: "10px" }}
                     onClick={() => setDefaultTp(tp)}
                   >
                     +{tp}%
@@ -817,15 +821,16 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
             </div>
 
             <div>
-              <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "8px", fontWeight: 600 }}>
+              <span style={{ fontSize: "10px", color: "var(--muted)", textTransform: "uppercase", display: "block", marginBottom: "4px", fontWeight: 600 }}>
                 Default Stop-Loss:
               </span>
-              <div style={{ display: "flex", gap: "6px" }}>
+              <div style={{ display: "flex", gap: "4px" }}>
                 {["10", "20", "35", "50"].map((sl) => (
                   <button
                     key={sl}
                     type="button"
                     className={defaultSl === sl ? "button button-primary compact" : "button button-secondary compact"}
+                    style={{ minHeight: "24px", padding: "0 7px", fontSize: "10px" }}
                     onClick={() => setDefaultSl(sl)}
                   >
                     -{sl}%
