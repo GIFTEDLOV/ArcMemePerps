@@ -2980,148 +2980,128 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
 
   return (
     <section className="page detail-page">
-      <div className="detail-header">
-        <div className="detail-token">
-          <TokenAvatar market={market} large />
-          <div>
-            <div className="eyebrow">
-              {chainLabel(market.chain)} · {lifecycleLabel(market.lifecycle.status)} · {market.originPlatform ?? "Arc Mainnet"}
+      {/* GMGN-Style Compact, Sophisticated Token Header (Integrated Bar) */}
+      <div className="token-detail-bar">
+        <div className="token-bar-left">
+          <TokenAvatar market={market} />
+          <div className="token-bar-identity">
+            <div className="token-bar-title-row">
+              <span className="token-bar-name">{market.name || market.symbol || "Verified Token"}</span>
+              <span className="token-bar-symbol">${market.symbol ?? "TOKEN"}</span>
+              <span className="token-bar-badge">{chainLabel(market.chain)}</span>
+              {market.chain === "ARC" && <span className="token-bar-badge arc">ARC</span>}
             </div>
-            <h1>
-              {market.name || market.symbol || "Verified Token"} <span>{market.symbol ? `$${market.symbol}` : ""}</span>
-            </h1>
-            <div className="address-line">
-              <code>{market.tokenAddress}</code>
-              <button className="copy-button" onClick={() => void navigator.clipboard?.writeText(market.tokenAddress)} aria-label="Copy token address">
+
+            <div className="token-bar-meta-row">
+              <span className="token-bar-ca">{market.tokenAddress ? `${market.tokenAddress.slice(0, 6)}...${market.tokenAddress.slice(-4)}` : ""}</span>
+              <button
+                type="button"
+                className="token-bar-copy"
+                onClick={() => void navigator.clipboard?.writeText(market.tokenAddress)}
+                title="Copy Token Address"
+              >
                 Copy
               </button>
               {market.chain === "ARC" && (
-                <a className="explorer-link" href={`https://explorer.arc.io/token/${market.tokenAddress}`} target="_blank" rel="noreferrer">
-                  Explorer 
-                </a>
-              )}
-            </div>
-            <div className="social-links-row">
-              {market.chain === "ARC" && (
-                <a className="social-badge arc-scan" href={`https://explorer.arc.io/token/${market.tokenAddress}`} target="_blank" rel="noreferrer">
+                <a className="token-bar-social" href={`https://explorer.arc.io/token/${market.tokenAddress}`} target="_blank" rel="noreferrer">
                   ArcScan
                 </a>
               )}
-              <a className="social-badge twitter" href={`https://twitter.com/search?q=${encodeURIComponent(`$${market.symbol ?? "ARC"}`)}`} target="_blank" rel="noreferrer">
+              <a className="token-bar-social" href={`https://twitter.com/search?q=${encodeURIComponent(`$${market.symbol ?? "ARC"}`)}`} target="_blank" rel="noreferrer">
                 X
               </a>
-              <a className="social-badge telegram" href="https://t.me/ArcNetworkOfficial" target="_blank" rel="noreferrer">
+              <a className="token-bar-social" href="https://t.me/ArcNetworkOfficial" target="_blank" rel="noreferrer">
                 Telegram
               </a>
               <a
-                className="social-badge"
-                style={{ background: "rgba(255, 210, 0, 0.1)", borderColor: "rgba(255, 210, 0, 0.3)", color: "#ffd200" }}
+                className="token-bar-social bubblemaps"
                 href={`https://bubblemaps.io/${market.chain.toLowerCase()}/token/${market.tokenAddress}`}
                 target="_blank"
                 rel="noreferrer"
               >
                 Bubblemaps
               </a>
-              <span className="social-badge" title="Top 10 concentration safe">
+              <span className="token-bar-tag" title="Top 10 concentration">
                 Top 10: {((market.top10ConcentrationBps ?? 1850) / 100).toFixed(1)}%
               </span>
-              <span className="social-badge" title="Dev holding safe">
+              <span className="token-bar-tag" title="Dev holding safe">
                 Dev: 0% Held
               </span>
             </div>
-            <span className="micro">Observed {ageLabel(market.lifecycle.observedAt)} · Arc Settlement</span>
           </div>
         </div>
-        <div className="detail-actions">
-          <button className={`watch-button ${watchlist.has(market.marketId) ? "saved" : ""}`} onClick={() => watchlist.toggle(market.marketId)}>
-            {watchlist.has(market.marketId) ? "Saved" : "Watch"}
-          </button>
-          <StatusPill value={state.label} tone={state.tone} label={state.label} />
-        </div>
-      </div>
 
-      {/* GMGN High-Impact Market Metric Banner */}
-      <div className="gmgn-market-banner">
-        <div className="gmgn-market-left">
-          <div className="gmgn-mc-hero">
+        <div className="token-bar-right">
+          <div className="token-bar-hero-stat">
             <span>Market Cap</span>
-            <strong>
+            <strong className="mono">
               {Number(market.originSpotLiquidityUsd || "0") > 0
                 ? `$${(Number(market.originSpotLiquidityUsd) * 1.8).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
                 : "$712.72K"}
             </strong>
           </div>
-          <div className="gmgn-mc-hero">
+          <div className="token-bar-hero-stat">
             <span>Price</span>
-            <strong style={{ color: "var(--accent)" }}>{displayed(market.priceUsd, formatUsd)}</strong>
+            <strong className="mono" style={{ color: "var(--accent)" }}>{displayed(market.priceUsd, formatUsd)}</strong>
           </div>
-        </div>
 
-        <div className="gmgn-stats-strip">
-          <div className="gmgn-stat-pill">
-            <span>Liq</span>
-            <strong>{displayed(market.originSpotLiquidityUsd, formatUsd)}</strong>
+          <div className="token-bar-pills">
+            <div className="token-bar-pill">
+              <span>Liq</span>
+              <strong className="mono">{displayed(market.originSpotLiquidityUsd, formatUsd)}</strong>
+            </div>
+            <div className="token-bar-pill">
+              <span>24h Vol</span>
+              <strong className="mono">{displayed(market.volume24hUsd, formatUsd)}</strong>
+            </div>
+            <div className="token-bar-pill">
+              <span>1m</span>
+              <strong className="mono pos">+0.82%</strong>
+            </div>
+            <div className="token-bar-pill">
+              <span>5m</span>
+              <strong className="mono pos">+3.45%</strong>
+            </div>
+            <div className="token-bar-pill">
+              <span>1h</span>
+              <strong className={`mono ${((market.priceChange24hBps ?? 0) >= 0) ? "pos" : "neg"}`}>
+                {formatPercentBps(Math.round((market.priceChange24hBps ?? 280) * 0.4))}
+              </strong>
+            </div>
+            <div className="token-bar-pill">
+              <span>24h</span>
+              <strong className={`mono ${((market.priceChange24hBps ?? 0) >= 0) ? "pos" : "neg"}`}>
+                {formatPercentBps(market.priceChange24hBps ?? 280)}
+              </strong>
+            </div>
+            <div className="token-bar-pill">
+              <span>Holders</span>
+              <strong className="mono">{(market.holders ?? 3234).toLocaleString()}</strong>
+            </div>
           </div>
-          <div className="gmgn-stat-pill">
-            <span>24h Vol</span>
-            <strong>{displayed(market.volume24hUsd, formatUsd)}</strong>
-          </div>
-          <div className="gmgn-stat-pill">
-            <span>1m</span>
-            <strong className="pos">+0.82%</strong>
-          </div>
-          <div className="gmgn-stat-pill">
-            <span>5m</span>
-            <strong className="pos">+3.45%</strong>
-          </div>
-          <div className="gmgn-stat-pill">
-            <span>1h</span>
-            <strong className={((market.priceChange24hBps ?? 0) >= 0) ? "pos" : "neg"}>
-              {formatPercentBps(Math.round((market.priceChange24hBps ?? 280) * 0.4))}
-            </strong>
-          </div>
-          <div className="gmgn-stat-pill">
-            <span>24h</span>
-            <strong className={((market.priceChange24hBps ?? 0) >= 0) ? "pos" : "neg"}>
-              {formatPercentBps(market.priceChange24hBps ?? 280)}
-            </strong>
-          </div>
-          <div className="gmgn-stat-pill">
-            <span>Holders</span>
-            <strong>{(market.holders ?? 3234).toLocaleString()}</strong>
+
+          <div className="token-bar-actions">
+            <button className={`watch-button ${watchlist.has(market.marketId) ? "saved" : ""}`} onClick={() => watchlist.toggle(market.marketId)}>
+              {watchlist.has(market.marketId) ? "Saved" : "Watch"}
+            </button>
+            <StatusPill value={state.label} tone={state.tone} label={state.label} />
           </div>
         </div>
       </div>
 
       {market.isQuarantined && (
-        <div className="quarantine-banner">
+        <div className="quarantine-banner" style={{ margin: "4px 0 6px" }}>
           <div>
             <strong>Anti-Rug Radar: Quarantined Market ({market.quarantineReason ?? "Playbook Safety Violation"})</strong>
             <span>This pool fails CLUSTER Chapter 3 &amp; 4 protection requirements. Perpetuals trading and leverage are disabled to safeguard collateral.</span>
           </div>
-          <span className="quarantined-tag" style={{ padding: "4px 8px", fontSize: "11px" }}>TRADING DISABLED</span>
+          <span className="quarantined-tag" style={{ padding: "3px 6px", fontSize: "10px" }}>TRADING DISABLED</span>
         </div>
       )}
-
-      <div className="detail-stats">
-        <Metric label="Price" value={displayed(market.priceUsd, formatUsd)} />
-        <Metric label="24h Change" value={formatPercentBps(market.priceChange24hBps ?? 280)} />
-        <Metric label="Spot Liquidity" value={displayed(market.originSpotLiquidityUsd, formatUsd)} note="Origin spot" />
-        <Metric label="24h Volume" value={displayed(market.volume24hUsd, formatUsd)} />
-        <Metric label="Transactions" value={formatDecimal(String(market.transactions24h ?? 180), 0)} />
-        <Metric label="Oracle Freshness" value={market.chain === "ARC" ? "FRESH" : market.freshness.status} />
-      </div>
 
       <div className="detail-grid">
         <div className="detail-main">
           <section className="panel chart-panel">
-            <div className="panel-heading">
-              <div>
-                <div className="eyebrow">Observed price</div>
-                <h2>Market chart</h2>
-              </div>
-              <span className="micro">{market.history.length ? `${market.history.length} real observations` : "Real history available"}</span>
-            </div>
             <MiniChart history={market.history} market={market} />
           </section>
 
