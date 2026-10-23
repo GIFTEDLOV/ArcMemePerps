@@ -20,7 +20,7 @@ describe("Alert Dispatcher (Discord & Telegram)", () => {
     liquidityUsd: 340,
     volume24hUsd: 12000,
     preservedUsdc: "$250.00 USDC",
-    url: "https://arcmemeperps.vercel.app/trade/solana-dogeperp",
+    url: "https://cluster-terminal.vercel.app/trade/solana-dogeperp",
   };
 
   it("formats Discord payload with red embed and metadata fields", () => {
@@ -31,7 +31,7 @@ describe("Alert Dispatcher (Discord & Telegram)", () => {
     const firstEmbed = embeds[0]!;
     expect(firstEmbed.color).toBe(15158332);
     expect(firstEmbed.title).toContain("[CRITICAL WATCHDOG DELIST] $DOGEPERP");
-    expect(firstEmbed.url).toBe("https://arcmemeperps.vercel.app/trade/solana-dogeperp");
+    expect(firstEmbed.url).toBe("https://cluster-terminal.vercel.app/trade/solana-dogeperp");
 
     const fields = firstEmbed.fields as Array<{ name: string; value: string }>;
     expect(fields.some((f) => f.name === "Token" && f.value.includes("DOGEPERP"))).toBe(true);

@@ -23,7 +23,7 @@ The Gate 4G Stress/Security deployment remains a separate immutable security rec
 
 ## Public endpoints
 
-- Frontend: `https://arcmemeperps.vercel.app`
+- Frontend: `https://cluster-terminal.vercel.app`
 - API and SSE: `https://api-production-0eb6.up.railway.app/api/v1`
 - Repository: `https://github.com/GIFTEDLOV/ArcMemePerps`
 

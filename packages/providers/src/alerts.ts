@@ -72,7 +72,7 @@ export function formatDiscordPayload(payload: AlertPayload): Record<string, unkn
 
   return {
     username: "ArcMemePerps Watchdog",
-    avatar_url: "https://arcmemeperps.vercel.app/favicon.ico",
+    avatar_url: "https://cluster-terminal.vercel.app/favicon.ico",
     embeds: [
       {
         title: `${titlePrefix} $${payload.symbol}`,
@@ -84,7 +84,7 @@ export function formatDiscordPayload(payload: AlertPayload): Record<string, unkn
             : `Token successfully satisfied 100% of strict anti-rug safety rules.`,
         color,
         fields,
-        url: payload.url || "https://arcmemeperps.vercel.app",
+        url: payload.url || "https://cluster-terminal.vercel.app",
         timestamp: payload.timestamp || new Date().toISOString(),
         footer: {
           text: "ArcMemePerps Fail-Closed Protocol • Settled in Arc USDC",
@@ -126,7 +126,7 @@ export function formatTelegramMessage(payload: AlertPayload): string {
     lines.push(`*Pool:* \`${payload.poolAddress}\``);
   }
 
-  lines.push(`\n🔗 [Inspect on ArcMemePerps](${payload.url || "https://arcmemeperps.vercel.app"})`);
+  lines.push(`\n🔗 [Inspect on ArcMemePerps](${payload.url || "https://cluster-terminal.vercel.app"})`);
 
   return lines.join("\n");
 }

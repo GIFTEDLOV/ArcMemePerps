@@ -119,7 +119,7 @@ def record_demo():
         # ==========================================
         s1_start = time.time()
         print("Starting Scene 1: Landing Page (29.23s)...")
-        page.goto("https://arcmemeperps.vercel.app", wait_until="domcontentloaded")
+        page.goto("https://cluster-terminal.vercel.app", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
         
         # Cursor explores header navigation
@@ -161,7 +161,7 @@ def record_demo():
         # ==========================================
         s2_start = time.time()
         print("Starting Scene 2: Interactive Visual Tour (24.02s)...")
-        page.goto("https://arcmemeperps.vercel.app/markets", wait_until="domcontentloaded")
+        page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
         # Connect wallet button
@@ -200,7 +200,7 @@ def record_demo():
         # ==========================================
         s3_start = time.time()
         print("Starting Scene 3: Markets Terminal (23.38s)...")
-        page.goto("https://arcmemeperps.vercel.app/markets", wait_until="domcontentloaded")
+        page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
 
         # Move to Search Input
@@ -234,7 +234,7 @@ def record_demo():
         s4_start = time.time()
         print("Starting Scene 4: Token Detail & Chart (29.06s)...")
         if "/markets/arc-1" not in page.url:
-            page.goto("https://arcmemeperps.vercel.app/markets/arc-1", wait_until="domcontentloaded")
+            page.goto("https://cluster-terminal.vercel.app/markets/arc-1", wait_until="domcontentloaded")
         page.wait_for_timeout(1200)
 
         # Highlight GMGN Header
@@ -341,7 +341,7 @@ def record_demo():
         # ==========================================
         s7_start = time.time()
         print("Starting Scene 7: Profile & Cyberpunk Avatars (28.97s)...")
-        page.goto("https://arcmemeperps.vercel.app/profile", wait_until="domcontentloaded")
+        page.goto("https://cluster-terminal.vercel.app/profile", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
 
         # Highlight compact profile hero bar

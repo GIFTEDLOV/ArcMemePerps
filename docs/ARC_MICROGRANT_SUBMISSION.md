@@ -40,7 +40,7 @@ market.
 
 ## Links and identifiers
 
-- **Live application URL:** `https://arcmemeperps.vercel.app`
+- **Live application URL:** `https://cluster-terminal.vercel.app`
 - **GitHub URL:** `https://github.com/GIFTEDLOV/ArcMemePerps`
 - **Mainnet contract addresses:** `TBD_AFTER_FRESH_MAINNET_DEPLOYMENT`
 - **Builder profile:** `TBD_BUILDER_PROFILE`

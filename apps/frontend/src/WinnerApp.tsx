@@ -221,7 +221,7 @@ export function PnlShareModal({ position, onClose }: { position: StoredPosition 
   const isWin = roiPct >= 0;
   const pnlUsd = (collateralNum * (roiPct / 100)).toFixed(2);
 
-  const tweetText = `Just printed on $${position.symbol} ${position.side} ${position.leverage} on @ClusterPerps!\n\nROI: ${isWin ? "+" : ""}${roiPct.toFixed(1)}% ($${pnlUsd} USDC)\nSettled in real USDC on Arc Mainnet\n\nTrade meme perps with leverage on https://arcmemeperps.vercel.app #Arc #CLUSTER #Perps`;
+  const tweetText = `Just printed on $${position.symbol} ${position.side} ${position.leverage} on @ClusterPerps!\n\nROI: ${isWin ? "+" : ""}${roiPct.toFixed(1)}% ($${pnlUsd} USDC)\nSettled in real USDC on Arc Mainnet\n\nTrade meme perps with leverage on https://cluster-terminal.vercel.app #Arc #CLUSTER #Perps`;
 
   const copySummary = async () => {
     try {
@@ -1018,8 +1018,8 @@ function sendDesktopPushAlert(title: string, options?: NotificationOptions) {
   if (Notification.permission === "granted") {
     try {
       new Notification(title, {
-        icon: "https://arcmemeperps.vercel.app/favicon.ico",
-        badge: "https://arcmemeperps.vercel.app/favicon.ico",
+        icon: "https://cluster-terminal.vercel.app/favicon.ico",
+        badge: "https://cluster-terminal.vercel.app/favicon.ico",
         ...options,
       });
     } catch {

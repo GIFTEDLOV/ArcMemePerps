@@ -9,7 +9,7 @@
     "ciResult": "PASS"
   },
   "publicServices": {
-    "frontend": "https://arcmemeperps.vercel.app",
+    "frontend": "https://cluster-terminal.vercel.app",
     "vercelProject": "arcmemeperps",
     "vercelDeploymentId": "dpl_Esni81L6a2kXMQu2K7za2SvK238L",
     "backend": "https://api-production-0eb6.up.railway.app/api/v1",

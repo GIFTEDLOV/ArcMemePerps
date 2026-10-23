@@ -4,7 +4,7 @@ Risk-gated multichain meme-asset perpetuals settled on Arc USDC.
 
 ## Public links
 
-- App: https://arcmemeperps.vercel.app
+- App: https://cluster-terminal.vercel.app
 - API/SSE: https://api-production-0eb6.up.railway.app/api/v1
 - Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 

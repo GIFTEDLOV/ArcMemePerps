@@ -133,7 +133,7 @@ export async function runKeeperCycle(options: { dryRun?: boolean } = {}): Promis
           type: "TOKEN_QUARANTINED",
           liquidityUsd: liq,
           volume24hUsd: vol,
-          url: `https://arcmemeperps.vercel.app/trade/${encodeURIComponent(market.marketId)}`,
+          url: `https://cluster-terminal.vercel.app/trade/${encodeURIComponent(market.marketId)}`,
         };
 
         const result = await dispatchMultiChannelAlert(alert, { dryRun: options.dryRun });
