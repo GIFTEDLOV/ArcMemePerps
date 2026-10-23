@@ -1,0 +1,7 @@
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene1_landing.mp3'
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene2_tour.mp3'
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene3_markets.mp3'
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene4_chart.mp3'
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene5_trade.mp3'
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene6_positions.mp3'
+file 'C:/Users/DELL/ArcMemePerps/demo_audio/scene7_profile.mp3'

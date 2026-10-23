@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Crisp high-contrast background plate for guaranteed visibility on dark & light surfaces -->
+  <rect width="120" height="120" rx="26" fill="#FFFFFF" />
+
+  <!-- Radiating Network Edges (Constellations) in Solid Black -->
+  <g stroke="#000000" stroke-width="1.2">
+    <!-- Inner Spoke Radiations -->
+    <line x1="60" y1="60" x2="60" y2="28" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="82" y2="38" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="92" y2="60" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="82" y2="82" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="60" y2="92" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="38" y2="82" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="28" y2="60" stroke-opacity="0.8" />
+    <line x1="60" y1="60" x2="38" y2="38" stroke-opacity="0.8" />
+
+    <!-- Outer Satellites Links -->
+    <line x1="60" y1="28" x2="60" y2="12" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="82" y1="38" x2="102" y2="26" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="92" y1="60" x2="110" y2="60" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="82" y1="82" x2="102" y2="96" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="60" y1="92" x2="60" y2="110" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="38" y1="82" x2="18" y2="98" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="28" y1="60" x2="10" y2="60" stroke-opacity="0.6" stroke-dasharray="2 2" />
+    <line x1="38" y1="38" x2="18" y2="24" stroke-opacity="0.6" stroke-dasharray="2 2" />
+
+    <!-- Cross Cluster Connections -->
+    <line x1="60" y1="28" x2="82" y2="38" stroke-opacity="0.5" />
+    <line x1="82" y1="38" x2="92" y2="60" stroke-opacity="0.5" />
+    <line x1="92" y1="60" x2="82" y2="82" stroke-opacity="0.5" />
+    <line x1="82" y1="82" x2="60" y2="92" stroke-opacity="0.5" />
+    <line x1="60" y1="92" x2="38" y2="82" stroke-opacity="0.5" />
+    <line x1="38" y1="82" x2="28" y2="60" stroke-opacity="0.5" />
+    <line x1="28" y1="60" x2="38" y2="38" stroke-opacity="0.5" />
+    <line x1="38" y1="38" x2="60" y2="28" stroke-opacity="0.5" />
+  </g>
+
+  <!-- Cluster Nodes - All Solid Pitch Black -->
+  <g fill="#000000">
+    <!-- Secondary Cluster Ring -->
+    <circle cx="60" cy="36" r="6" />
+    <circle cx="74" cy="42" r="5" />
+    <circle cx="82" cy="54" r="6.5" />
+    <circle cx="78" cy="68" r="5.5" />
+    <circle cx="68" cy="78" r="6" />
+    <circle cx="52" cy="80" r="5" />
+    <circle cx="40" cy="70" r="6.5" />
+    <circle cx="38" cy="54" r="5.5" />
+    <circle cx="48" cy="40" r="5" />
+
+    <!-- Outer Interlocking Cluster Ring -->
+    <circle cx="60" cy="24" r="4.5" />
+    <circle cx="76" cy="28" r="3.8" />
+    <circle cx="90" cy="40" r="4.8" />
+    <circle cx="96" cy="56" r="5.2" />
+    <circle cx="92" cy="72" r="4" />
+    <circle cx="82" cy="88" r="4.8" />
+    <circle cx="64" cy="94" r="4.2" />
+    <circle cx="46" cy="92" r="4.5" />
+    <circle cx="30" cy="82" r="4.8" />
+    <circle cx="22" cy="64" r="4.2" />
+    <circle cx="26" cy="46" r="4.6" />
+    <circle cx="40" cy="28" r="3.8" />
+
+    <!-- Distant Satellites -->
+    <circle cx="60" cy="10" r="3" />
+    <circle cx="104" cy="22" r="3.2" />
+    <circle cx="112" cy="60" r="3.5" />
+    <circle cx="104" cy="100" r="3.2" />
+    <circle cx="60" cy="112" r="3" />
+    <circle cx="16" cy="102" r="3.2" />
+    <circle cx="8" cy="60" r="3" />
+    <circle cx="16" cy="20" r="3" />
+
+    <!-- Center Dominant Hub Core -->
+    <circle cx="60" cy="60" r="14" />
+  </g>
+</svg>

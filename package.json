@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "version": "0.1.0",
-  "description": "Backend, risk, qualification, and Arc contract foundation for ArcMemePerps.",
+  "description": "Fail-closed perpetual protocol and institutional trading terminal for multichain meme markets with Arc USDC settlement — CLUSTER.",
   "packageManager": "pnpm@11.0.9",
   "pnpm": {
     "allowBuilds": {
