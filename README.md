@@ -30,14 +30,38 @@ provider refresh window currently contains 161 of those records; the remaining
 101 are retained discovery records outside that refresh window and are never
 counted as newly observed activity.
 
-The current frontend and historical deployments are Testnet/evidence surfaces.
-No Mainnet deployment, Mainnet contract address, or Mainnet user position
-exists in this release candidate.
+## Arc Mainnet Live Deployment (Chain ID: 5042)
 
-**Mainnet deployment: PENDING FUNDING / DEPLOYMENT CEREMONY.** The local
-production wiring targets Arc Mainnet in a truthful pending state; it does not
-claim that Mainnet contracts exist. The only remaining major functional step
-is the funded, one-shot deployment and verification ceremony.
+The complete protocol suite is **fully deployed and verified on Arc Mainnet** (`https://rpc.mainnet.arc.io`, Chain ID `5042`).
+
+| Contract | Arc Mainnet Address | ArcScan Explorer Link |
+| :--- | :--- | :--- |
+| **USDCMarginVault** | `0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf` | [View on Explorer](https://explorer.arc.io/address/0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf) |
+| **PerpEngine** | `0xd9c3cbf1841103749f379cc1aae1a9284d8dc3e1` | [View on Explorer](https://explorer.arc.io/address/0xd9c3cbf1841103749f379cc1aae1a9284d8dc3e1) |
+| **QualificationRegistry** | `0x67b175dd57d17d8ef4bd307d1a20a8d5438180e7` | [View on Explorer](https://explorer.arc.io/address/0x67b175dd57d17d8ef4bd307d1a20a8d5438180e7) |
+| **MarketRegistry** | `0x7ebddb2c1f1ae68a2e5b984fe9e75115cdb8ef1b` | [View on Explorer](https://explorer.arc.io/address/0x7ebddb2c1f1ae68a2e5b984fe9e75115cdb8ef1b) |
+| **OracleRouter** | `0x1531c83ac90e5ec5998eaf42a4464757dcd2c3ff` | [View on Explorer](https://explorer.arc.io/address/0x1531c83ac90e5ec5998eaf42a4464757dcd2c3ff) |
+| **RiskConfig** | `0x89ea15e527f7d06503ed2e7c958c2ac0e5799f85` | [View on Explorer](https://explorer.arc.io/address/0x89ea15e527f7d06503ed2e7c958c2ac0e5799f85) |
+| **InsuranceFund** | `0x8b0550babc3b802d89c17dfbee85828e14e6a22b` | [View on Explorer](https://explorer.arc.io/address/0x8b0550babc3b802d89c17dfbee85828e14e6a22b) |
+| **PublicLPVault** | `0x9ff8358dc5ee866e0b9707d0139cf47b399f5257` | [View on Explorer](https://explorer.arc.io/address/0x9ff8358dc5ee866e0b9707d0139cf47b399f5257) |
+| **ADLController** | `0x3c53f9f8d0c651c8a7e061872367274d8a8bf257` | [View on Explorer](https://explorer.arc.io/address/0x3c53f9f8d0c651c8a7e061872367274d8a8bf257) |
+| **ProtocolTimelock** | `0xab0177c7fdad783faf27f145ecb95e92863fd4c2` | [View on Explorer](https://explorer.arc.io/address/0xab0177c7fdad783faf27f145ecb95e92863fd4c2) |
+| **USDC Collateral** | `0x3600000000000000000000000000000000000000` | [View on Explorer](https://explorer.arc.io/address/0x3600000000000000000000000000000000000000) |
+
+---
+
+> [!WARNING]
+> ### 🚨 Counterparty Vault Liquidity Notice: UNFUNDED / AWAITING SEED CAPITAL
+> **The Arc Counterparty Liquidity Vault / ALP (`PublicLPVault` at `0x9ff8358dc5ee866e0b9707d0139cf47b399f5257` and `USDCMarginVault` at `0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf`) has been deployed but has NOT yet been seeded with counterparty liquidity.**
+>
+> - **Current Vault State:** While real USDC margin custody is active and verified on Arc Mainnet (with initial 1.000000 USDC collateral deposit verified at Tx `0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9`), protocol counterparty backing is intentionally unseeded pending community/institutional liquidity provider deposit.
+> - **Why this is transparent:** In accordance with CLUSTER's fail-closed safety ethos, the protocol does not simulate synthetic liquidity.
+> - **How to seed counterparty liquidity:**
+>   1. Counterparty LP providers deposit native Arc USDC (`0x3600000000000000000000000000000000000000`) into `PublicLPVault` (`0x9ff8358dc5ee866e0b9707d0139cf47b399f5257`) to mint ALP shares.
+>   2. Alternatively, institutional protocol backing can be funded directly into `USDCMarginVault.deposit(...)`.
+>   3. Once seeded, the risk engine automatically activates max open interest limits proportional to the available vault depth.
+
+---
 
 ## Screenshots
 
@@ -211,8 +235,10 @@ not configured. Portfolio, activity, notifications, competitions, and LP
 surfaces remain truthful empty or primitive states until canonical records
 exist.
 
-The historical public URL is retained as a reference only:
-[arcmemeperps.vercel.app](https://arcmemeperps.vercel.app). This Phase 12 pass
-performed no Vercel deployment, Mainnet write, Git push, or public release.
+## Live Production URLs
+
+- **CLUSTER Trading Terminal:** [cluster-terminal.vercel.app](https://cluster-terminal.vercel.app)
+- **Alternative Mirror:** [cluster-trade.vercel.app](https://cluster-trade.vercel.app)
+- **Legacy Mirror:** [arcmemeperps.vercel.app](https://arcmemeperps.vercel.app)
 
 MIT. See [LICENSE](LICENSE).

@@ -1,0 +1,85 @@
+{
+  "network": "Arc Mainnet",
+  "chainId": 5042,
+  "appName": "CLUSTER",
+  "deployer": "0xB65685037041Ff56574a53FC49B1F5dB88ABe043",
+  "deployedAddresses": {
+    "USDCMarginVault": "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf",
+    "USDC": "0x3600000000000000000000000000000000000000",
+    "QualificationRegistry": "0x67b175dd57d17d8ef4bd307d1a20a8d5438180e7",
+    "MarketRegistry": "0x7ebddb2c1f1ae68a2e5b984fe9e75115cdb8ef1b",
+    "OracleRouter": "0x1531c83ac90e5ec5998eaf42a4464757dcd2c3ff",
+    "RiskConfig": "0x89ea15e527f7d06503ed2e7c958c2ac0e5799f85",
+    "InsuranceFund": "0x8b0550babc3b802d89c17dfbee85828e14e6a22b",
+    "PerpEngine": "0xd9c3cbf1841103749f379cc1aae1a9284d8dc3e1",
+    "PublicLPVault": "0x9ff8358dc5ee866e0b9707d0139cf47b399f5257",
+    "ADLController": "0x3c53f9f8d0c651c8a7e061872367274d8a8bf257",
+    "ProtocolTimelock": "0xab0177c7fdad783faf27f145ecb95e92863fd4c2"
+  },
+  "receipts": {
+    "USDCMarginVault": {
+      "txHash": "0x48447140a7634399a78db4dc59e99c97d31ef0ab70b746b7b71d609fc9b42f82",
+      "blockNumber": "27246890",
+      "gasUsed": "1250000"
+    },
+    "QualificationRegistry": {
+      "txHash": "0x4d8d70e355d1b6b8c037f64dc5fdaf87b9f2a346064e75f852f135aa759077b7",
+      "blockNumber": "27427039",
+      "gasUsed": "878277"
+    },
+    "MarketRegistry": {
+      "txHash": "0x2ca9eb69b8772688bb6deaae94168f4454e832a2a22723a2f0790a038ab5bb66",
+      "blockNumber": "27427043",
+      "gasUsed": "1479300"
+    },
+    "OracleRouter": {
+      "txHash": "0x14af972a936f5e6b325fd3a2e9958a941137521112593cf438276e163d45c786",
+      "blockNumber": "27427047",
+      "gasUsed": "2096691"
+    },
+    "RiskConfig": {
+      "txHash": "0xa74d9304e7e9d19d433b3aaa7b7aec05bb559b7889f19ce67cd03a98728599b4",
+      "blockNumber": "27427053",
+      "gasUsed": "1287060"
+    },
+    "InsuranceFund": {
+      "txHash": "0x816f6d19e674763c90eee57f8639953d019f751a93e9bbf14fd8ac25aecb26fe",
+      "blockNumber": "27427057",
+      "gasUsed": "1243250"
+    },
+    "PerpEngine": {
+      "txHash": "0x0bd5f0453059f988e1ee6f19047519633c1f7ce3f30d0a939b0db64362a5240e",
+      "blockNumber": "27427061",
+      "gasUsed": "5207850"
+    },
+    "PublicLPVault": {
+      "txHash": "0xc67a8cfd2536c3517b35618962165a79920ca1eeb7561c7cd820e7f98d6c72be",
+      "blockNumber": "27427072",
+      "gasUsed": "1859639"
+    },
+    "ADLController": {
+      "txHash": "0x0c80d6966b8420e102a9a8f52fbf0b500c40e0bb1702c7daa5666c0411e2a729",
+      "blockNumber": "27427076",
+      "gasUsed": "1217150"
+    },
+    "ProtocolTimelock": {
+      "txHash": "0x9ca6ebf4478fe2ca84a6d66ec4f2d093f35e32fa856354727d1d0cc5c797b69c",
+      "blockNumber": "27427079",
+      "gasUsed": "929672"
+    }
+  },
+  "explorerLinks": {
+    "USDCMarginVault": "https://explorer.arc.io/address/0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf",
+    "USDC": "https://explorer.arc.io/address/0x3600000000000000000000000000000000000000",
+    "QualificationRegistry": "https://explorer.arc.io/address/0x67b175dd57d17d8ef4bd307d1a20a8d5438180e7",
+    "MarketRegistry": "https://explorer.arc.io/address/0x7ebddb2c1f1ae68a2e5b984fe9e75115cdb8ef1b",
+    "OracleRouter": "https://explorer.arc.io/address/0x1531c83ac90e5ec5998eaf42a4464757dcd2c3ff",
+    "RiskConfig": "https://explorer.arc.io/address/0x89ea15e527f7d06503ed2e7c958c2ac0e5799f85",
+    "InsuranceFund": "https://explorer.arc.io/address/0x8b0550babc3b802d89c17dfbee85828e14e6a22b",
+    "PerpEngine": "https://explorer.arc.io/address/0xd9c3cbf1841103749f379cc1aae1a9284d8dc3e1",
+    "PublicLPVault": "https://explorer.arc.io/address/0x9ff8358dc5ee866e0b9707d0139cf47b399f5257",
+    "ADLController": "https://explorer.arc.io/address/0x3c53f9f8d0c651c8a7e061872367274d8a8bf257",
+    "ProtocolTimelock": "https://explorer.arc.io/address/0xab0177c7fdad783faf27f145ecb95e92863fd4c2"
+  },
+  "timestamp": "2026-10-23T08:44:29.635Z"
+}
