@@ -21,7 +21,11 @@ const ARC_MAINNET = defineChain({
 });
 
 const USDC_ADDRESS = "0x3600000000000000000000000000000000000000" as Address;
-const PRIVATE_KEY = (process.env.ARC_DEPLOYER_PRIVATE_KEY || "0x5b1768daf49d622608beae7ae923937916772f007390bcc36b2e17a6e713a17b") as Hex;
+const rawKey = process.env.ARC_DEPLOYER_PRIVATE_KEY;
+if (!rawKey || !rawKey.startsWith("0x") || rawKey.length !== 66) {
+  throw new Error("[SECURITY][FATAL] ARC_DEPLOYER_PRIVATE_KEY environment variable is missing or malformed. Refusing to execute deployment.");
+}
+const PRIVATE_KEY = rawKey as Hex;
 const EXISTING_VAULT = "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf" as Address;
 
 function loadArtifact(name: string): { abi: Abi; bytecode: Hex } {
