@@ -59,10 +59,46 @@ describe("read-only API hostile input handling", () => {
         const request = get(`${baseUrl}/stream`, (response) => {
           expect(response.statusCode).toBe(200);
           expect(response.headers["content-type"]).toContain("text/event-stream");
-          response.destroy();
-          resolve();
+          response.once("data", (chunk: Buffer) => {
+            expect(chunk.toString()).toContain(": connected");
+            response.destroy();
+            resolve();
+          });
         });
         request.once("error", reject);
+      });
+    });
+  });
+
+  it("serves the Railway liveness route outside the versioned API", async () => {
+    await withServer(async (baseUrl) => {
+      const response = await fetch(new URL("/health", baseUrl));
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toEqual({
+        status: "ok",
+        service: "cluster-api",
+        readOnly: true,
+      });
+    });
+  });
+
+  it("returns versioned market and protocol status payloads", async () => {
+    await withServer(async (baseUrl) => {
+      const markets = await fetch(`${baseUrl}/markets`);
+      expect(markets.status).toBe(200);
+      await expect(markets.json()).resolves.toMatchObject({
+        schemaVersion: "v1",
+        items: [],
+        nextCursor: null,
+      });
+
+      const protocol = await fetch(`${baseUrl}/protocol/status`);
+      expect(protocol.status).toBe(200);
+      await expect(protocol.json()).resolves.toMatchObject({
+        schemaVersion: "v1",
+        readOnly: true,
+        network: "Arc Mainnet",
+        chainId: 5042,
       });
     });
   });

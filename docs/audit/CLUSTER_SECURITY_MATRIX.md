@@ -1,7 +1,7 @@
 # CLUSTER contract security matrix
 
 **Review date:** 2026-10-28
-**Method:** Manual source-level review of the named contracts and key control paths. The full Foundry build/test/format suite passed in PR CI run 54. No independent auditor, formal verification, or bytecode/source parity check was available in this pass. Results below are not an audit certificate.
+**Method:** Manual source-level review of the named contracts and key control paths. The full Foundry build/test/format suite passed in PR CI run 56 on the same Solidity tree; CI for this review commit is pending. No independent auditor, formal verification, or bytecode/source parity check was available in this pass. Results below are not an audit certificate.
 
 | Contract | Reviewed controls | Status and remaining boundary |
 |---|---|---|
@@ -22,7 +22,7 @@ The RPC reported chain ID `5042`. All ten deployed addresses in `evidence/mainne
 
 ## Regression coverage added or run
 
-- Added `PublicLPVault` tests that reject cumulative requests above owned shares and allow valid split requests. The Forge suite passed in PR CI run 54.
+- Added `PublicLPVault` tests that reject cumulative requests above owned shares and allow valid split requests. The Forge suite passed in PR CI run 56.
 - Added keeper safety tests for exact opt-in execution, error classification, and reconciled event-index pages. Included in the passing root Vitest run.
 - Added market normalization tests for unknown provider claims, missing values, stale timestamps, and malformed numbers. Included in the passing frontend Vitest run.
 - Playwright proves the client-only disabled paths do not issue wallet signing methods; it uses fixtures and does not verify production API or live transaction behavior.

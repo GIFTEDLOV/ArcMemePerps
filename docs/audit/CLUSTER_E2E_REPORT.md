@@ -2,7 +2,7 @@
 
 **Run date:** 2026-10-28
 **Command:** `pnpm e2e`
-**Result:** **14 passed, 0 failed** (7 checks each in desktop Chromium and mobile Chromium projects).
+**Result:** **13 passed, 0 failed, 1 skipped**. The mobile viewport check runs only in the configured mobile project; the desktop project skips that duplicate case.
 
 ## Coverage
 
@@ -24,7 +24,6 @@ API, protocol status, stream, and market records in this run were route-mocked w
 - `evidence/e2e/screenshots/trade-unavailable-mobile.png`
 - `evidence/e2e/screenshots/lp-deposits-unavailable-desktop.png`
 - `evidence/e2e/screenshots/lp-deposits-unavailable-mobile.png`
-- `evidence/e2e/screenshots/mobile-trade-unavailable-desktop.png`
 - `evidence/e2e/screenshots/mobile-trade-unavailable-mobile.png`
 
 The HTML Playwright report is available under `evidence/e2e/playwright-report/`.

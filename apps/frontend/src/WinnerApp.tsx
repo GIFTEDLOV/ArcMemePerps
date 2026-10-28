@@ -1427,6 +1427,11 @@ function MarketChart({ market }: { market: OriginMarket }) {
 
   const candles: Array<{ time: string; open: number; high: number; low: number; close: number; volume: number; isBull: boolean; changePct: number }> = [];
   const hasExternalChart = Boolean(dexscreenerUrl);
+  const unavailableChart = (message: string) => (
+    <div style={{ position: "relative", width: "100%", height: "460px", marginTop: "12px", borderRadius: "8px", overflow: "hidden", background: "#0a0e10", border: "1px solid var(--line)", display: "grid", placeItems: "center" }}>
+      <span className="micro">{message}</span>
+    </div>
+  );
 
   const activeCandle = hoveredIdx !== null && candles[hoveredIdx] ? candles[hoveredIdx] : candles[candles.length - 1];
 
@@ -1511,13 +1516,9 @@ function MarketChart({ market }: { market: OriginMarket }) {
           />
         </div>
       ) : (
-        <div className="panel chart-panel" style={{ display: "grid", placeItems: "center", minHeight: "310px" }}>
-          <span className="micro">No external chart source is available for this market.</span>
-        </div>
+        unavailableChart("No external chart source is available for this market.")
       ) : chartMode === "CANDLE" && candles.length === 0 ? (
-        <div className="panel chart-panel" style={{ display: "grid", placeItems: "center", minHeight: "310px" }}>
-          <span className="micro">Timestamped OHLC and volume data are unavailable.</span>
-        </div>
+        unavailableChart("Timestamped OHLC and volume data are unavailable.")
       ) : chartMode === "CANDLE" ? (
         <div style={{ position: "relative", marginTop: "12px", background: "#0a0e10", border: "1px solid var(--line)", borderRadius: "8px", padding: "10px 14px" }}>
           {/* Interactive OHLC Bar */}
@@ -1622,9 +1623,7 @@ function MarketChart({ market }: { market: OriginMarket }) {
           </div>
         </div>
       ) : historyPoints.length < 2 ? (
-        <div className="panel chart-panel" style={{ display: "grid", placeItems: "center", minHeight: "310px" }}>
-          <span className="micro">No verified timestamped price history is available for this market.</span>
-        </div>
+        unavailableChart("No verified timestamped price history is available for this market.")
       ) : (
         <>
           <div className="chart">

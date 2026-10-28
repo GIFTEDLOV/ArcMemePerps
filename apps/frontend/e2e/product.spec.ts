@@ -71,6 +71,10 @@ test("market records preserve missing metrics and keep the order path disabled",
 
   await page.locator(".market-row-link").click();
   await expect(page.getByRole("heading", { name: "Trade TEST" })).toBeVisible();
+  const chartFallback = page.getByText("No external chart source is available for this market.");
+  await expect(chartFallback).toBeVisible();
+  const chartFrame = await chartFallback.locator("..").boundingBox();
+  expect(chartFrame?.height).toBeGreaterThanOrEqual(460);
   const tradeButton = page.getByRole("button", { name: "Trading unavailable", exact: true });
   await expect(tradeButton).toBeDisabled();
   await expect(page.getByText(/No qualified live Arc market or verified write\/receipt path/)).toBeVisible();
@@ -111,7 +115,7 @@ test("the token importer rejects an address with no Arc contract bytecode", asyn
 });
 
 test("mobile market detail fits the viewport and shows unavailable execution", async ({ page }) => {
-  await page.setViewportSize({ width: 390, height: 844 });
+  test.skip(test.info().project.name !== "mobile", "Runs on the configured 390px mobile viewport.");
   await page.goto("/markets");
   await expect(page.getByRole("heading", { name: "Markets", exact: true })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);

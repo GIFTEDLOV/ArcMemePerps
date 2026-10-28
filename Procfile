@@ -1,1 +1,1 @@
-web: pnpm keeper:daemon
+web: pnpm exec tsx scripts/product-release-service.ts

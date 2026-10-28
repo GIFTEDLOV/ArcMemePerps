@@ -59,7 +59,7 @@ export interface ApiServerOptions {
   readonly readModel: ApiReadModel;
   readonly health: () => readonly HealthRecord[];
   readonly realtime?: RealtimeHub;
-  readonly runtime?: ApiRuntimeStatus;
+  readonly runtime?: ApiRuntimeStatus | (() => ApiRuntimeStatus);
 }
 
 export interface ApiRuntimeStatus {
@@ -108,6 +108,10 @@ async function handleRequest(
     return;
   }
   const url = new URL(request.url ?? "/", "http://localhost");
+  if (url.pathname === "/health") {
+    writeJson(response, 200, { status: "ok", service: "cluster-api", readOnly: true });
+    return;
+  }
   if (!url.pathname.startsWith("/api/v1/")) {
     writeJson(response, 404, { error: "VERSIONED_API_REQUIRED" });
     return;
@@ -360,6 +364,7 @@ async function handleRequest(
       return;
     }
     if (path === "/protocol/status") {
+      const runtime = typeof options.runtime === "function" ? options.runtime() : options.runtime;
       writeJson(
         response,
         200,
@@ -368,20 +373,20 @@ async function handleRequest(
           asOf: new Date().toISOString(),
           health: Object.fromEntries(options.health().map((item) => [item.component, item.state])),
           readOnly: true,
-          ...(options.runtime === undefined
+          ...(runtime === undefined
             ? {}
             : {
-                network: options.runtime.config.chainName,
-                chainId: options.runtime.config.chainId,
-                deployment: options.runtime.config.lifecycle,
-                deploymentId: options.runtime.config.deploymentId,
-                policyVersion: options.runtime.config.policyVersion,
-                discoveryCount: options.runtime.discoveryCount,
-                ...(options.runtime.currentlyObservedCount === undefined ? {} : { currentlyObservedCount: options.runtime.currentlyObservedCount }),
-                ...(options.runtime.staleRetainedCount === undefined ? {} : { staleRetainedCount: options.runtime.staleRetainedCount }),
-                registeredPerpCount: options.runtime.registeredPerpCount,
-                livePerpCount: options.runtime.livePerpCount,
-                contracts: options.runtime.config.addresses,
+                network: runtime.config.chainName,
+                chainId: runtime.config.chainId,
+                deployment: runtime.config.lifecycle,
+                deploymentId: runtime.config.deploymentId,
+                policyVersion: runtime.config.policyVersion,
+                discoveryCount: runtime.discoveryCount,
+                ...(runtime.currentlyObservedCount === undefined ? {} : { currentlyObservedCount: runtime.currentlyObservedCount }),
+                ...(runtime.staleRetainedCount === undefined ? {} : { staleRetainedCount: runtime.staleRetainedCount }),
+                registeredPerpCount: runtime.registeredPerpCount,
+                livePerpCount: runtime.livePerpCount,
+                contracts: runtime.config.addresses,
               }),
         }),
       );
@@ -417,11 +422,15 @@ async function streamEvents(
     connection: "keep-alive",
   });
   response.flushHeaders();
+  response.write(": connected\n\n");
   for (const event of hub.recentEvents(afterId))
     response.write(
       `id: ${event.sequence.toString()}\nevent: ${event.type}\ndata: ${JSON.stringify({ ...event, sequence: event.sequence.toString() })}\n\n`,
     );
+  const keepAlive = setInterval(() => response.write(": keep-alive\n\n"), 15_000);
+  keepAlive.unref();
   await new Promise<void>((resolve) => response.once("close", resolve));
+  clearInterval(keepAlive);
 }
 
 function writeJson(response: ServerResponse, status: number, body: unknown): void {
