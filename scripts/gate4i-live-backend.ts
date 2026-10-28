@@ -407,7 +407,7 @@ export class ProductLiveIndexer {
     this.storage = new SQLitePersistence(databasePath);
     this.repository = new BackendRepository(this.storage);
     this.client = createPublicClient({
-      chain: { id: CHAIN_ID, name: "Arc Testnet", nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 6 }, rpcUrls: { default: { http: [RPC_URL] } } },
+      chain: { id: CHAIN_ID, name: "Arc Testnet", nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 }, rpcUrls: { default: { http: [RPC_URL] } } },
       transport: http(RPC_URL),
     });
   }

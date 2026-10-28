@@ -2,7 +2,7 @@ import { useEffect, useRef } from "react";
 import { animate, motion, useInView } from "motion/react";
 
 export interface AnimatedCounterProps {
-  value: number;
+  value: number | null;
   suffix?: string;
   prefix?: string;
   decimals?: number;
@@ -19,6 +19,10 @@ export function AnimatedCounter({
 
   useEffect(() => {
     if (!inView) return;
+    if (value === null) {
+      if (ref.current) ref.current.textContent = "Unavailable";
+      return;
+    }
     const controls = animate(0, value, {
       duration: 1.5,
       ease: "easeOut",
@@ -31,7 +35,7 @@ export function AnimatedCounter({
     return () => controls.stop();
   }, [inView, value, prefix, suffix, decimals]);
 
-  return <span ref={ref}>{prefix}0{suffix}</span>;
+  return <span ref={ref}>{value === null ? "Unavailable" : `${prefix}0${suffix}`}</span>;
 }
 
 export interface TypewriterProps {
@@ -135,17 +139,17 @@ export function StatsSection() {
             variants={leftColumnVariants}
           >
             <h2 className="text-[clamp(1.5rem,3.5vw,3rem)] font-medium tracking-tight mb-6 leading-[1.1] max-w-lg">
-              <Typewriter text="Powering Harvests" delay={0} speed={0.012} />
+              <Typewriter text="Cluster Status" delay={0} speed={0.012} />
               <br />
-              <Typewriter text="that " delay={0.25} speed={0.012} />
+              <Typewriter text="for " delay={0.25} speed={0.012} />
               <span className="font-dm-serif italic font-normal">
-                <Typewriter text="Maximize Your Yield" delay={0.35} speed={0.012} />
+                <Typewriter text="Arc Markets" delay={0.35} speed={0.012} />
               </span>
             </h2>
 
             <p className="text-base md:text-lg text-white/40 leading-relaxed font-light max-w-md whitespace-normal mb-12">
               <Typewriter
-                text="For over a decade, the region's most demanding agricultural operations have relied on our modern machinery and skilled crews to secure their crops efficiently and reduce loss."
+                text="Live market qualification, position indexing, vault reads, and risk monitoring are unavailable until their production data sources are connected and verified."
                 delay={0.1}
                 speed={0.012}
               />
@@ -158,50 +162,50 @@ export function StatsSection() {
               {/* Stat 1 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
                 <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
-                  <AnimatedCounter value={500} suffix="K+" />
+                  <AnimatedCounter value={null} />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
-                  Acres Harvested Annually
+                  Qualified Markets
                 </div>
               </motion.div>
 
               {/* Stat 2 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
                 <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
-                  <AnimatedCounter value={99.8} decimals={1} suffix="%" />
+                  <AnimatedCounter value={null} />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
-                  Crop Recovery Rate
+                  Live Perpetual Markets
                 </div>
               </motion.div>
 
               {/* Stat 3 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
                 <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
-                  <AnimatedCounter value={50} suffix="+" />
+                  <AnimatedCounter value={null} />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
-                  Modern Combines Deployed
+                  Verified LP Deposits
                 </div>
               </motion.div>
 
               {/* Stat 4 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
                 <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
-                  <AnimatedCounter value={15} suffix="+" />
+                  <AnimatedCounter value={null} />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
-                  Crop Varieties Supported
+                  Indexed Positions
                 </div>
               </motion.div>
 
               {/* Stat 5 */}
               <motion.div className="flex flex-col" variants={statItemVariants}>
                 <div className="text-4xl md:text-5xl lg:text-[52px] font-dm-serif tracking-tight mb-3">
-                  <AnimatedCounter value={24} suffix="/7" />
+                  <AnimatedCounter value={null} />
                 </div>
                 <div className="text-[10px] md:text-xs font-semibold text-white/40 uppercase tracking-wider">
-                  Uptime During Season
+                  Risk Monitor Status
                 </div>
               </motion.div>
             </motion.div>

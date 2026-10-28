@@ -19,16 +19,16 @@ const TOUR_STEPS: TourStep[] = [
     title: "Welcome to CLUSTER",
     icon: "🚀",
     targetSelector: ".gmgn-brand",
-    areaName: "Chain Identity & Solvency Hub",
+    areaName: "Chain Identity & Availability",
     placement: "bottom",
     whatHappens:
-      "CLUSTER is an institutional meme perpetual DEX on Arc Mainnet (5042). Every trade is executed non-custodially on-chain, backed by a $5,000,000 USDC vault and $2,000,000 insurance fund.",
+      "CLUSTER connects to Arc Mainnet (5042) for wallet and market status. Trading and liquidity deposits are disabled until live contract and transaction receipt paths are verified.",
     keyActions: [
-      "Non-custodial trading directly from your Web3 wallet",
-      "Instant USDC collateral margin and PnL settlement",
-      "Fail-closed solvency guard protecting against bad debt",
+      "Wallet connection reads the injected provider account",
+      "Current vault balances and PnL reads are unavailable",
+      "No keeper or risk monitor is claimed active by this interface",
     ],
-    tip: "Look for the green 12ms latency indicator in the top bar confirming high-speed blocks.",
+    tip: "The top bar identifies the configured chain; it does not report RPC latency.",
   },
   {
     title: "Memes & Markets Navigation",
@@ -37,12 +37,12 @@ const TOUR_STEPS: TourStep[] = [
     areaName: "Terminal Navigation Bar",
     placement: "bottom",
     whatHappens:
-      "This navigation bar lets you move between the different trading environments of the DEX without disconnecting or losing your active positions.",
+      "This navigation bar opens the terminal's market, portfolio, LP, competition, and release-status pages.",
     keyActions: [
-      "Memes: Scan early-stage viral tokens and hot social launches",
-      "Trending: View top volume gainers with 1h / 24h momentum",
-      "Markets: Browse all verified deep-liquidity perpetual pairs",
-      "Portfolio: View your collateral breakdown and closed trade history",
+      "Memes and Markets: inspect available provider records",
+      "Trending: filters provider records when available",
+      "Portfolio: current canonical position index is unavailable",
+      "LP and competition pages report unavailable status when no verified data exists",
     ],
     tip: "Hover over 'More' in the top bar for Competitions, Liquidity Earn, and Platform Proofs.",
   },
@@ -53,46 +53,46 @@ const TOUR_STEPS: TourStep[] = [
     areaName: "Universal Quick Search",
     placement: "bottom",
     whatHappens:
-      "Quickly find any meme coin or perpetual contract across Arc Mainnet. You can search by ticker symbol, token name, or paste any contract address directly.",
+      "Search the market records returned by the configured API, or read basic ERC-20 metadata for a pasted Arc contract address.",
     keyActions: [
       "Press the '/' key anywhere on your keyboard to instantly focus search",
-      "Paste any Arc contract address (CA) to view its live chart",
-      "Use 'Import Token' to trade custom unlisted pairs via ArcScan",
+      "A pasted contract address does not establish token safety or perpetual eligibility",
+      "Imported metadata is not a qualified market and cannot be traded",
     ],
     tip: "Typing just 2 letters brings up instant matching token suggestions.",
   },
   {
-    title: "Real-Time Candlestick Charts",
+    title: "Market Charts",
     icon: "📈",
     targetSelector: ".chart-panel",
     route: "/markets/0x4152433a30783939393939393939393939393939393939393939393939393939",
-    areaName: "DexScreener & TradingView Terminal",
+    areaName: "Market Data and History",
     placement: "right",
     whatHappens:
-      "Live price discovery charts powered by sub-second websocket streaming. This area gives you deep technical visibility into candlestick movements, volume bars, and recent fills.",
+      "Charts show provider-backed or timestamped observations when available. Unavailable history is not replaced with synthetic candles.",
     keyActions: [
-      "Switch intervals: 1m (scalping), 5m, 15m, 1h, or 4h (macro)",
-      "View real-time bids, asks, and trade flow streaming in real time",
-      "Inspect token qualification proof to verify safety metrics and lockup",
+      "Chart interval controls are unavailable until a verified source is connected",
+      "Trade flow and order book data are not currently indexed",
+      "Qualification evidence is shown only when a current proof is supplied",
     ],
-    tip: "Green candles indicate net bullish buying pressure; red candles indicate selling pressure.",
+    tip: "Missing chart data is displayed as unavailable; no generated price history is shown.",
   },
   {
-    title: "Execution Rail & Leverage (1x–10x)",
+    title: "Order Preview",
     icon: "⚡",
     targetSelector: ".trade-rail",
     route: "/markets/0x4152433a30783939393939393939393939393939393939393939393939393939",
-    areaName: "Order Execution & Risk Rail",
+    areaName: "Trading Availability",
     placement: "left",
     whatHappens:
-      "This is where you execute trades with USDC margin. You can profit when the market goes up (LONG) or when it goes down (SHORT).",
+      "The order controls are a preview only. Order submission is disabled because a verified live market and receipt path are not connected.",
     keyActions: [
-      "Select LONG (bullish green) or SHORT (bearish red)",
-      "Adjust leverage from 1x (spot equivalent) up to 10x",
-      "Enter your USDC collateral amount — the engine calculates sizeDelta automatically",
-      "Set Take Profit (TP) and Stop Loss (SL) triggers to automate your exits",
+      "Order side and size are not submitted",
+      "Capacity and leverage limits are unavailable",
+      "Collateral balance is unavailable unless read from chain",
+      "Take Profit and Stop Loss controls do not set on-chain triggers",
     ],
-    tip: "Higher leverage magnifies profits, but moves liquidation closer. Beginners should start with 2x–3x.",
+    tip: "Do not treat the preview values as an order, expected fill, or active risk control.",
   },
   {
     title: "Trader Profile & Custom Avatars",
@@ -101,14 +101,14 @@ const TOUR_STEPS: TourStep[] = [
     areaName: "Profile & Identity Customization",
     placement: "bottom",
     whatHappens:
-      "Your trader hub! Customize your public persona for the Arc Mainnet leaderboard, top bar badge, and PnL brag cards.",
+      "Set local display preferences for this browser. The app does not currently connect these preferences to a verified leaderboard or on-chain identity.",
     keyActions: [
       "Choose from 12+ iconic Meme & Cyberpunk avatars (Doge, Pepe, Arc Bull, Cyber Samurai)",
-      "Customize your trader @handle anytime",
-      "Configure default leverage (e.g. 5x) and slippage tolerance",
+      "Customize a locally saved display handle and avatar",
+      "Save local order preview defaults",
       "Replay this visual tour anytime from Profile > Trading Defaults",
     ],
-    tip: "Click on your wallet address in the top bar to open your Profile at any time.",
+    tip: "Connect a wallet before viewing wallet-specific information.",
   },
 ];
 
@@ -673,7 +673,7 @@ export function OnboardingTour({ wallet }: { wallet: WalletActions }) {
               }}
               onClick={handleNext}
             >
-              {stepIndex === totalSteps - 1 ? "Finish & Trade 🚀" : "Next →"}
+              {stepIndex === totalSteps - 1 ? "Finish" : "Next →"}
             </button>
           </div>
         </div>

@@ -17,7 +17,7 @@ import { PRODUCT_RELEASE } from "./product-release-config.js";
 const chain = {
   id: PRODUCT_RELEASE.chainId,
   name: "Arc Testnet",
-  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 6 },
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
   rpcUrls: { default: { http: [PRODUCT_RELEASE.rpcUrl] } },
 } as const;
 

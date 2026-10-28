@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { motion } from "motion/react";
 import { StatsSection } from "./StatsSection";
@@ -10,8 +9,6 @@ interface LandingPageProps {
 }
 
 export function LandingPage({ markets = [] }: LandingPageProps) {
-  const [activeTab] = useState<"trenches" | "perp" | "alp">("trenches");
-
   const previewMarkets = markets.slice(0, 4);
 
   return (
@@ -39,7 +36,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
               </Link>
               <Link to="/earn" className="px-3 py-1 rounded-md text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 transition-all flex items-center gap-1.5">
                 <span>ALP Earn</span>
-                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">18.4% APY</span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-bold">Status unavailable</span>
               </Link>
               <Link to="/competitions" className="px-3 py-1 rounded-md text-xs font-medium text-white/70 hover:text-white hover:bg-white/5 transition-all">
                 Competitions
@@ -63,7 +60,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
               to="/memes"
               className="px-3.5 py-1.5 rounded-md text-xs font-medium text-emerald-300 bg-emerald-500/15 border border-emerald-500/30 hover:bg-emerald-500/25 hover:border-emerald-400/50 transition-all flex items-center gap-1.5"
             >
-              <span>Launch Terminal</span>
+              <span>Open Markets</span>
               <span className="text-xs">→</span>
             </Link>
           </div>
@@ -84,9 +81,9 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-6xl sm:text-7xl md:text-8xl lg:text-[96px] font-sans font-medium tracking-tight leading-[1.03] max-w-6xl mb-7 text-white mt-0"
           >
-            Sub-Second Discovery. <br />
+            Arc Market Discovery. <br />
             <span className="font-dm-serif italic font-normal text-emerald-400">
-              Perpetuals Settled in Arc USDC.
+              Trading Unavailable.
             </span>
           </motion.h1>
 
@@ -97,7 +94,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-xl md:text-2xl text-white/65 max-w-4xl font-light leading-relaxed mb-12"
           >
-            CLUSTER delivers institutional mempool trenches intelligence, continuous anti-rug qualification, and bounded dynamic leverage settled natively on Arc Mainnet.
+            Market records appear only when returned by a configured provider. Live qualification, trading, and liquidity deposits are unavailable until their production data and transaction paths are verified.
           </motion.p>
 
           {/* Action CTAs (Bigger, refined, lower contrast) */}
@@ -111,7 +108,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
               to="/memes"
               className="px-9 py-4 rounded-xl text-lg font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all hover:scale-[1.01] flex items-center gap-2.5 backdrop-blur-sm"
             >
-              <span>Launch Memes Terminal</span>
+              <span>Open Markets</span>
               <span className="text-lg">→</span>
             </Link>
 
@@ -119,14 +116,14 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
               to="/markets"
               className="px-9 py-4 rounded-xl text-lg font-medium text-white/80 bg-white/[0.04] border border-white/12 hover:bg-white/10 hover:border-white/25 transition-all hover:scale-[1.01] backdrop-blur-sm"
             >
-              Explore 166+ Live Markets
+              Browse Available Records
             </Link>
 
             <Link
               to="/proof"
               className="px-7 py-4 rounded-xl text-lg font-medium text-white/60 hover:text-white transition-all flex items-center gap-2"
             >
-              <span>Verify On-Chain Proof</span>
+              <span>View Release Status</span>
               <span className="text-base">↗</span>
             </Link>
           </motion.div>
@@ -142,23 +139,18 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
               <div className="flex items-center gap-3.5">
                 <span className="text-sm font-mono uppercase tracking-wider text-emerald-400 font-bold flex items-center gap-2">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-                  LIVE ARC MAINNET PAIRS
+                  MARKET RECORDS
                 </span>
-                <span className="text-sm text-white/50 hidden sm:inline">Automatic Anti-Rug Radar</span>
+                <span className="text-sm text-white/50 hidden sm:inline">Provider status is shown per record</span>
               </div>
               <Link to="/markets" className="text-sm font-mono text-white/60 hover:text-emerald-400 transition-all font-semibold">
-                View All 166 Markets →
+                View Available Markets →
               </Link>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-left">
-              {(previewMarkets.length > 0 ? previewMarkets : [
-                { marketId: "arc-1", symbol: "ARCPUP", name: "ArcPup Community", priceUsd: "0.0124", priceChange24hBps: 840, originSpotLiquidityUsd: "350000" },
-                { marketId: "arc-2", symbol: "PEPE", name: "Pepe Arc", priceUsd: "0.000021", priceChange24hBps: 420, originSpotLiquidityUsd: "180000" },
-                { marketId: "arc-3", symbol: "DOGE", name: "Doge Arc", priceUsd: "0.1840", priceChange24hBps: -150, originSpotLiquidityUsd: "240000" },
-                { marketId: "arc-4", symbol: "MOG", name: "Mog Arc", priceUsd: "0.0000032", priceChange24hBps: 1250, originSpotLiquidityUsd: "95000" },
-              ] as unknown as OriginMarket[]).map((m) => {
-                const isPos = (m.priceChange24hBps ?? 0) >= 0;
+              {previewMarkets.length > 0 ? previewMarkets.map((m) => {
+                const isPos = m.priceChange24hBps != null && m.priceChange24hBps >= 0;
                 return (
                   <Link
                     key={m.marketId}
@@ -167,20 +159,20 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                   >
                     <div className="flex items-center justify-between mb-3">
                       <span className="font-bold text-lg text-white group-hover:text-emerald-400 transition-colors">${m.symbol}</span>
-                      <span className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded ${isPos ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`}>
-                        {formatPercentBps(m.priceChange24hBps ?? 0)}
+                      <span className={`text-xs font-mono font-bold px-2.5 py-0.5 rounded ${m.priceChange24hBps == null ? "bg-white/5 text-white/50" : isPos ? "bg-emerald-500/15 text-emerald-400" : "bg-rose-500/15 text-rose-400"}`}>
+                        {m.priceChange24hBps == null ? "Unavailable" : formatPercentBps(m.priceChange24hBps)}
                       </span>
                     </div>
                     <div className="text-2xl md:text-3xl font-mono font-bold text-white mb-2.5">
-                      {formatUsd(m.priceUsd ?? "0")}
+                      {m.priceUsd == null ? "Unavailable" : formatUsd(m.priceUsd)}
                     </div>
                     <div className="flex items-center justify-between text-sm text-white/50">
-                      <span>Liq: {formatUsd(m.originSpotLiquidityUsd ?? "0")}</span>
-                      <span className="text-emerald-400/90 font-mono text-xs font-semibold">DEX LIVE</span>
+                      <span>Liq: {m.originSpotLiquidityUsd == null ? "Unavailable" : formatUsd(m.originSpotLiquidityUsd)}</span>
+                      <span className="text-white/50 font-mono text-xs font-semibold">{m.providerState.status}</span>
                     </div>
                   </Link>
                 );
-              })}
+              }) : <div className="col-span-full rounded-xl border border-white/8 bg-white/[0.03] p-5 text-center text-sm text-white/50">No current market records are available from the configured provider.</div>}
             </div>
           </motion.div>
         </div>
@@ -194,47 +186,47 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
         <div className="w-full max-w-[1440px] mx-auto">
           <div className="mb-16 text-center max-w-3xl mx-auto">
             <span className="text-xs md:text-sm font-mono uppercase tracking-widest text-emerald-400 mb-3 block font-bold">
-              VERIFIED ARCHITECTURE
+              CURRENT STATUS
             </span>
             <h2 className="text-4xl md:text-6xl lg:text-7xl font-sans font-medium tracking-tight leading-tight mb-5">
-              Built for High-Throughput <br />
-              <span className="font-dm-serif italic font-normal text-emerald-400">Deterministic Solvency</span>
+              Protocol Readiness <br />
+              <span className="font-dm-serif italic font-normal text-emerald-400">Live status unavailable</span>
             </h2>
             <p className="text-white/60 text-lg md:text-xl leading-relaxed">
-              Every perpetual transaction is verified against live Arc Mainnet RPC nodes, backed by real Arc USDC, and bounded to preserve LP vault stability.
+              A production market feed, live qualification reads, and verified transaction receipt path are not connected. Trading and liquidity deposits remain disabled.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
-              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">01 · TRENCHES RADAR</span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Sub-Second Discovery</h3>
+              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">01 · MARKET DATA</span>
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Provider-backed records</h3>
               <p className="text-base text-white/60 leading-relaxed">
-                Indexes new Arc DEX pairs at creation block with instant dev holding percentage, cluster detection, and liquidity lock inspection.
+                Market data is only displayed when returned by the configured provider. Creation-block indexing and independent token-risk checks are unavailable here.
               </p>
             </div>
 
             <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
-              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">02 · RISK MODEL 0.4.0</span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Dynamic Capacity</h3>
+              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">02 · QUALIFICATION</span>
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">No qualified markets</h3>
               <p className="text-base text-white/60 leading-relaxed">
-                Replaces uncapped toxic leverage with mathematical depth ceilings. Safe open interest scales deterministically with real spot orderbook liquidity.
+                No current market qualification proof is available, so leverage and position capacity are not enabled.
               </p>
             </div>
 
             <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
-              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">03 · NATIVE ARC USDC</span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">100% Backed Clearing</h3>
+              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">03 · VAULT</span>
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Vault status unavailable</h3>
               <p className="text-base text-white/60 leading-relaxed">
-                All collateral, margin, and realized PnL settle in native Arc USDC (0x3600...0000). Zero synthetic IOUs, zero bridging friction.
+                Vault balances, utilization, and settlement receipts are not currently available from a verified live read path.
               </p>
             </div>
 
             <div className="p-9 rounded-2xl border border-white/10 bg-white/[0.03] backdrop-blur-sm flex flex-col">
-              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">04 · DORAHACKS PROOF</span>
-              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Verifiable Pre-Trade Plans</h3>
+              <span className="text-xs font-mono text-emerald-400 uppercase tracking-wider mb-3 font-bold">04 · ORDER PATH</span>
+              <h3 className="text-2xl md:text-3xl font-semibold text-white mb-3.5">Transaction path unavailable</h3>
               <p className="text-base text-white/60 leading-relaxed">
-                Every order generates a deterministic sha256 plan hash verified before signing. What you inspect in the browser is exactly what the keeper executes.
+                Local plan hashes can identify order parameters. A verified write, receipt, and keeper reconciliation path is not connected.
               </p>
             </div>
           </div>
@@ -250,37 +242,37 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                 TERMINAL EXPERIENCE
               </span>
               <h2 className="text-4xl md:text-6xl font-sans font-medium tracking-tight leading-tight mb-6">
-                Trade Meme Perps Like a Pro, <br />
+                Market and risk status, <br />
                 <span className="font-dm-serif italic font-normal text-emerald-400">
-                  Without Leaving the Trenches.
+                  in one terminal.
                 </span>
               </h2>
               <p className="text-white/60 text-lg leading-relaxed mb-10">
-                Unified trading board, 1-click buy/sell, automated take-profit and stop-loss, and high-frequency live candlestick charting designed for degen speed with institutional risk limits.
+                Market charts display only provider-backed observations. Order execution, automated position controls, and live risk monitoring are unavailable.
               </p>
 
               <div className="flex flex-col gap-6">
                 <div className="flex items-start gap-4">
                   <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
                   <div>
-                    <strong className="text-lg text-white block">Instant 1-Click Execution</strong>
-                    <span className="text-base text-white/60">Execute bounded market and limit orders directly from your connected browser wallet.</span>
+                    <strong className="text-lg text-white block">Trading unavailable</strong>
+                    <span className="text-base text-white/60">Market and limit order submission stays disabled until a verified write and receipt path is connected.</span>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
                   <div>
-                    <strong className="text-lg text-white block">Anti-Rug Passport Forensics</strong>
-                    <span className="text-base text-white/60">Comprehensive check of mint authority, freeze authority, LP lock, and top 10 holder concentration.</span>
+                    <strong className="text-lg text-white block">Risk evidence unavailable</strong>
+                    <span className="text-base text-white/60">Token authority, liquidity lock, and holder data require current, independently verifiable provider evidence.</span>
                   </div>
                 </div>
 
                 <div className="flex items-start gap-4">
                   <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-sm font-bold mt-0.5">✓</div>
                   <div>
-                    <strong className="text-lg text-white block">18.4% APY ALP Liquidity Vault</strong>
-                    <span className="text-base text-white/60">Stake Arc USDC to earn 70% of perpetual trading fees and liquidation penalties.</span>
+                    <strong className="text-lg text-white block">LP deposits unavailable</strong>
+                    <span className="text-base text-white/60">Vault balance, yield, and withdrawal availability require a verified on-chain read path.</span>
                   </div>
                 </div>
               </div>
@@ -290,14 +282,14 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                   to="/memes"
                   className="px-8 py-3.5 rounded-xl text-base font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all flex items-center gap-2"
                 >
-                  <span>Open Live Terminal</span>
+                  <span>Open Markets</span>
                   <span>→</span>
                 </Link>
                 <Link
                   to="/earn"
                   className="px-8 py-3.5 rounded-xl text-base font-medium text-white/80 border border-white/12 bg-white/[0.04] hover:bg-white/10 transition-all"
                 >
-                  Deposit to ALP Pool
+                  View LP Status
                 </Link>
               </div>
             </div>
@@ -309,47 +301,47 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
                   <span className="w-3 h-3 rounded-full bg-rose-500/70" />
                   <span className="w-3 h-3 rounded-full bg-amber-500/70" />
                   <span className="w-3 h-3 rounded-full bg-emerald-500/70" />
-                  <span className="text-white/50 ml-2 font-mono text-xs">terminal.cluster.io · $ARCPUP-PERP</span>
+                  <span className="text-white/50 ml-2 font-mono text-xs">Cluster terminal · market preview</span>
                 </div>
-                <span className="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold">LIVE FEED</span>
+                <span className="px-2.5 py-1 rounded bg-emerald-500/15 text-emerald-400 text-xs font-bold">PREVIEW ONLY</span>
               </div>
 
               <div className="grid grid-cols-3 gap-3.5 mb-5">
                 <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/8">
                   <span className="text-xs text-white/50 block mb-1">Oracle Price</span>
-                  <span className="text-base font-bold text-emerald-400">$0.01248</span>
+                  <span className="text-base font-bold text-emerald-400">Unavailable</span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/8">
                   <span className="text-xs text-white/50 block mb-1">24h Change</span>
-                  <span className="text-base font-bold text-emerald-400">+8.42%</span>
+                  <span className="text-base font-bold text-emerald-400">Unavailable</span>
                 </div>
                 <div className="p-3.5 rounded-xl bg-white/[0.03] border border-white/8">
-                  <span className="text-xs text-white/50 block mb-1">Safe Capacity</span>
-                  <span className="text-base font-bold text-white">$100,000</span>
+                  <span className="text-xs text-white/50 block mb-1">Qualified Capacity</span>
+                  <span className="text-base font-bold text-white">Unavailable</span>
                 </div>
               </div>
 
               <div className="p-4 rounded-xl bg-black/60 border border-white/8 mb-5">
                 <div className="flex justify-between text-xs mb-2.5 text-white/70">
                   <span>Execution Route</span>
-                  <span className="text-emerald-400 font-semibold">Arc Mainnet Direct Mempool (38ms)</span>
+                  <span className="text-emerald-400 font-semibold">Unavailable</span>
                 </div>
                 <div className="flex justify-between text-xs mb-2.5 text-white/70">
                   <span>Settlement</span>
-                  <span className="text-white font-semibold">Arc USDC (0x3600...0000)</span>
+                  <span className="text-white font-semibold">USDC · Chain ID 5042</span>
                 </div>
                 <div className="flex justify-between text-xs text-white/70">
                   <span>Integrity Status</span>
-                  <span className="text-emerald-400 font-bold">QUALIFIED · FAIL-CLOSED ACTIVE</span>
+                  <span className="text-emerald-400 font-bold">QUALIFICATION UNAVAILABLE</span>
                 </div>
               </div>
 
               <div className="flex gap-3">
                 <div className="flex-1 p-3 rounded-xl bg-emerald-500/15 border border-emerald-500/35 text-center text-emerald-400 font-extrabold text-sm">
-                  BUY / LONG 5x
+                  TRADING UNAVAILABLE
                 </div>
                 <div className="flex-1 p-3 rounded-xl bg-rose-500/15 border border-rose-500/35 text-center text-rose-400 font-extrabold text-sm">
-                  SELL / SHORT 5x
+                  ORDER PATH NOT VERIFIED
                 </div>
               </div>
             </div>
@@ -361,7 +353,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
       <section className="py-24 px-6 md:px-12 lg:px-[120px] w-full border-t border-white/10 bg-gradient-to-b from-transparent to-emerald-950/20 text-center">
         <div className="max-w-4xl mx-auto">
           <span className="text-xs md:text-sm font-mono uppercase tracking-widest text-emerald-400 mb-4 block font-bold">
-            GET STARTED NOW
+            CURRENT STATUS
           </span>
           <h2 className="text-5xl md:text-7xl lg:text-[76px] font-sans font-medium tracking-tight mb-7 leading-[1.05]">
             Step Into the Next Generation of <br />
@@ -370,21 +362,21 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
             </span>
           </h2>
           <p className="text-white/60 text-xl md:text-2xl leading-relaxed mb-12 max-w-3xl mx-auto font-light">
-            Connect your Web3 wallet and trade with institutional confidence on Arc Mainnet.
+            Connect a wallet to inspect its network. Trading and liquidity deposits remain disabled.
           </p>
           <div className="flex flex-wrap items-center justify-center gap-5">
             <Link
               to="/memes"
               className="px-10 py-4.5 rounded-xl text-lg font-semibold text-emerald-300 bg-emerald-500/15 border border-emerald-500/35 hover:bg-emerald-500/25 hover:border-emerald-400/60 transition-all hover:scale-[1.01] flex items-center gap-2"
             >
-              <span>Launch Memes Terminal</span>
+              <span>Open Markets</span>
               <span>→</span>
             </Link>
             <Link
               to="/markets"
               className="px-9 py-4.5 rounded-xl text-lg font-medium text-white/80 bg-white/[0.04] border border-white/12 hover:bg-white/10 hover:border-white/25 transition-all hover:scale-[1.01]"
             >
-              Browse All Markets
+              View Release Status
             </Link>
           </div>
         </div>
@@ -413,7 +405,7 @@ export function LandingPage({ markets = [] }: LandingPageProps) {
           </div>
 
           <div className="text-white/40 text-xs font-mono">
-            Built for Arc Microgrants 2 · DoraHacks Provenance
+            Arc Mainnet prototype · trading and deposits unavailable
           </div>
         </div>
       </footer>

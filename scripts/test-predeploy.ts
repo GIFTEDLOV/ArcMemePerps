@@ -1,6 +1,6 @@
 import { readFileSync, existsSync } from "node:fs";
 import { resolve } from "node:path";
-import { createPublicClient, http, formatEther, formatGwei } from "viem";
+import { createPublicClient, http, formatUnits } from "viem";
 
 const names = [
   "QualificationRegistry",
@@ -36,8 +36,8 @@ async function checkNetwork() {
   const deployer = "0xB65685037041Ff56574a53FC49B1F5dB88ABe043";
   const bal = await client.getBalance({ address: deployer });
   console.log(`Arc Mainnet Block: ${blockNumber}`);
-  console.log(`Gas Price: ${formatGwei(gasPrice)} gwei (${gasPrice.toString()} wei)`);
-  console.log(`Deployer ${deployer} balance: ${formatEther(bal)} ARC`);
+  console.log(`Gas Price: ${formatUnits(gasPrice, 18)} USDC per gas unit (${gasPrice.toString()} base units)`);
+  console.log(`Deployer ${deployer} native gas balance: ${formatUnits(bal, 18)} USDC`);
 }
 
 checkNetwork().catch(console.error);
