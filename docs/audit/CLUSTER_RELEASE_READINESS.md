@@ -15,7 +15,7 @@
 | Production API and SSE | **FAIL** | Deployed JS points to Railway API; markets, protocol-status, and stream routes return 404. Vercel `/api/v1/markets`, `/api/v1/protocol/status`, and `/api/v1/stream` return HTML, not JSON/SSE. |
 | Complete market / qualification inventory | **UNVERIFIED** | `MarketRegistry` does not expose market enumeration; production indexer/API cannot supply it. Do not claim a complete zero-qualified-market result from this pass. |
 | Keeper production operation | **UNVERIFIED / disabled** | Local daemon is fail-closed with manual two-part opt-in and chain reads; no live keeper execution or service health was claimed. |
-| Solidity build, tests, formatter | **BLOCKED** | `forge` is absent; all three commands were attempted and returned command-not-found. |
+| Solidity build, tests, formatter | PASS in CI | PR CI run 54 passed `forge build`, `forge test`, and `forge fmt --check`; Forge is absent only from the local workspace. |
 | External security review | **NOT EVIDENCED** | This is a code-level hardening review, not an independent audit or formal verification. |
 | Deployment of these changes | NOT PERFORMED | No Vercel, Railway, contract, or governance writes were performed. |
 

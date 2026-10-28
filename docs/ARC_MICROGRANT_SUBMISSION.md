@@ -23,7 +23,7 @@
 
 The local hardening and verification results are in [`docs/audit/CLUSTER_FINAL_AUDIT.md`](audit/CLUSTER_FINAL_AUDIT.md), [`docs/audit/CLUSTER_SECURITY_MATRIX.md`](audit/CLUSTER_SECURITY_MATRIX.md), [`docs/audit/CLUSTER_RELEASE_READINESS.md`](audit/CLUSTER_RELEASE_READINESS.md), and [`docs/audit/CLUSTER_E2E_REPORT.md`](audit/CLUSTER_E2E_REPORT.md).
 
-TypeScript/frontend lint, typecheck, tests, build, and deterministic browser checks pass. Foundry is unavailable in the workspace, so Solidity build/tests/formatting have not passed. The source review is not an independent smart-contract audit. No contract, frontend, API, or governance write was performed in this hardening pass.
+TypeScript/frontend lint, typecheck, tests, build, and deterministic browser checks pass. Foundry is unavailable in the local workspace, but PR CI run 54 passed `forge build`, `forge test`, and `forge fmt --check`. The source review is not an independent smart-contract audit. No contract, frontend, API, or governance write was performed in this hardening pass.
 
 ## Submission gate
 

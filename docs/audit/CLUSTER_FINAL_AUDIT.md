@@ -15,7 +15,6 @@ Live chain checks used `https://rpc.mainnet.arc.io` at block `28,285,202` on cha
 1. **Production API and SSE are unavailable at the configured origins.** `https://cluster-terminal.vercel.app/api/v1/markets`, `/api/v1/protocol/status`, and `/api/v1/stream` return the 754-byte frontend HTML document (`text/html`), not JSON or an event stream. The deployed JS bundle points to `https://api-production-0eb6.up.railway.app/api/v1`; its markets, protocol-status, and stream routes return HTTP 404. Production API data, event indexing, and SSE are therefore not verified.
 2. **Mainnet bootstrap remains unfinished.** On Arc mainnet, both `PerpEngine.bootstrapFinalized()` and `PublicLPVault.bootstrapFinalized()` return false. Their owner bootstrap authority remains available. `PublicLPVault.publicLpActive()` is false. Do not enable trading or deposits until the deployment ceremony is safely completed and independently verified.
 3. **No issued position IDs were observed.** `PerpEngine.nextPositionId()` returns `1`, which indicates no position has ever been assigned an ID in this deployment. `MarketRegistry` exposes keyed lookups but no enumeration getter; with the production API unavailable, this pass cannot establish the complete registered or qualified market set.
-4. **Solidity build, tests, and formatting could not run.** Foundry (`forge`) is not installed on this workspace. `pnpm exec forge build`, `pnpm exec forge test`, and `pnpm exec forge fmt --check` each returned “Command forge not found.” Solidity changes therefore remain uncompiled and their new regression tests remain unexecuted here.
 
 ## Changes completed
 
@@ -40,7 +39,7 @@ Live chain checks used `https://rpc.mainnet.arc.io` at block `28,285,202` on cha
 | `pnpm frontend:build` | Passed; main JS bundle is 512.44 kB and triggers Vite's 500 kB advisory |
 | `pnpm e2e` | Passed: 14/14 desktop and mobile checks; evidence in [CLUSTER_E2E_REPORT.md](CLUSTER_E2E_REPORT.md) |
 | `git diff --check` | Passed |
-| Foundry build/test/fmt | Not run: Foundry unavailable |
+| Foundry build/test/fmt | Passed in PR CI run 54; local Foundry unavailable |
 | Production API / SSE | Failed: documented routes return HTML or 404 |
 | Mainnet writes | Not run by design |
 
