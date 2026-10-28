@@ -53,6 +53,16 @@ describe("read-only API hostile input handling", () => {
     });
   });
 
+  it("rejects trade and LP mutations at the read-only API boundary", async () => {
+    await withServer(async (baseUrl) => {
+      for (const path of ["/orders", "/markets/market-1/orders", "/vault/deposit", "/lp/deposit"]) {
+        const response = await fetch(`${baseUrl}${path}`, { method: "POST", body: "{}" });
+        expect(response.status, path).toBe(405);
+        await expect(response.json()).resolves.toEqual({ error: "READ_ONLY_API" });
+      }
+    });
+  });
+
   it("flushes an idle realtime stream without fabricating an event", async () => {
     await withServer(async (baseUrl) => {
       await new Promise<void>((resolve, reject) => {

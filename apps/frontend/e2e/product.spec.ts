@@ -113,11 +113,31 @@ test("unavailable discovery does not display a live pulse or fresh count", async
 });
 
 test("LP deposit controls cannot report a client-only successful deposit", async ({ page }) => {
+  await page.addInitScript(() => {
+    const address = "0x3333333333333333333333333333333333333333";
+    localStorage.setItem(`arcmemeperps.tour_done.${address.toLowerCase()}`, "true");
+    (window as unknown as { __walletCalls: string[] }).__walletCalls = [];
+    (window as unknown as { ethereum: unknown }).ethereum = {
+      request: async ({ method }: { method: string }) => {
+        (window as unknown as { __walletCalls: string[] }).__walletCalls.push(method);
+        if (method === "eth_accounts" || method === "eth_requestAccounts") return [address];
+        if (method === "eth_chainId") return "0x13b2";
+        return null;
+      },
+      on: () => undefined,
+      removeListener: () => undefined,
+    };
+  });
   await page.goto("/earn");
   await expect(page.getByRole("heading", { name: "Liquidity provider status" })).toBeVisible();
   await expect(page.getByRole("button", { name: "Deposits unavailable", exact: true })).toBeDisabled();
+  await expect(page.locator('input[type="number"]')).toBeDisabled();
+  await expect(page.getByRole("button", { name: "100 USDC", exact: true })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "500 USDC", exact: true })).toBeDisabled();
   await expect(page.getByText(/Deposits are disabled until the live vault address/)).toBeVisible();
   await expect(page.getByText(/APY|annual yield/i)).toHaveCount(0);
+  const walletCalls = await page.evaluate(() => (window as unknown as { __walletCalls: string[] }).__walletCalls);
+  expect(walletCalls.some((method) => method.startsWith("eth_send") || method.startsWith("personal_sign"))).toBe(false);
   await saveScreenshot(page, "lp-deposits-unavailable");
 });
 
@@ -158,6 +178,7 @@ test("mobile market detail fits the viewport and shows unavailable execution", a
 test("a connected wallet never receives a signing request from the disabled order path", async ({ page }) => {
   await page.addInitScript(() => {
     const address = "0x3333333333333333333333333333333333333333";
+    localStorage.setItem(`arcmemeperps.tour_done.${address.toLowerCase()}`, "true");
     (window as unknown as { __walletCalls: string[] }).__walletCalls = [];
     (window as unknown as { ethereum: unknown }).ethereum = {
       request: async ({ method }: { method: string }) => {
