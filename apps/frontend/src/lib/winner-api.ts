@@ -25,9 +25,12 @@ export class WinnerApi {
     Object.entries(params).forEach(([key, value]) => { if (value !== undefined && value !== "ALL" && value !== "") query.set(key, String(value)); });
     return this.get<MarketPage>(`/markets${query.toString() ? `?${query}` : ""}`);
   }
-  public search(query: string, chain?: string): Promise<MarketPage> {
+  public search(query: string, chain?: string, options: { lifecycle?: string; limit?: number; cursor?: string } = {}): Promise<MarketPage> {
     const params = new URLSearchParams({ q: query });
     if (chain && chain !== "ALL") params.set("chain", chain);
+    if (options.lifecycle && options.lifecycle !== "ALL") params.set("lifecycle", options.lifecycle);
+    if (options.limit !== undefined) params.set("limit", String(options.limit));
+    if (options.cursor !== undefined) params.set("cursor", options.cursor);
     return this.get<MarketPage>(`/markets/search?${params}`);
   }
   public market(id: string): Promise<OriginMarket> { return this.get<unknown>(`/markets/${encodeURIComponent(id)}`).then(unwrap<OriginMarket>); }
@@ -44,7 +47,7 @@ export class WinnerApi {
   public attention(address: string): Promise<{ items: Array<Record<string, unknown>> }> { return this.get(`/attention/${address}`); }
 }
 
-export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEvent) => void, onState: (state: "LIVE" | "RECONNECTING" | "STALE" | "OFFLINE") => void): () => void {
+export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEvent) => void, onState: (state: "CONNECTED" | "RECONNECTING" | "STALE" | "OFFLINE") => void): () => void {
   const streamUrl = `${baseUrl.replace(/\/api\/v1$/, "")}/api/v1/stream`;
   let source: EventSource | null = null;
   let lastSequence = 0n;
@@ -54,8 +57,8 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
     if (stopped) return;
     onState("RECONNECTING");
     source = new EventSource(streamUrl);
-    source.onopen = () => onState("LIVE");
-    source.onmessage = (message) => {
+    source.onopen = () => onState("CONNECTED");
+    const handleMessage = (message: MessageEvent<string>) => {
       try {
         const event = JSON.parse(message.data) as RealtimeEvent;
         const sequence = BigInt(event.sequence);
@@ -64,6 +67,10 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
         onEvent(event);
       } catch { onState("STALE"); }
     };
+    source.onmessage = handleMessage;
+    for (const type of ["market.discovered", "market.snapshot", "protocol.event"]) {
+      source.addEventListener(type, handleMessage as EventListener);
+    }
     source.onerror = () => {
       source?.close();
       source = null;

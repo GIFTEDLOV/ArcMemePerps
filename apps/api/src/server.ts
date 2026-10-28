@@ -49,8 +49,8 @@ export interface ApiReadModel {
   getCompetitionLeaderboard?(id: string): Promise<readonly Record<string, unknown>[]>;
   getCompetitionAccount?(id: string, address: string): Promise<Record<string, unknown> | null>;
   getAttention?(address: string): Promise<readonly Record<string, unknown>[]>;
-  listUniverseMarkets?(options: { readonly chain?: string; readonly lifecycle?: string; readonly perp?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }>;
-  searchUniverseMarkets?(query: string, chain?: string): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }>;
+  listUniverseMarkets?(options: { readonly chain?: string; readonly lifecycle?: string; readonly perp?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly currentlyObservedCount: number; readonly staleRetainedCount: number; readonly perpCount: number; readonly sources: readonly Record<string, unknown>[] }>;
+  searchUniverseMarkets?(query: string, chain?: string, options?: { readonly lifecycle?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly currentlyObservedCount: number; readonly staleRetainedCount: number; readonly perpCount: number; readonly sources: readonly Record<string, unknown>[] }>;
   getUniverseMarket?(marketId: string): Promise<Record<string, unknown> | null>;
   getUniverseResource?(marketId: string, resource: string): Promise<unknown>;
 }
@@ -123,6 +123,7 @@ async function handleRequest(
       const offset = parseOffset(url.searchParams.get("cursor"));
       const chain = url.searchParams.get("chain");
       if (chain !== null && !isSupportedChain(chain)) throw new ApiRequestError("UNSUPPORTED_CHAIN");
+      let discoverySummary: Awaited<ReturnType<NonNullable<ApiReadModel["listUniverseMarkets"]>>> | undefined;
       if (options.readModel.listUniverseMarkets) {
         const universe = await options.readModel.listUniverseMarkets({
           ...(chain !== null ? { chain } : {}),
@@ -131,8 +132,9 @@ async function handleRequest(
           limit,
           offset,
         });
+        discoverySummary = universe;
         if (universe.discoveryCount > 0) {
-          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
+          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, currentlyObservedCount: universe.currentlyObservedCount, staleRetainedCount: universe.staleRetainedCount, perpCount: universe.perpCount, sources: universe.sources, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
           return;
         }
       }
@@ -161,18 +163,33 @@ async function handleRequest(
         items,
         nextCursor: nextCursorFor(items.length, limit, offset),
       });
-      writeJson(response, 200, body);
+      writeJson(response, 200, {
+        ...body,
+        ...(discoverySummary === undefined ? {} : {
+          discoveryCount: discoverySummary.discoveryCount,
+          currentlyObservedCount: discoverySummary.currentlyObservedCount,
+          staleRetainedCount: discoverySummary.staleRetainedCount,
+          perpCount: discoverySummary.perpCount,
+          sources: discoverySummary.sources,
+        }),
+      });
       return;
     }
     if (path === "/markets/search") {
-      parseLimit(url.searchParams.get("limit"));
-      parseOffset(url.searchParams.get("cursor"));
+      const limit = parseLimit(url.searchParams.get("limit"));
+      const offset = parseOffset(url.searchParams.get("cursor"));
       const chain = url.searchParams.get("chain");
       if (chain !== null && !isSupportedChain(chain)) throw new ApiRequestError("UNSUPPORTED_CHAIN");
+      let discoverySummary: Awaited<ReturnType<NonNullable<ApiReadModel["searchUniverseMarkets"]>>> | undefined;
       if (options.readModel.searchUniverseMarkets) {
-        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", chain ?? undefined);
+        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", chain ?? undefined, {
+          ...(url.searchParams.has("lifecycle") ? { lifecycle: url.searchParams.get("lifecycle")! } : {}),
+          limit,
+          offset,
+        });
+        discoverySummary = universe;
         if (universe.discoveryCount > 0) {
-          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: null });
+          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, currentlyObservedCount: universe.currentlyObservedCount, staleRetainedCount: universe.staleRetainedCount, perpCount: universe.perpCount, sources: universe.sources, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
           return;
         }
       }
@@ -184,7 +201,8 @@ async function handleRequest(
       writeJson(
         response,
         200,
-        MarketListResponseSchema.parse({
+        {
+          ...MarketListResponseSchema.parse({
           schemaVersion: API_VERSION,
           items,
           nextCursor: nextCursorFor(
@@ -192,7 +210,15 @@ async function handleRequest(
             parseLimit(url.searchParams.get("limit")),
             parseOffset(url.searchParams.get("cursor")),
           ),
-        }),
+          }),
+          ...(discoverySummary === undefined ? {} : {
+            discoveryCount: discoverySummary.discoveryCount,
+            currentlyObservedCount: discoverySummary.currentlyObservedCount,
+            staleRetainedCount: discoverySummary.staleRetainedCount,
+            perpCount: discoverySummary.perpCount,
+            sources: discoverySummary.sources,
+          }),
+        },
       );
       return;
     }

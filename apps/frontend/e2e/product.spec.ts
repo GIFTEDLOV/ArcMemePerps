@@ -4,6 +4,7 @@ import { expect, test, type Page } from "@playwright/test";
 
 const tokenAddress = "0x1111111111111111111111111111111111111111";
 const marketId = `arc:${tokenAddress}`;
+const fetchedAt = new Date().toISOString();
 const marketPage = {
   items: [{
     marketId,
@@ -28,7 +29,7 @@ const marketPage = {
     integrity: { status: "UNKNOWN", reasonCodes: [], observations: [] },
     derivatives: { status: "NOT_REGISTERED", safeOiUsd: null, safePositionUsd: null, maxLeverage: null, oracleQuality: null, sourceIndependence: null, reasonCodes: [] },
     perp: { status: "NOT_REGISTERED", deploymentId: null, marketId: null, currentOiUsd: null, capacityUsd: null, qualificationHash: null, riskRuleVersion: null },
-    providerState: { status: "AVAILABLE", fetchedAt: "2026-10-28T00:00:00.000Z", reason: "Fixture only; not live backend evidence." },
+    providerState: { status: "AVAILABLE", fetchedAt, reason: "Fixture only; not live backend evidence." },
     freshness: { status: "UNAVAILABLE", observedAt: null, maxAgeSeconds: null },
     history: [],
     isQuarantined: false,
@@ -40,11 +41,12 @@ const marketPage = {
   currentlyObservedCount: 1,
   staleRetainedCount: 0,
   perpCount: 0,
+  sources: [{ provider: "DEXSCREENER", status: "AVAILABLE", fetchedAt, marketCount: 1, reason: null }],
 };
 
 test.beforeEach(async ({ page }) => {
   await page.route("**/api/v1/markets**", (route) => route.fulfill({ json: marketPage }));
-  await page.route("**/api/v1/protocol/status", (route) => route.fulfill({ json: { health: {}, asOf: "2026-10-28T00:00:00.000Z" } }));
+  await page.route("**/api/v1/protocol/status", (route) => route.fulfill({ json: { health: { MARKET_DISCOVERY: "OPERATIONAL", INDEXER: "DEGRADED" }, asOf: fetchedAt } }));
   await page.route("**/api/v1/stream", (route) => route.abort());
   await page.route("https://api.dexscreener.com/**", (route) => route.fulfill({ json: [] }));
 });
@@ -80,6 +82,34 @@ test("market records preserve missing metrics and keep the order path disabled",
   await expect(page.getByText(/No qualified live Arc market or verified write\/receipt path/)).toBeVisible();
   await expect(page.getByText("Preview Size (not submitted)")).toBeVisible();
   await saveScreenshot(page, "trade-unavailable");
+});
+
+test("market availability reflects provider health and current observations", async ({ page }) => {
+  await page.goto("/markets");
+  await expect(page.locator(".live-count")).toContainText("1 observed");
+  await expect(page.locator(".live-count")).toHaveAttribute("title", /DEXSCREENER: AVAILABLE/);
+  await expect(page.locator(".live-count .pulse")).toHaveCount(1);
+  await saveScreenshot(page, "markets-availability");
+  await page.goto("/");
+  await expect(page.locator(".trenches-title .live-count")).toContainText("1 observed");
+  await expect(page.locator(".trenches-title .live-count .pulse")).toHaveCount(1);
+  await saveScreenshot(page, "trenches-availability");
+});
+
+test("unavailable discovery does not display a live pulse or fresh count", async ({ page }) => {
+  await page.route("**/api/v1/markets**", (route) => route.fulfill({ json: {
+    ...marketPage,
+    currentlyObservedCount: 0,
+    staleRetainedCount: 1,
+    sources: [{ provider: "DEXSCREENER", status: "UNAVAILABLE", fetchedAt, marketCount: 0, reason: "PROFILE_FEED_REQUEST_FAILED" }],
+  } }));
+  await page.route("**/api/v1/protocol/status", (route) => route.fulfill({ json: { health: { MARKET_DISCOVERY: "UNAVAILABLE", INDEXER: "DEGRADED" }, asOf: fetchedAt } }));
+  await page.goto("/markets");
+  await expect(page.locator(".live-count")).toHaveText("Discovery unavailable");
+  await expect(page.locator(".live-count .pulse")).toHaveCount(0);
+  await page.goto("/");
+  await expect(page.locator(".trenches-title .live-count")).toHaveText("Discovery unavailable");
+  await expect(page.locator(".trenches-title .live-count .pulse")).toHaveCount(0);
 });
 
 test("LP deposit controls cannot report a client-only successful deposit", async ({ page }) => {

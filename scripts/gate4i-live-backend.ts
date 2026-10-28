@@ -3,8 +3,11 @@ import { dirname, resolve } from "node:path";
 import {
   createPublicClient,
   decodeEventLog,
+  hexToBytes,
+  keccak256,
   http,
   parseAbi,
+  stringToHex,
   type Address,
   type Hex,
   type Log,
@@ -12,6 +15,12 @@ import {
 import { createReadOnlyApiServer, type ApiServerOptions } from "../apps/api/src/server.js";
 import { PersistenceApiReadModel } from "../apps/api/src/read-model.js";
 import { RealtimeHub } from "../apps/api/src/realtime.js";
+import {
+  MARKET_DISCOVERY_MAX_AGE_SECONDS,
+  MARKET_REGISTRY_MAX_AGE_SECONDS,
+  MarketDiscoveryService,
+  marketDiscoverySummary,
+} from "../apps/api/src/market-discovery.js";
 import {
   MarketPassportSchema,
   type NotificationEvent,
@@ -105,6 +114,7 @@ const STATE_ABI = parseAbi([
 ]);
 
 type ProductState = {
+  readonly marketId: Hex;
   readonly qualification: Record<string, unknown>;
   readonly risk: Record<string, unknown>;
   readonly report: Record<string, unknown>;
@@ -120,6 +130,10 @@ type ProductState = {
   readonly insurance: Record<string, bigint>;
   readonly lp: Record<string, bigint | boolean>;
 };
+
+type MarketControlState = Pick<ProductState,
+  "marketId" | "qualification" | "risk" | "report" | "registryMarket" | "marketState" | "solvencyBlocked"
+>;
 
 type DecodedEvent = {
   readonly name: string;
@@ -172,7 +186,10 @@ function arg(args: Record<string, unknown>, name: string, index: number): unknow
   return args[name] ?? Object.values(args)[index];
 }
 
-async function readState(client: ReturnType<typeof createPublicClient>): Promise<ProductState> {
+async function readMarketControlState(
+  client: ReturnType<typeof createPublicClient>,
+  marketId: Hex,
+): Promise<MarketControlState> {
   const read = async (address: Address, functionName: string, args: readonly unknown[] = []) =>
     client.readContract({
       address,
@@ -186,19 +203,35 @@ async function readState(client: ReturnType<typeof createPublicClient>): Promise
     if (!Array.isArray(value)) return {};
     return Object.fromEntries(value.map((item, index) => [String(index), item]));
   };
-  const qualification = tuple(await read(CONTRACTS.QualificationRegistry, "getQualification", [PRODUCT_MARKET_ID]));
-  const risk = tuple(await read(CONTRACTS.RiskConfig, "getConfig", [PRODUCT_MARKET_ID]));
-  const report = tuple(await read(CONTRACTS.OracleRouter, "getReport", [PRODUCT_MARKET_ID]));
-  const registryMarket = tuple(await read(CONTRACTS.MarketRegistry, "getMarket", [PRODUCT_MARKET_ID]));
+  const qualification = tuple(await read(CONTRACTS.QualificationRegistry, "getQualification", [marketId]));
+  const risk = tuple(await read(CONTRACTS.RiskConfig, "getConfig", [marketId]));
+  const report = tuple(await read(CONTRACTS.OracleRouter, "getReport", [marketId]));
+  const registryMarket = tuple(await read(CONTRACTS.MarketRegistry, "getMarket", [marketId]));
   const registryMarketId = recordString(registryMarket.marketId ?? registryMarket["0"]);
   const marketExists = Boolean(registryMarket.exists ?? registryMarket["5"] ?? false);
-  if (!marketExists || registryMarketId.toLowerCase() !== PRODUCT_MARKET_ID.toLowerCase()) {
-    throw new Error("PRODUCT_MARKET_ID is not registered at the configured MarketRegistry");
+  if (!marketExists || registryMarketId.toLowerCase() !== marketId.toLowerCase()) {
+    throw new Error("MARKET_ID_NOT_REGISTERED_AT_CONFIGURED_REGISTRY");
   }
   const registryMarketState = Number(registryMarket.state ?? registryMarket["4"] ?? 0);
-  const marketState = Number(await read(CONTRACTS.MarketRegistry, "marketState", [PRODUCT_MARKET_ID]));
+  const marketState = Number(await read(CONTRACTS.MarketRegistry, "marketState", [marketId]));
   if (registryMarketState !== marketState) throw new Error("MarketRegistry state reads disagree");
-  const accrual = tuple(await read(CONTRACTS.PerpEngine, "marketAccrual", [PRODUCT_MARKET_ID]));
+  const solvencyBlocked = (await read(CONTRACTS.PerpEngine, "solvencyBlocked")) as boolean;
+  return { marketId, qualification, risk, report, registryMarket, marketState, solvencyBlocked };
+}
+
+async function readState(client: ReturnType<typeof createPublicClient>): Promise<ProductState> {
+  const market = await readMarketControlState(client, PRODUCT_MARKET_ID);
+  const read = async (address: Address, functionName: string, args: readonly unknown[] = []) =>
+    client.readContract({
+      address,
+      abi: STATE_ABI,
+      functionName: functionName as never,
+      args,
+    }) as Promise<unknown>;
+  const accrualValue = await read(CONTRACTS.PerpEngine, "marketAccrual", [PRODUCT_MARKET_ID]);
+  const accrual = Array.isArray(accrualValue)
+    ? Object.fromEntries(accrualValue.map((value, index) => [String(index), value]))
+    : accrualValue as Record<string, unknown>;
   const vaultEntries = await Promise.all(
     [
       "totalFreeCollateral",
@@ -220,16 +253,12 @@ async function readState(client: ReturnType<typeof createPublicClient>): Promise
     ),
   );
   return {
-    qualification,
-    risk,
-    report,
-    registryMarket,
-    marketState,
+    ...market,
     oi: (await read(CONTRACTS.PerpEngine, "totalOpenInterest", [PRODUCT_MARKET_ID])) as bigint,
     longOi: (await read(CONTRACTS.PerpEngine, "longOpenInterest", [PRODUCT_MARKET_ID])) as bigint,
     shortOi: (await read(CONTRACTS.PerpEngine, "shortOpenInterest", [PRODUCT_MARKET_ID])) as bigint,
     accrual,
-    solvencyBlocked: (await read(CONTRACTS.PerpEngine, "solvencyBlocked")) as boolean,
+    solvencyBlocked: market.solvencyBlocked,
     badDebt: (await read(CONTRACTS.USDCMarginVault, "protocolBadDebt")) as bigint,
     vault: Object.fromEntries(vaultEntries),
     insurance: Object.fromEntries(insuranceEntries),
@@ -251,22 +280,46 @@ function decodeLog(log: Log, eventId: Hex): DecodedEvent | null {
   }
 }
 
+function encodeBase58(value: Hex): string {
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const bytes = hexToBytes(value);
+  let leadingZeroes = 0;
+  while (leadingZeroes < bytes.length && bytes[leadingZeroes] === 0) leadingZeroes += 1;
+  let number = BigInt(value);
+  let encoded = "";
+  while (number > 0n) {
+    const remainder = Number(number % 58n);
+    encoded = alphabet[remainder]! + encoded;
+    number /= 58n;
+  }
+  return "1".repeat(leadingZeroes) + encoded;
+}
+
 function registeredOrigin(market: Record<string, unknown>): {
   readonly chain: SupportedChain;
-  readonly tokenAddress: Address;
+  readonly tokenAddress: string;
   readonly lifecycleHash: string;
 } {
   const originChain = recordString(market.originChain ?? market["1"]);
   const originToken = recordString(market.originToken ?? market["2"]);
-  const chainId = Number(BigInt(originChain));
-  const chain = Object.entries(SUPPORTED_EVM_CHAIN_IDS).find(([, id]) => id === chainId)?.[0] as
-    | SupportedChain
-    | undefined;
-  if (chain === undefined || !/^0x[0-9a-fA-F]{40}$/.test(originToken)) {
-    throw new Error("REGISTERED_MARKET_ORIGIN_UNSUPPORTED");
-  }
-  const tokenAddress = originToken as Address;
   const marketId = recordString(market.marketId ?? market["0"]);
+  const solanaOrigin = keccak256(stringToHex("SOLANA")).toLowerCase();
+  let chain: SupportedChain;
+  let tokenAddress: string;
+  if (originChain.toLowerCase() === solanaOrigin && /^0x[0-9a-fA-F]{64}$/.test(originToken)) {
+    chain = "SOLANA";
+    tokenAddress = encodeBase58(originToken as Hex);
+  } else {
+    const chainId = Number(BigInt(originChain));
+    const evmChain = Object.entries(SUPPORTED_EVM_CHAIN_IDS).find(([, id]) => id === chainId)?.[0] as
+      | SupportedChain
+      | undefined;
+    if (evmChain === undefined || !/^0x[0-9a-fA-F]{40}$/.test(originToken)) {
+      throw new Error("REGISTERED_MARKET_ORIGIN_UNSUPPORTED");
+    }
+    chain = evmChain;
+    tokenAddress = originToken as Address;
+  }
   if (marketIdForToken(chain, tokenAddress).toLowerCase() !== marketId.toLowerCase()) {
     throw new Error("REGISTERED_MARKET_IDENTITY_MISMATCH");
   }
@@ -277,7 +330,7 @@ function registeredOrigin(market: Record<string, unknown>): {
   };
 }
 
-function createPassport(state: ProductState, observedAt: string) {
+function createPassport(state: MarketControlState, observedAt: string) {
   const q = state.qualification;
   const risk = state.risk;
   const report = state.report;
@@ -322,7 +375,7 @@ function createPassport(state: ProductState, observedAt: string) {
     schemaVersion: "market-snapshot/v1",
     observedAt,
     identity: {
-      marketId: PRODUCT_MARKET_ID,
+      marketId: state.marketId,
       chain: origin.chain,
       tokenAddress: origin.tokenAddress,
       symbol: null,
@@ -399,6 +452,103 @@ function createPassport(state: ProductState, observedAt: string) {
   });
 }
 
+function registryUniverseMarket(state: MarketControlState, observedAt: string): Record<string, unknown> {
+  const passport = createPassport(state, observedAt);
+  const origin = registeredOrigin(state.registryMarket);
+  const oracleStatus = passport.oracleEvidence.freshness === "FRESH"
+    ? "AVAILABLE"
+    : passport.oracleEvidence.freshness === "FUTURE_TIMESTAMP"
+      ? "CONFLICTED"
+      : passport.oracleEvidence.freshness === "UNAVAILABLE"
+        ? "UNAVAILABLE"
+        : "STALE";
+  const registryObservation = {
+    provider: "ARC_MARKET_REGISTRY",
+    status: "AVAILABLE",
+    observedAt,
+    fetchedAt: observedAt,
+    blockOrSlot: null,
+    evidenceHash: state.marketId,
+    reason: null,
+  };
+  const oracleObservation = {
+    provider: "ARC_ORACLE_ROUTER",
+    status: oracleStatus,
+    observedAt: passport.freshness.observedAt,
+    fetchedAt: observedAt,
+    blockOrSlot: null,
+    evidenceHash: passport.qualification.evidenceRoot,
+    reason: oracleStatus === "AVAILABLE" ? null : passport.tradability.reasons.join(",") || "ORACLE_NOT_FRESH",
+  };
+  return {
+    marketId: state.marketId,
+    chain: origin.chain,
+    tokenAddress: origin.tokenAddress,
+    symbol: null,
+    name: null,
+    decimals: null,
+    imageUrl: null,
+    sourceUrl: null,
+    originPlatform: null,
+    lifecycle: {
+      status: "DISCOVERED",
+      observedAt,
+      confidenceBps: 0,
+      evidenceHash: origin.lifecycleHash,
+    },
+    priceUsd: null,
+    priceChange24hBps: null,
+    volume24hUsd: null,
+    transactions24h: null,
+    originSpotLiquidityUsd: null,
+    originDepth2PctUsd: null,
+    holders: null,
+    top10ConcentrationBps: null,
+    largestClusterBps: null,
+    integrity: {
+      status: "UNKNOWN",
+      reasonCodes: ["ORIGIN_INTEGRITY_NOT_ASSESSED"],
+      observations: [registryObservation, oracleObservation],
+    },
+    derivatives: {
+      status: passport.derivativesEvidence.status,
+      safeOiUsd: null,
+      safePositionUsd: null,
+      maxLeverage: passport.qualification.eligible ? passport.derivativesEvidence.maxLeverageWad : null,
+      oracleQuality: passport.oracleEvidence.freshness,
+      sourceIndependence: passport.oracleEvidence.independentSourceCount,
+      reasonCodes: passport.derivativesEvidence.reasonCodes,
+    },
+    perp: {
+      status: passport.tradability.status,
+      deploymentId: PRODUCT_DEPLOYMENT_ID,
+      marketId: state.marketId,
+      currentOiUsd: null,
+      capacityUsd: null,
+      qualificationHash: passport.qualification.proofHash,
+      riskRuleVersion: passport.riskRuleVersion,
+    },
+    providerState: {
+      status: "PARTIAL",
+      fetchedAt: observedAt,
+      reason: "ORIGIN_MARKET_DATA_PROVIDER_NOT_CONFIGURED",
+      maxAgeSeconds: MARKET_REGISTRY_MAX_AGE_SECONDS,
+    },
+    freshness: { status: "UNAVAILABLE", observedAt: null, maxAgeSeconds: null },
+    history: [],
+    registryVerified: true,
+    registryAvailability: {
+      status: passport.tradability.status,
+      reasons: passport.tradability.reasons,
+      marketState: state.marketState,
+      qualificationEligible: passport.qualification.eligible,
+      oracleStatus,
+      oracleObservedAt: passport.freshness.observedAt,
+      observedAt,
+    },
+  };
+}
+
 function notificationFor(event: DecodedEvent, recipient: Address, marketId: Hex | null): NotificationEvent {
   const createdAt = nowIso();
   const typeMap: Record<string, NotificationEvent["type"]> = {
@@ -464,6 +614,7 @@ function healthSnapshot(
   database: HealthRecord,
   rpc: HealthRecord,
   indexer: HealthRecord,
+  marketDiscovery: HealthRecord,
   oracle: HealthRecord,
   realtime: HealthRecord,
   chainReadsAvailable: boolean,
@@ -474,8 +625,13 @@ function healthSnapshot(
     database,
     rpc,
     indexer,
-    unavailable("MARKET_DATA", "ORIGIN_MARKET_DATA_PROVIDER_NOT_CONFIGURED"),
-    unavailable("MARKET_DISCOVERY", "ORIGIN_MARKET_DISCOVERY_PROVIDER_NOT_CONFIGURED"),
+    healthRecord("MARKET_DATA", marketDiscovery.state, {
+      lastSuccessAt: marketDiscovery.lastSuccessAt,
+      latencyMs: null,
+      error: marketDiscovery.error,
+      freshness: marketDiscovery.freshness,
+    }),
+    marketDiscovery,
     unavailable("RISK_ENGINE", "OFFCHAIN_RISK_ENGINE_NOT_CONFIGURED"),
     unavailable("KEEPER", "KEEPER_HEALTH_NOT_EXPOSED_BY_READ_ONLY_API"),
     unavailable("ORACLE_REPORTERS", "REPORTER_HEALTH_NOT_EXPOSED_BY_READ_ONLY_API"),
@@ -744,6 +900,67 @@ export class ProductLiveIndexer {
     return latest?.payload ?? null;
   }
 
+  public async readRegisteredMarkets(): Promise<{
+    readonly markets: readonly Record<string, unknown>[];
+    readonly registeredCount: number;
+    readonly status: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE";
+    readonly reason: string | null;
+    readonly fetchedAt: string;
+  }> {
+    const ids = new Set<Hex>([PRODUCT_MARKET_ID]);
+    for (const event of this.decoded) {
+      if (event.name !== "MarketRegistered" || event.log.address.toLowerCase() !== CONTRACTS.MarketRegistry.toLowerCase()) continue;
+      const id = arg(event.args, "marketId", 0);
+      if (typeof id === "string" && /^0x[0-9a-fA-F]{64}$/.test(id)) ids.add(id as Hex);
+    }
+    const allIds = [...ids];
+    const selected = allIds.slice(0, 100);
+    const results: MarketControlState[] = [];
+    let failedReads = 0;
+    for (let index = 0; index < selected.length; index += 4) {
+      const batch = selected.slice(index, index + 4);
+      const settled = await Promise.all(batch.map(async (id) => {
+        try {
+          return await retryRpc(() => readMarketControlState(this.client, id));
+        } catch {
+          failedReads += 1;
+          return null;
+        }
+      }));
+      for (const result of settled) if (result !== null) results.push(result);
+    }
+    const checkpointBlock = BigInt(payloadString(this.checkpoint() ?? {}, "blockNumber", "0"));
+    const backfillPending = checkpointBlock < this.lastHead;
+    const capped = allIds.length > selected.length;
+    const fetchedAt = nowIso();
+    const markets = results.flatMap((state) => {
+      try {
+        return [registryUniverseMarket(state, fetchedAt)];
+      } catch {
+        failedReads += 1;
+        return [];
+      }
+    });
+    const complete = !backfillPending && !capped && failedReads === 0;
+    const status = results.length === 0
+      ? "UNAVAILABLE"
+      : complete
+        ? "AVAILABLE"
+        : "PARTIAL";
+    const reasons = [
+      ...(backfillPending ? ["HISTORICAL_EVENT_BACKFILL_PENDING"] : []),
+      ...(capped ? ["REGISTRY_MARKET_SCAN_LIMIT_REACHED"] : []),
+      ...(failedReads > 0 ? [`${failedReads}_MARKET_STATE_READS_FAILED`] : []),
+    ];
+    return {
+      markets,
+      registeredCount: allIds.length,
+      status,
+      reason: reasons.length > 0 ? reasons.join(",") : null,
+      fetchedAt,
+    };
+  }
+
   public close(): void { this.storage.close(); }
 }
 
@@ -754,6 +971,7 @@ async function main(): Promise<void> {
   const databasePath = resolve(dbArgument?.slice("--db=".length) ?? "evidence/gate4i/product-live.sqlite");
   await mkdir(dirname(databasePath), { recursive: true });
   const indexer = new ProductLiveIndexer(databasePath);
+  const marketDiscovery = new MarketDiscoveryService(indexer.storage);
   const realtime = new RealtimeHub();
   let state: ProductState | null = null;
   let lastIndexError: string | null = null;
@@ -772,6 +990,35 @@ async function main(): Promise<void> {
     if (latestProductEvent === null || typeof eventId !== "string" || eventId === latestRealtimeEventId) return;
     latestRealtimeEventId = eventId;
     realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:event:${eventId}`, type: "protocol.event", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, sourceEventId: eventId, blockNumber: payloadString(latestProductEvent, "blockNumber"), transactionHash: payloadString(latestProductEvent, "transactionHash"), topic0: payloadString(latestProductEvent, "topic0") } }));
+  };
+  const publishDiscoveredMarket = (marketId: string, source: string) => {
+    realtime.publish(realtime.createEvent({
+      id: `${PRODUCT_DEPLOYMENT_ID}:discovery:${source}:${marketId}`,
+      type: "market.discovered",
+      occurredAt: nowIso(),
+      payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId, source },
+    }));
+  };
+  const registryCounts = () => {
+    const now = Date.now();
+    const rows = indexer.storage.list("market_universe")
+      .map((record) => record.payload)
+      .filter((market) => market.registryVerified === true);
+    const current = rows.filter((market) => {
+      const availability = market.registryAvailability;
+      if (availability === null || typeof availability !== "object") return false;
+      const observedAt = (availability as Record<string, unknown>).observedAt;
+      if (typeof observedAt !== "string") return false;
+      const age = now - Date.parse(observedAt);
+      return Number.isFinite(age) && age >= 0 && age <= MARKET_REGISTRY_MAX_AGE_SECONDS * 1_000;
+    });
+    return {
+      registeredPerpCount: current.length,
+      livePerpCount: current.filter((market) => {
+        const availability = market.registryAvailability as Record<string, unknown>;
+        return availability.status === "LIVE";
+      }).length,
+    };
   };
   const databaseHealth = healthRecord("DATABASE", "OPERATIONAL", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: "FRESH" });
   const deploymentConfig = apiDeploymentConfig();
@@ -803,6 +1050,7 @@ async function main(): Promise<void> {
         ? healthRecord("ARC_RPC", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: lastIndexError ?? "INITIAL_CHAIN_READ_PENDING", freshness: "UNAVAILABLE" })
         : healthRecord("ARC_RPC", lastIndexError === null ? "OPERATIONAL" : "DEGRADED", { lastSuccessAt: lastRpcSuccessAt, latencyMs: null, error: lastIndexError, freshness: lastIndexError === null ? "FRESH" : "STALE" }),
       indexerHealth(),
+      marketDiscovery.health(),
       state === null
         ? healthRecord("ORACLE", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "CHAIN_READS_NOT_READY", freshness: "UNAVAILABLE" })
         : oracleHealth(state),
@@ -810,21 +1058,25 @@ async function main(): Promise<void> {
       state !== null,
     ),
     realtime,
-    runtime: () => ({
-      config: {
-        ...deploymentConfig,
-        lifecycle: deploymentLifecycle({
-          deploymentStatus: state === null ? "PENDING" : "DEPLOYED",
-          registeredPerpCount: state === null ? 0 : 1,
-          livePerpCount: state?.marketState === 3 ? 1 : 0,
-        }),
-      },
-      discoveryCount: state === null ? 0 : 1,
-      currentlyObservedCount: state === null ? 0 : 1,
-      staleRetainedCount: state !== null && oracleHealth(state).state !== "OPERATIONAL" ? 1 : 0,
-      registeredPerpCount: state === null ? 0 : 1,
-      livePerpCount: state?.marketState === 3 ? 1 : 0,
-    }),
+    runtime: () => {
+      const discovery = marketDiscoverySummary(indexer.storage);
+      const registry = registryCounts();
+      return {
+        config: {
+          ...deploymentConfig,
+          lifecycle: deploymentLifecycle({
+            deploymentStatus: state === null ? "PENDING" : "DEPLOYED",
+            registeredPerpCount: registry.registeredPerpCount,
+            livePerpCount: registry.livePerpCount,
+          }),
+        },
+        discoveryCount: discovery.discoveryCount,
+        currentlyObservedCount: discovery.currentlyObservedCount,
+        staleRetainedCount: discovery.staleRetainedCount,
+        registeredPerpCount: registry.registeredPerpCount,
+        livePerpCount: registry.livePerpCount,
+      };
+    },
   };
   const runIndexCycle = async (): Promise<void> => {
     if (polling) return;
@@ -838,9 +1090,12 @@ async function main(): Promise<void> {
       state = nextState;
       lastIndexError = null;
       lastRpcSuccessAt = nowIso();
+      const registry = await indexer.readRegisteredMarkets();
+      const newRegistryMarkets = marketDiscovery.recordRegistrySnapshot(registry);
+      for (const marketId of newRegistryMarkets) publishDiscoveredMarket(marketId, "ARC_MARKET_REGISTRY");
       publishMarketSnapshot(nextState);
       publishLatestProductEvent();
-      process.stdout.write(JSON.stringify({ mode: serve ? "LIVE_SERVE" : "LIVE_BOOTSTRAP", deploymentId: PRODUCT_DEPLOYMENT_ID, chainId: CHAIN_ID, startBlock: PRODUCT_START_BLOCK.toString(), head: indexer.lastHead.toString(), checkpoint: indexer.checkpoint(), databasePath, apiVersion: "v1", marketId: PRODUCT_MARKET_ID }) + "\n");
+      process.stdout.write(JSON.stringify({ mode: serve ? "LIVE_SERVE" : "LIVE_BOOTSTRAP", deploymentId: PRODUCT_DEPLOYMENT_ID, chainId: CHAIN_ID, startBlock: PRODUCT_START_BLOCK.toString(), head: indexer.lastHead.toString(), checkpoint: indexer.checkpoint(), registeredMarkets: registry.registeredCount, registryStatus: registry.status, databasePath, apiVersion: "v1", marketId: PRODUCT_MARKET_ID }) + "\n");
     } catch (error) {
       lastIndexError = error instanceof Error ? error.message : String(error);
       process.stderr.write(`INDEXER_CYCLE_FAILED=${lastIndexError}\n`);
@@ -850,6 +1105,9 @@ async function main(): Promise<void> {
   };
   if (!serve) {
     await runIndexCycle();
+    const discovery = await marketDiscovery.refresh();
+    for (const marketId of marketDiscovery.takeNewlyDiscoveredMarketIds()) publishDiscoveredMarket(marketId, "MARKET_DATA_PROVIDER");
+    process.stdout.write(JSON.stringify({ mode: "READ_ONLY_DISCOVERY", ...discovery }) + "\n");
     indexer.close();
     if (lastIndexError !== null) process.exitCode = 1;
     return;
@@ -863,9 +1121,24 @@ async function main(): Promise<void> {
   const server = createReadOnlyApiServer(options);
   await new Promise<void>((resolveListen) => server.listen(port, host, resolveListen));
   process.stdout.write(`LIVE_API_LISTENING=http://${host}:${port}/api/v1\n`);
+  const configuredDiscoveryIntervalMs = Number(process.env.MARKET_DISCOVERY_INTERVAL_MS ?? "120000");
+  const discoveryIntervalMs = Number.isFinite(configuredDiscoveryIntervalMs)
+    ? Math.max(30_000, configuredDiscoveryIntervalMs)
+    : 120_000;
+  const runDiscoveryCycle = async (): Promise<void> => {
+    try {
+      const summary = await marketDiscovery.refresh();
+      for (const marketId of marketDiscovery.takeNewlyDiscoveredMarketIds()) publishDiscoveredMarket(marketId, "MARKET_DATA_PROVIDER");
+      process.stdout.write(JSON.stringify({ mode: "READ_ONLY_DISCOVERY", ...summary }) + "\n");
+    } catch (error) {
+      process.stderr.write(`MARKET_DISCOVERY_CYCLE_FAILED=${error instanceof Error ? error.message : String(error)}\n`);
+    }
+  };
+  void runDiscoveryCycle();
   void runIndexCycle();
   const pollTimer = pollMs === 0 ? null : setInterval(() => { void runIndexCycle(); }, pollMs);
-  const close = () => { if (pollTimer !== null) clearInterval(pollTimer); server.close(); indexer.close(); };
+  const discoveryTimer = setInterval(() => { void runDiscoveryCycle(); }, discoveryIntervalMs);
+  const close = () => { if (pollTimer !== null) clearInterval(pollTimer); clearInterval(discoveryTimer); server.close(); indexer.close(); };
   process.once("SIGINT", close);
   process.once("SIGTERM", close);
 }

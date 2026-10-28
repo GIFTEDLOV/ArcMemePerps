@@ -68,6 +68,13 @@ export interface MarketPage {
   currentlyObservedCount?: number | null;
   staleRetainedCount?: number | null;
   perpCount?: number | null;
+  sources?: Array<{
+    provider: string;
+    status: Availability;
+    fetchedAt: string | null;
+    marketCount: number | null;
+    reason: string | null;
+  }>;
 }
 
 export interface Health {

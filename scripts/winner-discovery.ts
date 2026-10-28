@@ -1,25 +1,32 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import {
-  discoverDexScreener,
-  discoverGeckoTerminal,
-  createArcMarket,
-  CANONICAL_ARC_MEME_TOKENS,
+  discoverDexScreenerWithStatus,
+  discoverGeckoTerminalWithStatus,
   type UniverseMarket,
 } from "@arcmemeperps/market-universe";
 
 const output = resolve(process.argv.find((value) => value.startsWith("--output="))?.slice("--output=".length) ?? "evidence/winner-rebuild/discovery-snapshot.json");
 const limit = Math.min(Math.max(Number(process.argv.find((value) => value.startsWith("--limit="))?.slice("--limit=".length) ?? "60"), 1), 200);
 const observedAt = new Date().toISOString();
-const dexMarkets = await discoverDexScreener(fetch, limit);
-const geckoMarkets = await discoverGeckoTerminal({
+const [dex, gecko] = await Promise.all([
+  discoverDexScreenerWithStatus(fetch, limit),
+  discoverGeckoTerminalWithStatus({
   pagesPerNetwork: Math.min(Number(process.argv.find((value) => value.startsWith("--gecko-pages="))?.slice("--gecko-pages=".length) ?? "1"), 10),
-});
-const arcMarkets = CANONICAL_ARC_MEME_TOKENS.map((token) => createArcMarket(token, observedAt));
-const markets = mergeMarkets([...arcMarkets, ...dexMarkets, ...geckoMarkets]);
+  }),
+]);
+const providerResults = [dex, gecko];
+const markets = mergeMarkets(providerResults.flatMap((result) => result.markets));
+const providers = providerResults.map((result) => ({
+  provider: result.provider,
+  status: result.status,
+  fetchedAt: result.fetchedAt,
+  marketCount: result.markets.length,
+  reason: result.reason,
+}));
 await mkdir(dirname(output), { recursive: true });
-await writeFile(output, `${JSON.stringify({ schemaVersion: 2, providers: ["ARC_MAINNET_RPC", "DEXSCREENER", "GECKOTERMINAL"], observedAt, marketCount: markets.length, marketCountByProvider: { ARC_MAINNET_RPC: arcMarkets.length, DEXSCREENER: dexMarkets.length, GECKOTERMINAL: geckoMarkets.length }, markets }, null, 2)}\n`, "utf8");
-process.stdout.write(JSON.stringify({ output, providers: ["ARC_MAINNET_RPC", "DEXSCREENER", "GECKOTERMINAL"], observedAt, marketCount: markets.length, chains: [...new Set(markets.map((market) => market.chain))] }) + "\n");
+await writeFile(output, `${JSON.stringify({ schemaVersion: 3, observedAt, marketCount: markets.length, providers, markets }, null, 2)}\n`, "utf8");
+process.stdout.write(JSON.stringify({ output, observedAt, marketCount: markets.length, providers, chains: [...new Set(markets.map((market) => market.chain))] }) + "\n");
 
 function mergeMarkets(rows: readonly UniverseMarket[]): UniverseMarket[] {
   const merged = new Map<string, UniverseMarket>();

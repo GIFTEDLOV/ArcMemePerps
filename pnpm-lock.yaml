@@ -63,6 +63,9 @@ importers:
       '@arcmemeperps/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@arcmemeperps/market-universe':
+        specifier: workspace:*
+        version: link:../../packages/market-universe
       '@arcmemeperps/persistence':
         specifier: workspace:*
         version: link:../../packages/persistence

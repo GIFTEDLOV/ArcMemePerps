@@ -3,7 +3,7 @@ import { Link, NavLink, Outlet, Route, Routes, useLocation, useNavigate, usePara
 import { CHAIN_OPTIONS, LIFECYCLE_OPTIONS, STRESS_EVIDENCE, WINNER_CONFIG } from "./lib/winner-config";
 import { WinnerApi, subscribeRealtime } from "./lib/winner-api";
 import { ageLabel, formatDecimal, formatPercentBps, formatUsd, shorten, statusClass } from "./lib/winner-format";
-import type { Health, MarketPage, OriginMarket, Pretrade, RealtimeEvent } from "./lib/winner-types";
+import type { Health, MarketPage, OriginMarket, Pretrade } from "./lib/winner-types";
 import { isPretradeIntact } from "./lib/winner-plan";
 import { planHash, useWallet } from "./lib/winner-wallet";
 import { normalizeMarket as normalize } from "./lib/market-normalization";
@@ -144,190 +144,73 @@ export function calculateRugScore(market: OriginMarket): { score: number | null;
   };
 }
 
-export async function fetchLiveDexPairs(): Promise<OriginMarket[]> {
-  try {
-    const res = await fetch("https://api.dexscreener.com/token-profiles/latest/v1");
-    if (!res.ok) return [];
-    const profiles = (await res.json()) as Array<{ chainId?: string; tokenAddress?: string; icon?: string; url?: string }>;
-    const candidates = profiles.filter((p) => p.chainId && p.tokenAddress).slice(0, 15);
-
-    const markets: OriginMarket[] = [];
-    await Promise.all(
-      candidates.map(async (p) => {
-        try {
-          const detailRes = await fetch(`https://api.dexscreener.com/latest/dex/tokens/${encodeURIComponent(p.tokenAddress!)}`);
-          if (!detailRes.ok) return;
-          const json = (await detailRes.json()) as {
-            pairs?: Array<{
-              chainId?: string;
-              dexId?: string;
-              url?: string;
-              pairCreatedAt?: number;
-              baseToken?: { address?: string; name?: string; symbol?: string };
-              priceUsd?: string;
-              priceChange?: { h24?: number };
-              volume?: { h24?: number };
-              txns?: { h24?: { buys?: number; sells?: number } };
-              liquidity?: { usd?: number };
-            }>;
-          };
-          const pair = json.pairs?.[0];
-          if (!pair || !pair.baseToken?.address) return;
-
-          const rawChain = (pair.chainId ?? p.chainId)?.toUpperCase();
-          const chain = rawChain === "BSC" ? "BNB" :
-            rawChain && ["ARC", "SOLANA", "BASE", "BNB", "ETHEREUM", "ROBINHOOD"].includes(rawChain)
-              ? rawChain as OriginMarket["chain"]
-              : "UNKNOWN";
-          const fetchedAt = new Date().toISOString();
-          const observedAt = pair.pairCreatedAt && Number.isFinite(pair.pairCreatedAt)
-            ? new Date(pair.pairCreatedAt).toISOString()
-            : null;
-          const txs = pair.txns?.h24 && Number.isFinite(pair.txns.h24.buys) && Number.isFinite(pair.txns.h24.sells)
-            ? pair.txns.h24.buys! + pair.txns.h24.sells!
-            : null;
-          const pairId = `dex-${chain.toLowerCase()}-${pair.baseToken.address.toLowerCase()}`;
-          const liq = pair.liquidity?.usd;
-          const vol = pair.volume?.h24;
-
-          markets.push({
-            marketId: pairId,
-            chain,
-            tokenAddress: pair.baseToken.address.toLowerCase(),
-            symbol: pair.baseToken.symbol ?? null,
-            name: pair.baseToken.name ?? null,
-            decimals: null,
-            imageUrl: p.icon ?? null,
-            sourceUrl: pair.url ?? p.url ?? null,
-            originPlatform: pair.dexId ?? null,
-            lifecycle: {
-              status: "UNKNOWN",
-              observedAt,
-              confidenceBps: null,
-              evidenceHash: null,
-            },
-            priceUsd: pair.priceUsd ?? null,
-            priceChange24hBps: typeof pair.priceChange?.h24 === "number" && Number.isFinite(pair.priceChange.h24)
-              ? Math.round(pair.priceChange.h24 * 100)
-              : null,
-            volume24hUsd: typeof vol === "number" && Number.isFinite(vol) ? String(vol) : null,
-            transactions24h: txs,
-            originSpotLiquidityUsd: typeof liq === "number" && Number.isFinite(liq) ? String(liq) : null,
-            originDepth2PctUsd: null,
-            holders: null,
-            top10ConcentrationBps: null,
-            largestClusterBps: null,
-            integrity: {
-              status: "UNKNOWN",
-              reasonCodes: ["DISCOVERY_PROVIDER_ONLY"],
-              observations: [{ provider: "DEXSCREENER", status: "PARTIAL", observedAt: null, fetchedAt, blockOrSlot: null, evidenceHash: null, reason: "Discovery metadata does not prove token safety or perpetual eligibility." }],
-            },
-            derivatives: {
-              status: "NOT_REGISTERED",
-              safeOiUsd: null,
-              safePositionUsd: null,
-              maxLeverage: null,
-              oracleQuality: null,
-              sourceIndependence: null,
-              reasonCodes: ["NO_ONCHAIN_QUALIFICATION_PROOF"],
-            },
-            perp: {
-              status: "NOT_REGISTERED",
-              deploymentId: null,
-              marketId: pairId,
-              currentOiUsd: null,
-              capacityUsd: null,
-              qualificationHash: null,
-              riskRuleVersion: null,
-            },
-            providerState: { status: "PARTIAL", fetchedAt, reason: "Discovery metadata only; token safety and oracle freshness are unavailable." },
-            freshness: { status: "UNAVAILABLE", observedAt: null, maxAgeSeconds: null },
-            history: [],
-            isQuarantined: false,
-            quarantineReason: null,
-          });
-        } catch {
-          /* ignore single error */
-        }
-      })
-    );
-    return markets;
-  } catch {
-    return [];
-  }
-}
-
 function useProductData() {
   const [page, setPage] = useState<MarketPage>({ items: [], nextCursor: null, discoveryCount: null, perpCount: null, total: null });
   const [health, setHealth] = useState<Health | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [stream, setStream] = useState<"LIVE" | "RECONNECTING" | "STALE" | "OFFLINE">("RECONNECTING");
+  const [stream, setStream] = useState<"CONNECTED" | "RECONNECTING" | "STALE" | "OFFLINE">("RECONNECTING");
   const [scanning, setScanning] = useState(false);
-  const [, setEvents] = useState<RealtimeEvent[]>([]);
-
-  const scanLivePairs = useCallback(async () => {
-    setScanning(true);
-    try {
-      const live = await fetchLiveDexPairs();
-      if (live.length > 0) {
-        setPage((prev) => {
-          const currentAddrs = new Set(prev.items.map((i) => i.tokenAddress.toLowerCase()));
-          const toAdd = live.filter((i) => !currentAddrs.has(i.tokenAddress.toLowerCase()));
-          if (!toAdd.length) return prev;
-          return {
-            ...prev,
-            items: [...toAdd, ...prev.items],
-            discoveryCount: (prev.discoveryCount ?? prev.items.length) + toAdd.length,
-            total: (prev.total ?? prev.items.length) + toAdd.length,
-          };
-        });
-      }
-    } finally {
-      setScanning(false);
-    }
-  }, []);
+  const requestParams = useRef<Record<string, string | number | undefined>>({ limit: 60 });
+  const requestId = useRef(0);
 
   const refresh = useCallback(async (params: Record<string, string | number | undefined> = {}) => {
+    requestParams.current = { ...params };
+    const currentRequestId = ++requestId.current;
+    setScanning(true);
     try {
-      const result = await api.markets(params);
+      const query = typeof params.q === "string" ? params.q.trim() : "";
+      const chain = typeof params.chain === "string" ? params.chain : undefined;
+      const lifecycle = typeof params.lifecycle === "string" ? params.lifecycle : undefined;
+      const limit = typeof params.limit === "number" ? params.limit : undefined;
+      const cursor = typeof params.cursor === "string" ? params.cursor : undefined;
+      const result = query
+        ? await api.search(query, chain, { ...(lifecycle === undefined ? {} : { lifecycle }), ...(limit === undefined ? {} : { limit }), ...(cursor === undefined ? {} : { cursor }) })
+        : await api.markets(params);
+      if (currentRequestId !== requestId.current) return;
       if (!result || !Array.isArray(result.items)) throw new Error("INVALID_API_RESPONSE");
       setPage({ ...result, items: result.items.map((item) => normalize(item)).filter((item) => item.marketId !== "unidentified") });
       setError(null);
     } catch {
+      if (currentRequestId !== requestId.current) return;
       setError("MARKET_API_UNAVAILABLE");
       setPage((previous) => ({
         ...previous,
         items: previous.items.map((market) => ({
           ...market,
           providerState: { ...market.providerState, status: "STALE" },
-          freshness: { ...market.freshness, status: "STALE" },
+          freshness: { ...market.freshness, status: market.freshness.status === "UNAVAILABLE" ? "UNAVAILABLE" : "STALE" },
         })),
       }));
+    } finally {
+      if (currentRequestId === requestId.current) setScanning(false);
     }
   }, []);
+
+  const scanLivePairs = useCallback(() => refresh(requestParams.current), [refresh]);
 
   const addCustomMarket = useCallback((custom: OriginMarket) => {
     setPage((prev) => ({
       ...prev,
       items: [custom, ...prev.items.filter((item) => item.marketId !== custom.marketId)],
-      discoveryCount: (prev.discoveryCount ?? prev.items.length) + 1,
       total: (prev.total ?? prev.items.length) + 1,
     }));
   }, []);
 
   useEffect(() => {
     void refresh({ limit: 60 });
-    void scanLivePairs();
-    const interval = setInterval(() => {
-      void scanLivePairs();
-    }, 60000);
     void api.health().then(setHealth).catch(() => setHealth(null));
-    const unsub = subscribeRealtime(WINNER_CONFIG.apiUrl, (event) => setEvents((current) => [event, ...current].slice(0, 30)), setStream);
+    const interval = setInterval(() => {
+      void refresh(requestParams.current);
+      void api.health().then(setHealth).catch(() => setHealth(null));
+    }, 60000);
+    const unsub = subscribeRealtime(WINNER_CONFIG.apiUrl, (event) => {
+      if (event.type === "market.discovered") void refresh(requestParams.current);
+    }, setStream);
     return () => {
       clearInterval(interval);
       unsub();
     };
-  }, [refresh, scanLivePairs]);
+  }, [refresh]);
 
   return { page, health, error, stream, scanning, refresh, scanLivePairs, addCustomMarket };
 }
@@ -1271,9 +1154,22 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
   };
 
   const title = view === "WATCHLIST" ? "Your watchlist" : view === "NEW" ? "New Pairs" : "Markets";
-  const copy = view === "WATCHLIST" ? "Keep a close eye on the markets you are researching." : view === "NEW" ? "Fresh origin meme pairs streaming across Arc, Solana, Base, BNB, and Ethereum." : "Discover meme markets across chains. Read the evidence before leverage.";
+  const copy = view === "WATCHLIST" ? "Keep a close eye on the markets you are researching." : view === "NEW" ? "Recently observed origin meme pairs across Arc, Solana, Base, BNB, and Ethereum." : "Discover meme markets across chains. Read the evidence before leverage.";
   const emptyTitle = category === "PERPS" ? "No market currently meets the complete activation policy." : "No markets match this view";
   const emptyCopy = category === "PERPS" ? "Discovery remains available across the observed universe. A market becomes tradable only after core safety, derivatives capacity, qualification, Arc activation, and live oracle checks all pass." : "Try another chain, stage, or exact address. Unsupported data stays unavailable instead of becoming an empty success.";
+  const discoveryHealth = data.health?.health?.MARKET_DISCOVERY;
+  const sourceSummary = (data.page.sources ?? []).map((source) => `${source.provider}: ${source.status}${source.marketCount === null ? "" : ` (${source.marketCount})`}`).join("; ");
+  const hasCurrentSource = (data.page.sources ?? []).some((source) => source.status === "AVAILABLE" || source.status === "PARTIAL");
+  const discoveryAvailable = !error && (discoveryHealth === "OPERATIONAL" || discoveryHealth === "DEGRADED" || hasCurrentSource || (data.page.currentlyObservedCount ?? 0) > 0);
+  const discoveryPartial = discoveryHealth === "DEGRADED" || (data.page.sources ?? []).some((source) => source.status === "PARTIAL");
+  const discoveryLabel = data.error || discoveryHealth === "UNAVAILABLE"
+    ? "Discovery unavailable"
+    : !discoveryAvailable
+      ? "Availability unknown"
+      : data.page.currentlyObservedCount === null || data.page.currentlyObservedCount === undefined
+        ? "Observed count unavailable"
+        : `${discoveryPartial ? "Partial · " : ""}${data.page.currentlyObservedCount} observed${(data.page.staleRetainedCount ?? 0) > 0 ? ` · ${data.page.staleRetainedCount} stale` : ""}`;
+  const indexerStatus = data.health?.health?.INDEXER ?? "UNAVAILABLE";
 
   return (
     <section className="page explorer-page">
@@ -1284,7 +1180,7 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
         action={
           <div className="page-actions">
             <button className="button button-secondary compact" disabled={data.scanning} onClick={() => void data.scanLivePairs()}>
-              {data.scanning ? "Scanning Chains..." : "Scan Fresh Pairs"}
+              {data.scanning ? "Refreshing Markets..." : "Refresh Markets"}
             </button>
             <button className="button button-primary compact" onClick={onOpenImport}>
               Import Arc Token
@@ -1292,9 +1188,9 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
             <span className="radar-badge">
               Source flags: {data.page.items.filter((m) => m.isQuarantined).length}
             </span>
-            <span className="live-count">
-              <span className="pulse" />
-              {data.page.discoveryCount ?? data.page.items.length} observed
+            <span className="live-count" title={sourceSummary || "Provider-level discovery status is unavailable."}>
+              {discoveryAvailable && !discoveryPartial && <span className="pulse" />}
+              {discoveryLabel}
             </span>
           </div>
         }
@@ -1353,8 +1249,8 @@ function MarketExplorer({ data, refresh, error, search, view, watchlist, onOpenI
         <div className="perp-truth">
           <span className="perp-icon"></span>
           <div>
-            <b>{data.page.perpCount == null ? "—" : data.page.perpCount} reported perpetual markets</b>
-            <span>Provider counts are not live-chain proof. This frontend keeps trading disabled until qualification and capacity evidence are verified.</span>
+            <b>{data.page.perpCount == null ? "—" : data.page.perpCount} registry-confirmed perpetual markets</b>
+            <span>Indexer status: {indexerStatus}. Eligibility, capacity, and trading remain unavailable until their current on-chain evidence is verified.</span>
           </div>
         </div>
       )}
@@ -3044,10 +2940,14 @@ function SimplePage({ title, eyebrow, copy }: { title: string; eyebrow: string; 
   );
 }
 
-function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOpenImport: () => void }) {
+function TrenchesView({ data, onOpenImport }: { data: ReturnType<typeof useProductData>; onOpenImport: () => void }) {
+  const markets = data.page.items;
   const [filterChain, setFilterChain] = useState<string>("ALL");
   const [search, setSearch] = useState<string>("");
   const navigate = useNavigate();
+  const discoveryStatus = data.health?.health?.MARKET_DISCOVERY;
+  const hasCurrentSource = (data.page.sources ?? []).some((source) => source.status === "AVAILABLE" || source.status === "PARTIAL");
+  const discoveryAvailable = !data.error && (discoveryStatus === "OPERATIONAL" || discoveryStatus === "DEGRADED" || hasCurrentSource || (data.page.currentlyObservedCount ?? 0) > 0);
 
   const filtered = useMemo(() => {
     return markets.filter((m) => {
@@ -3078,13 +2978,12 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
   }, [filtered]);
 
   const renderRow = (m: OriginMarket) => {
-    const numVol = Number(m.volume24hUsd || "0");
-    const numLiq = Number(m.originSpotLiquidityUsd || "0");
-    const mcFormatted = numLiq > 0 ? `$${(numLiq * 1.8 >= 1000 ? ((numLiq * 1.8) / 1000).toFixed(1) + "K" : (numLiq * 1.8).toFixed(1))}` : "$4.5K";
-    const volFormatted = numVol >= 1000 ? `$${(numVol / 1000).toFixed(1)}K` : `$${numVol.toFixed(0)}`;
-    const txCount = m.transactions24h ?? Math.max(Math.round(numVol > 0 ? numVol / 220 : 180), 85);
-    const top10 = ((m.top10ConcentrationBps ?? 1850) / 100).toFixed(0);
-    const bundler = m.largestClusterBps ? ((m.largestClusterBps / 100) * 0.8).toFixed(0) : "0";
+    const numVol = m.volume24hUsd === null ? null : Number(m.volume24hUsd);
+    const volFormatted = numVol === null || !Number.isFinite(numVol)
+      ? UNKNOWN
+      : numVol >= 1000 ? `$${(numVol / 1000).toFixed(1)}K` : `$${numVol.toFixed(0)}`;
+    const top10 = m.top10ConcentrationBps === null ? UNKNOWN : (m.top10ConcentrationBps / 100).toFixed(0);
+    const clusterShare = m.largestClusterBps === null ? UNKNOWN : (m.largestClusterBps / 100).toFixed(0);
 
     return (
       <div
@@ -3115,7 +3014,7 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
           </div>
 
           <div className="gmgn-row-tags">
-            <span className="gmgn-tag-tax">Tax 0%</span>
+            <span className="gmgn-tag-tax">Tax {UNKNOWN}</span>
             <span className="gmgn-tag-chain">{m.chain}</span>
             <span>{ageLabel(m.lifecycle.observedAt)}</span>
             <div className="gmgn-social-icons">
@@ -3124,24 +3023,24 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
               <span>TG</span>
               <span>DS</span>
             </div>
-            <span>Holders  {m.holders ?? 420}</span>
-            <span>Clusters  6</span>
+            <span>Holders  {m.holders ?? UNKNOWN}</span>
+            <span>Cluster share  {clusterShare === UNKNOWN ? UNKNOWN : `${clusterShare}%`}</span>
           </div>
 
           <div className="gmgn-row-security">
-            <span className="gmgn-sec-stat good"> {top10}%</span>
+            <span className={`gmgn-sec-stat ${m.top10ConcentrationBps === null ? "" : "good"}`}> {top10 === UNKNOWN ? UNKNOWN : `${top10}%`}</span>
             <span>DS 1d</span>
-            <span>0%</span>
-            <span>0%</span>
-            <span>{bundler}%</span>
+            <span>{UNKNOWN}</span>
+            <span>{UNKNOWN}</span>
+            <span>{clusterShare === UNKNOWN ? UNKNOWN : `${clusterShare}%`}</span>
           </div>
         </div>
 
         <div className="gmgn-row-right">
-          <span className="gmgn-row-mc">MC {mcFormatted}</span>
+          <span className="gmgn-row-mc">MC {UNKNOWN}</span>
           <span className="gmgn-row-vol">V {volFormatted}</span>
           <span className="gmgn-row-tx">
-            TX {txCount} <span className="gmgn-mini-tx-bar" />
+            TX {m.transactions24h === null ? UNKNOWN : m.transactions24h} <span className="gmgn-mini-tx-bar" />
           </span>
           <button
             type="button"
@@ -3165,7 +3064,15 @@ function TrenchesView({ markets, onOpenImport }: { markets: OriginMarket[]; onOp
     <div className="trenches-page">
       <div className="trenches-header">
         <div className="trenches-title">
-          Memes &amp; Live Discovery
+          Memes &amp; Market Discovery
+          <span className="live-count" title={(data.page.sources ?? []).map((source) => `${source.provider}: ${source.status}`).join("; ") || "Provider-level discovery status is unavailable."}>
+            {discoveryAvailable && discoveryStatus === "OPERATIONAL" && <span className="pulse" />}
+            {data.error || discoveryStatus === "UNAVAILABLE"
+              ? "Discovery unavailable"
+              : discoveryAvailable
+                ? `${discoveryStatus === "DEGRADED" || (data.page.sources ?? []).some((source) => source.status === "PARTIAL") ? "Partial · " : ""}${data.page.currentlyObservedCount ?? UNKNOWN} observed${(data.page.staleRetainedCount ?? 0) > 0 ? ` · ${data.page.staleRetainedCount} stale` : ""}`
+                : "Availability unknown"}
+          </span>
         </div>
         <div className="trenches-filters">
           {["ALL", "ARC", "SOLANA", "BASE", "BNB"].map((c) => (
@@ -3282,7 +3189,7 @@ function AppRoute({
   const location = useLocation();
   const params = new URLSearchParams(location.search);
 
-  if (location.pathname === "/" || location.pathname === "/memes" || location.pathname === "/trenches") return <TrenchesView markets={data.page.items} onOpenImport={onOpenImport} />;
+  if (location.pathname === "/" || location.pathname === "/memes" || location.pathname === "/trenches") return <TrenchesView data={data} onOpenImport={onOpenImport} />;
   if (location.pathname === "/trending") return <MarketExplorer data={data} refresh={data.refresh} error={data.error} search={params.get("q") ?? undefined} view="MARKETS" watchlist={watchlist} onOpenImport={onOpenImport} />;
   if (location.pathname === "/markets") return <MarketExplorer data={data} refresh={data.refresh} error={data.error} search={params.get("q") ?? undefined} view="MARKETS" watchlist={watchlist} onOpenImport={onOpenImport} />;
   if (location.pathname === "/new") return <MarketExplorer data={data} refresh={data.refresh} error={data.error} search={params.get("q") ?? undefined} view="NEW" watchlist={watchlist} onOpenImport={onOpenImport} />;
@@ -3296,7 +3203,7 @@ function AppRoute({
   if (location.pathname.startsWith("/profile")) return <ProfilePage wallet={wallet} />;
   if (location.pathname.startsWith("/competitions")) return <CompetitionsPage wallet={wallet} />;
   if (location.pathname === "/settings") return <SettingsPage />;
-  return <TrenchesView markets={data.page.items} onOpenImport={onOpenImport} />;
+  return <TrenchesView data={data} onOpenImport={onOpenImport} />;
 }
 
 export function WinnerApp() {
