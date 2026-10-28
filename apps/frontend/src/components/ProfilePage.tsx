@@ -1,18 +1,16 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { useWallet } from "../lib/winner-wallet";
-import type { StoredPosition } from "../WinnerApp";
-import { PnlShareModal } from "../WinnerApp";
 import { AVATAR_LIST, getTraderAvatar, type TraderAvatar } from "../lib/avatars";
 import { AvatarPickerModal } from "./AvatarPickerModal";
 import { triggerAppTour } from "./OnboardingTour";
 
 export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
-  const address = wallet.state.address || "0x3c2e579c8264a14410a862b2f7e3e3e4aa84f31c";
+  const address = wallet.state.address ?? "";
   const isConnected = wallet.state.status === "CONNECTED";
 
   const [handle, setHandle] = useState<string>(() => {
-    return window.localStorage.getItem(`arcmemeperps.profile.handle.${address}`) || "ArcTrader_5042";
+    return window.localStorage.getItem(`arcmemeperps.profile.handle.${address}`) || "Trader";
   });
   const [isEditingHandle, setIsEditingHandle] = useState(false);
   const [tempHandle, setTempHandle] = useState(handle);
@@ -38,36 +36,12 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
   });
   const [savedNotice, setSavedNotice] = useState<string | null>(null);
 
-  const [arcBalance, setArcBalance] = useState<string>("4.940");
-  const [usdcBalance, setUsdcBalance] = useState<string>("3.94");
-  const [vaultCollateral, setVaultCollateral] = useState<string>("1.00");
-  const [positions, setPositions] = useState<StoredPosition[]>([]);
-  const [sharePos, setSharePos] = useState<StoredPosition | null>(null);
-
-  // Sync balances and positions from localStorage
-  useEffect(() => {
-    const sync = () => {
-      try {
-        const storedArc = window.localStorage.getItem(`arcmemeperps.balance.arc.${address}`);
-        if (storedArc) setArcBalance(storedArc);
-        const storedUsdc = window.localStorage.getItem(`arcmemeperps.balance.usdc.${address}`);
-        if (storedUsdc) setUsdcBalance(storedUsdc);
-        const storedVault = window.localStorage.getItem(`arcmemeperps.balance.vault.${address}`);
-        if (storedVault) setVaultCollateral(storedVault);
-        const storedPositions = JSON.parse(
-          window.localStorage.getItem("arcmemeperps.positions") || "[]"
-        ) as StoredPosition[];
-        setPositions(storedPositions);
-      } catch {
-        /* ignore */
-      }
-    };
-    sync();
-    const interval = setInterval(sync, 4000);
-    return () => clearInterval(interval);
-  }, [address, wallet.state.status]);
+  const arcBalance = "—";
+  const usdcBalance = "—";
+  const vaultCollateral = "—";
 
   const handleCopyAddress = () => {
+    if (!address) return;
     void navigator.clipboard?.writeText(address);
     setIsCopied(true);
     setTimeout(() => setIsCopied(false), 2000);
@@ -92,18 +66,8 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
       window.localStorage.setItem(`arcmemeperps.profile.slippage.${address}`, defaultSlippage);
       window.localStorage.setItem(`arcmemeperps.profile.tp.${address}`, defaultTp);
       window.localStorage.setItem(`arcmemeperps.profile.sl.${address}`, defaultSl);
-      setSavedNotice("Profile & preferences saved permanently!");
+      setSavedNotice("Preferences saved in this browser.");
       setTimeout(() => setSavedNotice(null), 3000);
-    } catch {
-      /* ignore */
-    }
-  };
-
-  const closePosition = (id: string) => {
-    const updated = positions.filter((p) => p.id !== id);
-    setPositions(updated);
-    try {
-      window.localStorage.setItem("arcmemeperps.positions", JSON.stringify(updated));
     } catch {
       /* ignore */
     }
@@ -136,7 +100,7 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
 
             <div className="profile-identity-details">
               <div className="profile-eyebrow-chip">
-                <span>🛡️</span> ARC MAINNET (5042) · VERIFIED TRADER ACCOUNT
+                <span>🛡️</span> WALLET PROFILE · {isConnected ? "CONNECTED" : "NOT CONNECTED"}
               </div>
 
               <div className="profile-handle-line">
@@ -230,10 +194,10 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
               </div>
 
               <div className="profile-social-badges">
-                <span className="profile-badge-tag highlight">Arc Pioneer</span>
-                <span className="profile-badge-tag">DoraHacks Cohort</span>
+                <span className="profile-badge-tag highlight">Local Preferences</span>
+                <span className="profile-badge-tag">Arc Network 5042</span>
                 <span className="profile-badge-tag">Arc Mainnet USDC</span>
-                <span className="profile-badge-tag highlight">Non-Custodial</span>
+                <span className="profile-badge-tag highlight">Wallet Connect</span>
               </div>
             </div>
           </div>
@@ -284,48 +248,48 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
       {/* 2. Structured Institutional Metrics Strip */}
       <div className="profile-metrics-strip">
         <div className="profile-stat-box">
-          <span className="profile-stat-label">Arc USDC Margin</span>
-          <strong className="profile-stat-val">${usdcBalance}</strong>
-          <small className="profile-stat-sub">Native Collateral</small>
+          <span className="profile-stat-label">Arc USDC Balance</span>
+          <strong className="profile-stat-val">{usdcBalance}</strong>
+          <small className="profile-stat-sub">Wallet balance read unavailable</small>
         </div>
 
         <div className="profile-stat-box">
-          <span className="profile-stat-label">Arc Native Gas</span>
-          <strong className="profile-stat-val">{arcBalance} ARC</strong>
-          <small className="profile-stat-sub">Chain ID 5042</small>
+          <span className="profile-stat-label">Arc Native USDC</span>
+          <strong className="profile-stat-val">{arcBalance}</strong>
+          <small className="profile-stat-sub">Wallet balance read unavailable</small>
         </div>
 
         <div className="profile-stat-box">
           <span className="profile-stat-label">Vault Margin</span>
-          <strong className="profile-stat-val">${vaultCollateral}</strong>
-          <small className="profile-stat-sub">USDCMarginVault</small>
+          <strong className="profile-stat-val">{vaultCollateral}</strong>
+          <small className="profile-stat-sub">Vault balance read unavailable</small>
         </div>
 
         <div className="profile-stat-box">
           <span className="profile-stat-label">Active Perp Risk</span>
           <strong
             className="profile-stat-val"
-            style={{ color: positions.length > 0 ? "var(--good)" : "var(--muted)" }}
+            style={{ color: "var(--muted)" }}
           >
-            {positions.length > 0 ? `${positions.length} Open Position${positions.length > 1 ? "s" : ""}` : "Zero Risk"}
+            Unavailable
           </strong>
-          <small className="profile-stat-sub">Isolated Margined</small>
+          <small className="profile-stat-sub">Position index unavailable</small>
         </div>
 
         <div className="profile-stat-box">
           <span className="profile-stat-label">Anti-Rug Protection</span>
-          <strong className="profile-stat-val" style={{ color: "var(--good)" }}>
-            ENABLED
+          <strong className="profile-stat-val" style={{ color: "var(--muted)" }}>
+            UNAVAILABLE
           </strong>
-          <small className="profile-stat-sub">Safety Sentinel</small>
+          <small className="profile-stat-sub">No live risk monitor connected</small>
         </div>
 
         <div className="profile-stat-box">
           <span className="profile-stat-label">Solvency Status</span>
           <strong className="profile-stat-val" style={{ color: "var(--accent)" }}>
-            0.4.0 VERIFIED
+            UNAVAILABLE
           </strong>
-          <small className="profile-stat-sub">Fail-Closed Guard</small>
+          <small className="profile-stat-sub">Live solvency read unavailable</small>
         </div>
       </div>
 
@@ -350,7 +314,7 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
           className={`profile-tab-btn ${activeTab === "Positions" ? "active" : ""}`}
           onClick={() => setActiveTab("Positions")}
         >
-          Open Positions ({positions.length})
+          Open Positions
         </button>
         <button
           type="button"
@@ -393,7 +357,7 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                   Trader Performance &amp; Risk Metrics
                 </h2>
               </div>
-              <span className="profile-badge-tag highlight">🛡️ Anti-Rug Protected</span>
+          <span className="profile-badge-tag highlight">Risk status unavailable</span>
             </div>
 
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: "6px" }}>
@@ -406,12 +370,12 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                 }}
               >
                 <span style={{ fontSize: "9.5px", color: "var(--muted)", textTransform: "uppercase", display: "block" }}>
-                  Win Rate
+                  Verified Win Rate
                 </span>
-                <strong style={{ color: "var(--good)", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
-                  75.0%
+                <strong style={{ color: "var(--muted)", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
+                  Unavailable
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>3 Won / 1 Lost</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>No indexed settlement history</small>
               </div>
 
               <div
@@ -426,9 +390,9 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                   Total Volume
                 </span>
                 <strong style={{ color: "#fff", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
-                  $1,250.00
+                  Unavailable
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Arc Mainnet Swaps &amp; Perps</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>No indexed trade events</small>
               </div>
 
               <div
@@ -443,9 +407,9 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                   Meme Pair Exposure
                 </span>
                 <strong style={{ color: "#fff", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
-                  ${(Number(vaultCollateral) + Number(usdcBalance)).toFixed(2)}
+                   Unavailable
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Arc USDC Margin</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Canonical position index unavailable</small>
               </div>
 
               <div
@@ -460,9 +424,9 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                   Solvency Model
                 </span>
                 <strong style={{ color: "var(--accent)", fontSize: "15px", fontFamily: "var(--mono)", display: "block", margin: "2px 0 1px" }}>
-                  0.4.0 Dynamic
+                  Unavailable
                 </strong>
-                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Fail-Closed Capacity</small>
+                <small style={{ color: "var(--faint)", fontSize: "9.5px" }}>Live deployed policy not verified</small>
               </div>
             </div>
           </div>
@@ -551,7 +515,7 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
           </div>
 
           <p style={{ margin: "0 0 10px", fontSize: "11px", color: "var(--muted)", lineHeight: 1.4 }}>
-            Choose your public trader identity for the Arc Mainnet leaderboard, top navigation, and PnL brag cards.
+            Choose a display handle and avatar saved in this browser. They are not connected to a verified leaderboard or on-chain identity.
           </p>
 
           <div
@@ -660,80 +624,18 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
                 Open Perpetual Positions
               </h2>
             </div>
-            <Link to="/markets" className="button button-primary compact" style={{ padding: "0 8px", minHeight: "24px", fontSize: "9.5px" }}>
-              + New Position
-            </Link>
+            <button type="button" className="button button-primary compact" style={{ padding: "0 8px", minHeight: "24px", fontSize: "9.5px" }} disabled>
+              Trading unavailable
+            </button>
           </div>
 
-          {positions.length > 0 ? (
-            <div style={{ overflowX: "auto" }}>
-              <table style={{ width: "100%", borderCollapse: "collapse", fontSize: "11px" }}>
-                <thead>
-                  <tr style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.1)", color: "var(--muted)", textAlign: "left" }}>
-                    <th style={{ padding: "6px 8px" }}>Position</th>
-                    <th style={{ padding: "6px 8px" }}>Side</th>
-                    <th style={{ padding: "6px 8px" }}>Leverage</th>
-                    <th style={{ padding: "6px 8px", textAlign: "right" }}>Collateral</th>
-                    <th style={{ padding: "6px 8px", textAlign: "right" }}>Size</th>
-                    <th style={{ padding: "6px 8px", textAlign: "right" }}>PnL (USDC)</th>
-                    <th style={{ padding: "6px 8px", textAlign: "center" }}>Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {positions.map((p) => (
-                    <tr key={p.id} style={{ borderBottom: "1px solid rgba(255, 255, 255, 0.05)" }}>
-                      <td style={{ padding: "8px", fontWeight: 700, color: "#fff" }}>${p.symbol}</td>
-                      <td style={{ padding: "8px" }}>
-                        <span
-                          style={{
-                            color: p.side === "LONG" ? "var(--good)" : "var(--bad)",
-                            fontWeight: 700,
-                            padding: "1px 5px",
-                            borderRadius: "3px",
-                            fontSize: "10px",
-                            background: p.side === "LONG" ? "rgba(0, 245, 160, 0.1)" : "rgba(255, 59, 48, 0.1)",
-                          }}
-                        >
-                          {p.side}
-                        </span>
-                      </td>
-                      <td style={{ padding: "8px", fontFamily: "var(--mono)" }}>{p.leverage}</td>
-                      <td style={{ padding: "8px", textAlign: "right", fontFamily: "var(--mono)" }}>
-                        ${p.collateral}
-                      </td>
-                      <td style={{ padding: "8px", textAlign: "right", fontFamily: "var(--mono)" }}>
-                        ${p.size}
-                      </td>
-                      <td style={{ padding: "8px", textAlign: "right", color: "var(--good)", fontWeight: 700, fontFamily: "var(--mono)" }}>
-                        +$0.42 (+8.4%)
-                      </td>
-                      <td style={{ padding: "8px", textAlign: "center" }}>
-                        <button
-                          type="button"
-                          className="profile-mini-btn"
-                          style={{ color: "var(--bad)" }}
-                          onClick={() => closePosition(p.id)}
-                        >
-                          Close
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div style={{ textAlign: "center", padding: "24px 12px" }}>
-              <div style={{ fontSize: "22px", marginBottom: "4px" }}>📊</div>
-              <h3 style={{ margin: "0 0 4px", fontSize: "13.5px", color: "#fff" }}>No open positions currently</h3>
-              <p style={{ margin: "0 0 12px", color: "var(--muted)", fontSize: "11px", maxWidth: "420px", marginLeft: "auto", marginRight: "auto" }}>
-                Your account has zero open perpetual margin risk. Explore trending Arc meme pairs on the terminal to open an isolated long or short position.
-              </p>
-              <Link to="/markets" className="button button-primary compact" style={{ padding: "0 10px", minHeight: "26px", fontSize: "10px" }}>
-                Explore Markets
-              </Link>
-            </div>
-          )}
+          <div style={{ textAlign: "center", padding: "24px 12px" }}>
+            <div style={{ fontSize: "22px", marginBottom: "4px" }}>📊</div>
+            <h3 style={{ margin: "0 0 4px", fontSize: "13.5px", color: "#fff" }}>Position index unavailable</h3>
+            <p style={{ margin: "0 auto", color: "var(--muted)", fontSize: "11px", maxWidth: "420px" }}>
+              No canonical on-chain position index is connected. Balances and positions are not inferred from browser storage.
+            </p>
+          </div>
         </div>
       )}
 
@@ -851,7 +753,6 @@ export function ProfilePage({ wallet }: { wallet: ReturnType<typeof useWallet> }
         handle={handle}
       />
 
-      {sharePos && <PnlShareModal position={sharePos} onClose={() => setSharePos(null)} />}
     </section>
   );
 }

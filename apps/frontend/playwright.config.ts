@@ -6,7 +6,7 @@ export default defineConfig({
   fullyParallel: true,
   reporter: [
     ["list"],
-    ["html", { outputFolder: "../../evidence/phase10-playwright-report", open: "never" }],
+    ["html", { outputFolder: "../../evidence/e2e/playwright-report", open: "never" }],
   ],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? "http://127.0.0.1:3001",

@@ -1,0 +1,204 @@
+{
+  "lastRun": "2026-10-24T08:16:07.932Z",
+  "totalCycles": 4,
+  "quarantinedCount": 49,
+  "quarantinedSymbols": {
+    "GLCS": {
+      "reason": "Wash Trading Bot Farm (7483x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.037Z"
+    },
+    "ANIMA": {
+      "reason": "Liquidity Floor Breach ($0.08 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.038Z"
+    },
+    "BULLCZ": {
+      "reason": "Wash Trading Bot Farm (1131x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "币安皇帝": {
+      "reason": "Liquidity Floor Breach ($0.02 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "TGG": {
+      "reason": "Wash Trading Bot Farm (734x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "CAT": {
+      "reason": "Liquidity Floor Breach ($0.02 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "ZKBNB": {
+      "reason": "Liquidity Floor Breach ($0.02 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "NESTCAT": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "SHAIRUN": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "CTURN": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "CORES": {
+      "reason": "Liquidity Floor Breach ($0.27 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "SI": {
+      "reason": "Liquidity Floor Breach ($2.43 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "PPPP": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "PCHIP": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "PHUBBER": {
+      "reason": "Liquidity Floor Breach ($3.24 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "STONKROBBERS": {
+      "reason": "Wash Trading Bot Farm (1263x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "CLAUS": {
+      "reason": "Wash Trading Bot Farm (3935x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "HOOKDEPLOY": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "ERNCAT": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "MEOWKEY": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "CRAWL": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "PYUSD": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "USDG": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "UNKNOWN": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.039Z"
+    },
+    "TEMPLE": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "GLOOT": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "ESRAVIL": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "ORE": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "TRUMP": {
+      "reason": "Wash Trading Bot Farm (3058x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "MUNK": {
+      "reason": "Liquidity Floor Breach ($0.05 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "AGENCY": {
+      "reason": "Liquidity Floor Breach ($0.02 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "IBVM": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "NIGGA": {
+      "reason": "Liquidity Floor Breach ($459.70 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "LOAN": {
+      "reason": "Liquidity Floor Breach ($0.01 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "BUTO": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "SWORDCAT": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "UP": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "PAD": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "臺北": {
+      "reason": "Liquidity Floor Breach ($0.01 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "MINTRO": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "USDT": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "KNIGHTCAT": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "TC": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "CHONK": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "FEEBITS": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "MON": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "STONKSUCKS": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "JUICE": {
+      "reason": "Wash Trading Bot Farm (4176x Vol/Liq)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    },
+    "CAESAR": {
+      "reason": "Liquidity Floor Breach ($0.00 < $1,000 floor)",
+      "quarantinedAt": "2026-10-22T09:35:48.040Z"
+    }
+  },
+  "settledPositions": []
+}

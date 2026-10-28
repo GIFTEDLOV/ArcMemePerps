@@ -9,6 +9,17 @@ import {
 } from "@arcmemeperps/domain";
 import { BackendRepository, type PersistenceStore } from "@arcmemeperps/persistence";
 import { loadArcDeploymentConfig, type ArcDeploymentConfig } from "@arcmemeperps/shared";
+import { effectiveDiscoveryAvailability, MARKET_REGISTRY_MAX_AGE_SECONDS, marketDiscoverySummary } from "./market-discovery.js";
+
+export interface UniverseMarketPage {
+  readonly items: readonly Record<string, unknown>[];
+  readonly total: number;
+  readonly discoveryCount: number;
+  readonly currentlyObservedCount: number;
+  readonly staleRetainedCount: number;
+  readonly perpCount: number;
+  readonly sources: readonly Record<string, unknown>[];
+}
 
 function refreshSnapshotFreshness(snapshot: MarketSnapshot): MarketSnapshot {
   const { observedAt, maxAgeSeconds } = snapshot.freshness;
@@ -106,8 +117,8 @@ export class PersistenceApiReadModel {
     readonly perp?: string;
     readonly limit?: number;
     readonly offset?: number;
-  }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }> {
-    const all = this.storage.list("market_universe").map((item) => item.payload);
+  }): Promise<UniverseMarketPage> {
+    const all = this.storage.list("market_universe").map((item) => effectiveDiscoveryAvailability(item.payload));
     const filtered = all.filter((market) =>
       (options.chain === undefined || market.chain === options.chain) &&
       (options.lifecycle === undefined || (market.lifecycle as Record<string, unknown> | undefined)?.status === options.lifecycle) &&
@@ -115,30 +126,54 @@ export class PersistenceApiReadModel {
     );
     const limit = Math.min(Math.max(options.limit ?? 100, 1), 100);
     const offset = Math.max(options.offset ?? 0, 0);
+    const summary = marketDiscoverySummary(this.storage);
     const perpCount = this.countRegisteredPerps(all);
-    return Promise.resolve({ items: filtered.slice(offset, offset + limit), total: filtered.length, discoveryCount: all.length, perpCount });
+    return Promise.resolve({
+      items: filtered.slice(offset, offset + limit),
+      total: filtered.length,
+      discoveryCount: summary.discoveryCount,
+      currentlyObservedCount: summary.currentlyObservedCount,
+      staleRetainedCount: summary.staleRetainedCount,
+      perpCount,
+      sources: summary.sources,
+    });
   }
 
-  public searchUniverseMarkets(query: string, chain?: string): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }> {
+  public searchUniverseMarkets(query: string, chain?: string, options: { readonly lifecycle?: string; readonly limit?: number; readonly offset?: number } = {}): Promise<UniverseMarketPage> {
     const normalized = query.trim().toLowerCase();
-    const all = this.storage.list("market_universe").map((item) => item.payload);
+    const all = this.storage.list("market_universe").map((item) => effectiveDiscoveryAvailability(item.payload));
     const matched = all.filter((market) => {
       const token = typeof market.tokenAddress === "string" ? market.tokenAddress.toLowerCase() : "";
       const id = typeof market.marketId === "string" ? market.marketId.toLowerCase() : "";
       const symbol = typeof market.symbol === "string" ? market.symbol.toLowerCase() : "";
       const name = typeof market.name === "string" ? market.name.toLowerCase() : "";
-      return (chain === undefined || market.chain === chain) && (normalized.length === 0 || token === normalized || id === normalized || symbol.includes(normalized) || name.includes(normalized));
+      return (chain === undefined || market.chain === chain) &&
+        (options.lifecycle === undefined || (market.lifecycle as Record<string, unknown> | undefined)?.status === options.lifecycle) &&
+        (normalized.length === 0 || token === normalized || id === normalized || symbol.includes(normalized) || name.includes(normalized));
     });
+    const limit = Math.min(Math.max(options.limit ?? 100, 1), 100);
+    const offset = Math.max(options.offset ?? 0, 0);
+    const summary = marketDiscoverySummary(this.storage);
     const perpCount = this.countRegisteredPerps(all);
-    return Promise.resolve({ items: matched, total: matched.length, discoveryCount: all.length, perpCount });
+    return Promise.resolve({
+      items: matched.slice(offset, offset + limit),
+      total: matched.length,
+      discoveryCount: summary.discoveryCount,
+      currentlyObservedCount: summary.currentlyObservedCount,
+      staleRetainedCount: summary.staleRetainedCount,
+      perpCount,
+      sources: summary.sources,
+    });
   }
 
   public getUniverseMarket(marketId: string): Promise<Record<string, unknown> | null> {
-    return Promise.resolve(this.storage.get("market_universe", marketId)?.payload ?? null);
+    const record = this.storage.get("market_universe", marketId)?.payload;
+    return Promise.resolve(record === undefined ? null : effectiveDiscoveryAvailability(record));
   }
 
   public getUniverseResource(marketId: string, resource: string): Promise<unknown> {
-    const market = this.storage.get("market_universe", marketId)?.payload;
+    const storedMarket = this.storage.get("market_universe", marketId)?.payload;
+    const market = storedMarket === undefined ? undefined : effectiveDiscoveryAvailability(storedMarket);
     if (market === null || market === undefined) return Promise.resolve(null);
     if (resource === "history") return Promise.resolve({ status: Array.isArray(market.history) && market.history.length > 1 ? "AVAILABLE" : "UNAVAILABLE", items: market.history ?? [], reason: "INSUFFICIENT_REAL_OBSERVATIONS" });
     if (resource === "risk") return Promise.resolve({ status: "PARTIAL", integrity: market.integrity, derivatives: market.derivatives, freshness: market.freshness });
@@ -231,7 +266,17 @@ export class PersistenceApiReadModel {
 
   private countRegisteredPerps(markets: readonly Record<string, unknown>[]): number {
     if (this.deployment.lifecycle === "DEPLOYMENT_PENDING") return 0;
-    return markets.filter((market) => (market.perp as Record<string, unknown> | undefined)?.status !== "NOT_REGISTERED").length;
+    const now = Date.now();
+    return markets.filter((market) => {
+      if (market.registryVerified !== true || typeof market.marketId !== "string") return false;
+      const perp = market.perp as Record<string, unknown> | undefined;
+      const registry = market.registryAvailability as Record<string, unknown> | undefined;
+      if (typeof perp?.marketId !== "string" || perp.marketId.toLowerCase() !== market.marketId.toLowerCase()) return false;
+      if (typeof registry?.observedAt !== "string") return false;
+      const observedAt = Date.parse(registry.observedAt);
+      const ageMs = now - observedAt;
+      return Number.isFinite(observedAt) && ageMs >= 0 && ageMs <= MARKET_REGISTRY_MAX_AGE_SECONDS * 1_000;
+    }).length;
   }
 
   public getWalletActivity(address: string): Promise<readonly Record<string, unknown>[]> {

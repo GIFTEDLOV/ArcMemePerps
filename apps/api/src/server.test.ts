@@ -11,14 +11,14 @@ function testReadModel(): ApiReadModel {
     getWallet: () => Promise.resolve(null),
     getProfile: () => Promise.resolve(null),
     getNotifications: () => Promise.resolve([]),
-    listUniverseMarkets: () => Promise.resolve({ items: [], total: 0, discoveryCount: 0, perpCount: 0 }),
-    searchUniverseMarkets: () => Promise.resolve({ items: [], total: 0, discoveryCount: 0, perpCount: 0 }),
+    listUniverseMarkets: () => Promise.resolve({ items: [], total: 0, discoveryCount: 0, currentlyObservedCount: 0, staleRetainedCount: 0, perpCount: 0, sources: [] }),
+    searchUniverseMarkets: () => Promise.resolve({ items: [], total: 0, discoveryCount: 0, currentlyObservedCount: 0, staleRetainedCount: 0, perpCount: 0, sources: [] }),
   };
 }
 
-async function withServer(run: (baseUrl: string) => Promise<void>): Promise<void> {
+async function withServer(run: (baseUrl: string) => Promise<void>, readModel = testReadModel()): Promise<void> {
   const server = createReadOnlyApiServer({
-    readModel: testReadModel(),
+    readModel,
     health: () => [],
     runtime: {
       config: loadArcDeploymentConfig({ ARCMEMEPERPS_DEPLOYMENT_NETWORK: "MAINNET" }),
@@ -53,17 +53,97 @@ describe("read-only API hostile input handling", () => {
     });
   });
 
+  it("rejects trade and LP mutations at the read-only API boundary", async () => {
+    await withServer(async (baseUrl) => {
+      for (const path of ["/orders", "/markets/market-1/orders", "/vault/deposit", "/lp/deposit"]) {
+        const response = await fetch(`${baseUrl}${path}`, { method: "POST", body: "{}" });
+        expect(response.status, path).toBe(405);
+        await expect(response.json()).resolves.toEqual({ error: "READ_ONLY_API" });
+      }
+    });
+  });
+
   it("flushes an idle realtime stream without fabricating an event", async () => {
     await withServer(async (baseUrl) => {
       await new Promise<void>((resolve, reject) => {
         const request = get(`${baseUrl}/stream`, (response) => {
           expect(response.statusCode).toBe(200);
           expect(response.headers["content-type"]).toContain("text/event-stream");
-          response.destroy();
-          resolve();
+          response.once("data", (chunk: Buffer) => {
+            expect(chunk.toString()).toContain(": connected");
+            response.destroy();
+            resolve();
+          });
         });
         request.once("error", reject);
       });
     });
+  });
+
+  it("serves the Railway liveness route outside the versioned API", async () => {
+    await withServer(async (baseUrl) => {
+      const response = await fetch(new URL("/health", baseUrl));
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toEqual({
+        status: "ok",
+        service: "cluster-api",
+        readOnly: true,
+      });
+    });
+  });
+
+  it("returns versioned market and protocol status payloads", async () => {
+    await withServer(async (baseUrl) => {
+      const markets = await fetch(`${baseUrl}/markets`);
+      expect(markets.status).toBe(200);
+      await expect(markets.json()).resolves.toMatchObject({
+        schemaVersion: "v1",
+        items: [],
+        nextCursor: null,
+        discoveryCount: 0,
+        currentlyObservedCount: 0,
+        staleRetainedCount: 0,
+        sources: [],
+      });
+
+      const protocol = await fetch(`${baseUrl}/protocol/status`);
+      expect(protocol.status).toBe(200);
+      await expect(protocol.json()).resolves.toMatchObject({
+        schemaVersion: "v1",
+        readOnly: true,
+        network: "Arc Mainnet",
+        chainId: 5042,
+      });
+    });
+  });
+
+  it("returns provider freshness and observed totals with read-only discovery rows", async () => {
+    const fetchedAt = new Date().toISOString();
+    const source = { provider: "DEXSCREENER", status: "AVAILABLE", fetchedAt, marketCount: 4, reason: null };
+    const readModel: ApiReadModel = {
+      ...testReadModel(),
+      listUniverseMarkets: () => Promise.resolve({
+        items: [{ marketId: "market-1", providerState: { status: "AVAILABLE", fetchedAt }, freshness: { status: "UNAVAILABLE", observedAt: null } }],
+        total: 1,
+        discoveryCount: 8,
+        currentlyObservedCount: 5,
+        staleRetainedCount: 2,
+        perpCount: 1,
+        sources: [source],
+      }),
+    };
+
+    await withServer(async (baseUrl) => {
+      const response = await fetch(`${baseUrl}/markets`);
+      expect(response.status).toBe(200);
+      await expect(response.json()).resolves.toMatchObject({
+        discoveryCount: 8,
+        currentlyObservedCount: 5,
+        staleRetainedCount: 2,
+        perpCount: 1,
+        sources: [source],
+        items: [{ marketId: "market-1", freshness: { status: "UNAVAILABLE" } }],
+      });
+    }, readModel);
   });
 });

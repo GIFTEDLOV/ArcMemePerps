@@ -7,7 +7,6 @@ import {
   http,
   type Abi,
   type Hex,
-  formatEther,
   formatUnits
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
@@ -15,7 +14,7 @@ import { privateKeyToAccount } from "viem/accounts";
 const ARC_MAINNET = defineChain({
   id: 5042,
   name: "Arc Mainnet",
-  nativeCurrency: { name: "Arc", symbol: "ARC", decimals: 18 },
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
   rpcUrls: { default: { http: [process.env.ARC_RPC_URL || "https://rpc.mainnet.arc.io"] } },
   blockExplorers: { default: { name: "Arc Explorer", url: "https://explorer.arc.io" } },
 });
@@ -71,7 +70,7 @@ async function main() {
     args: [account.address],
   });
 
-  console.log(`Native ARC balance: ${formatEther(nativeBalance)} ARC`);
+  console.log(`Native gas balance: ${formatUnits(nativeBalance, 18)} USDC`);
   console.log(`USDC balance: ${formatUnits(usdcBalance, 6)} USDC`);
 
   // Load compiled artifact

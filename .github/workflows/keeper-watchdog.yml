@@ -1,21 +1,14 @@
-name: CLUSTER Safety & Liquidation Keeper Watchdog
+name: CLUSTER Keeper Read-only Diagnostics
 
 on:
-  schedule:
-    # Run every 15 minutes autonomously
-    - cron: '*/15 * * * *'
   workflow_dispatch:
-    inputs:
-      dryRun:
-        description: 'Run in dry-run mode (no external webhooks)'
-        required: false
-        default: 'false'
+
+permissions:
+  contents: read
 
 jobs:
-  watchdog-cycle:
+  read-only-cycle:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -29,27 +22,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: pnpm
 
       - name: Install Dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Run CLUSTER Keeper & Liquidation Cycle
+      - name: Run Read-only Keeper Diagnostics
         env:
           ARC_RPC_URL: https://rpc.mainnet.arc.io
-          ARC_KEEPER_PRIVATE_KEY: ${{ secrets.ARC_KEEPER_PRIVATE_KEY }}
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
-        run: |
-          if [ "${{ github.event.inputs.dryRun }}" = "true" ]; then
-            pnpm keeper:once --dry-run
-          else
-            pnpm keeper:once
-          fi
-
-      - name: Commit Updated Keeper State
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(keeper): update keeper state & risk audit [skip ci]"
-          file_pattern: "evidence/keeper-state.json"
+        run: pnpm keeper:once --dry-run

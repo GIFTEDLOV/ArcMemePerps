@@ -37,7 +37,7 @@ function publicContracts(): Record<string, `0x${string}`> {
 }
 
 const contracts = publicContracts();
-const deploymentStatus: "DEPLOYED_ZERO_MARKETS" | "DEPLOYMENT_PENDING" = "DEPLOYED_ZERO_MARKETS";
+const deploymentStatus = "UNVERIFIED" as const;
 
 export const WINNER_CONFIG = {
   deploymentId: import.meta.env.VITE_MAINNET_DEPLOYMENT_ID ?? "arc-mainnet-live",

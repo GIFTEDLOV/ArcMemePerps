@@ -2,14 +2,9 @@
 
 ## Runtime topology
 
-The public Product Testnet backend runs as one durable Railway service. It uses a mounted `/data` volume for the Product SQLite checkpoint/projection database and runs:
+The public Product Testnet backend is a read-only Railway service. It uses a mounted `/data` volume for the Product SQLite checkpoint/projection database and runs the Product-scoped indexer, HTTP API, and replayable SSE stream. The API remains available while historical indexing is behind and reports indexer degradation through protocol status.
 
-- the Product-scoped indexer and read-only HTTP API;
-- the replayable SSE stream;
-- the backend-only 2-of-3 oracle publisher;
-- the idempotent order keeper.
-
-The process is supervised together so the API, indexer, reporter, and keeper restart together against one durable database boundary. The worker reads the canonical Product OracleRouter report, preserves its observed price/bounds, requires a valid reporter-set version and monotonic sequence, and fails closed if those facts are not available. Reporter and keeper private keys are Railway sealed variables only.
+The public service does not start a signer, oracle publisher, or keeper. `product-release-worker.ts` is intentionally excluded because it can republish the prior on-chain oracle value without fetching independent market data. No signer key is needed for this read-only service.
 
 ## Product target
 
@@ -27,27 +22,19 @@ The Gate 4G Stress/Security deployment remains a separate immutable security rec
 - API and SSE: `https://api-production-0eb6.up.railway.app/api/v1`
 - Repository: `https://github.com/GIFTEDLOV/ArcMemePerps`
 
-## Required Railway variables
+## Railway variables
 
-Public configuration:
+Required public-service configuration:
 
 - `PORT`
-- `RPC_URL`
-- `PRODUCT_START_BLOCK`
-- `PRODUCT_MARKET_ID`
-- `ORACLE_ROUTER_ADDRESS`
-- `PERP_ENGINE_ADDRESS`
-- `REPORTER_SET_VERSION`
-- `ORACLE_INTERVAL_MS`
-- `KEEPER_INTERVAL_MS`
+- `RPC_URL` (optional; defaults to the RPC in the verified deployment manifest)
+- `PRODUCT_DATABASE_PATH` (defaults to `/data/product-live.sqlite`; mount a Railway volume at `/data` for durable indexing)
 
-Sealed secrets:
+Optional identity overrides (`PRODUCT_START_BLOCK`, `PRODUCT_MARKET_ID`, `ORACLE_ROUTER_ADDRESS`, and `PERP_ENGINE_ADDRESS`) are accepted only when they match the verified deployment manifest. Reporter and keeper interval variables are not used by the public read-only service.
 
-- `REPORTER_1_PRIVATE_KEY`
-- `REPORTER_2_PRIVATE_KEY`
-- `KEEPER_PRIVATE_KEY`
+The public Railway process runs the read-only API and SSE service. It does not start an oracle reporter or keeper that signs chain transactions. The separate `product-release-worker.ts` is not part of the public service because it republishes the prior oracle value and does not fetch independent market data.
 
-No secret belongs in Git, the frontend bundle, `.env.example`, Docker layers, logs, or evidence.
+No signer secret is required by the public API service.
 
 ## Frontend
 

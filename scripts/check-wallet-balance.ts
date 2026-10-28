@@ -1,4 +1,4 @@
-import { createPublicClient, http, formatEther, formatUnits } from 'viem';
+import { createPublicClient, http, formatUnits } from 'viem';
 
 const ARC_RPC = process.env.ARC_RPC_URL || 'https://rpc.mainnet.arc.io';
 const WALLET_ADDRESS = (process.env.ARC_DEPLOYER_ADDRESS || '0xB65685037041Ff56574a53FC49B1F5dB88ABe043') as `0x${string}`;
@@ -8,7 +8,7 @@ const arcChain = {
   id: 5042,
   name: 'Arc Mainnet',
   network: 'arc-mainnet',
-  nativeCurrency: { name: 'Arc', symbol: 'ARC', decimals: 18 },
+  nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: 18 },
   rpcUrls: {
     default: { http: [ARC_RPC] },
     public: { http: [ARC_RPC] },
@@ -33,7 +33,7 @@ async function check() {
 
   const nativeBalance = await client.getBalance({ address: WALLET_ADDRESS });
   
-  let usdcBalance = 0n;
+  let usdcBalance: bigint | null = null;
   try {
     usdcBalance = await client.readContract({
       address: USDC_ADDRESS,
@@ -42,15 +42,15 @@ async function check() {
       args: [WALLET_ADDRESS],
     });
   } catch (e) {
-    // contract read might fail if no usdc deployed at mock address yet or custom token
+    console.warn('USDC balance is unavailable:', e instanceof Error ? e.message : String(e));
   }
 
   console.log(JSON.stringify({
     address: WALLET_ADDRESS,
-    nativeGasBalance: formatEther(nativeBalance) + ' ARC',
-    usdcBalance: formatUnits(usdcBalance, 6) + ' USDC',
+    nativeGasBalance: formatUnits(nativeBalance, 18) + ' USDC',
+    usdcBalance: usdcBalance === null ? 'unavailable' : formatUnits(usdcBalance, 6) + ' USDC',
     rawNative: nativeBalance.toString(),
-    rawUsdc: usdcBalance.toString()
+    rawUsdc: usdcBalance?.toString() ?? null
   }, null, 2));
 }
 

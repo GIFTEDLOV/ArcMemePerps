@@ -3,8 +3,11 @@ import { dirname, resolve } from "node:path";
 import {
   createPublicClient,
   decodeEventLog,
+  hexToBytes,
+  keccak256,
   http,
   parseAbi,
+  stringToHex,
   type Address,
   type Hex,
   type Log,
@@ -13,40 +16,38 @@ import { createReadOnlyApiServer, type ApiServerOptions } from "../apps/api/src/
 import { PersistenceApiReadModel } from "../apps/api/src/read-model.js";
 import { RealtimeHub } from "../apps/api/src/realtime.js";
 import {
+  MARKET_DISCOVERY_MAX_AGE_SECONDS,
+  MARKET_REGISTRY_MAX_AGE_SECONDS,
+  MarketDiscoveryService,
+  marketDiscoverySummary,
+} from "../apps/api/src/market-discovery.js";
+import {
   MarketPassportSchema,
   type NotificationEvent,
-  type UserProfile,
-  type WalletSnapshot,
 } from "@arcmemeperps/domain";
 import { BackendRepository, SQLitePersistence } from "@arcmemeperps/persistence";
+import {
+  SUPPORTED_EVM_CHAIN_IDS,
+  deploymentLifecycle,
+  healthRecord,
+  loadArcDeploymentConfig,
+  marketIdForToken,
+  type ArcDeploymentConfig,
+  type HealthRecord,
+  type SupportedChain,
+} from "@arcmemeperps/shared";
 import {
   canonicalProtocolEventId,
   type ProtocolEventIdentity,
 } from "../apps/indexer/src/index.js";
-import { healthRecord, type HealthRecord } from "@arcmemeperps/shared";
+import { PRODUCT_ADDRESSES, PRODUCT_RELEASE } from "./product-release-config.js";
 
-const RPC_URL = "https://rpc.testnet.arc.io";
-const CHAIN_ID = 5_042_002;
-const PRODUCT_DEPLOYMENT_ID = "arc-testnet-product-v2";
-const PRODUCT_START_BLOCK = 65_487_723n;
-const PRODUCT_MARKET_ID =
-  "0xf8ffffb2f0f52e8bb2b71484007f5cf705f41f83369be65b4fba067293723387" as Hex;
-const PRODUCT_TOKEN = "0x0000000000000000000000000000000000000001" as Address;
-const TRADER_LONG = "0xc36fd43deaad e fb349acc61b0eb664ea4a18861c".replaceAll(" ", "") as Address;
-const QUALIFICATION_WRITER = "0x4445656fe52116ca653d4f86a16705964a99d4a6" as Address;
-
-const CONTRACTS = {
-  QualificationRegistry: "0x5f4193cbbcaf64175b2bb3dbe46dd6c7733c59bd" as Address,
-  MarketRegistry: "0x4ea3fbb41962d0a3ec28c570656ea9d5ac1904bb" as Address,
-  OracleRouter: "0xfdc85c3a13186e9be0ad63c34b5162de25bd39a5" as Address,
-  RiskConfig: "0x3f9a6bfd2019b760d85eaf2ce0827534d58e65ad" as Address,
-  USDCMarginVault: "0xf73b9eb7e1853c9ba8f558542f1276584dd0f6ab" as Address,
-  InsuranceFund: "0x131ce3346eb5e15a3ae3c1cba2cd93d54dc6877b" as Address,
-  PerpEngine: "0xbd2c3ad91799110adf647493acbaa1f63a40514c" as Address,
-  PublicLPVault: "0x826892d52172ddef07f2927ba67493465cf54964" as Address,
-  ADLController: "0xca600bcd65de31d65ee198a82d5d51d50fa4b841" as Address,
-  ProtocolTimelock: "0xec9eed7f03a945ca9a810ed0db87c6dc6f23901f" as Address,
-} as const;
+const RPC_URL = PRODUCT_RELEASE.rpcUrl;
+const CHAIN_ID = PRODUCT_RELEASE.chainId;
+const PRODUCT_DEPLOYMENT_ID = PRODUCT_RELEASE.deploymentId;
+const PRODUCT_START_BLOCK = PRODUCT_RELEASE.startBlock;
+const PRODUCT_MARKET_ID = PRODUCT_RELEASE.marketId;
+const CONTRACTS = PRODUCT_ADDRESSES;
 const CONTRACT_ADDRESSES = Object.values(CONTRACTS);
 
 const EVENTS = parseAbi([
@@ -88,6 +89,7 @@ const STATE_ABI = parseAbi([
   "function getQualification(bytes32) view returns (bytes32 proofHash,bytes32 ruleVersion,uint64 qualifiedAt,uint64 expiresAt,uint256 maxLeverage,uint256 maxOI,uint256 maxPosition,bool approved)",
   "function getConfig(bytes32) view returns (uint256 maxLeverage,uint256 maxOI,uint256 maxPosition,uint256 maintenanceMarginBps,uint256 liquidationPenaltyBps,uint8 status)",
   "function getReport(bytes32) view returns (bytes32 marketId,uint256 arcChainId,uint256 midPrice,uint256 minPrice,uint256 maxPrice,uint256 confidenceBps,uint256 sourceCount,uint256 independentSourceCount,uint64 observedAt,uint64 validFrom,uint64 expiresAt,uint64 sequence,bytes32 evidenceRoot,bytes32 reporterSetVersion)",
+  "function getMarket(bytes32) view returns ((bytes32 marketId,bytes32 originChain,bytes originToken,bytes32 lifecycle,uint8 state,bool exists))",
   "function marketState(bytes32) view returns (uint8)",
   "function totalOpenInterest(bytes32) view returns (uint256)",
   "function longOpenInterest(bytes32) view returns (uint256)",
@@ -112,9 +114,11 @@ const STATE_ABI = parseAbi([
 ]);
 
 type ProductState = {
+  readonly marketId: Hex;
   readonly qualification: Record<string, unknown>;
   readonly risk: Record<string, unknown>;
   readonly report: Record<string, unknown>;
+  readonly registryMarket: Record<string, unknown>;
   readonly marketState: number;
   readonly oi: bigint;
   readonly longOi: bigint;
@@ -126,6 +130,10 @@ type ProductState = {
   readonly insurance: Record<string, bigint>;
   readonly lp: Record<string, bigint | boolean>;
 };
+
+type MarketControlState = Pick<ProductState,
+  "marketId" | "qualification" | "risk" | "report" | "registryMarket" | "marketState" | "solvencyBlocked"
+>;
 
 type DecodedEvent = {
   readonly name: string;
@@ -151,6 +159,19 @@ function nowIso(): string {
   return new Date().toISOString();
 }
 
+async function retryRpc<T>(operation: () => Promise<T>, retries = 3): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= retries; attempt += 1) {
+    try {
+      return await operation();
+    } catch (error) {
+      lastError = error;
+      if (attempt < retries) await new Promise((resolveWait) => setTimeout(resolveWait, 500 * 2 ** attempt));
+    }
+  }
+  throw lastError instanceof Error ? lastError : new Error(String(lastError));
+}
+
 function recordString(value: unknown): string {
   if (typeof value === "string" || typeof value === "number" || typeof value === "bigint") return String(value);
   return "";
@@ -165,7 +186,10 @@ function arg(args: Record<string, unknown>, name: string, index: number): unknow
   return args[name] ?? Object.values(args)[index];
 }
 
-async function readState(client: ReturnType<typeof createPublicClient>): Promise<ProductState> {
+async function readMarketControlState(
+  client: ReturnType<typeof createPublicClient>,
+  marketId: Hex,
+): Promise<MarketControlState> {
   const read = async (address: Address, functionName: string, args: readonly unknown[] = []) =>
     client.readContract({
       address,
@@ -179,10 +203,35 @@ async function readState(client: ReturnType<typeof createPublicClient>): Promise
     if (!Array.isArray(value)) return {};
     return Object.fromEntries(value.map((item, index) => [String(index), item]));
   };
-  const qualification = tuple(await read(CONTRACTS.QualificationRegistry, "getQualification", [PRODUCT_MARKET_ID]));
-  const risk = tuple(await read(CONTRACTS.RiskConfig, "getConfig", [PRODUCT_MARKET_ID]));
-  const report = tuple(await read(CONTRACTS.OracleRouter, "getReport", [PRODUCT_MARKET_ID]));
-  const accrual = tuple(await read(CONTRACTS.PerpEngine, "marketAccrual", [PRODUCT_MARKET_ID]));
+  const qualification = tuple(await read(CONTRACTS.QualificationRegistry, "getQualification", [marketId]));
+  const risk = tuple(await read(CONTRACTS.RiskConfig, "getConfig", [marketId]));
+  const report = tuple(await read(CONTRACTS.OracleRouter, "getReport", [marketId]));
+  const registryMarket = tuple(await read(CONTRACTS.MarketRegistry, "getMarket", [marketId]));
+  const registryMarketId = recordString(registryMarket.marketId ?? registryMarket["0"]);
+  const marketExists = Boolean(registryMarket.exists ?? registryMarket["5"] ?? false);
+  if (!marketExists || registryMarketId.toLowerCase() !== marketId.toLowerCase()) {
+    throw new Error("MARKET_ID_NOT_REGISTERED_AT_CONFIGURED_REGISTRY");
+  }
+  const registryMarketState = Number(registryMarket.state ?? registryMarket["4"] ?? 0);
+  const marketState = Number(await read(CONTRACTS.MarketRegistry, "marketState", [marketId]));
+  if (registryMarketState !== marketState) throw new Error("MarketRegistry state reads disagree");
+  const solvencyBlocked = (await read(CONTRACTS.PerpEngine, "solvencyBlocked")) as boolean;
+  return { marketId, qualification, risk, report, registryMarket, marketState, solvencyBlocked };
+}
+
+async function readState(client: ReturnType<typeof createPublicClient>): Promise<ProductState> {
+  const market = await readMarketControlState(client, PRODUCT_MARKET_ID);
+  const read = async (address: Address, functionName: string, args: readonly unknown[] = []) =>
+    client.readContract({
+      address,
+      abi: STATE_ABI,
+      functionName: functionName as never,
+      args,
+    }) as Promise<unknown>;
+  const accrualValue = await read(CONTRACTS.PerpEngine, "marketAccrual", [PRODUCT_MARKET_ID]);
+  const accrual = Array.isArray(accrualValue)
+    ? Object.fromEntries(accrualValue.map((value, index) => [String(index), value]))
+    : accrualValue as Record<string, unknown>;
   const vaultEntries = await Promise.all(
     [
       "totalFreeCollateral",
@@ -204,15 +253,12 @@ async function readState(client: ReturnType<typeof createPublicClient>): Promise
     ),
   );
   return {
-    qualification,
-    risk,
-    report,
-    marketState: Number(await read(CONTRACTS.MarketRegistry, "marketState", [PRODUCT_MARKET_ID])),
+    ...market,
     oi: (await read(CONTRACTS.PerpEngine, "totalOpenInterest", [PRODUCT_MARKET_ID])) as bigint,
     longOi: (await read(CONTRACTS.PerpEngine, "longOpenInterest", [PRODUCT_MARKET_ID])) as bigint,
     shortOi: (await read(CONTRACTS.PerpEngine, "shortOpenInterest", [PRODUCT_MARKET_ID])) as bigint,
     accrual,
-    solvencyBlocked: (await read(CONTRACTS.PerpEngine, "solvencyBlocked")) as boolean,
+    solvencyBlocked: market.solvencyBlocked,
     badDebt: (await read(CONTRACTS.USDCMarginVault, "protocolBadDebt")) as bigint,
     vault: Object.fromEntries(vaultEntries),
     insurance: Object.fromEntries(insuranceEntries),
@@ -234,65 +280,137 @@ function decodeLog(log: Log, eventId: Hex): DecodedEvent | null {
   }
 }
 
-function createPassport(state: ProductState, observedAt: string) {
+function encodeBase58(value: Hex): string {
+  const alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+  const bytes = hexToBytes(value);
+  let leadingZeroes = 0;
+  while (leadingZeroes < bytes.length && bytes[leadingZeroes] === 0) leadingZeroes += 1;
+  let number = BigInt(value);
+  let encoded = "";
+  while (number > 0n) {
+    const remainder = Number(number % 58n);
+    encoded = alphabet[remainder]! + encoded;
+    number /= 58n;
+  }
+  return "1".repeat(leadingZeroes) + encoded;
+}
+
+function registeredOrigin(market: Record<string, unknown>): {
+  readonly chain: SupportedChain;
+  readonly tokenAddress: string;
+  readonly lifecycleHash: string;
+} {
+  const originChain = recordString(market.originChain ?? market["1"]);
+  const originToken = recordString(market.originToken ?? market["2"]);
+  const marketId = recordString(market.marketId ?? market["0"]);
+  const solanaOrigin = keccak256(stringToHex("SOLANA")).toLowerCase();
+  let chain: SupportedChain;
+  let tokenAddress: string;
+  if (originChain.toLowerCase() === solanaOrigin && /^0x[0-9a-fA-F]{64}$/.test(originToken)) {
+    chain = "SOLANA";
+    tokenAddress = encodeBase58(originToken as Hex);
+  } else {
+    const chainId = Number(BigInt(originChain));
+    const evmChain = Object.entries(SUPPORTED_EVM_CHAIN_IDS).find(([, id]) => id === chainId)?.[0] as
+      | SupportedChain
+      | undefined;
+    if (evmChain === undefined || !/^0x[0-9a-fA-F]{40}$/.test(originToken)) {
+      throw new Error("REGISTERED_MARKET_ORIGIN_UNSUPPORTED");
+    }
+    chain = evmChain;
+    tokenAddress = originToken as Address;
+  }
+  if (marketIdForToken(chain, tokenAddress).toLowerCase() !== marketId.toLowerCase()) {
+    throw new Error("REGISTERED_MARKET_IDENTITY_MISMATCH");
+  }
+  return {
+    chain,
+    tokenAddress,
+    lifecycleHash: recordString(market.lifecycle ?? market["3"]),
+  };
+}
+
+function createPassport(state: MarketControlState, observedAt: string) {
   const q = state.qualification;
   const risk = state.risk;
   const report = state.report;
-  const proofHash = recordString(q.proofHash ?? q["0"] ?? "0x" + "0".repeat(64));
-  const ruleVersion = recordString(q.ruleVersion ?? q["1"] ?? "0x" + "0".repeat(64));
+  const origin = registeredOrigin(state.registryMarket);
+  const zeroHash = `0x${"0".repeat(64)}`;
+  const proofValue = recordString(q.proofHash ?? q["0"] ?? zeroHash);
+  const ruleVersion = recordString(q.ruleVersion ?? q["1"] ?? zeroHash);
+  const evidenceValue = recordString(report.evidenceRoot ?? report["12"] ?? zeroHash);
+  const proofHash = proofValue.toLowerCase() === zeroHash ? null : proofValue;
+  const evidenceRoot = evidenceValue.toLowerCase() === zeroHash ? null : evidenceValue;
   const qualifiedAt = (q.qualifiedAt ?? q["2"] ?? 0n) as bigint;
   const expiresAt = (q.expiresAt ?? q["3"] ?? 0n) as bigint;
   const maxLeverage = recordString(q.maxLeverage ?? q["4"] ?? "0");
   const maxOi = recordString(q.maxOI ?? q["5"] ?? "0");
   const maxPosition = recordString(q.maxPosition ?? q["6"] ?? "0");
   const approved = Boolean(q.approved ?? q["7"] ?? false);
-  const midPrice = recordString(report.midPrice ?? report["2"] ?? "0");
+  const nowSeconds = BigInt(Math.floor(Date.now() / 1_000));
+  const qualified = approved && (expiresAt === 0n || expiresAt > nowSeconds);
+  const midPriceValue = recordString(report.midPrice ?? report["2"] ?? "0");
+  const midPrice = BigInt(midPriceValue) > 0n ? midPriceValue : null;
   const observedOracle = (report.observedAt ?? report["8"] ?? 0n) as bigint;
-  const freshness = observedOracle > 0n && BigInt(Math.floor(Date.now() / 1_000)) - observedOracle <= 120n ? "FRESH" : "STALE";
-  const status = state.marketState === 3 ? "LIVE" : state.marketState === 2 ? "CLOSE_ONLY" : state.marketState === 1 ? "PAUSED" : "BLOCKED";
+  const oracleAge = nowSeconds - observedOracle;
+  const freshness = observedOracle === 0n
+    ? "UNAVAILABLE"
+    : oracleAge < 0n
+      ? "FUTURE_TIMESTAMP"
+      : oracleAge <= 120n
+        ? "FRESH"
+        : "STALE";
+  const freshnessState = freshness === "FRESH" ? "FRESH" : freshness === "FUTURE_TIMESTAMP" ? "FUTURE_TIMESTAMP" : freshness === "UNAVAILABLE" ? "UNAVAILABLE" : "STALE";
+  const registryStatus = state.marketState === 3 ? "LIVE" : state.marketState === 2 ? "CLOSE_ONLY" : state.marketState === 1 ? "PAUSED" : "BLOCKED";
+  const reasons: string[] = [];
+  if (!qualified) reasons.push("QUALIFICATION_UNAVAILABLE_OR_EXPIRED");
+  if (freshness !== "FRESH") reasons.push(freshness === "STALE" ? "ORACLE_STALE" : freshness === "FUTURE_TIMESTAMP" ? "ORACLE_FUTURE_TIMESTAMP" : "ORACLE_UNAVAILABLE");
+  if (state.solvencyBlocked) reasons.push("SOLVENCY_BLOCKED");
+  const status = reasons.length > 0 ? "BLOCKED" : registryStatus;
   const maxOiWad = (BigInt(maxOi) * 1_000_000_000_000n).toString();
   const maxPositionWad = (BigInt(maxPosition) * 1_000_000_000_000n).toString();
+  const observedOracleIso = isoFromUnix(observedOracle);
   return MarketPassportSchema.parse({
     passportSchemaVersion: "market-passport/v1",
     schemaVersion: "market-snapshot/v1",
     observedAt,
     identity: {
-      marketId: PRODUCT_MARKET_ID,
-      chain: "BASE",
-      tokenAddress: PRODUCT_TOKEN,
-      symbol: "ARC-PRODUCT",
-      name: "ArcMemePerps Product Canary",
-      decimals: 18,
+      marketId: state.marketId,
+      chain: origin.chain,
+      tokenAddress: origin.tokenAddress,
+      symbol: null,
+      name: null,
+      decimals: null,
       deployer: null,
       createdAt: null,
       originPlatform: "UNKNOWN",
     },
-    originChain: "BASE",
+    originChain: origin.chain,
     originPlatform: "UNKNOWN",
-    lifecycle: { status: "DISCOVERED", evidenceIds: [PRODUCT_DEPLOYMENT_ID], observedAt, confidenceBps: 10_000 },
+    lifecycle: { status: "DISCOVERED", evidenceIds: [`ONCHAIN_LIFECYCLE:${origin.lifecycleHash}`], observedAt, confidenceBps: 0 },
     marketData: { priceUsdWad: midPrice, volume24hUsdWad: null, buyCount24h: null, sellCount24h: null, priceChange24hBps: null, volatilityBps: null },
     liquidity: {
-      totalUsdWad: (state.lp.managedAssets as bigint * 1_000_000_000_000n).toString(),
-      dominantPool: CONTRACTS.PublicLPVault,
-      poolConcentrationBps: 10_000,
-      venueCount: 1,
+      totalUsdWad: null,
+      dominantPool: null,
+      poolConcentrationBps: null,
+      venueCount: null,
       buyDepth1PctUsdWad: null,
       sellDepth1PctUsdWad: null,
       buyDepth2PctUsdWad: null,
       sellDepth2PctUsdWad: null,
-      securityStatus: "PROTOCOL_CONTROLLED",
+      securityStatus: "UNKNOWN",
       earliestUnlockAt: null,
     },
     holderEvidence: { largestHolderBps: null, largestNonSystemHolderBps: null, top10NonSystemBps: null, largestConnectedClusterBps: null, clusterCount: null, systemExclusions: [] },
     deployerEvidence: { deployer: null, tokensCreated: null, survival7dBps: null, survival30dBps: null, associatedWallets: [], reasonCodes: ["ORIGIN_DEPLOYER_NOT_INDEXED"] },
-    securityEvidence: { mintAuthorityActive: null, freezeAuthorityActive: null, ownerPrivilege: null, upgradeable: null, transferRestricted: null, honeypot: null, lpSecurity: "PROTOCOL_CONTROLLED", evidenceIds: [PRODUCT_DEPLOYMENT_ID] },
+    securityEvidence: { mintAuthorityActive: null, freezeAuthorityActive: null, ownerPrivilege: null, upgradeable: null, transferRestricted: null, honeypot: null, lpSecurity: "UNKNOWN", evidenceIds: [] },
     oracleEvidence: {
       priceSourceCount: Number(report.sourceCount ?? report["6"] ?? 0),
       independentSourceCount: Number(report.independentSourceCount ?? report["7"] ?? 0),
       dispersionBps: null,
       confidenceBps: Number(report.confidenceBps ?? report["5"] ?? 0),
       freshness,
-      sourceFamilies: ["REPORTER_SET_V2"],
+      sourceFamilies: ["ARC_ORACLE_ROUTER"],
     },
     derivativesEvidence: {
       status,
@@ -300,24 +418,24 @@ function createPassport(state: ProductState, observedAt: string) {
       maxOIWad: maxOiWad,
       maxPositionWad,
       maintenanceMarginBps: Number(risk.maintenanceMarginBps ?? risk["3"] ?? 0),
-      manipulationResistance: "HIGH",
-      reasonCodes: state.solvencyBlocked ? ["SOLVENCY_BLOCKED"] : [],
+      manipulationResistance: "UNAVAILABLE",
+      reasonCodes: reasons,
     },
     providerState: {
       providers: [
         { provider: "ARC_RPC", status: "AVAILABLE", lastSuccessAt: observedAt, fetchedAt: observedAt, reason: null },
-        { provider: "ORIGIN_MARKET_DATA", status: "UNAVAILABLE", lastSuccessAt: null, fetchedAt: observedAt, reason: "No external enrichment provider configured for this testnet canary" },
+        { provider: "ORIGIN_MARKET_DATA", status: "UNAVAILABLE", lastSuccessAt: null, fetchedAt: observedAt, reason: "No origin-chain enrichment provider is configured" },
       ],
       disagreements: [],
     },
-    freshness: { status: freshness, observedAt: isoFromUnix(observedOracle), fetchedAt: observedAt, maxAgeSeconds: 120 },
-    riskResult: { integrityStatus: approved ? "QUALIFIED" : "PENDING", derivativesStatus: status, hardGateCodes: [], rejectionReasons: [], warnings: [], ruleVersion: "0.1.0" },
-    qualification: { eligible: approved, proofHash, commitmentHash: null, evidenceRoot: recordString(report.evidenceRoot ?? report["12"] ?? "0x" + "0".repeat(64)), assessedAt: isoFromUnix(qualifiedAt), expiresAt: isoFromUnix(expiresAt) },
-    tradability: { status, reasons: state.solvencyBlocked ? ["SOLVENCY_BLOCKED"] : [], asOf: observedAt },
+    freshness: { status: freshnessState, observedAt: observedOracleIso, fetchedAt: observedAt, maxAgeSeconds: 120 },
+    riskResult: { integrityStatus: qualified ? "QUALIFIED" : "PENDING", derivativesStatus: status, hardGateCodes: reasons, rejectionReasons: [], warnings: [], ruleVersion },
+    qualification: { eligible: qualified, proofHash, commitmentHash: null, evidenceRoot, assessedAt: isoFromUnix(qualifiedAt), expiresAt: isoFromUnix(expiresAt) },
+    tradability: { status, reasons, asOf: observedAt },
     marketAgeSeconds: null,
-    priceHistory: [{ observedAt: isoFromUnix(observedOracle) ?? observedAt, priceUsdWad: midPrice, source: "ARC_ORACLE_ROUTER" }],
-    pools: [{ venue: "Arc PublicLPVault", poolAddress: CONTRACTS.PublicLPVault, poolType: "PUBLIC_LP_VAULT", liquidityUsdWad: (state.lp.managedAssets as bigint * 1_000_000_000_000n).toString(), buyDepth1PctUsdWad: null, sellDepth1PctUsdWad: null, buyDepth2PctUsdWad: null, sellDepth2PctUsdWad: null, buyDepth5PctUsdWad: null, sellDepth5PctUsdWad: null }],
-    lpControl: { status: "PROTOCOL_CONTROLLED", reason: "Live Product PublicLPVault custody", evidenceIds: [PRODUCT_DEPLOYMENT_ID], observedAt },
+    priceHistory: midPrice === null || observedOracleIso === null ? [] : [{ observedAt: observedOracleIso, priceUsdWad: midPrice, source: "ARC_ORACLE_ROUTER" }],
+    pools: [],
+    lpControl: { status: "UNKNOWN", reason: "Origin-chain liquidity control is not configured", evidenceIds: [], observedAt },
     bundleEvidence: { effectiveConcentrationBps: null, coordinatedWallets: [], evidenceIds: [] },
     firstBuyers: [],
     sniperSignals: [],
@@ -326,12 +444,109 @@ function createPassport(state: ProductState, observedAt: string) {
     washFarm: { verdict: "INSUFFICIENT_DATA", reasonCodes: ["INSUFFICIENT_ORIGIN_ACTIVITY_HISTORY"], features: {} },
     organicActivity: { holderGrowthBps: null, newHolderVelocity: null, independentTraderCount: null, retentionBps: null, netCapitalFlowUsdWad: null, venueDiversity: null, persistenceBps: null },
     smartWalletActivity: { participatingWallets: [], qualityBps: null, evidenceIds: [] },
-    marketDepth: { status: "UNAVAILABLE", buyDepth1PctUsdWad: null, sellDepth1PctUsdWad: null, buyDepth2PctUsdWad: null, sellDepth2PctUsdWad: null, buyDepth5PctUsdWad: null, sellDepth5PctUsdWad: null, observedAt, reason: "No orderbook provider; Arc perpetual capacity is reported separately" },
-    sourceIndependence: { independentSourceCount: Number(report.independentSourceCount ?? report["7"] ?? 0), sourceIds: ["REPORTER_1", "REPORTER_2", "REPORTER_3"], correlatedSourceIds: [] },
-    arcMarketState: status === "LIVE" ? "LIVE" : status,
+    marketDepth: { status: "UNAVAILABLE", buyDepth1PctUsdWad: null, sellDepth1PctUsdWad: null, buyDepth2PctUsdWad: null, sellDepth2PctUsdWad: null, buyDepth5PctUsdWad: null, sellDepth5PctUsdWad: null, observedAt, reason: "No orderbook provider is configured" },
+    sourceIndependence: { independentSourceCount: Number(report.independentSourceCount ?? report["7"] ?? 0), sourceIds: [], correlatedSourceIds: [] },
+    arcMarketState: status,
     providerHealth: [{ component: "ARC_RPC", state: "OPERATIONAL", lastSuccessAt: observedAt, latencyMs: null, error: null }, { component: "ORIGIN_ENRICHMENT", state: "UNAVAILABLE", lastSuccessAt: null, latencyMs: null, error: "not configured" }],
     riskRuleVersion: ruleVersion,
   });
+}
+
+function registryUniverseMarket(state: MarketControlState, observedAt: string): Record<string, unknown> {
+  const passport = createPassport(state, observedAt);
+  const origin = registeredOrigin(state.registryMarket);
+  const oracleStatus = passport.oracleEvidence.freshness === "FRESH"
+    ? "AVAILABLE"
+    : passport.oracleEvidence.freshness === "FUTURE_TIMESTAMP"
+      ? "CONFLICTED"
+      : passport.oracleEvidence.freshness === "UNAVAILABLE"
+        ? "UNAVAILABLE"
+        : "STALE";
+  const registryObservation = {
+    provider: "ARC_MARKET_REGISTRY",
+    status: "AVAILABLE",
+    observedAt,
+    fetchedAt: observedAt,
+    blockOrSlot: null,
+    evidenceHash: state.marketId,
+    reason: null,
+  };
+  const oracleObservation = {
+    provider: "ARC_ORACLE_ROUTER",
+    status: oracleStatus,
+    observedAt: passport.freshness.observedAt,
+    fetchedAt: observedAt,
+    blockOrSlot: null,
+    evidenceHash: passport.qualification.evidenceRoot,
+    reason: oracleStatus === "AVAILABLE" ? null : passport.tradability.reasons.join(",") || "ORACLE_NOT_FRESH",
+  };
+  return {
+    marketId: state.marketId,
+    chain: origin.chain,
+    tokenAddress: origin.tokenAddress,
+    symbol: null,
+    name: null,
+    decimals: null,
+    imageUrl: null,
+    sourceUrl: null,
+    originPlatform: null,
+    lifecycle: {
+      status: "DISCOVERED",
+      observedAt,
+      confidenceBps: 0,
+      evidenceHash: origin.lifecycleHash,
+    },
+    priceUsd: null,
+    priceChange24hBps: null,
+    volume24hUsd: null,
+    transactions24h: null,
+    originSpotLiquidityUsd: null,
+    originDepth2PctUsd: null,
+    holders: null,
+    top10ConcentrationBps: null,
+    largestClusterBps: null,
+    integrity: {
+      status: "UNKNOWN",
+      reasonCodes: ["ORIGIN_INTEGRITY_NOT_ASSESSED"],
+      observations: [registryObservation, oracleObservation],
+    },
+    derivatives: {
+      status: passport.derivativesEvidence.status,
+      safeOiUsd: null,
+      safePositionUsd: null,
+      maxLeverage: passport.qualification.eligible ? passport.derivativesEvidence.maxLeverageWad : null,
+      oracleQuality: passport.oracleEvidence.freshness,
+      sourceIndependence: passport.oracleEvidence.independentSourceCount,
+      reasonCodes: passport.derivativesEvidence.reasonCodes,
+    },
+    perp: {
+      status: passport.tradability.status,
+      deploymentId: PRODUCT_DEPLOYMENT_ID,
+      marketId: state.marketId,
+      currentOiUsd: null,
+      capacityUsd: null,
+      qualificationHash: passport.qualification.proofHash,
+      riskRuleVersion: passport.riskRuleVersion,
+    },
+    providerState: {
+      status: "PARTIAL",
+      fetchedAt: observedAt,
+      reason: "ORIGIN_MARKET_DATA_PROVIDER_NOT_CONFIGURED",
+      maxAgeSeconds: MARKET_REGISTRY_MAX_AGE_SECONDS,
+    },
+    freshness: { status: "UNAVAILABLE", observedAt: null, maxAgeSeconds: null },
+    history: [],
+    registryVerified: true,
+    registryAvailability: {
+      status: passport.tradability.status,
+      reasons: passport.tradability.reasons,
+      marketState: state.marketState,
+      qualificationEligible: passport.qualification.eligible,
+      oracleStatus,
+      oracleObservedAt: passport.freshness.observedAt,
+      observedAt,
+    },
+  };
 }
 
 function notificationFor(event: DecodedEvent, recipient: Address, marketId: Hex | null): NotificationEvent {
@@ -365,29 +580,64 @@ function notificationFor(event: DecodedEvent, recipient: Address, marketId: Hex 
 function oracleHealth(state: ProductState): HealthRecord {
   const observedAt = BigInt(recordString(state.report.observedAt ?? state.report["8"] ?? "0"));
   const now = BigInt(Math.floor(Date.now() / 1_000));
-  const fresh = observedAt > 0n && observedAt <= now && now - observedAt <= 120n;
+  const age = now - observedAt;
+  const fresh = observedAt > 0n && age >= 0n && age <= 120n;
+  const future = age < 0n;
   return healthRecord("ORACLE", fresh ? "OPERATIONAL" : "STALE", {
     lastSuccessAt: isoFromUnix(observedAt),
     latencyMs: null,
-    error: fresh ? null : "ORACLE_OBSERVATION_STALE",
+    error: fresh ? null : future ? "ORACLE_OBSERVATION_IN_FUTURE" : "ORACLE_OBSERVATION_STALE",
     freshness: fresh ? "FRESH" : "STALE",
   });
 }
 
-function healthSnapshot(database: HealthRecord, indexer: HealthRecord, oracle: HealthRecord, realtime: HealthRecord): readonly HealthRecord[] {
+function apiDeploymentConfig(): ArcDeploymentConfig {
+  return loadArcDeploymentConfig({
+    ...process.env,
+    ARCMEMEPERPS_DEPLOYMENT_NETWORK: "TESTNET",
+    TESTNET_DEPLOYMENT_ID: PRODUCT_DEPLOYMENT_ID,
+    TESTNET_MARKET_REGISTRY: CONTRACTS.MarketRegistry,
+    TESTNET_QUALIFICATION_REGISTRY: CONTRACTS.QualificationRegistry,
+    TESTNET_ORACLE_ROUTER: CONTRACTS.OracleRouter,
+    TESTNET_RISK_CONFIG: CONTRACTS.RiskConfig,
+    TESTNET_USDC_MARGIN_VAULT: CONTRACTS.USDCMarginVault,
+    TESTNET_PERP_ENGINE: CONTRACTS.PerpEngine,
+    TESTNET_INSURANCE_FUND: CONTRACTS.InsuranceFund,
+    TESTNET_PUBLIC_LP_VAULT: CONTRACTS.PublicLPVault,
+    TESTNET_ADL_CONTROLLER: CONTRACTS.ADLController,
+    TESTNET_PROTOCOL_TIMELOCK: CONTRACTS.ProtocolTimelock,
+    ARC_TESTNET_RPC_URL: RPC_URL,
+  });
+}
+
+function healthSnapshot(
+  database: HealthRecord,
+  rpc: HealthRecord,
+  indexer: HealthRecord,
+  marketDiscovery: HealthRecord,
+  oracle: HealthRecord,
+  realtime: HealthRecord,
+  chainReadsAvailable: boolean,
+): readonly HealthRecord[] {
   const operational = (component: HealthRecord["component"]): HealthRecord => healthRecord(component, "OPERATIONAL", { lastSuccessAt: nowIso(), latencyMs: null, error: null, freshness: "FRESH" });
+  const unavailable = (component: HealthRecord["component"], error: string): HealthRecord => healthRecord(component, "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error, freshness: "UNAVAILABLE" });
   return [
     database,
-    operational("ARC_RPC"),
+    rpc,
     indexer,
-    operational("MARKET_DATA"),
-    operational("MARKET_DISCOVERY"),
-    operational("RISK_ENGINE"),
-    operational("KEEPER"),
-    operational("ORACLE_REPORTERS"),
+    healthRecord("MARKET_DATA", marketDiscovery.state, {
+      lastSuccessAt: marketDiscovery.lastSuccessAt,
+      latencyMs: null,
+      error: marketDiscovery.error,
+      freshness: marketDiscovery.freshness,
+    }),
+    marketDiscovery,
+    unavailable("RISK_ENGINE", "OFFCHAIN_RISK_ENGINE_NOT_CONFIGURED"),
+    unavailable("KEEPER", "KEEPER_HEALTH_NOT_EXPOSED_BY_READ_ONLY_API"),
+    unavailable("ORACLE_REPORTERS", "REPORTER_HEALTH_NOT_EXPOSED_BY_READ_ONLY_API"),
     oracle,
-    operational("VAULT"),
-    operational("INSURANCE"),
+    chainReadsAvailable ? operational("VAULT") : unavailable("VAULT", "CHAIN_READS_NOT_READY"),
+    chainReadsAvailable ? operational("INSURANCE") : unavailable("INSURANCE", "CHAIN_READS_NOT_READY"),
     realtime,
   ];
 }
@@ -400,6 +650,7 @@ export class ProductLiveIndexer {
   private readonly decoded: DecodedEvent[] = [];
   private readonly positionTraders = new Map<string, Address>();
   private readonly orderTraders = new Map<string, Address>();
+  private deploymentVerified = false;
   public lastHead = 0n;
   public lastProjectionAt: string | null = null;
 
@@ -407,38 +658,71 @@ export class ProductLiveIndexer {
     this.storage = new SQLitePersistence(databasePath);
     this.repository = new BackendRepository(this.storage);
     this.client = createPublicClient({
-      chain: { id: CHAIN_ID, name: "Arc Testnet", nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 6 }, rpcUrls: { default: { http: [RPC_URL] } } },
+      chain: { id: CHAIN_ID, name: "Arc Testnet", nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 }, rpcUrls: { default: { http: [RPC_URL] } } },
       transport: http(RPC_URL),
     });
   }
 
-  public async bootstrap(): Promise<ProductState> {
+  private async verifyDeployment(): Promise<void> {
+    if (this.deploymentVerified) return;
+    const chainId = await this.client.getChainId();
+    if (chainId !== CHAIN_ID) throw new Error(`Configured RPC returned chain ${chainId}; expected Arc Testnet ${CHAIN_ID}`);
+    const deployedCode = await Promise.all(
+      Object.entries(CONTRACTS).map(async ([name, address]) => ({
+        name,
+        code: await this.client.getCode({ address }),
+      })),
+    );
+    const missing = deployedCode.filter(({ code }) => code === undefined || code === "0x").map(({ name }) => name);
+    if (missing.length > 0) throw new Error(`Product deployment contracts have no code: ${missing.join(", ")}`);
+    this.deploymentVerified = true;
+  }
+
+  public async bootstrap(onStateObserved?: (state: ProductState) => void): Promise<ProductState> {
     const started = Date.now();
+    await this.verifyDeployment();
     const latest = await this.client.getBlockNumber();
+    this.lastHead = latest;
     const checkpoint = this.storage.get("indexer_checkpoints", `${this.deploymentId}:ARC`);
     const previous = checkpoint?.payload.blockNumber;
+    if (previous !== undefined) {
+      const checkpointBlock = BigInt(String(previous));
+      if (checkpointBlock > latest) throw new Error("INDEXER_CHECKPOINT_AHEAD_OF_RPC_HEAD");
+      const expectedHash = payloadString(checkpoint?.payload ?? {}, "blockHash");
+      if (expectedHash !== "") {
+        const canonicalBlock = await retryRpc(() => this.client.getBlock({ blockNumber: checkpointBlock }));
+        if (canonicalBlock.hash?.toLowerCase() !== expectedHash.toLowerCase()) {
+          throw new Error("INDEXER_CHECKPOINT_REORG_DETECTED");
+        }
+      }
+    }
     const from = previous === undefined ? PRODUCT_START_BLOCK : BigInt(payloadString(checkpoint?.payload ?? {}, "blockNumber", PRODUCT_START_BLOCK.toString())) + 1n;
+    let state = await readState(this.client);
+    this.repository.savePassport(createPassport(state, nowIso()));
+    onStateObserved?.(state);
     const chunk = 1_000n;
-    for (let cursor = from; cursor <= latest; cursor += chunk) {
-      const to = cursor + chunk - 1n > latest ? latest : cursor + chunk - 1n;
-      const logs = await this.client.getLogs({ address: CONTRACT_ADDRESSES, fromBlock: cursor, toBlock: to });
-      for (const log of logs) this.persistLog(log);
-      const block = await this.client.getBlock({ blockNumber: to });
+    const pageEnd = from + 20_000n - 1n;
+    let eventCount = Number(payloadString(checkpoint?.payload ?? {}, "eventCount", "0"));
+    for (let cursor = from; cursor <= latest && cursor <= pageEnd; cursor += chunk) {
+      const to = cursor + chunk - 1n > latest ? latest : cursor + chunk - 1n > pageEnd ? pageEnd : cursor + chunk - 1n;
+      const logs = await retryRpc(() => this.client.getLogs({ address: CONTRACT_ADDRESSES, fromBlock: cursor, toBlock: to }));
+      for (const log of logs) if (this.persistLog(log)) eventCount += 1;
+      const block = await retryRpc(() => this.client.getBlock({ blockNumber: to }));
       this.storage.put("indexer_checkpoints", `${this.deploymentId}:ARC`, {
         deploymentId: this.deploymentId,
         chain: "ARC",
         startBlock: PRODUCT_START_BLOCK.toString(),
         blockNumber: to.toString(),
         blockHash: block.hash,
-        eventCount: this.storage.list("protocol_events").filter((item) => item.payload.deploymentId === this.deploymentId).length,
+        eventCount,
         lastObservedAt: nowIso(),
       }, nowIso());
     }
-    this.lastHead = latest;
     this.rehydrateDecodedEvents();
-    const state = await readState(this.client);
+    state = await readState(this.client);
     const passport = createPassport(state, nowIso());
     this.repository.savePassport(passport);
+    onStateObserved?.(state);
     this.buildProjections(state);
     this.storage.put("reconciliation_snapshots", `${this.deploymentId}:latest`, {
       deploymentId: this.deploymentId,
@@ -466,7 +750,7 @@ export class ProductLiveIndexer {
     return state;
   }
 
-  private persistLog(log: Log): void {
+  private persistLog(log: Log): boolean {
     const identity: ProtocolEventIdentity = {
       chain: "ARC",
       transactionHash: log.transactionHash ?? null,
@@ -478,7 +762,7 @@ export class ProductLiveIndexer {
       topic0: log.topics[0] ?? null,
     };
     const eventId = canonicalProtocolEventId(identity);
-    if (this.storage.get("protocol_events", eventId) !== null) return;
+    if (this.storage.get("protocol_events", eventId) !== null) return false;
     this.storage.put("protocol_events", eventId, {
       deploymentId: this.deploymentId,
       eventId,
@@ -501,6 +785,7 @@ export class ProductLiveIndexer {
       if (typeof positionId === "bigint" && typeof trader === "string") this.positionTraders.set(positionId.toString(), trader as Address);
       if (typeof orderId === "string" && typeof account === "string") this.orderTraders.set(orderId.toLowerCase(), account as Address);
     }
+    return true;
   }
 
   private rehydrateDecodedEvents(): void {
@@ -541,15 +826,25 @@ export class ProductLiveIndexer {
 
   private buildProjections(state: ProductState): void {
     const observedAt = nowIso();
-    const traders = new Map<string, { volume: bigint; pnl: bigint; wins: number; losses: number; trades: number; markets: Set<string>; events: string[] }>();
-    const ensure = (wallet: Address) => {
-      const key = wallet.toLowerCase();
-      const existing = traders.get(key);
-      if (existing !== undefined) return existing;
-      const next = { volume: 0n, pnl: 0n, wins: 0, losses: 0, trades: 0, markets: new Set<string>(), events: [] };
-      traders.set(key, next);
-      return next;
-    };
+    const legacyTrader = "0xc36fd43deaadefb349acc61b0eb664ea4a18861c";
+    const legacyQualificationRecipient = "0x4445656fe52116ca653d4f86a16705964a99d4a6";
+    const legacySeasonId = `${PRODUCT_DEPLOYMENT_ID}:testnet-season`;
+    this.storage.delete("profiles", legacyTrader);
+    this.storage.delete("watchlists", legacyTrader);
+    for (const notification of this.storage.list("notifications")) {
+      if (notification.payload.recipient === legacyQualificationRecipient && notification.payload.type === "MARKET_QUALIFIED") {
+        this.storage.delete("notifications", notification.id);
+      }
+    }
+    this.storage.delete("competition_seasons", legacySeasonId);
+    for (const entity of ["competition_entries", "competition_score_snapshots"] as const) {
+      for (const record of this.storage.list(entity)) {
+        if (record.id.startsWith(`${legacySeasonId}:`) || record.payload.seasonId === legacySeasonId) {
+          this.storage.delete(entity, record.id);
+        }
+      }
+    }
+    const productTraders = new Set<string>();
     for (const event of this.decoded) {
       const traderArg = arg(event.args, "trader", 1);
       const accountArg = arg(event.args, "account", 1);
@@ -561,60 +856,30 @@ export class ProductLiveIndexer {
         if (typeof orderId === "string") recipient = this.orderTraders.get(orderId.toLowerCase()) ?? null;
       }
       if (recipient !== null) {
-        const metrics = ensure(recipient);
-        metrics.events.push(event.eventId);
-        if (event.name === "PositionOpened") {
-          const size = arg(event.args, "size", 5);
-          metrics.volume += typeof size === "bigint" ? size : 0n;
-          metrics.trades += 1;
-          metrics.markets.add(PRODUCT_MARKET_ID);
-        }
-        if (event.name === "PositionClosed" || event.name === "PositionLiquidated") {
-          const pnl = arg(event.args, "pnl", 1);
-          if (typeof pnl === "bigint") { metrics.pnl += pnl; if (pnl >= 0n) metrics.wins += 1; else metrics.losses += 1; }
-        }
+        productTraders.add(recipient.toLowerCase());
         if (["OrderSubmitted", "OrderExecuted", "PositionOpened", "PositionReduced", "PositionClosed", "PositionLiquidated"].includes(event.name)) {
           this.repository.saveNotification(notificationFor(event, recipient, PRODUCT_MARKET_ID));
         }
         this.repository.saveWalletEvent(`${this.deploymentId}:${event.eventId}:${recipient.toLowerCase()}`, { deploymentId: this.deploymentId, wallet: recipient.toLowerCase(), eventType: event.name, eventId: event.eventId, marketId: PRODUCT_MARKET_ID, blockNumber: event.log.blockNumber?.toString() ?? null }, observedAt);
       }
-      if (event.name === "QualificationApproved") this.repository.saveNotification(notificationFor(event, QUALIFICATION_WRITER, PRODUCT_MARKET_ID));
     }
-    for (const [wallet, metrics] of traders) {
-      const snapshot: WalletSnapshot = {
-        schemaVersion: "wallet-snapshot/v1",
-        wallet,
-        observedAt,
-        realizedPnlUsdWad: metrics.pnl.toString(),
-        unrealizedPnlUsdWad: "0",
-        volumeUsdWad: (metrics.volume * 1_000_000_000_000n).toString(),
-        winCount: metrics.wins,
-        lossCount: metrics.losses,
-        averageHoldSeconds: null,
-        drawdownBps: 0,
-        marketsTraded: [...metrics.markets] as WalletSnapshot["marketsTraded"],
-        evidenceIds: metrics.events,
-      };
-      this.storage.put("wallet_analytics", wallet, snapshot, observedAt);
-      const profile: UserProfile = {
-        schemaVersion: "user-profile/v1",
-        primaryWallet: wallet,
-        displayName: null,
-        avatarUrl: null,
-        createdAt: observedAt,
-        updatedAt: observedAt,
-        notificationPreferences: { enabled: true, types: [] },
-        watchlistMarketIds: [],
-        watchlistWallets: [],
-        authorization: null,
-      };
-      this.repository.saveProfile(profile);
-    }
-    this.repository.setWatchlist(TRADER_LONG, [PRODUCT_MARKET_ID], []);
-    const seasonId = `${PRODUCT_DEPLOYMENT_ID}:testnet-season`;
-    this.storage.put("competition_seasons", seasonId, { id: seasonId, deploymentId: this.deploymentId, name: "Product Testnet Activity", status: "TESTNET", source: "CANONICAL_PRODUCT_EVENTS", startBlock: PRODUCT_START_BLOCK.toString(), endBlock: this.lastHead.toString(), prizes: false }, observedAt);
-    for (const [wallet, metrics] of traders) {
-      this.storage.put("competition_score_snapshots", `${seasonId}:${wallet}`, { seasonId, deploymentId: this.deploymentId, account: wallet, snapshotAt: observedAt, realizedPnl: metrics.pnl.toString(), realizedPnlUsdWad: metrics.pnl.toString(), returnPct: "0", riskAdjustedReturn: "0", winRate: metrics.wins + metrics.losses === 0 ? "0" : ((metrics.wins * 10000) / (metrics.wins + metrics.losses)).toString(), scoreWad: metrics.pnl.toString(), status: "VALID", reasonCodes: ["CANONICAL_PRODUCT_EVENTS"], sourceEventIds: metrics.events }, observedAt);
+    for (const wallet of productTraders) {
+      const analytics = this.storage.get("wallet_analytics", wallet)?.payload;
+      const marketsTraded = analytics?.marketsTraded;
+      if (Array.isArray(marketsTraded) && marketsTraded.includes(PRODUCT_MARKET_ID)) {
+        this.storage.delete("wallet_analytics", wallet);
+      }
+      const profile = this.storage.get("profiles", wallet)?.payload;
+      if (
+        profile?.schemaVersion === "user-profile/v1" &&
+        profile.displayName === null &&
+        profile.avatarUrl === null &&
+        profile.authorization === null &&
+        Array.isArray(profile.watchlistMarketIds) && profile.watchlistMarketIds.length === 0 &&
+        Array.isArray(profile.watchlistWallets) && profile.watchlistWallets.length === 0
+      ) {
+        this.storage.delete("profiles", wallet);
+      }
     }
     this.storage.put("risk_changes", `${this.deploymentId}:latest`, { deploymentId: this.deploymentId, marketId: PRODUCT_MARKET_ID, maxLeverage: recordString(state.risk.maxLeverage ?? state.risk["0"] ?? "0"), maxOI: recordString(state.risk.maxOI ?? state.risk["1"] ?? "0"), maxPosition: recordString(state.risk.maxPosition ?? state.risk["2"] ?? "0"), status: recordString(state.risk.status ?? state.risk["5"] ?? "0"), observedAt }, observedAt);
   }
@@ -635,6 +900,67 @@ export class ProductLiveIndexer {
     return latest?.payload ?? null;
   }
 
+  public async readRegisteredMarkets(): Promise<{
+    readonly markets: readonly Record<string, unknown>[];
+    readonly registeredCount: number;
+    readonly status: "AVAILABLE" | "PARTIAL" | "UNAVAILABLE";
+    readonly reason: string | null;
+    readonly fetchedAt: string;
+  }> {
+    const ids = new Set<Hex>([PRODUCT_MARKET_ID]);
+    for (const event of this.decoded) {
+      if (event.name !== "MarketRegistered" || event.log.address.toLowerCase() !== CONTRACTS.MarketRegistry.toLowerCase()) continue;
+      const id = arg(event.args, "marketId", 0);
+      if (typeof id === "string" && /^0x[0-9a-fA-F]{64}$/.test(id)) ids.add(id as Hex);
+    }
+    const allIds = [...ids];
+    const selected = allIds.slice(0, 100);
+    const results: MarketControlState[] = [];
+    let failedReads = 0;
+    for (let index = 0; index < selected.length; index += 4) {
+      const batch = selected.slice(index, index + 4);
+      const settled = await Promise.all(batch.map(async (id) => {
+        try {
+          return await retryRpc(() => readMarketControlState(this.client, id));
+        } catch {
+          failedReads += 1;
+          return null;
+        }
+      }));
+      for (const result of settled) if (result !== null) results.push(result);
+    }
+    const checkpointBlock = BigInt(payloadString(this.checkpoint() ?? {}, "blockNumber", "0"));
+    const backfillPending = checkpointBlock < this.lastHead;
+    const capped = allIds.length > selected.length;
+    const fetchedAt = nowIso();
+    const markets = results.flatMap((state) => {
+      try {
+        return [registryUniverseMarket(state, fetchedAt)];
+      } catch {
+        failedReads += 1;
+        return [];
+      }
+    });
+    const complete = !backfillPending && !capped && failedReads === 0;
+    const status = results.length === 0
+      ? "UNAVAILABLE"
+      : complete
+        ? "AVAILABLE"
+        : "PARTIAL";
+    const reasons = [
+      ...(backfillPending ? ["HISTORICAL_EVENT_BACKFILL_PENDING"] : []),
+      ...(capped ? ["REGISTRY_MARKET_SCAN_LIMIT_REACHED"] : []),
+      ...(failedReads > 0 ? [`${failedReads}_MARKET_STATE_READS_FAILED`] : []),
+    ];
+    return {
+      markets,
+      registeredCount: allIds.length,
+      status,
+      reason: reasons.length > 0 ? reasons.join(",") : null,
+      fetchedAt,
+    };
+  }
+
   public close(): void { this.storage.close(); }
 }
 
@@ -645,26 +971,147 @@ async function main(): Promise<void> {
   const databasePath = resolve(dbArgument?.slice("--db=".length) ?? "evidence/gate4i/product-live.sqlite");
   await mkdir(dirname(databasePath), { recursive: true });
   const indexer = new ProductLiveIndexer(databasePath);
-  let state = await indexer.bootstrap();
+  const marketDiscovery = new MarketDiscoveryService(indexer.storage);
   const realtime = new RealtimeHub();
-  realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:bootstrap:${indexer.lastHead.toString()}`, type: "market.discovered", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, blockNumber: indexer.lastHead.toString() } }));
+  let state: ProductState | null = null;
+  let lastIndexError: string | null = null;
+  let lastRpcSuccessAt: string | null = null;
+  let lastPublishedSnapshotBlock = "";
   let latestRealtimeEventId: string | null = null;
+  const publishMarketSnapshot = (snapshot: ProductState) => {
+    const blockNumber = indexer.lastHead.toString();
+    if (lastPublishedSnapshotBlock === blockNumber) return;
+    lastPublishedSnapshotBlock = blockNumber;
+    realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:snapshot:${blockNumber}`, type: "market.snapshot", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, blockNumber, marketState: snapshot.marketState } }));
+  };
   const publishLatestProductEvent = () => {
     const latestProductEvent = indexer.latestProtocolEvent();
     const eventId = latestProductEvent?.eventId;
     if (latestProductEvent === null || typeof eventId !== "string" || eventId === latestRealtimeEventId) return;
     latestRealtimeEventId = eventId;
-    realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:event:${eventId}`, type: "price.updated", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, sourceEventId: eventId, blockNumber: payloadString(latestProductEvent, "blockNumber") } }));
+    realtime.publish(realtime.createEvent({ id: `${PRODUCT_DEPLOYMENT_ID}:event:${eventId}`, type: "protocol.event", occurredAt: nowIso(), payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId: PRODUCT_MARKET_ID, sourceEventId: eventId, blockNumber: payloadString(latestProductEvent, "blockNumber"), transactionHash: payloadString(latestProductEvent, "transactionHash"), topic0: payloadString(latestProductEvent, "topic0") } }));
   };
-  publishLatestProductEvent();
+  const publishDiscoveredMarket = (marketId: string, source: string) => {
+    realtime.publish(realtime.createEvent({
+      id: `${PRODUCT_DEPLOYMENT_ID}:discovery:${source}:${marketId}`,
+      type: "market.discovered",
+      occurredAt: nowIso(),
+      payload: { deploymentId: PRODUCT_DEPLOYMENT_ID, marketId, source },
+    }));
+  };
+  const registryCounts = () => {
+    const now = Date.now();
+    const rows = indexer.storage.list("market_universe")
+      .map((record) => record.payload)
+      .filter((market) => market.registryVerified === true);
+    const current = rows.filter((market) => {
+      const availability = market.registryAvailability;
+      if (availability === null || typeof availability !== "object") return false;
+      const observedAt = (availability as Record<string, unknown>).observedAt;
+      if (typeof observedAt !== "string") return false;
+      const age = now - Date.parse(observedAt);
+      return Number.isFinite(age) && age >= 0 && age <= MARKET_REGISTRY_MAX_AGE_SECONDS * 1_000;
+    });
+    return {
+      registeredPerpCount: current.length,
+      livePerpCount: current.filter((market) => {
+        const availability = market.registryAvailability as Record<string, unknown>;
+        return availability.status === "LIVE";
+      }).length,
+    };
+  };
   const databaseHealth = healthRecord("DATABASE", "OPERATIONAL", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: "FRESH" });
+  const deploymentConfig = apiDeploymentConfig();
+  let polling = false;
+  const indexerHealth = (): HealthRecord => {
+    if (lastIndexError !== null) {
+      return healthRecord("INDEXER", state === null ? "UNAVAILABLE" : "DEGRADED", {
+        lastSuccessAt: indexer.lastProjectionAt,
+        latencyMs: null,
+        error: lastIndexError,
+        freshness: state === null ? "UNAVAILABLE" : "STALE",
+      });
+    }
+    if (state === null) return healthRecord("INDEXER", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "INITIAL_CHAIN_READ_PENDING", freshness: "UNAVAILABLE" });
+    const checkpointBlock = BigInt(payloadString(indexer.checkpoint() ?? {}, "blockNumber", "0"));
+    const backfillPending = checkpointBlock < indexer.lastHead;
+    return healthRecord("INDEXER", backfillPending ? "DEGRADED" : "OPERATIONAL", {
+      lastSuccessAt: indexer.lastProjectionAt,
+      latencyMs: null,
+      error: backfillPending ? "HISTORICAL_EVENT_BACKFILL_PENDING" : null,
+      freshness: backfillPending ? "STALE" : "FRESH",
+    });
+  };
   const options: ApiServerOptions = {
     readModel: new PersistenceApiReadModel(indexer.storage),
-    health: () => healthSnapshot(databaseHealth, healthRecord("INDEXER", "OPERATIONAL", { lastSuccessAt: indexer.lastProjectionAt, latencyMs: 0, error: null, freshness: "FRESH" }), oracleHealth(state), healthRecord("REALTIME_STREAM", realtime.status() === "LIVE" ? "OPERATIONAL" : "STALE", { lastSuccessAt: nowIso(), latencyMs: 0, error: null, freshness: realtime.status() === "LIVE" ? "FRESH" : "STALE" })),
+    health: () => healthSnapshot(
+      databaseHealth,
+      lastRpcSuccessAt === null
+        ? healthRecord("ARC_RPC", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: lastIndexError ?? "INITIAL_CHAIN_READ_PENDING", freshness: "UNAVAILABLE" })
+        : healthRecord("ARC_RPC", lastIndexError === null ? "OPERATIONAL" : "DEGRADED", { lastSuccessAt: lastRpcSuccessAt, latencyMs: null, error: lastIndexError, freshness: lastIndexError === null ? "FRESH" : "STALE" }),
+      indexerHealth(),
+      marketDiscovery.health(),
+      state === null
+        ? healthRecord("ORACLE", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "CHAIN_READS_NOT_READY", freshness: "UNAVAILABLE" })
+        : oracleHealth(state),
+      healthRecord("REALTIME_STREAM", "OPERATIONAL", { lastSuccessAt: nowIso(), latencyMs: null, error: null, freshness: "FRESH" }),
+      state !== null,
+    ),
     realtime,
+    runtime: () => {
+      const discovery = marketDiscoverySummary(indexer.storage);
+      const registry = registryCounts();
+      return {
+        config: {
+          ...deploymentConfig,
+          lifecycle: deploymentLifecycle({
+            deploymentStatus: state === null ? "PENDING" : "DEPLOYED",
+            registeredPerpCount: registry.registeredPerpCount,
+            livePerpCount: registry.livePerpCount,
+          }),
+        },
+        discoveryCount: discovery.discoveryCount,
+        currentlyObservedCount: discovery.currentlyObservedCount,
+        staleRetainedCount: discovery.staleRetainedCount,
+        registeredPerpCount: registry.registeredPerpCount,
+        livePerpCount: registry.livePerpCount,
+      };
+    },
   };
-  process.stdout.write(JSON.stringify({ mode: serve ? "LIVE_SERVE" : "LIVE_BOOTSTRAP", deploymentId: PRODUCT_DEPLOYMENT_ID, chainId: CHAIN_ID, startBlock: PRODUCT_START_BLOCK.toString(), head: indexer.lastHead.toString(), checkpoint: indexer.checkpoint(), state: safeJson(state), databasePath, apiVersion: "v1", marketId: PRODUCT_MARKET_ID }) + "\n");
-  if (!serve) { indexer.close(); return; }
+  const runIndexCycle = async (): Promise<void> => {
+    if (polling) return;
+    polling = true;
+    try {
+      const nextState = await indexer.bootstrap((observedState) => {
+        state = observedState;
+        lastRpcSuccessAt = nowIso();
+        publishMarketSnapshot(observedState);
+      });
+      state = nextState;
+      lastIndexError = null;
+      lastRpcSuccessAt = nowIso();
+      const registry = await indexer.readRegisteredMarkets();
+      const newRegistryMarkets = marketDiscovery.recordRegistrySnapshot(registry);
+      for (const marketId of newRegistryMarkets) publishDiscoveredMarket(marketId, "ARC_MARKET_REGISTRY");
+      publishMarketSnapshot(nextState);
+      publishLatestProductEvent();
+      process.stdout.write(JSON.stringify({ mode: serve ? "LIVE_SERVE" : "LIVE_BOOTSTRAP", deploymentId: PRODUCT_DEPLOYMENT_ID, chainId: CHAIN_ID, startBlock: PRODUCT_START_BLOCK.toString(), head: indexer.lastHead.toString(), checkpoint: indexer.checkpoint(), registeredMarkets: registry.registeredCount, registryStatus: registry.status, databasePath, apiVersion: "v1", marketId: PRODUCT_MARKET_ID }) + "\n");
+    } catch (error) {
+      lastIndexError = error instanceof Error ? error.message : String(error);
+      process.stderr.write(`INDEXER_CYCLE_FAILED=${lastIndexError}\n`);
+    } finally {
+      polling = false;
+    }
+  };
+  if (!serve) {
+    await runIndexCycle();
+    const discovery = await marketDiscovery.refresh();
+    for (const marketId of marketDiscovery.takeNewlyDiscoveredMarketIds()) publishDiscoveredMarket(marketId, "MARKET_DATA_PROVIDER");
+    process.stdout.write(JSON.stringify({ mode: "READ_ONLY_DISCOVERY", ...discovery }) + "\n");
+    indexer.close();
+    if (lastIndexError !== null) process.exitCode = 1;
+    return;
+  }
   const portArgument = process.argv.find((value) => value.startsWith("--port="));
   const port = Number(portArgument?.slice("--port=".length) ?? "8787");
   const hostArgument = process.argv.find((value) => value.startsWith("--host="));
@@ -674,18 +1121,24 @@ async function main(): Promise<void> {
   const server = createReadOnlyApiServer(options);
   await new Promise<void>((resolveListen) => server.listen(port, host, resolveListen));
   process.stdout.write(`LIVE_API_LISTENING=http://${host}:${port}/api/v1\n`);
-  let polling = false;
-  const pollTimer = pollMs === 0 ? null : setInterval(() => {
-    if (polling) return;
-    polling = true;
-    void indexer.bootstrap().then((nextState) => {
-      state = nextState;
-      publishLatestProductEvent();
-    }).catch((error: unknown) => {
-      process.stderr.write(`INDEXER_POLL_FAILED=${error instanceof Error ? error.message : String(error)}\n`);
-    }).finally(() => { polling = false; });
-  }, pollMs);
-  const close = () => { if (pollTimer !== null) clearInterval(pollTimer); server.close(); indexer.close(); };
+  const configuredDiscoveryIntervalMs = Number(process.env.MARKET_DISCOVERY_INTERVAL_MS ?? "120000");
+  const discoveryIntervalMs = Number.isFinite(configuredDiscoveryIntervalMs)
+    ? Math.max(30_000, configuredDiscoveryIntervalMs)
+    : 120_000;
+  const runDiscoveryCycle = async (): Promise<void> => {
+    try {
+      const summary = await marketDiscovery.refresh();
+      for (const marketId of marketDiscovery.takeNewlyDiscoveredMarketIds()) publishDiscoveredMarket(marketId, "MARKET_DATA_PROVIDER");
+      process.stdout.write(JSON.stringify({ mode: "READ_ONLY_DISCOVERY", ...summary }) + "\n");
+    } catch (error) {
+      process.stderr.write(`MARKET_DISCOVERY_CYCLE_FAILED=${error instanceof Error ? error.message : String(error)}\n`);
+    }
+  };
+  void runDiscoveryCycle();
+  void runIndexCycle();
+  const pollTimer = pollMs === 0 ? null : setInterval(() => { void runIndexCycle(); }, pollMs);
+  const discoveryTimer = setInterval(() => { void runDiscoveryCycle(); }, discoveryIntervalMs);
+  const close = () => { if (pollTimer !== null) clearInterval(pollTimer); clearInterval(discoveryTimer); server.close(); indexer.close(); };
   process.once("SIGINT", close);
   process.once("SIGTERM", close);
 }

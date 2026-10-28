@@ -11,6 +11,7 @@ coverage/
 artifacts/
 broadcast/
 /lib/
+/var/keeper-state.json
 apps/frontend/test-results/
 evidence/phase10-playwright-report/
 evidence/gate5/playwright-report/

@@ -8,14 +8,14 @@ import {
   type Abi,
   type Hex,
   type Address,
-  formatEther
+  formatUnits
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
 
 const ARC_MAINNET = defineChain({
   id: 5042,
   name: "Arc Mainnet",
-  nativeCurrency: { name: "Arc", symbol: "ARC", decimals: 18 },
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
   rpcUrls: { default: { http: [process.env.ARC_RPC_URL || "https://rpc.mainnet.arc.io"] } },
   blockExplorers: { default: { name: "Arc Explorer", url: "https://explorer.arc.io" } },
 });
@@ -49,7 +49,7 @@ async function main() {
   const walletClient = createWalletClient({ account, chain: ARC_MAINNET, transport: http() });
 
   const initialBalance = await publicClient.getBalance({ address: account.address });
-  console.log(`Initial Native Gas Balance: ${formatEther(initialBalance)} ARC`);
+  console.log(`Initial Native Gas Balance: ${formatUnits(initialBalance, 18)} USDC`);
 
   const deployed: Record<string, Address> = {
     USDCMarginVault: EXISTING_VAULT,
@@ -230,8 +230,8 @@ async function main() {
   const gasSpent = initialBalance - finalBalance;
   console.log(`\n=======================================================`);
   console.log(`DEPLOYMENT COMPLETE!`);
-  console.log(`Final Gas Balance: ${formatEther(finalBalance)} ARC`);
-  console.log(`Total Gas Spent: ${formatEther(gasSpent)} ARC`);
+  console.log(`Final Gas Balance: ${formatUnits(finalBalance, 18)} USDC`);
+  console.log(`Total Gas Spent: ${formatUnits(gasSpent, 18)} USDC`);
   console.log(`=======================================================`);
 
   const output = {

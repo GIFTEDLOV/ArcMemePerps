@@ -85,6 +85,38 @@ contract Gate4DCompletionTest {
         vault.deposit(1_000_000);
     }
 
+    function testPublicLpRepeatedWithdrawalRequestsCannotExceedShareBalance() public {
+        MockUSDC usdc = new MockUSDC();
+        PublicLPVault vault = new PublicLPVault(address(usdc), 10);
+        _activate(vault);
+        usdc.mint(address(this), 1_000_000);
+        usdc.approve(address(vault), type(uint256).max);
+        vault.deposit(1_000_000);
+
+        vault.requestWithdraw(600_000);
+        vm.expectRevert();
+        vault.requestWithdraw(500_000);
+
+        vm.warp(vm.getBlockTimestamp() + 10);
+        require(vault.claimWithdraw() == 600_000);
+        require(vault.shareBalance(address(this)) == 400_000);
+    }
+
+    function testPublicLpPartialWithdrawalRequestsMaySumToOwnedShares() public {
+        MockUSDC usdc = new MockUSDC();
+        PublicLPVault vault = new PublicLPVault(address(usdc), 10);
+        _activate(vault);
+        usdc.mint(address(this), 1_000_000);
+        usdc.approve(address(vault), type(uint256).max);
+        vault.deposit(1_000_000);
+
+        vault.requestWithdraw(400_000);
+        vault.requestWithdraw(600_000);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        require(vault.claimWithdraw() == 1_000_000);
+        require(vault.shareBalance(address(this)) == 0);
+    }
+
     function testPublicLpUnexpectedTransferIsSurplusNotNav() public {
         MockUSDC usdc = new MockUSDC();
         PublicLPVault vault = new PublicLPVault(address(usdc), 1);

@@ -1,8 +1,8 @@
 export type Availability = "AVAILABLE" | "PARTIAL" | "STALE" | "UNAVAILABLE" | "CONFLICTED";
-export type Chain = "SOLANA" | "BASE" | "BNB" | "ETHEREUM" | "ARC" | "ROBINHOOD";
-export type Lifecycle = "NEW" | "BONDING" | "BONDED" | "GRADUATED" | "MIGRATED" | "DEX_LIVE" | "ESTABLISHED" | "DISCOVERED";
+export type Chain = "SOLANA" | "BASE" | "BNB" | "ETHEREUM" | "ARC" | "ROBINHOOD" | "UNKNOWN";
+export type Lifecycle = "NEW" | "BONDING" | "BONDED" | "GRADUATED" | "MIGRATED" | "DEX_LIVE" | "ESTABLISHED" | "DISCOVERED" | "UNKNOWN";
 export type Integrity = "PENDING" | "WATCH" | "QUALIFIED" | "REJECTED" | "UNKNOWN";
-export type PerpState = "NOT_REGISTERED" | "ELIGIBLE" | "LIVE" | "PAUSED" | "CLOSE_ONLY" | "BLOCKED";
+export type PerpState = "NOT_REGISTERED" | "ELIGIBLE" | "LIVE" | "PAUSED" | "CLOSE_ONLY" | "BLOCKED" | "UNKNOWN";
 
 export interface Observation {
   provider: string;
@@ -68,6 +68,13 @@ export interface MarketPage {
   currentlyObservedCount?: number | null;
   staleRetainedCount?: number | null;
   perpCount?: number | null;
+  sources?: Array<{
+    provider: string;
+    status: Availability;
+    fetchedAt: string | null;
+    marketCount: number | null;
+    reason: string | null;
+  }>;
 }
 
 export interface Health {

@@ -1,4 +1,4 @@
-import { createPublicClient, http, formatEther, formatUnits } from 'viem';
+import { createPublicClient, http, formatUnits } from 'viem';
 
 const client = createPublicClient({ transport: http('https://rpc.mainnet.arc.io') });
 const USDC_ADDRESS = '0x3600000000000000000000000000000000000000';
@@ -21,9 +21,9 @@ async function run() {
   for (const a of addrs) {
     try {
       const bal = await client.getBalance({ address: a as any });
-      let usdc = 0n;
+      let usdc: bigint | null = null;
       try {
-        usdc = await client.readContract({
+          usdc = await client.readContract({
           address: USDC_ADDRESS,
           abi: erc20Abi,
           functionName: 'balanceOf',
@@ -31,8 +31,8 @@ async function run() {
         });
       } catch (e) {}
       console.log(`Address: ${a}`);
-      console.log(`  Native Gas: ${formatEther(bal)} ARC`);
-      console.log(`  USDC: ${formatUnits(usdc, 6)} USDC\n`);
+      console.log(`  Native Gas: ${formatUnits(bal, 18)} USDC`);
+      console.log(`  USDC: ${usdc === null ? 'unavailable' : `${formatUnits(usdc, 6)} USDC`}\n`);
     } catch (e) {
       console.log(`Error checking ${a}:`, e);
     }

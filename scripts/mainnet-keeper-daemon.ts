@@ -1,456 +1,420 @@
 #!/usr/bin/env node
 /**
- * CLUSTER Production Keeper & Liquidation Sentinel Daemon
- *
- * Operational Scope:
- * 1. Arc Mainnet On-Chain Position Health & Liquidation Execution
- * 2. Multichain Discovery Sentinel & Anti-Rug Quarantine Monitoring
- * 3. Multi-Channel Operator Alert Dispatch (Telegram & Discord)
- * 4. Production Health & Diagnostic HTTP Server (Railway / Fly.io / Docker / Watchdog)
+ * Read-only by default. Liquidation writes require both --execute and
+ * KEEPER_ENABLE_MAINNET_LIQUIDATIONS=true, plus a verified manifest and keeper role.
+ * This daemon intentionally does not use a checked-in market snapshot as live input.
  */
 
 import { createServer } from "node:http";
-import { existsSync, readFileSync, writeFileSync } from "node:fs";
-import { resolve } from "node:path";
+import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import {
   createPublicClient,
   createWalletClient,
   defineChain,
+  formatUnits,
   http,
+  parseAbiItem,
   type Address,
   type Hex,
-  formatEther
 } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { dispatchMultiChannelAlert, type AlertPayload } from "@arcmemeperps/providers";
+import { applyPositionIndexPage, classifyLiquidationError, shouldExecuteMainnetKeeper } from "./keeper-safety";
 
+const RPC_URL = process.env.ARC_RPC_URL || "https://rpc.mainnet.arc.io";
 const ARC_MAINNET = defineChain({
   id: 5042,
   name: "Arc Mainnet",
-  nativeCurrency: { name: "Arc", symbol: "ARC", decimals: 18 },
-  rpcUrls: { default: { http: [process.env.ARC_RPC_URL || "https://rpc.mainnet.arc.io"] } },
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
+  rpcUrls: { default: { http: [RPC_URL] } },
   blockExplorers: { default: { name: "Arc Explorer", url: "https://explorer.arc.io" } },
 });
 
-// ZERO FALLBACKS: Fail immediately in fail-closed mode if no keeper secret is provided
-const rawKeeperKey = process.env.ARC_KEEPER_PRIVATE_KEY || process.env.KEEPER_PRIVATE_KEY;
-if (!rawKeeperKey || !rawKeeperKey.startsWith("0x") || rawKeeperKey.length !== 66) {
-  console.error("[CRITICAL][SECURITY] Missing or invalid ARC_KEEPER_PRIVATE_KEY environment variable.");
-  console.error("[CRITICAL][SECURITY] Refusing to start keeper daemon in an unauthenticated or fallback state.");
-  process.exit(1);
-}
-const KEEPER_KEY = rawKeeperKey as Hex;
-
 const CONTRACT_MANIFEST = resolve(process.cwd(), "evidence/mainnet/contracts.json");
-const STATE_FILE = resolve(process.cwd(), "evidence/keeper-state.json");
-const SNAPSHOT_FILE = resolve(process.cwd(), "evidence/winner-rebuild/discovery-snapshot.json");
+const STATE_FILE = resolve(process.env.KEEPER_STATE_FILE || "var/keeper-state.json");
+const MAX_EVENT_BLOCKS_PER_CYCLE = 10_000n;
+const MAX_TOUCHED_POSITIONS_PER_CYCLE = 1_000;
+const MAX_TRACKED_ACTIVE_POSITIONS = 1_000;
+
+const positionEvents = [
+  parseAbiItem("event PositionOpened(uint256 indexed positionId, address indexed trader, bytes32 indexed marketId, bool isLong, uint256 collateral, uint256 size, uint256 entryPrice)"),
+  parseAbiItem("event PositionReduced(uint256 indexed positionId, uint256 collateralReleased, uint256 sizeReduced)"),
+  parseAbiItem("event PositionClosed(uint256 indexed positionId, int256 pnl, uint256 badDebt)"),
+  parseAbiItem("event PositionLiquidated(uint256 indexed positionId, int256 pnl, uint256 badDebt)"),
+  parseAbiItem("event ADLPositionReduced(uint256 indexed positionId, uint256 sizeReduced, uint256 economicReduction, uint256 executionPrice)"),
+] as const;
+
+interface KeeperState {
+  lastConfirmedCycle: string | null;
+  totalCycles: number;
+  confirmedLiquidations: Array<{ positionId: string; txHash: string; timestamp: string }>;
+  eventCheckpoint: string;
+  activePositionIds: string[];
+  indexIdentity: string;
+}
 
 interface DiagnosticMetrics {
-  lastSuccessfulCycle: string | null;
+  lastSuccessfulRead: string | null;
   lastCycleDurationMs: number;
   lastRpcLatencyMs: number;
   consecutiveFailures: number;
   lastError: string | null;
-  keeperAddress: string;
-  keeperBalanceArc: string;
+  keeperAddress: string | null;
+  keeperBalanceUsdc: string | null;
   isAuthorizedKeeper: boolean | null;
+  executionEnabled: boolean;
+  positionsScanned: number;
+  openPositions: number;
+  simulatedLiquidations: number | null;
+  indexReady: boolean;
 }
 
 const diagnostics: DiagnosticMetrics = {
-  lastSuccessfulCycle: null,
+  lastSuccessfulRead: null,
   lastCycleDurationMs: 0,
   lastRpcLatencyMs: 0,
   consecutiveFailures: 0,
   lastError: null,
-  keeperAddress: "",
-  keeperBalanceArc: "0.0",
+  keeperAddress: null,
+  keeperBalanceUsdc: null,
   isAuthorizedKeeper: null,
+  executionEnabled: false,
+  positionsScanned: 0,
+  openPositions: 0,
+  simulatedLiquidations: null,
+  indexReady: false,
 };
 
-interface KeeperState {
-  lastRun: string;
-  totalCycles: number;
-  quarantinedCount: number;
-  quarantinedSymbols: Record<string, { reason: string; quarantinedAt: string }>;
-  settledPositions: Array<{
-    positionId: string;
-    symbol: string;
-    preservedCollateral: string;
-    reason: string;
-    timestamp: string;
-  }>;
-  onchainLiquidations: Array<{
-    positionId: string;
-    txHash: string;
-    timestamp: string;
-  }>;
-}
+let cycleRunning = false;
 
-function loadContracts() {
-  if (existsSync(CONTRACT_MANIFEST)) {
-    try {
-      const data = JSON.parse(readFileSync(CONTRACT_MANIFEST, "utf8"));
-      return data.deployedAddresses as Record<string, Address>;
-    } catch {}
+function loadContracts(): { PerpEngine: Address; deploymentBlock: bigint } {
+  if (!existsSync(CONTRACT_MANIFEST)) {
+    throw new Error("Missing evidence/mainnet/contracts.json; no hard-coded contract fallback is permitted.");
   }
-  return {
-    USDCMarginVault: "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf" as Address,
-    PerpEngine: "0xd9c3cbf1841103749f379cc1aae1a9284d8dc3e1" as Address,
-    OracleRouter: "0x1531c83ac90e5ec5998eaf42a4464757dcd2c3ff" as Address,
-    RiskConfig: "0x89ea15e527f7d06503ed2e7c958c2ac0e5799f85" as Address,
-    MarketRegistry: "0x7ebddb2c1f1ae68a2e5b984fe9e75115cdb8ef1b" as Address,
+  const manifest = JSON.parse(readFileSync(CONTRACT_MANIFEST, "utf8")) as {
+    chainId?: number;
+    deployedAddresses?: Record<string, string>;
+    receipts?: Record<string, { blockNumber?: string }>;
   };
+  if (manifest.chainId !== ARC_MAINNET.id) throw new Error("Contract manifest chainId does not match Arc Mainnet (5042).");
+  const address = manifest.deployedAddresses?.PerpEngine;
+  if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address) || /^0x0{40}$/i.test(address)) {
+    throw new Error("Contract manifest has no valid PerpEngine address.");
+  }
+  const rawDeploymentBlock = manifest.receipts?.PerpEngine?.blockNumber;
+  if (!rawDeploymentBlock || !/^\d+$/.test(rawDeploymentBlock) || BigInt(rawDeploymentBlock) <= 0n) {
+    throw new Error("Contract manifest has no valid PerpEngine deployment block for event indexing.");
+  }
+  return { PerpEngine: address as Address, deploymentBlock: BigInt(rawDeploymentBlock) };
 }
 
-function loadState(): KeeperState {
-  if (existsSync(STATE_FILE)) {
-    try {
-      return JSON.parse(readFileSync(STATE_FILE, "utf-8")) as KeeperState;
-    } catch {}
-  }
-  return {
-    lastRun: new Date().toISOString(),
+function loadState(deploymentBlock: bigint, engineAddress: Address): KeeperState {
+  const indexIdentity = `${ARC_MAINNET.id}:${engineAddress.toLowerCase()}:${deploymentBlock}`;
+  const initial: KeeperState = {
+    lastConfirmedCycle: null,
     totalCycles: 0,
-    quarantinedCount: 0,
-    quarantinedSymbols: {},
-    settledPositions: [],
-    onchainLiquidations: [],
+    confirmedLiquidations: [],
+    eventCheckpoint: (deploymentBlock - 1n).toString(),
+    activePositionIds: [],
+    indexIdentity,
   };
+  if (!existsSync(STATE_FILE)) return initial;
+  try {
+    const parsed = JSON.parse(readFileSync(STATE_FILE, "utf8")) as Partial<KeeperState>;
+    if (parsed.indexIdentity && parsed.indexIdentity !== indexIdentity) {
+      throw new Error("Keeper state belongs to a different chain, PerpEngine, or deployment block; use a separate KEEPER_STATE_FILE.");
+    }
+    const checkpoint = typeof parsed.eventCheckpoint === "string" && /^\d+$/.test(parsed.eventCheckpoint)
+      ? BigInt(parsed.eventCheckpoint)
+      : deploymentBlock - 1n;
+    const activePositionIds = Array.isArray(parsed.activePositionIds)
+      ? parsed.activePositionIds.filter((id): id is string => typeof id === "string" && /^\d+$/.test(id))
+      : [];
+    const state: KeeperState = {
+      lastConfirmedCycle: typeof parsed.lastConfirmedCycle === "string" ? parsed.lastConfirmedCycle : null,
+      totalCycles: Number.isSafeInteger(parsed.totalCycles) && (parsed.totalCycles ?? 0) >= 0 ? parsed.totalCycles! : 0,
+      // Legacy quarantine rows and unconfirmed write hashes are deliberately ignored.
+      confirmedLiquidations: Array.isArray(parsed.confirmedLiquidations)
+        ? parsed.confirmedLiquidations.filter((item) =>
+            typeof item?.positionId === "string" && /^\d+$/.test(item.positionId) &&
+            typeof item?.txHash === "string" && /^0x[0-9a-fA-F]{64}$/.test(item.txHash) &&
+            typeof item?.timestamp === "string" && Number.isFinite(Date.parse(item.timestamp)))
+        : [],
+      eventCheckpoint: (checkpoint >= deploymentBlock - 1n ? checkpoint : deploymentBlock - 1n).toString(),
+      activePositionIds: [...new Set(activePositionIds)],
+      indexIdentity,
+    };
+    if (state.activePositionIds.length > MAX_TRACKED_ACTIVE_POSITIONS) {
+      throw new Error(`Keeper state exceeds the ${MAX_TRACKED_ACTIVE_POSITIONS} active-position safety cap.`);
+    }
+    return state;
+  } catch {
+    throw new Error("Keeper state file is invalid; refusing to overwrite it.");
+  }
 }
 
 function saveState(state: KeeperState): void {
-  writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), "utf-8");
+  mkdirSync(dirname(STATE_FILE), { recursive: true });
+  const temporaryFile = `${STATE_FILE}.tmp`;
+  writeFileSync(temporaryFile, JSON.stringify(state, null, 2), "utf8");
+  renameSync(temporaryFile, STATE_FILE);
 }
 
-function loadMarkets() {
-  if (existsSync(SNAPSHOT_FILE)) {
-    try {
-      const parsed = JSON.parse(readFileSync(SNAPSHOT_FILE, "utf-8"));
-      return (parsed.markets || parsed.items || []) as any[];
-    } catch {}
-  }
-  return [];
-}
+const perpAbi = [
+  {
+    type: "function",
+    name: "positions",
+    inputs: [{ name: "positionId", type: "uint256" }],
+    outputs: [
+      { name: "trader", type: "address" },
+      { name: "marketId", type: "bytes32" },
+      { name: "isLong", type: "bool" },
+      { name: "collateral", type: "uint256" },
+      { name: "size", type: "uint256" },
+      { name: "entryPrice", type: "uint256" },
+      { name: "open", type: "bool" },
+    ],
+    stateMutability: "view",
+  },
+  { type: "function", name: "liquidationKeeper", inputs: [{ name: "keeper", type: "address" }], outputs: [{ name: "", type: "bool" }], stateMutability: "view" },
+  { type: "function", name: "liquidate", inputs: [{ name: "positionId", type: "uint256" }], outputs: [], stateMutability: "nonpayable" },
+] as const;
 
-/**
- * Classifies transaction/revert errors precisely.
- * Avoids misreporting authorization, oracle, or network errors as healthy positions.
- */
-function classifyLiquidationError(error: any): { category: string; description: string; isHealthy: boolean } {
-  const msg = (error?.message || error?.details || error?.shortMessage || String(error)).toLowerCase();
-
-  if (
-    msg.includes("positionhealthy") ||
-    msg.includes("notliquidatable") ||
-    msg.includes("healthy") ||
-    msg.includes("marginhealthy")
-  ) {
-    return { category: "NOT_LIQUIDATABLE", description: "Position margin is currently above maintenance threshold", isHealthy: true };
-  }
-
-  if (msg.includes("unauthorized") || msg.includes("notowner") || msg.includes("onlyliquidationkeeper")) {
-    return { category: "UNAUTHORIZED_KEEPER", description: "Keeper account lacks required on-chain authorization on PerpEngine", isHealthy: false };
-  }
-
-  if (msg.includes("stale") || msg.includes("stalereport") || msg.includes("expired") || msg.includes("sequence")) {
-    return { category: "STALE_ORACLE", description: "Oracle report is expired or monotonic sequence mismatch", isHealthy: false };
-  }
-
-  if (msg.includes("insufficient funds") || msg.includes("gas") || msg.includes("nonce")) {
-    return { category: "GAS_OR_NONCE_ERROR", description: "Keeper wallet has insufficient gas or nonce conflict", isHealthy: false };
-  }
-
-  if (msg.includes("timeout") || msg.includes("connection") || msg.includes("fetch failed") || msg.includes("econnrefused")) {
-    return { category: "RPC_NETWORK_ERROR", description: "Network timeout or RPC unreachable", isHealthy: false };
-  }
-
-  return { category: "UNKNOWN_REVERT", description: `Contract reverted: ${msg.slice(0, 100)}`, isHealthy: false };
-}
-
-export async function runDaemonCycle(options: { dryRun?: boolean } = {}) {
+export async function runDaemonCycle(options: { dryRun?: boolean; executionRequested?: boolean } = {}) {
+  if (cycleRunning) throw new Error("Keeper cycle already running; overlapping cycles are refused.");
+  cycleRunning = true;
   const startTime = Date.now();
-  const account = privateKeyToAccount(KEEPER_KEY);
-  diagnostics.keeperAddress = account.address;
-
-  const publicClient = createPublicClient({ chain: ARC_MAINNET, transport: http() });
-  const walletClient = createWalletClient({ account, chain: ARC_MAINNET, transport: http() });
-  const contracts = loadContracts();
-  const state = loadState();
-
-  console.log(`\n=======================================================`);
-  console.log(`[CLUSTER KEEPER CYCLE] ${new Date().toISOString()}`);
-  console.log(`Keeper Address: ${account.address}`);
-  console.log(`PerpEngine:     ${contracts.PerpEngine}`);
-  console.log(`USDCMarginVault: ${contracts.USDCMarginVault}`);
-  console.log(`=======================================================`);
-
-  // 1. Check keeper balance and RPC latency
-  try {
-    const t0 = Date.now();
-    const bal = await publicClient.getBalance({ address: account.address });
-    diagnostics.lastRpcLatencyMs = Date.now() - t0;
-    diagnostics.keeperBalanceArc = formatEther(bal);
-    console.log(`Keeper Native Gas Balance: ${diagnostics.keeperBalanceArc} ARC (RPC Latency: ${diagnostics.lastRpcLatencyMs}ms)`);
-  } catch (err) {
-    diagnostics.consecutiveFailures++;
-    diagnostics.lastError = `RPC Error fetching balance: ${(err as Error).message}`;
-    console.warn(`[WARNING] Could not fetch keeper balance:`, diagnostics.lastError);
-  }
-
-  // 2. Verify on-chain keeper authorization on PerpEngine
-  const keeperRoleAbi = [
-    {
-      type: "function",
-      name: "liquidationKeeper",
-      inputs: [{ name: "keeper", type: "address" }],
-      outputs: [{ name: "", type: "bool" }],
-      stateMutability: "view",
-    },
-  ] as const;
+  const dryRun = options.dryRun !== false;
+  const executionEnabled = !dryRun && options.executionRequested === true && shouldExecuteMainnetKeeper(["--execute"], process.env.KEEPER_ENABLE_MAINNET_LIQUIDATIONS);
+  diagnostics.executionEnabled = executionEnabled;
 
   try {
-    const isAuth = await publicClient.readContract({
-      address: contracts.PerpEngine,
-      abi: keeperRoleAbi,
-      functionName: "liquidationKeeper",
-      args: [account.address],
-    });
-    diagnostics.isAuthorizedKeeper = isAuth;
-    console.log(`Keeper On-Chain Authorization: ${isAuth ? "✓ AUTHORIZED" : "⚠ NOT AUTHORIZED (Needs Governance Role)"}`);
-  } catch (authErr) {
-    console.warn(`  Could not verify keeper role: ${(authErr as Error).message.slice(0, 60)}`);
-  }
+    if (!dryRun && !executionEnabled) {
+      throw new Error("Execution refused: pass --execute and set KEEPER_ENABLE_MAINNET_LIQUIDATIONS=true.");
+    }
 
-  // 3. Scan On-Chain Positions for Liquidations
-  console.log(`[ON-CHAIN KEEPER] Scanning positions on PerpEngine...`);
-  let liquidationsTriggered = 0;
+    let account: ReturnType<typeof privateKeyToAccount> | undefined;
+    if (executionEnabled) {
+      const rawKeeperKey = process.env.ARC_KEEPER_PRIVATE_KEY || process.env.KEEPER_PRIVATE_KEY;
+      if (!rawKeeperKey || !/^0x[0-9a-fA-F]{64}$/.test(rawKeeperKey)) {
+        throw new Error("Execution refused: ARC_KEEPER_PRIVATE_KEY is missing or malformed.");
+      }
+      account = privateKeyToAccount(rawKeeperKey as Hex);
+      diagnostics.keeperAddress = account.address;
+    } else if (process.env.KEEPER_ADDRESS && /^0x[0-9a-fA-F]{40}$/.test(process.env.KEEPER_ADDRESS)) {
+      diagnostics.keeperAddress = process.env.KEEPER_ADDRESS;
+    } else {
+      diagnostics.keeperAddress = null;
+    }
 
-  const perpAbi = [
-    {
-      type: "function",
-      name: "nextPositionId",
-      inputs: [],
-      outputs: [{ name: "", type: "uint256" }],
-      stateMutability: "view",
-    },
-    {
-      type: "function",
-      name: "positions",
-      inputs: [{ name: "positionId", type: "uint256" }],
-      outputs: [
-        { name: "trader", type: "address" },
-        { name: "marketId", type: "bytes32" },
-        { name: "isLong", type: "bool" },
-        { name: "collateral", type: "uint256" },
-        { name: "size", type: "uint256" },
-        { name: "entryPrice", type: "uint256" },
-        { name: "open", type: "bool" },
-      ],
-      stateMutability: "view",
-    },
-    {
-      type: "function",
-      name: "liquidate",
-      inputs: [{ name: "positionId", type: "uint256" }],
-      outputs: [],
-      stateMutability: "nonpayable",
-    },
-  ] as const;
+    const publicClient = createPublicClient({ chain: ARC_MAINNET, transport: http(RPC_URL) });
+    const contracts = loadContracts();
+    const chainId = await publicClient.getChainId();
+    if (chainId !== ARC_MAINNET.id) throw new Error(`RPC chainId ${chainId} does not match 5042.`);
 
-  try {
-    const nextId = (await publicClient.readContract({
-      address: contracts.PerpEngine,
-      abi: perpAbi,
-      functionName: "nextPositionId",
-    })) as bigint;
+    const code = await publicClient.getCode({ address: contracts.PerpEngine });
+    if (!code || code === "0x") throw new Error("PerpEngine has no bytecode at the manifest address.");
 
-    console.log(`  Total on-chain positions recorded: ${nextId.toString()}`);
+    if (diagnostics.keeperAddress) {
+      const isAuthorized = await publicClient.readContract({
+        address: contracts.PerpEngine,
+        abi: perpAbi,
+        functionName: "liquidationKeeper",
+        args: [diagnostics.keeperAddress as Address],
+      });
+      diagnostics.isAuthorizedKeeper = isAuthorized;
+      if (executionEnabled && !isAuthorized) throw new Error("Execution refused: keeper is not authorized on PerpEngine.");
+    } else {
+      diagnostics.isAuthorizedKeeper = null;
+    }
 
-    for (let id = 1n; id < nextId; id++) {
-      try {
-        const pos = await publicClient.readContract({
+    if (executionEnabled && !account) throw new Error("Execution refused: signer account is unavailable.");
+    const walletClient = executionEnabled && account
+      ? createWalletClient({ account, chain: ARC_MAINNET, transport: http(RPC_URL) })
+      : null;
+
+    const balanceAddress = diagnostics.keeperAddress;
+    if (balanceAddress) {
+      const started = Date.now();
+      const balance = await publicClient.getBalance({ address: balanceAddress as Address });
+      diagnostics.lastRpcLatencyMs = Date.now() - started;
+      diagnostics.keeperBalanceUsdc = formatUnits(balance, 18);
+    }
+
+    const state = loadState(contracts.deploymentBlock, contracts.PerpEngine);
+    const headBlock = await publicClient.getBlockNumber();
+    const checkpoint = BigInt(state.eventCheckpoint);
+    if (checkpoint > headBlock) throw new Error("Keeper event checkpoint is ahead of the RPC head; refusing to trust a reorged or inconsistent index.");
+    const fromBlock = checkpoint + 1n;
+    const toBlock = fromBlock > headBlock
+      ? checkpoint
+      : (headBlock - checkpoint > MAX_EVENT_BLOCKS_PER_CYCLE ? checkpoint + MAX_EVENT_BLOCKS_PER_CYCLE : headBlock);
+    let touchedIds: string[] = [];
+
+    if (fromBlock <= toBlock) {
+      const touched = new Set<string>();
+      for (const event of positionEvents) {
+        const logs = await publicClient.getLogs({ address: contracts.PerpEngine, event, fromBlock, toBlock });
+        for (const log of logs) {
+          const args = log.args as { positionId?: bigint };
+          if (typeof args.positionId === "bigint") touched.add(args.positionId.toString());
+        }
+      }
+      if (touched.size > MAX_TOUCHED_POSITIONS_PER_CYCLE) {
+        throw new Error(`Event page touched ${touched.size} positions, above the ${MAX_TOUCHED_POSITIONS_PER_CYCLE} safety cap; checkpoint was not advanced.`);
+      }
+      touchedIds = [...touched];
+      const openById = new Map<string, boolean>();
+      for (const id of touchedIds) {
+        const position = await publicClient.readContract({
           address: contracts.PerpEngine,
           abi: perpAbi,
           functionName: "positions",
-          args: [id],
+          args: [BigInt(id)],
         });
+        openById.set(id, position[6]);
+      }
+      const nextActive = applyPositionIndexPage(state.activePositionIds, touchedIds, openById);
+      if (nextActive.length > MAX_TRACKED_ACTIVE_POSITIONS) {
+        throw new Error(`Active positions exceed the ${MAX_TRACKED_ACTIVE_POSITIONS} safety cap; checkpoint was not advanced.`);
+      }
+      state.activePositionIds = nextActive;
+      state.eventCheckpoint = toBlock.toString();
+      saveState(state);
+    }
 
-        if (pos[6]) { // pos.open === true
-          console.log(`  Evaluating open position #${id}: trader=${pos[0]} size=${pos[4]}`);
-          if (!options.dryRun) {
-            try {
-              const hash = await walletClient.writeContract({
-                address: contracts.PerpEngine,
-                abi: perpAbi,
-                functionName: "liquidate",
-                args: [id],
-              });
-              console.log(`  ⚡ LIQUIDATION EXECUTED for position #${id}: ${hash}`);
-              liquidationsTriggered++;
-              state.onchainLiquidations.push({
-                positionId: id.toString(),
-                txHash: hash,
-                timestamp: new Date().toISOString(),
-              });
-            } catch (liqErr) {
-              const classified = classifyLiquidationError(liqErr);
-              if (classified.isHealthy) {
-                console.log(`  ✓ Position #${id} is healthy: ${classified.description}`);
-              } else {
-                console.error(`  [LIQUIDATION FAILED][${classified.category}] Position #${id}: ${classified.description}`);
-              }
-            }
-          }
+    diagnostics.indexReady = BigInt(state.eventCheckpoint) >= headBlock;
+    const openPositions: Array<{ id: bigint; open: boolean }> = [];
+    for (const id of state.activePositionIds) {
+      const position = await publicClient.readContract({ address: contracts.PerpEngine, abi: perpAbi, functionName: "positions", args: [BigInt(id)] });
+      if (position[6]) openPositions.push({ id: BigInt(id), open: true });
+    }
+    diagnostics.positionsScanned = touchedIds.length + openPositions.length;
+    diagnostics.openPositions = openPositions.length;
+
+    const liquidatable: bigint[] = [];
+    const canSimulateAsKeeper = diagnostics.indexReady && diagnostics.keeperAddress !== null && diagnostics.isAuthorizedKeeper === true;
+    if (canSimulateAsKeeper) {
+      for (const position of openPositions) {
+        try {
+          await publicClient.simulateContract({
+            address: contracts.PerpEngine,
+            abi: perpAbi,
+            functionName: "liquidate",
+            args: [position.id],
+            account: diagnostics.keeperAddress as Address,
+          });
+          liquidatable.push(position.id);
+        } catch (error) {
+          const classified = classifyLiquidationError(error);
+          if (!classified.isHealthy) throw new Error(`[${classified.category}] ${classified.description}`);
         }
-      } catch (posErr) {
-        // Individual position read issue
+      }
+      diagnostics.simulatedLiquidations = liquidatable.length;
+    } else {
+      diagnostics.simulatedLiquidations = null;
+    }
+
+    if (executionEnabled && walletClient && diagnostics.indexReady) {
+      for (const positionId of liquidatable) {
+        // Repeat simulation immediately before each write to reduce stale-state risk.
+        await publicClient.simulateContract({ address: contracts.PerpEngine, abi: perpAbi, functionName: "liquidate", args: [positionId], account: account!.address });
+        const hash = await walletClient.writeContract({ address: contracts.PerpEngine, abi: perpAbi, functionName: "liquidate", args: [positionId] });
+        const receipt = await publicClient.waitForTransactionReceipt({ hash, confirmations: 1 });
+        if (receipt.status !== "success") throw new Error(`Liquidation transaction ${hash} did not succeed.`);
+        const confirmedPosition = await publicClient.readContract({ address: contracts.PerpEngine, abi: perpAbi, functionName: "positions", args: [positionId] });
+        if (confirmedPosition[6]) throw new Error(`Liquidation receipt ${hash} succeeded but position ${positionId} remains open.`);
+        state.confirmedLiquidations.push({ positionId: positionId.toString(), txHash: hash, timestamp: new Date().toISOString() });
+        state.lastConfirmedCycle = new Date().toISOString();
+        state.totalCycles++;
+        saveState(state);
       }
     }
-  } catch (scanErr) {
-    console.log(`  (PerpEngine state query: ${(scanErr as Error).message.slice(0, 80)}...)`);
-  }
 
-  // 4. Discovery Sentinel & Anti-Rug Quarantine Monitoring (Off-Chain Surveillance Boundary)
-  const markets = loadMarkets();
-  let quarantinedThisCycle = 0;
-
-  for (const market of markets) {
-    const liq = Number(market.originSpotLiquidityUsd || "0");
-    const vol = Number(market.volume24hUsd || "0");
-    const isDrained = liq < 1000;
-    const isWashTrading = vol > 0 && liq > 0 && vol / liq > 300 && liq < 25000;
-
-    if (isDrained || isWashTrading) {
-      const reason = isDrained
-        ? `Liquidity Floor Breach ($${liq.toFixed(2)} < $1,000 floor)`
-        : `Wash Trading Bot Farm (${(vol / liq).toFixed(0)}x Vol/Liq)`;
-
-      const symbol = (market.symbol || market.baseSymbol || "UNKNOWN").toUpperCase();
-      if (!state.quarantinedSymbols[symbol]) {
-        quarantinedThisCycle++;
-        state.quarantinedSymbols[symbol] = {
-          reason,
-          quarantinedAt: new Date().toISOString(),
-        };
-        console.log(`[SENTINEL QUARANTINE IDENTIFIED] $${symbol}: ${reason}`);
-
-        const alert: AlertPayload = {
-          symbol,
-          name: market.name || market.baseName,
-          chain: market.chain || market.originChain || "Arc",
-          poolAddress: market.poolAddress,
-          reason,
-          severity: "CRITICAL",
-          type: "TOKEN_QUARANTINED",
-          liquidityUsd: liq,
-          volume24hUsd: vol,
-          url: `https://cluster-terminal.vercel.app/trade/${encodeURIComponent(market.marketId)}`,
-        };
-        await dispatchMultiChannelAlert(alert, { dryRun: options.dryRun }).catch(() => {});
-      }
+    diagnostics.lastSuccessfulRead = new Date().toISOString();
+    diagnostics.lastCycleDurationMs = Date.now() - startTime;
+    diagnostics.consecutiveFailures = 0;
+    diagnostics.lastError = null;
+    if (executionEnabled && diagnostics.indexReady && liquidatable.length === 0) {
+      state.totalCycles++;
+      state.lastConfirmedCycle = diagnostics.lastSuccessfulRead;
+      saveState(state);
     }
+    console.log(JSON.stringify({ mode: executionEnabled ? "EXECUTION_ENABLED" : "READ_ONLY", chainId, eventCheckpoint: state.eventCheckpoint, headBlock: headBlock.toString(), indexReady: diagnostics.indexReady, eventPositionsReconciled: touchedIds.length, openPositions: openPositions.length, simulatedLiquidations: diagnostics.indexReady ? liquidatable.length : null }, null, 2));
+    return { state, liquidationsConfirmed: executionEnabled ? liquidatable.length : 0 };
+  } catch (error) {
+    diagnostics.consecutiveFailures++;
+    diagnostics.lastError = error instanceof Error ? error.message : String(error);
+    throw error;
+  } finally {
+    diagnostics.lastCycleDurationMs = Date.now() - startTime;
+    cycleRunning = false;
   }
-
-  state.totalCycles++;
-  state.lastRun = new Date().toISOString();
-  state.quarantinedCount = Object.keys(state.quarantinedSymbols).length;
-  saveState(state);
-
-  diagnostics.lastSuccessfulCycle = state.lastRun;
-  diagnostics.lastCycleDurationMs = Date.now() - startTime;
-  diagnostics.consecutiveFailures = 0;
-  diagnostics.lastError = null;
-
-  console.log(`[CLUSTER KEEPER CYCLE COMPLETE] Total cycles: ${state.totalCycles} | Quarantined: ${state.quarantinedCount} | Liquidations: ${liquidationsTriggered} (${diagnostics.lastCycleDurationMs}ms)`);
-  return { state, liquidationsTriggered, quarantinedThisCycle };
 }
 
-// HTTP Dynamic Health & Observability Server for Cloud Hosting & Watchdogs
-function startHealthServer(port: number = Number(process.env.PORT || 8080)) {
+function startHealthServer(port = Number(process.env.PORT || 8080)) {
   const server = createServer((req, res) => {
-    if (req.url === "/health" || req.url === "/status" || req.url === "/") {
-      const state = loadState();
-      const now = Date.now();
-      const lastRunMs = diagnostics.lastSuccessfulCycle ? new Date(diagnostics.lastSuccessfulCycle).getTime() : 0;
-      const cycleAgeSeconds = lastRunMs > 0 ? Math.floor((now - lastRunMs) / 1000) : 999999;
-
-      // Real health determination: requires recent successful cycle and zero consecutive failure streak
-      const isDegraded = cycleAgeSeconds > 180 || diagnostics.consecutiveFailures > 2;
-      const statusCode = isDegraded ? 503 : 200;
-
-      res.writeHead(statusCode, { "Content-Type": "application/json" });
-      res.end(
-        JSON.stringify(
-          {
-            service: "CLUSTER 24/7 Keeper & Liquidation Sentinel",
-            network: "Arc Mainnet (5042)",
-            status: isDegraded ? "DEGRADED" : "HEALTHY",
-            keeper: {
-              address: diagnostics.keeperAddress,
-              nativeBalanceArc: diagnostics.keeperBalanceArc,
-              onChainAuthorized: diagnostics.isAuthorizedKeeper,
-            },
-            operationalMetrics: {
-              lastSuccessfulCycle: diagnostics.lastSuccessfulCycle,
-              cycleAgeSeconds,
-              lastCycleDurationMs: diagnostics.lastCycleDurationMs,
-              lastRpcLatencyMs: diagnostics.lastRpcLatencyMs,
-              consecutiveFailures: diagnostics.consecutiveFailures,
-              lastError: diagnostics.lastError,
-              totalCycles: state.totalCycles,
-              quarantinedCount: state.quarantinedCount,
-              liquidationsExecuted: state.onchainLiquidations.length,
-              uptimeSeconds: Math.floor(process.uptime()),
-            },
-          },
-          null,
-          2
-        )
-      );
+    if (req.url !== "/health" && req.url !== "/status" && req.url !== "/") {
+      res.writeHead(404);
+      res.end();
       return;
     }
-    res.writeHead(404);
-    res.end();
+    const ageSeconds = diagnostics.lastSuccessfulRead ? Math.floor((Date.now() - new Date(diagnostics.lastSuccessfulRead).getTime()) / 1000) : null;
+    const unhealthy = ageSeconds === null || ageSeconds > 180 || diagnostics.consecutiveFailures > 0 || !diagnostics.indexReady;
+    const status = unhealthy ? "DEGRADED" : diagnostics.executionEnabled ? "EXECUTION_ENABLED" : "READ_ONLY";
+    res.writeHead(unhealthy ? 503 : 200, { "Content-Type": "application/json" });
+    res.end(JSON.stringify({
+      service: "CLUSTER Keeper Diagnostics",
+      network: "Arc Mainnet (5042)",
+      status,
+      keeper: { address: diagnostics.keeperAddress, balanceUsdc: diagnostics.keeperBalanceUsdc, onChainAuthorized: diagnostics.isAuthorizedKeeper },
+      executionEnabled: diagnostics.executionEnabled,
+      positionsScanned: diagnostics.positionsScanned,
+      openPositions: diagnostics.openPositions,
+      eventIndexReady: diagnostics.indexReady,
+      simulatedLiquidations: diagnostics.simulatedLiquidations,
+      lastSuccessfulRead: diagnostics.lastSuccessfulRead,
+      cycleAgeSeconds: ageSeconds,
+      lastCycleDurationMs: diagnostics.lastCycleDurationMs,
+      lastRpcLatencyMs: diagnostics.lastRpcLatencyMs,
+      consecutiveFailures: diagnostics.consecutiveFailures,
+      lastError: diagnostics.lastError,
+      uptimeSeconds: Math.floor(process.uptime()),
+    }, null, 2));
   });
-
-  server.listen(port, () => {
-    console.log(`[HEALTHCHECK SERVER] Listening on http://0.0.0.0:${port}/health`);
-  });
+  server.listen(port, () => console.log(`[HEALTHCHECK SERVER] Listening on port ${port}`));
 }
 
 async function main() {
   const args = process.argv.slice(2);
   const isLoop = args.includes("--loop");
-  const isOnce = args.includes("--once") || !isLoop;
-  const dryRun = args.includes("--dry-run");
+  const executeRequested = args.includes("--execute") && !args.includes("--dry-run");
+  if (executeRequested && !shouldExecuteMainnetKeeper(args, process.env.KEEPER_ENABLE_MAINNET_LIQUIDATIONS)) {
+    throw new Error("Execution refused: --execute and KEEPER_ENABLE_MAINNET_LIQUIDATIONS=true are both required.");
+  }
+  const intervalArg = args.find((argument) => argument.startsWith("--interval="));
+  const intervalSeconds = intervalArg ? Number.parseInt(intervalArg.split("=")[1] ?? "30", 10) : 30;
+  if (!Number.isSafeInteger(intervalSeconds) || intervalSeconds < 5) throw new Error("Keeper interval must be an integer of at least 5 seconds.");
 
-  const intervalArg = args.find((a) => a.startsWith("--interval="));
-  const intervalSec = intervalArg ? parseInt(intervalArg.split("=")[1], 10) : 30;
-
-  if (isOnce) {
-    await runDaemonCycle({ dryRun });
-    process.exit(0);
+  if (!isLoop) {
+    await runDaemonCycle({ dryRun: !executeRequested, executionRequested: executeRequested });
+    return;
   }
 
-  // Continuous 24/7 Hosting Mode
-  console.log(`Starting CLUSTER 24/7 Keeper Sentinel Daemon (Interval: ${intervalSec}s)...`);
   startHealthServer();
-  await runDaemonCycle({ dryRun });
-
-  setInterval(async () => {
+  while (true) {
     try {
-      await runDaemonCycle({ dryRun });
-    } catch (err) {
-      diagnostics.consecutiveFailures++;
-      diagnostics.lastError = (err as Error).message;
-      console.error("[KEEPER CYCLE FAILURE]", err);
+      await runDaemonCycle({ dryRun: !executeRequested, executionRequested: executeRequested });
+    } catch (error) {
+      console.error("[KEEPER CYCLE FAILURE]", error);
     }
-  }, intervalSec * 1000);
+    await new Promise((resolveWait) => setTimeout(resolveWait, intervalSeconds * 1000));
+  }
 }
 
 if (process.argv[1]?.includes("mainnet-keeper-daemon")) {
-  main().catch((err) => {
-    console.error("Fatal daemon error:", err);
-    process.exit(1);
+  main().catch((error) => {
+    console.error("Fatal daemon error:", error);
+    process.exitCode = 1;
   });
 }

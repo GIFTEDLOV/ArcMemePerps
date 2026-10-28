@@ -49,8 +49,8 @@ export interface ApiReadModel {
   getCompetitionLeaderboard?(id: string): Promise<readonly Record<string, unknown>[]>;
   getCompetitionAccount?(id: string, address: string): Promise<Record<string, unknown> | null>;
   getAttention?(address: string): Promise<readonly Record<string, unknown>[]>;
-  listUniverseMarkets?(options: { readonly chain?: string; readonly lifecycle?: string; readonly perp?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }>;
-  searchUniverseMarkets?(query: string, chain?: string): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly perpCount: number }>;
+  listUniverseMarkets?(options: { readonly chain?: string; readonly lifecycle?: string; readonly perp?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly currentlyObservedCount: number; readonly staleRetainedCount: number; readonly perpCount: number; readonly sources: readonly Record<string, unknown>[] }>;
+  searchUniverseMarkets?(query: string, chain?: string, options?: { readonly lifecycle?: string; readonly limit?: number; readonly offset?: number }): Promise<{ readonly items: readonly Record<string, unknown>[]; readonly total: number; readonly discoveryCount: number; readonly currentlyObservedCount: number; readonly staleRetainedCount: number; readonly perpCount: number; readonly sources: readonly Record<string, unknown>[] }>;
   getUniverseMarket?(marketId: string): Promise<Record<string, unknown> | null>;
   getUniverseResource?(marketId: string, resource: string): Promise<unknown>;
 }
@@ -59,7 +59,7 @@ export interface ApiServerOptions {
   readonly readModel: ApiReadModel;
   readonly health: () => readonly HealthRecord[];
   readonly realtime?: RealtimeHub;
-  readonly runtime?: ApiRuntimeStatus;
+  readonly runtime?: ApiRuntimeStatus | (() => ApiRuntimeStatus);
 }
 
 export interface ApiRuntimeStatus {
@@ -108,6 +108,10 @@ async function handleRequest(
     return;
   }
   const url = new URL(request.url ?? "/", "http://localhost");
+  if (url.pathname === "/health") {
+    writeJson(response, 200, { status: "ok", service: "cluster-api", readOnly: true });
+    return;
+  }
   if (!url.pathname.startsWith("/api/v1/")) {
     writeJson(response, 404, { error: "VERSIONED_API_REQUIRED" });
     return;
@@ -119,6 +123,7 @@ async function handleRequest(
       const offset = parseOffset(url.searchParams.get("cursor"));
       const chain = url.searchParams.get("chain");
       if (chain !== null && !isSupportedChain(chain)) throw new ApiRequestError("UNSUPPORTED_CHAIN");
+      let discoverySummary: Awaited<ReturnType<NonNullable<ApiReadModel["listUniverseMarkets"]>>> | undefined;
       if (options.readModel.listUniverseMarkets) {
         const universe = await options.readModel.listUniverseMarkets({
           ...(chain !== null ? { chain } : {}),
@@ -127,8 +132,9 @@ async function handleRequest(
           limit,
           offset,
         });
+        discoverySummary = universe;
         if (universe.discoveryCount > 0) {
-          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
+          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, currentlyObservedCount: universe.currentlyObservedCount, staleRetainedCount: universe.staleRetainedCount, perpCount: universe.perpCount, sources: universe.sources, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
           return;
         }
       }
@@ -157,18 +163,33 @@ async function handleRequest(
         items,
         nextCursor: nextCursorFor(items.length, limit, offset),
       });
-      writeJson(response, 200, body);
+      writeJson(response, 200, {
+        ...body,
+        ...(discoverySummary === undefined ? {} : {
+          discoveryCount: discoverySummary.discoveryCount,
+          currentlyObservedCount: discoverySummary.currentlyObservedCount,
+          staleRetainedCount: discoverySummary.staleRetainedCount,
+          perpCount: discoverySummary.perpCount,
+          sources: discoverySummary.sources,
+        }),
+      });
       return;
     }
     if (path === "/markets/search") {
-      parseLimit(url.searchParams.get("limit"));
-      parseOffset(url.searchParams.get("cursor"));
+      const limit = parseLimit(url.searchParams.get("limit"));
+      const offset = parseOffset(url.searchParams.get("cursor"));
       const chain = url.searchParams.get("chain");
       if (chain !== null && !isSupportedChain(chain)) throw new ApiRequestError("UNSUPPORTED_CHAIN");
+      let discoverySummary: Awaited<ReturnType<NonNullable<ApiReadModel["searchUniverseMarkets"]>>> | undefined;
       if (options.readModel.searchUniverseMarkets) {
-        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", chain ?? undefined);
+        const universe = await options.readModel.searchUniverseMarkets(url.searchParams.get("q") ?? "", chain ?? undefined, {
+          ...(url.searchParams.has("lifecycle") ? { lifecycle: url.searchParams.get("lifecycle")! } : {}),
+          limit,
+          offset,
+        });
+        discoverySummary = universe;
         if (universe.discoveryCount > 0) {
-          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, perpCount: universe.perpCount, nextCursor: null });
+          writeJson(response, 200, { schemaVersion: API_VERSION, items: universe.items, total: universe.total, discoveryCount: universe.discoveryCount, currentlyObservedCount: universe.currentlyObservedCount, staleRetainedCount: universe.staleRetainedCount, perpCount: universe.perpCount, sources: universe.sources, nextCursor: nextCursorFor(universe.items.length, limit, offset) });
           return;
         }
       }
@@ -180,7 +201,8 @@ async function handleRequest(
       writeJson(
         response,
         200,
-        MarketListResponseSchema.parse({
+        {
+          ...MarketListResponseSchema.parse({
           schemaVersion: API_VERSION,
           items,
           nextCursor: nextCursorFor(
@@ -188,7 +210,15 @@ async function handleRequest(
             parseLimit(url.searchParams.get("limit")),
             parseOffset(url.searchParams.get("cursor")),
           ),
-        }),
+          }),
+          ...(discoverySummary === undefined ? {} : {
+            discoveryCount: discoverySummary.discoveryCount,
+            currentlyObservedCount: discoverySummary.currentlyObservedCount,
+            staleRetainedCount: discoverySummary.staleRetainedCount,
+            perpCount: discoverySummary.perpCount,
+            sources: discoverySummary.sources,
+          }),
+        },
       );
       return;
     }
@@ -360,6 +390,7 @@ async function handleRequest(
       return;
     }
     if (path === "/protocol/status") {
+      const runtime = typeof options.runtime === "function" ? options.runtime() : options.runtime;
       writeJson(
         response,
         200,
@@ -368,20 +399,20 @@ async function handleRequest(
           asOf: new Date().toISOString(),
           health: Object.fromEntries(options.health().map((item) => [item.component, item.state])),
           readOnly: true,
-          ...(options.runtime === undefined
+          ...(runtime === undefined
             ? {}
             : {
-                network: options.runtime.config.chainName,
-                chainId: options.runtime.config.chainId,
-                deployment: options.runtime.config.lifecycle,
-                deploymentId: options.runtime.config.deploymentId,
-                policyVersion: options.runtime.config.policyVersion,
-                discoveryCount: options.runtime.discoveryCount,
-                ...(options.runtime.currentlyObservedCount === undefined ? {} : { currentlyObservedCount: options.runtime.currentlyObservedCount }),
-                ...(options.runtime.staleRetainedCount === undefined ? {} : { staleRetainedCount: options.runtime.staleRetainedCount }),
-                registeredPerpCount: options.runtime.registeredPerpCount,
-                livePerpCount: options.runtime.livePerpCount,
-                contracts: options.runtime.config.addresses,
+                network: runtime.config.chainName,
+                chainId: runtime.config.chainId,
+                deployment: runtime.config.lifecycle,
+                deploymentId: runtime.config.deploymentId,
+                policyVersion: runtime.config.policyVersion,
+                discoveryCount: runtime.discoveryCount,
+                ...(runtime.currentlyObservedCount === undefined ? {} : { currentlyObservedCount: runtime.currentlyObservedCount }),
+                ...(runtime.staleRetainedCount === undefined ? {} : { staleRetainedCount: runtime.staleRetainedCount }),
+                registeredPerpCount: runtime.registeredPerpCount,
+                livePerpCount: runtime.livePerpCount,
+                contracts: runtime.config.addresses,
               }),
         }),
       );
@@ -417,11 +448,15 @@ async function streamEvents(
     connection: "keep-alive",
   });
   response.flushHeaders();
+  response.write(": connected\n\n");
   for (const event of hub.recentEvents(afterId))
     response.write(
       `id: ${event.sequence.toString()}\nevent: ${event.type}\ndata: ${JSON.stringify({ ...event, sequence: event.sequence.toString() })}\n\n`,
     );
+  const keepAlive = setInterval(() => response.write(": keep-alive\n\n"), 15_000);
+  keepAlive.unref();
   await new Promise<void>((resolve) => response.once("close", resolve));
+  clearInterval(keepAlive);
 }
 
 function writeJson(response: ServerResponse, status: number, body: unknown): void {
