@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { InMemoryPersistence } from "@arcmemeperps/persistence";
+import { loadArcDeploymentConfig } from "@arcmemeperps/shared";
 import {
   IdempotentEventProcessor,
   PersistentIndexerCheckpointStore,
@@ -7,6 +8,7 @@ import {
   ReorgDetectedError,
   assertEvmCheckpointContinuity,
   assertSolanaCheckpointContinuity,
+  mainnetIndexerStatus,
   type ProtocolEventIdentity,
 } from "./index.js";
 
@@ -22,6 +24,26 @@ const event: ProtocolEventIdentity = {
 };
 
 describe("replay-safe indexer state", () => {
+  it("never infers a complete Mainnet index from deployment metadata or a checkpoint", () => {
+    const pending = loadArcDeploymentConfig({});
+    const deployed = {
+      ...pending,
+      deploymentStatus: "DEPLOYED" as const,
+      lifecycle: "DEPLOYED_MARKETS_UNVERIFIED" as const,
+      startBlock: 10n,
+    };
+    expect(mainnetIndexerStatus(pending, null).lifecycle).toBe("WAITING_FOR_DEPLOYMENT");
+    expect(mainnetIndexerStatus(deployed, null).lifecycle).toBe("INCOMPLETE");
+    expect(mainnetIndexerStatus(deployed, {
+      chain: "ARC",
+      cursor: null,
+      blockNumber: "11",
+      blockHash: `0x${"aa".repeat(32)}`,
+      slot: null,
+      finality: "finalized",
+      lastObservedAt: "2026-10-29T00:00:00.000Z",
+    }).lifecycle).toBe("INCOMPLETE");
+  });
   it("persists checkpoints and detects EVM reorgs", () => {
     const store = new InMemoryPersistence();
     const checkpoints = new PersistentIndexerCheckpointStore(store);
@@ -64,3 +86,4 @@ describe("replay-safe indexer state", () => {
     expect(applied).toBe(1);
   });
 });
+
