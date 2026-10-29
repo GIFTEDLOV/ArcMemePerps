@@ -6,7 +6,7 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 ## Safety and branch state
 
 - The user's dirty `winner-rebuild` worktree was not modified.
-- PR #2, #3, #4, #5, and #6 remain drafts. PR #3 still targets PR #2; PR #4 targets PR #3; PR #5 targets PR #4; PR #6 targets PR #5. No PR was merged.
+- PR #2 through #8 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, and #8 -> #7. No PR was merged.
 - No production deployment, alias change, contract deployment, wallet funding, governance write, or financial transaction was performed.
 - Trading and LP deposits remain disabled in the frontend/API preview. Product Testnet's existing PublicLPVault contract flag is active; the read-only audit did not change it.
 
@@ -48,20 +48,40 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 - Audit: [trade engine and keeper report](CLUSTER_TRADE_ENGINE_AND_KEEPER_AUDIT_2026-10-29.md). Verified defects include inconsistent fee routing across trade actions, ADL partial candidate capacity being consumed, early unresolved finalization without exhaustion proof, and NAV ambiguity in `totalAccountedAssets()`. Deployed direct contracts are immutable; source changes require migration and independent review.
 - No live trade receipt was attempted because this mission prohibits financial transactions and funding.
 
-## Remaining groups
+## Group D - existing PublicLPVault integration
 
-- Group D - **FAIL** for live integration; the existing LP audit and migration/invariant plan are complete.
-  - Branch/PR: `codex/cluster-group-d-existing-lp-plan`, draft [PR #7](https://github.com/GIFTEDLOV/ArcMemePerps/pull/7), based on PR #6. Plan checkpoint: `699ef8065a6b56589d823c8510906a623d881b30`.
-  - Exact-head GitHub CI: [run 40891981392](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40891981392) and [run 40892028759](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40892028759), both PASS. No Solidity changes were made; these runs verify the inherited repository and documentation branch.
-  - Audit: [existing LP economic integration plan](CLUSTER_LP_ECONOMIC_INTEGRATION_AUDIT_2026-10-29.md). Mainnet LP is inactive/empty; Product Testnet LP has 1.8 USDC, active contract deposits, zero risk budget, and no MarginVault/Engine path. Direct contract replacements, full Testnet shareholder history, independent review, and migration sign-off remain blockers.
-  - No LP implementation was started because the immutable deployment/migration dependencies and signed-off accounting review are not established. No second pool or transaction is proposed.
-- Group E - **UNKNOWN / not yet reviewed in this progress checkpoint**: preview/browser checks pass, while durable backend integration, governance verification, and full source-to-production parity remain incomplete.
-- Group F - **FAIL** for current submission timing: the reviewed Arc Microgrants and Programmable Money Hackathon windows have closed; no current open Arc program was verified. A truthful submission report is prepared, but no application was submitted.
+**Status: FAIL** for live LP integration; the accounting assessment and minimum safe plan are complete.
 
-## Decisions and next steps
+- Branch/PR: `codex/cluster-group-d-existing-lp-plan`, draft [PR #7](https://github.com/GIFTEDLOV/ArcMemePerps/pull/7), based on PR #6. Audit source checkpoint `699ef8065a6b56589d823c8510906a623d881b30`; progress checkpoint `9958be61efa046bceb35b6eeef1b9261e87b8bcf`.
+- Exact-head CI for the progress checkpoint: [run 40896673049](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40896673049), PASS including Foundry build/test/format.
+- Audit: [existing LP economic integration plan](CLUSTER_LP_ECONOMIC_INTEGRATION_AUDIT_2026-10-29.md). Mainnet LP is inactive/empty; Product Testnet LP holds 1.8 USDC, has active contract deposits, zero risk budget, and no MarginVault/Engine path. Direct contract replacements, full Testnet shareholder history, independent review, and migration sign-off remain blockers.
+- No LP implementation was started because immutable deployment/migration dependencies and signed-off accounting review are not established. No second pool or transaction is proposed.
 
-- PR #2 merge readiness: **NO-GO** pending backend persistence, market evidence, independent security review, LP settlement integration, keeper continuity, and complete live verification.
-- Hackathon submission: **NO-GO today**; the named programs are closed, and the current preview is not a live Mainnet perpetual product.
-- Live financial production: **NO-GO**; Mainnet bootstrap/roles, positive market/oracle qualification, keeper/index completeness, live settlement receipts, and integrated LP solvency are not established.
-- Next: verify production deployment provenance and governance, fix safe verification tooling defects, then complete Group F release evidence without production financial actions.
+## Group E - production infrastructure and client integration
+
+**Status: FAIL** for production readiness; truthful read-only preview behavior and the governance verifier correction are checked, but backend durability and safe production state remain blocked.
+
+- Branch/PR: `codex/cluster-group-e-production-readiness`, draft [PR #8](https://github.com/GIFTEDLOV/ArcMemePerps/pull/8), based on PR #7 head `9958be61efa046bceb35b6eeef1b9261e87b8bcf`. Exact source head `a6328ef59ef0d3d5d7203118bb05f22e6c7d1840`.
+- Exact-head GitHub CI: [run 40896938605](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40896938605), PASS (install, lint, typecheck, 277 root tests, frontend tests/build, Foundry build/test/format).
+- Exact-source previews: frontend `https://cluster-hackathon-preview-cltn3n6al.vercel.app` (`dpl_6FAVe59dDaNUjuotrdMoFDQoahpN`), API `https://cluster-readonly-5vvfsdulj-kolofahkelvin16-6437s-projects.vercel.app` (`dpl_4yAGsrLHTHrEdurhACNECRJY92bZ`), both READY at `a6328ef`. The preview frontend's network requests use the stable API alias at source `434512a2e0f01865172b9c341e5ca82fa36db6ce`, not its branch API preview.
+- Live browser run on the exact Group E frontend and API preview: `pnpm e2e:live` PASS 6/6 desktop/mobile; direct API assertions use the Group E API deployment and browser-origin assertions use the actual configured stable API origin.
+- At 2026-10-29 14:44 UTC, Vercel markets/status returned HTTP 200, SSE returned HTTP 200 heartbeat-only with no event payload, stable verification returned 503, and Railway markets/status returned HTTP 404. The Railway build failed pre-start on Node 20 with pnpm 11/`node:sqlite`; PR #2/4 fix the Node runtime source configuration, but no Railway deployment or billing action occurred.
+- Production frontend `cluster-terminal.vercel.app` remains at `winner-rebuild` SHA `83d14d29d86aae5359c14b70ee7940626ea78ffc` and exposes seeded LP/trading claims. It was not changed.
+- Governance verifier now uses the actual deployed manifest's `0xB656...` deployer, parses deployed address/receipt shapes, and fails closed because the deployed manifest has no source SHA. `pnpm mainnet:verify` returns `MAINNET_DEPLOYED_SOURCE_PROVENANCE_UNATTESTED`. No current deployed bytecode/source parity claim is made.
+- Local results: typecheck PASS; root tests 54 files/277 tests PASS; lint PASS with one existing warning; frontend tests 6 files/16 tests PASS; build PASS with existing 511.76 kB advisory; Playwright 17 passed/1 expected skip; changed-file formatting PASS. Whole-repository `pnpm format:check` fails on 419 unchanged files. Foundry is unavailable locally; exact CI passes Foundry.
+- Full operational evidence: [production readiness report](CLUSTER_PRODUCTION_READINESS_2026-10-29.md). Remaining blockers: no persistent index/history/oracle provenance/event stream, wrong preview API origin for source parity, production still on legacy UI/backend, missing source provenance and governance bootstrap.
+
+## Group F - audit, submission, and release controls
+
+**Status: FAIL** for current submission timing. The Arc Microgrants deadline was October 14, the Programmable Money Hackathon ended August 22, and the official Arc Hackathons listing contains no upcoming entry as reviewed on October 29. The readiness package is prepared; no application was submitted.
+
+- Updated package: [hackathon submission readiness](CLUSTER_HACKATHON_SUBMISSION_READINESS_2026-10-29.md) and [submission walkthrough](../ARC_MICROGRANT_SUBMISSION.md).
+- The package links the public repository, verified preview/API, one historical 1 USDC Mainnet MarginVault deposit receipt, 100-200 character truthful pitch, screenshots, three-minute demo outline, and all financial limitations.
+
+## Decisions
+
+- PR #2 merge readiness: **NO-GO**. PR #2 CI passes, but the deployed Railway API is unavailable, production still has seeded claims, persistent history is absent, source/bytecode provenance is unattested, and the Group C/D financial gates fail.
+- Hackathon submission: **NO-GO now**. The reviewed windows are closed and the named Microgrants program requires a working Mainnet application.
+- Live financial production: **NO-GO**. Mainnet governance bootstrap, positive market/oracle qualification, complete indexing/keeper history, live trader settlement receipts, independent security review, and integrated LP solvency are not established.
+- No production deployment, transaction, funding, governance action, contract deployment, activation, PR merge, or branch promotion occurred.
 
