@@ -10,9 +10,9 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 - No production deployment, alias change, contract deployment, wallet funding, governance write, or financial transaction was performed.
 - Trading and LP deposits remain disabled in the frontend/API preview. Testnet's existing PublicLPVault contract flag is active; the read-only audit did not change it.
 
-## Group A — canonical Arc market verification
+## Group A ï¿½ canonical Arc market verification
 
-**Status: UNKNOWN** — exact-head code checks pass, but no positive registered/qualified Mainnet market canary or complete independently reconciled universe was established.
+**Status: UNKNOWN** ï¿½ exact-head code checks pass, but no positive registered/qualified Mainnet market canary or complete independently reconciled universe was established.
 
 - Branch/PR: `codex/cluster-group-a-verification`, draft [PR #4](https://github.com/GIFTEDLOV/ArcMemePerps/pull/4), base `deploy/vercel-readonly-api-2026-10-29` (PR #3).
 - Exact head: `ac2d53207c78ce1f64b642e32fc5ce2c3a16addb`.
@@ -24,9 +24,9 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 - API preview: `https://cluster-readonly-8vqk7zas1-kolofahkelvin16-6437s-projects.vercel.app`, READY at API source `90d4f0044e0b4247241e83efdf5959c20bae1161` (`dpl_DsqmkQvAuNC6mptAp1WpqMTJDE7T`). Vercel skipped a duplicate deployment at `ac2d532` because no API project source changed. Do not describe the API runtime as deployed from `ac2d532`.
 - PR #2 merge-readiness remains **NO-GO** until stack-level reviews and the backend, persistence, economic integration, security, and live verification blockers are resolved.
 
-## Group B — persistent indexing, history, oracle provenance, and event stream
+## Group B ï¿½ persistent indexing, history, oracle provenance, and event stream
 
-**Status: FAIL** — the public read-only API is reachable, but persistent event indexing, reconstructable history, independent oracle evidence, and event-backed SSE are not deployed or verified.
+**Status: FAIL** ï¿½ the public read-only API is reachable, but persistent event indexing, reconstructable history, independent oracle evidence, and event-backed SSE are not deployed or verified.
 
 - Branch: `codex/cluster-group-b-readiness`, based on PR #4. Group B source checkpoint: `cb2df9a` (documentation/evidence only; no runtime endpoint behavior changed).
 - Railway endpoint `https://api-production-0eb6.up.railway.app/api/v1/markets` returns platform HTTP 404 with `x-railway-fallback: true`. The latest deployment failed before application startup: the image used Node 20 with pnpm 11, which requires Node >=22.13 and uses `node:sqlite`. PR #2's Dockerfile now uses Node 22; no Railway deploy or billing operation was run.
@@ -38,10 +38,10 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
 ## Remaining groups
 
-- Group C — **UNKNOWN / not yet reviewed in this progress checkpoint**: live settlement and keeper behavior still require source-level audit, full index readiness, and permitted Testnet receipt evidence. No financial transaction is authorized or performed.
-- Group D — **UNKNOWN / not yet reviewed in this progress checkpoint**: the existing PublicLPVault is not connected to PerpEngine settlement. A separate audit/implementation plan will preserve the current contracts and require explicit invariants and migration review.
-- Group E — **UNKNOWN / not yet reviewed in this progress checkpoint**: preview UI/browser checks pass, while durable backend integration, governance verification, and full source-to-production parity remain incomplete.
-- Group F — **FAIL** for present submission timing: the reviewed Arc Microgrants and Programmable Money Hackathon windows have closed; the truthful submission report is prepared, but no current open program is verified. Independent security audit and live financial gates also remain incomplete.
+- Group C ï¿½ **UNKNOWN / not yet reviewed in this progress checkpoint**: live settlement and keeper behavior still require source-level audit, full index readiness, and permitted Testnet receipt evidence. No financial transaction is authorized or performed.
+- Group D ï¿½ **UNKNOWN / not yet reviewed in this progress checkpoint**: the existing PublicLPVault is not connected to PerpEngine settlement. A separate audit/implementation plan will preserve the current contracts and require explicit invariants and migration review.
+- Group E ï¿½ **UNKNOWN / not yet reviewed in this progress checkpoint**: preview UI/browser checks pass, while durable backend integration, governance verification, and full source-to-production parity remain incomplete.
+- Group F ï¿½ **FAIL** for present submission timing: the reviewed Arc Microgrants and Programmable Money Hackathon windows have closed; the truthful submission report is prepared, but no current open program is verified. Independent security audit and live financial gates also remain incomplete.
 
 ## Decisions and next steps
 
