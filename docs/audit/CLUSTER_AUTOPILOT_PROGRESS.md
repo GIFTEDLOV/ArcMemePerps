@@ -6,7 +6,7 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 ## Safety and branch state
 
 - The user's dirty `winner-rebuild` worktree was not modified.
-- PR #2 through #8 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, and #8 -> #7. No PR was merged.
+- PR #2 through #9 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, #8 -> #7, and #9 -> #8. No PR was merged.
 - No production deployment, alias change, contract deployment, wallet funding, governance write, or financial transaction was performed.
 - Trading and LP deposits remain disabled in the frontend/API preview. Product Testnet's existing PublicLPVault contract flag is active; the read-only audit did not change it.
 
@@ -74,11 +74,12 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
 ## Group F - audit, submission, and release controls
 
-**Status: FAIL** for current submission timing. The Arc Microgrants deadline was October 14, the Programmable Money Hackathon ended August 22, and the official Arc Hackathons listing contains no upcoming entry as reviewed on October 29. The public GitHub builder profile is confirmed. No application was submitted.
+**Status: FAIL** for current submission timing. The reviewed Arc Microgrants deadline was October 14 and the Programmable Money Hackathon ended August 22. The official Arc Hackathons listing had no upcoming entry on October 29, and no Arc Microgrants window was verified as open. Other grant programs were not assessed. The public GitHub builder profile is confirmed. No application was submitted.
 
+- Branch/PR: `codex/cluster-group-f-submission-readiness`, draft [PR #9](https://github.com/GIFTEDLOV/ArcMemePerps/pull/9), based on PR #8. Exact-head CI and final commit are recorded below after verification.
 - Updated package: [hackathon submission readiness](CLUSTER_HACKATHON_SUBMISSION_READINESS_2026-10-29.md) and [submission walkthrough](../ARC_MICROGRANT_SUBMISSION.md).
 - The package links the public repository, verified preview/API, one historical 1 USDC Mainnet MarginVault deposit receipt, 100-200 character truthful pitch, screenshots, three-minute demo outline, and all financial limitations.
-- The repository's existing `arcmemeperps_3min_demo.mp4` and accompanying narration/recording scripts claim 10x/zero-slippage execution and completed positions/PnL on the old production terminal. This is stale and excluded; no replacement recording was created. Use only the read-only walkthrough and current preview screenshots.
+- The repository contains `arcmemeperps_3min_demo.mp4`, but its encoded content was not reviewed in this checkpoint. Its companion narration/recording scripts claim 10x/zero-slippage execution and completed positions/PnL on the old production terminal; those scripts are stale. Exclude the MP4 until its content is reviewed. No replacement recording was created. Use the read-only walkthrough and current preview screenshots.
 
 ## Decisions
 
