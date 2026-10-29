@@ -1,3 +1,4 @@
+import { verifyArcMarket } from "./verification.js";
 /**
  * CLUSTER / Arc deadline read-only API.
  *
@@ -148,6 +149,7 @@ export default {
   const url=new URL(request.url);
   const route=(url.searchParams.get("route")??url.pathname.replace(/^\/api\/v1\//,"")).replace(/^\/+/,"");
   if(route==="health")return json({status:"ok",service:"cluster-vercel-readonly",readOnly:true,storage:"STATELESS"},200,{"Cache-Control":"no-store"});
+  if(route.startsWith("verification/markets/"))return verifyArcMarket(decodeURIComponent(route.slice("verification/markets/".length)));
   if(route==="protocol/status")return json(await status(),200,{"Cache-Control":"public,s-maxage=15"});
   if(route==="stream"){
     const stream=new ReadableStream<Uint8Array>({
