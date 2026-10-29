@@ -4,6 +4,9 @@ import {
   indexDatabaseConfigured,
   readArcIndexSnapshot,
   readIndexedMarkets,
+  readIndexedPositions,
+  readIndexedFinancialTotals,
+  readIndexedActivity,
 } from "./arc-index-read.js";
 import { marketIdForToken, type SupportedChain } from "@arcmemeperps/shared";
 /**
@@ -365,22 +368,40 @@ export default {
       );
     if (route === "protocol/status")
       return json(await status(), 200, { "Cache-Control": "public,s-maxage=15" });
-    if (route === "index/status" || route === "index/markets") {
+    if (
+      [
+        "index/status",
+        "index/markets",
+        "index/positions",
+        "index/financial-totals",
+        "index/activity",
+      ].includes(route)
+    ) {
       if (!indexDatabaseConfigured()) return json({ error: "PERSISTENT_INDEX_UNAVAILABLE" }, 503);
       try {
         const snapshot = await readArcIndexSnapshot();
         if (route === "index/status") return json(snapshot, 200, { "Cache-Control": "no-store" });
+        const items =
+          route === "index/markets"
+            ? await readIndexedMarkets()
+            : route === "index/positions"
+              ? await readIndexedPositions()
+              : route === "index/financial-totals"
+                ? await readIndexedFinancialTotals()
+                : await readIndexedActivity((url.searchParams.get("category") ?? "").toUpperCase());
         return json(
           {
             schemaVersion: "v1",
-            items: await readIndexedMarkets(),
+            items,
             inventory: "INCOMPLETE",
             coverage: snapshot,
           },
           200,
           { "Cache-Control": "no-store" },
         );
-      } catch {
+      } catch (error) {
+        if (error instanceof Error && error.message === "UNSUPPORTED_INDEX_CATEGORY")
+          return json({ error: "UNSUPPORTED_INDEX_CATEGORY" }, 400);
         return json({ error: "PERSISTENT_INDEX_QUERY_FAILED" }, 503);
       }
     }

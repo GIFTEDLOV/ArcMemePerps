@@ -1,11 +1,21 @@
 import { afterAll, describe, expect, it } from "vitest";
 import { Pool } from "pg";
-import type { Address, Hex } from "viem";
+import {
+  encodeAbiParameters,
+  encodeEventTopics,
+  parseAbiItem,
+  parseAbiParameters,
+  type Address,
+  type Hex,
+} from "viem";
 import { ArcEventJournal } from "./arc-history.js";
 import {
   readArcIndexSnapshot,
   readOutbox,
   readIndexedMarkets,
+  readIndexedPositions,
+  readIndexedFinancialTotals,
+  readIndexedActivity,
 } from "../../cluster-api-vercel/api/arc-index-read.js";
 
 const connectionString = process.env.ARC_INDEX_TEST_DATABASE_URL;
@@ -76,5 +86,116 @@ describe.skipIf(!pool)("Arc Postgres event journal", () => {
     expect(await db.coverage()).toMatchObject({ ranges: 0, events: 0 });
     const outbox = await pool!.query("SELECT count(*)::int AS count FROM arc_event_outbox");
     expect(outbox.rows[0].count).toBe(0);
+  });
+  it("rebuilds event-derived market, position, custody, and outbox reads from decoded receipts", async () => {
+    const db = new ArcEventJournal(pool!, 100n);
+    await db.migrate();
+    await pool!.query(
+      "TRUNCATE arc_event_outbox,arc_raw_events,arc_index_ranges,arc_index_checkpoint RESTART IDENTITY CASCADE",
+    );
+    const h = (n: number): Hex => `0x${n.toString(16).padStart(64, "0")}`;
+    const market = h(3);
+    const trader = "0x1111111111111111111111111111111111111111" as Address;
+    const registration = parseAbiItem(
+      "event MarketRegistered(bytes32 indexed marketId,bytes32 indexed originChain,bytes originToken)",
+    );
+    await db.commitRange(
+      { number: 100n, hash: h(100), parentHash: h(99) },
+      { number: 100n, hash: h(100), parentHash: h(99) },
+      [
+        {
+          blockNumber: 100n,
+          blockHash: h(100),
+          transactionHash: h(501),
+          transactionIndex: 0,
+          logIndex: 0,
+          address: "0x7ebddb2c1f1ae68a2e5b984fe9e75115cdb8ef1b" as Address,
+          topics: encodeEventTopics({
+            abi: [registration],
+            eventName: "MarketRegistered",
+            args: { marketId: market, originChain: h(5042) },
+          }) as Hex[],
+          data: encodeAbiParameters(parseAbiParameters("bytes"), ["0x1234"]),
+        },
+      ],
+      2,
+    );
+    const position = parseAbiItem(
+      "event PositionOpened(uint256 indexed positionId,address indexed trader,bytes32 indexed marketId,bool isLong,uint256 collateral,uint256 size,uint256 entryPrice)",
+    );
+    const deposit = parseAbiItem(
+      "event CollateralDeposited(address indexed trader,uint256 amount)",
+    );
+    await db.commitRange(
+      { number: 101n, hash: h(101), parentHash: h(100) },
+      { number: 101n, hash: h(101), parentHash: h(100) },
+      [
+        {
+          blockNumber: 101n,
+          blockHash: h(101),
+          transactionHash: h(502),
+          transactionIndex: 0,
+          logIndex: 0,
+          address: "0xd9c3cbf1841103749f379cc1aae1a9284d8dc3e1" as Address,
+          topics: encodeEventTopics({
+            abi: [position],
+            eventName: "PositionOpened",
+            args: { positionId: 1n, trader, marketId: market },
+          }) as Hex[],
+          data: encodeAbiParameters(parseAbiParameters("bool,uint256,uint256,uint256"), [
+            true,
+            100n,
+            200n,
+            10n ** 18n,
+          ]),
+        },
+        {
+          blockNumber: 101n,
+          blockHash: h(101),
+          transactionHash: h(503),
+          transactionIndex: 1,
+          logIndex: 1,
+          address: "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf" as Address,
+          topics: encodeEventTopics({
+            abi: [deposit],
+            eventName: "CollateralDeposited",
+            args: { trader },
+          }) as Hex[],
+          data: encodeAbiParameters(parseAbiParameters("uint256"), [1_000_000n]),
+        },
+      ],
+      2,
+    );
+    expect(await readIndexedMarkets(10, pool!)).toEqual([
+      expect.objectContaining({
+        marketId: market,
+        verificationState: "EVENTS_ONLY_REQUIRES_PINNED_STATE_AND_ORACLE_EVIDENCE",
+      }),
+    ]);
+    expect(await readIndexedPositions(10, pool!)).toEqual([
+      expect.objectContaining({
+        positionId: "1",
+        eventDerivedSize: "200",
+      }),
+    ]);
+    expect(await readIndexedFinancialTotals(pool!)).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          contract: "USDCMarginVault",
+          eventName: "CollateralDeposited",
+          reportedAmount: "1000000",
+        }),
+      ]),
+    );
+    expect(await readIndexedActivity("CUSTODY", 10, pool!)).toEqual([
+      expect.objectContaining({
+        eventName: "CollateralDeposited",
+        transactionHash: h(503),
+      }),
+    ]);
+    expect(await readOutbox(0n, pool!)).toHaveLength(3);
+    await db.rewindFrom(101n);
+    expect(await readIndexedPositions(10, pool!)).toHaveLength(0);
+    expect(await readOutbox(0n, pool!)).toHaveLength(1);
   });
 });
