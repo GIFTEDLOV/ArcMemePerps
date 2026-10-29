@@ -80,11 +80,70 @@ export async function readIndexedMarkets(
   connection: Pool = database(),
 ): Promise<unknown[]> {
   const result = await connection.query(
-    `SELECT market_id AS "marketId",arguments AS "registration",
-      block_number::text AS "blockNumber",transaction_hash AS "transactionHash",log_index AS "logIndex"
-      FROM arc_decoded_events WHERE chain_id=$1 AND event_name='MarketRegistered'
-      ORDER BY block_number,transaction_hash,log_index LIMIT $2`,
-    [ARC_CHAIN_ID, Math.min(100, Math.max(1, limit))],
+    `SELECT market_id AS "marketId",registration,
+      registered_block::text AS "registeredBlock",registration_tx AS "registrationTx",
+      market_state_event_args AS "marketStateEventArgs",lifecycle_event_args AS "lifecycleEventArgs",
+      qualification_event AS "qualificationEvent",qualification_event_args AS "qualificationEventArgs",
+      approval_event_latest AS "approvalEventLatest",risk_event AS "riskEvent",
+      risk_event_args AS "riskEventArgs",oracle_event AS "oracleEvent",
+      oracle_event_args AS "oracleEventArgs",verification_state AS "verificationState"
+      FROM arc_market_projection ORDER BY registered_block,market_id LIMIT $1`,
+    [Math.min(100, Math.max(1, limit))],
+  );
+  return result.rows;
+}
+
+export async function readIndexedPositions(
+  limit = 100,
+  connection: Pool = database(),
+): Promise<unknown[]> {
+  const result = await connection.query(
+    `SELECT position_id AS "positionId",opening_arguments AS "openingArguments",
+      last_event AS "lastEvent",event_derived_size::text AS "eventDerivedSize",
+      event_count::int AS "eventCount",verification_state AS "verificationState"
+      FROM arc_position_projection ORDER BY position_id::numeric LIMIT $1`,
+    [Math.min(100, Math.max(1, limit))],
+  );
+  return result.rows;
+}
+
+export async function readIndexedFinancialTotals(
+  connection: Pool = database(),
+): Promise<unknown[]> {
+  const result =
+    await connection.query(`SELECT contract_name AS "contract",event_name AS "eventName",
+      event_count::int AS "eventCount",reported_amount::text AS "reportedAmount",
+      'EVENT_LEDGER_ONLY_NOT_CASH_PARITY'::text AS "verificationState"
+      FROM arc_financial_event_totals ORDER BY contract_name,event_name`);
+  return result.rows;
+}
+
+export async function readIndexedActivity(
+  category: string,
+  limit = 100,
+  connection: Pool = database(),
+): Promise<unknown[]> {
+  const allowed = new Set([
+    "MARKET",
+    "QUALIFICATION",
+    "RISK",
+    "ORACLE",
+    "TRADE",
+    "CUSTODY",
+    "INSURANCE",
+    "ADL",
+    "LP",
+    "GOVERNANCE",
+  ]);
+  if (!allowed.has(category)) throw new Error("UNSUPPORTED_INDEX_CATEGORY");
+  const result = await connection.query(
+    `SELECT d.contract_name AS "contract",d.event_name AS "eventName",
+      d.market_id AS "marketId",d.account,d.position_id AS "positionId",d.arguments,
+      d.block_number::text AS "blockNumber",r.block_hash AS "blockHash",
+      d.transaction_hash AS "transactionHash",d.log_index AS "logIndex"
+      FROM arc_decoded_events d JOIN arc_raw_events r USING (chain_id,block_number,transaction_hash,log_index)
+      WHERE d.chain_id=$1 AND d.category=$2 ORDER BY d.block_number DESC,r.transaction_index DESC,d.log_index DESC LIMIT $3`,
+    [ARC_CHAIN_ID, category, Math.min(100, Math.max(1, limit))],
   );
   return result.rows;
 }

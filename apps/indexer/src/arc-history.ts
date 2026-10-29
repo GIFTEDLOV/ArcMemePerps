@@ -160,7 +160,7 @@ export class ArcEventJournal {
     readonly startBlock: bigint = ARC_CONTRACTS.USDCMarginVault[1],
   ) {}
   async migrate(): Promise<void> {
-    for (const name of ["001_arc_events.sql", "002_arc_projections.sql"]) {
+    for (const name of ["001_arc_events.sql", "002_arc_projections.sql", "003_arc_read_models.sql"]) {
       const sql = await readFile(
         fileURLToPath(new URL(`../migrations/${name}`, import.meta.url)),
         "utf8",

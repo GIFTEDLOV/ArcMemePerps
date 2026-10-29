@@ -9,6 +9,7 @@
   "dependencies": {
     "@arcmemeperps/chain-adapters": "workspace:*",
     "@arcmemeperps/domain": "workspace:*",
+    "@arcmemeperps/oracle": "workspace:*",
     "@arcmemeperps/persistence": "workspace:*",
     "@arcmemeperps/shared": "workspace:*",
     "pg": "^8.23.1",

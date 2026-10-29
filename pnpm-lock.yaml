@@ -149,6 +149,9 @@ importers:
       '@arcmemeperps/domain':
         specifier: workspace:*
         version: link:../../packages/domain
+      '@arcmemeperps/oracle':
+        specifier: workspace:*
+        version: link:../../packages/oracle
       '@arcmemeperps/persistence':
         specifier: workspace:*
         version: link:../../packages/persistence
