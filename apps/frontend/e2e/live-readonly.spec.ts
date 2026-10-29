@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { expect, test } from "@playwright/test";
 
 const apiBase = process.env.E2E_LIVE_API_BASE?.replace(/\/$/, "");
+const frontendApiBase = (process.env.E2E_LIVE_FRONTEND_API_BASE ?? apiBase)?.replace(/\/$/, "");
 const frontendBase = process.env.E2E_LIVE_FRONTEND_BASE;
 
 test("live read-only API reports real discovery and unavailable indexing", async ({ request }) => {
@@ -84,8 +85,8 @@ test("live frontend keeps trading and LP deposits unavailable", async ({ page })
   });
   await expect.poll(() => apiRequests.length, { timeout: 15_000 }).toBeGreaterThan(0);
   expect(
-    apiRequests.some((url) => new URL(url).origin === new URL(apiBase!).origin),
-    `The frontend did not use E2E_LIVE_API_BASE. Requests: ${apiRequests.join(", ")}`,
+    apiRequests.some((url) => new URL(url).origin === new URL(frontendApiBase!).origin),
+    `The frontend did not use E2E_LIVE_FRONTEND_API_BASE. Requests: ${apiRequests.join(", ")}`,
   ).toBe(true);
 
   const marketRows = page.locator(".market-row-link");
