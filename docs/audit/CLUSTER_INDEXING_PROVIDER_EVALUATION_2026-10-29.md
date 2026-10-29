@@ -1,0 +1,35 @@
+# CLUSTER Arc indexing provider evaluation
+
+**Checked:** 2026-10-29
+**Purpose:** choose a durable Arc Mainnet event source for market, qualification, oracle, risk, order, settlement, custody, insurance, ADL, and governance history. This is provider research; no provider was provisioned or billed.
+
+## Findings
+
+| Option                          | Verified capability                                                                                                                                        | Constraint                                                                                                                                                                                                                                                                                  | Decision                                                                                                                       |
+| ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| The Graph Arc Subgraph Studio   | Arc Mainnet (`eip155:5042`) is supported; Graph's docs describe building/deploying contract-event subgraphs and querying the development GraphQL endpoint. | Arc subgraphs are Studio-only; The Graph does not guarantee decentralized Network indexing for Arc. The dev endpoint requires an API key and is limited to 3,000 queries/day. No CLUSTER subgraph, credentials, historic coverage query, or working provider query was available to verify. | Useful for a development proof once provisioned, but insufficient evidence for production durability or project affordability. |
+| The Graph Market Arc Substreams | Arc is listed as Extended EVM with full-archive coverage and StreamingFast and Pinax stream providers. It can stream transaction, call, and event data.    | The listing directs users to authenticate for an API key. Project price/credits, retention terms, account availability, and an actual CLUSTER query were not verified. It is not a verified no-billing deployment for this repo.                                                            | Best verified Arc event-source candidate; do not represent as provisioned or free.                                             |
+| Vercel Hobby cron + functions   | Existing read-only API deployment works for GET routes and SSE connection setup.                                                                           | Hobby cron executes once per day with hourly timing precision. Serverless functions do not supply an always-on durable indexer or durable local SQLite.                                                                                                                                     | Keep as the read-only query/API edge only; do not use as the event worker or persistent store.                                 |
+| Render Free                     | Free web services and Postgres are documented.                                                                                                             | Free web instances idle after 15 minutes and have ephemeral filesystems. Free Postgres expires after 30 days; persistent disks require a paid service. This is unsuitable for production event history.                                                                                     | Rejected for the durable production path.                                                                                      |
+
+## Proposed alternative architecture
+
+1. Stream Arc Mainnet blocks from The Graph Market's Arc Substreams provider (or a separately verified Arc full node) through a dedicated, always-on worker. Pin all event identities to `(chainId, blockHash, transactionHash, logIndex)` and store block number, finality, decode version, and source.
+2. Persist raw events, canonical checkpoints, reorg journal, materialized market/qualification/oracle/position/settlement projections, and an event outbox in a durable Postgres service with backups and retention explicitly verified. Reuse `packages/persistence` interfaces only after the actual SQL adapter and migration behavior are exercised against that service.
+3. Backfill from each exact deployment receipt block, with bounded log ranges, resumable checkpoints, canonical-hash verification, finality buffer, reorg rewind/replay, deduplication, and gap alarms. Reconcile current derived state to direct pinned-block contract reads.
+4. Keep Vercel Functions as stateless query endpoints over that read model. Emit SSE only from committed outbox rows and event IDs; otherwise return an explicit unavailable state. Never emit a heartbeat as if it were an indexed event.
+5. Keep DEX market discovery separate from contract verification and execution-oracle provenance. DEX Screener records can seed visible discovery only; independent source observations, signed oracle provenance, threshold, replay, confidence, and freshness require separate verified evidence.
+
+## Required acceptance work and blocker
+
+No external API key, plan credit, durable database, or always-on worker was available to this review. Accordingly, the provider evaluation could not run an authenticated Arc Substreams query or prove project-specific cost and retention. The existing Vercel endpoint currently returns live discovery data but reports `UNAVAILABLE_NO_PERSISTENT_INDEXER`; its stream emits only an explicit heartbeat comment.
+
+Group B is **FAIL**, not complete. Before marking it PASS, provision an approved non-Railway worker/store, deploy/test the event schema and migration, run a bounded historical Arc query, prove restart/reorg/replay behavior and full deployment-block-to-finalized-head continuity, compare indexed qualification state with pinned on-chain reads, and verify SSE event IDs against indexed receipts. No billing or infrastructure resource was created as part of this work.
+
+## Sources
+
+- [The Graph: Arc Mainnet](https://thegraph.com/docs/en/supported-networks/arc/) — Arc chain support, Studio-only Subgraphs, 3,000-query/day development endpoint, and Substreams support.
+- [The Graph Market: Arc Mainnet](https://thegraph.market/networks/arc) — full-archive Arc listing and stream providers.
+- [Vercel: Cron usage and pricing](https://vercel.com/docs/cron-jobs/usage-and-pricing) — Hobby cron interval and scheduling precision.
+- [Render: Deploy for Free](https://render.com/docs/free) — idle/free filesystem and 30-day Postgres limits.
+- [Render: Persistent Disks](https://render.com/docs/disks) — persistent disks require a paid web/private/background service.
