@@ -47,7 +47,7 @@ export class PersistentIndexerCheckpointStore implements IndexerCheckpointStore 
   }
 }
 
-export type MainnetIndexerLifecycle = "WAITING_FOR_DEPLOYMENT" | "SYNCED";
+export type MainnetIndexerLifecycle = "WAITING_FOR_DEPLOYMENT" | "INCOMPLETE";
 
 export interface MainnetIndexerStatus {
   readonly lifecycle: MainnetIndexerLifecycle;
@@ -58,17 +58,17 @@ export interface MainnetIndexerStatus {
 }
 
 /**
- * Configuration boundary for the production protocol indexer. It deliberately
- * refuses to report SYNCED until an actual Mainnet deployment and start block
- * are present; discovery indexing remains independent of this state.
+ * Deployment metadata and a checkpoint cannot prove contiguous, finalized
+ * event coverage. Keep the index incomplete until a persistent worker can
+ * attest the full deployment-to-head range and its gaps.
  */
 export function mainnetIndexerStatus(
   config: ArcDeploymentConfig,
   checkpoint: IndexerCheckpoint | null,
 ): MainnetIndexerStatus {
-  const ready = config.network === "MAINNET" && config.deploymentStatus === "DEPLOYED" && config.startBlock !== null;
+  const deployed = config.network === "MAINNET" && config.deploymentStatus === "DEPLOYED" && config.startBlock !== null;
   return {
-    lifecycle: ready ? "SYNCED" : "WAITING_FOR_DEPLOYMENT",
+    lifecycle: deployed ? "INCOMPLETE" : "WAITING_FOR_DEPLOYMENT",
     chainId: config.chainId,
     deploymentId: config.deploymentId,
     startBlock: config.startBlock?.toString() ?? null,
@@ -197,3 +197,4 @@ export const indexerBuildState = {
   reorgSafety: "checkpoint hash/slot guards and explicit rewind errors",
   networkWrites: false,
 } as const;
+
