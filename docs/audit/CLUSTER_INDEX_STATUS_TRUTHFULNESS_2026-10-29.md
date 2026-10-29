@@ -23,4 +23,3 @@ These changes keep GET-only routes and financial writes disabled. They do not at
 ## Remaining Group B gate
 
 Group B remains **FAIL**. A non-Railway durable worker and store, authenticated Arc event source, deployment-block backfill, gap/reorg/restart proof, direct contract reconciliation, independent oracle evidence, and SSE events backed by indexed receipts remain necessary. No external service or financial action was started.
-
