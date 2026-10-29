@@ -162,7 +162,7 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
    :fail("READ_FAILED_OR_REVERTED");
   const debt=values.marginBadDebt,covered=values.marginInsuranceCovered;
   if(debt?.length&&covered?.length){
-    const uncovered=debt[0]!>covered[0]!?debt[0]!-covered[0]!:0n;
+    const uncovered = debt[0]! > covered[0]! ? debt[0]! - covered[0]! : 0n;
     checks.noUncoveredBadDebt=uncovered===0n?pass("0"):fail("UNCOVERED_BAD_DEBT",short(uncovered));
   }else checks.noUncoveredBadDebt=fail("READ_FAILED_OR_REVERTED");
   const capacity=values.marginWithdrawable;
