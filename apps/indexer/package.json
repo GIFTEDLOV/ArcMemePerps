@@ -3,10 +3,18 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
+  "scripts": {
+    "arc:backfill": "tsx src/arc-history-cli.ts"
+  },
   "dependencies": {
     "@arcmemeperps/chain-adapters": "workspace:*",
     "@arcmemeperps/domain": "workspace:*",
     "@arcmemeperps/persistence": "workspace:*",
-    "@arcmemeperps/shared": "workspace:*"
+    "@arcmemeperps/shared": "workspace:*",
+    "pg": "^8.23.1",
+    "viem": "^2.57.13"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
   }
 }

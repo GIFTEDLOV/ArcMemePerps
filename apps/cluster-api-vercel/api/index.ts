@@ -1,4 +1,10 @@
 import { verifyArcMarket } from "./verification.js";
+import {
+  arcIndexStream,
+  indexDatabaseConfigured,
+  readArcIndexSnapshot,
+  readIndexedMarkets,
+} from "./arc-index-read.js";
 import { marketIdForToken, type SupportedChain } from "@arcmemeperps/shared";
 /**
  * CLUSTER / Arc deadline read-only API.
@@ -258,6 +264,15 @@ function page(all: AnyRecord[], source: AnyRecord, url: URL, path: string) {
 }
 async function status() {
   const asOf = new Date().toISOString();
+  let arcIndex: Awaited<ReturnType<typeof readArcIndexSnapshot>> | null = null;
+  let indexError = false;
+  if (indexDatabaseConfigured()) {
+    try {
+      arcIndex = await readArcIndexSnapshot();
+    } catch {
+      indexError = true;
+    }
+  }
   const base = {
     asOf,
     service: "cluster-vercel-readonly",
@@ -267,8 +282,11 @@ async function status() {
     lpDepositsEnabled: false,
     qualifiedMarketCount: null,
     qualificationInventory: "UNVERIFIED",
-    indexer: "UNAVAILABLE_NO_PERSISTENT_INDEXER",
-    sse: "HEARTBEAT_ONLY",
+    indexer:
+      arcIndex?.status ??
+      (indexError ? "UNAVAILABLE_INDEX_QUERY_FAILED" : "UNAVAILABLE_NO_PERSISTENT_INDEXER"),
+    arcIndex,
+    sse: arcIndex ? "RECEIPT_BACKED_OUTBOX_INCOMPLETE" : "HEARTBEAT_ONLY",
     health: {
       API: "OPERATIONAL",
       DISCOVERY: "UNVERIFIED",
@@ -347,7 +365,27 @@ export default {
       );
     if (route === "protocol/status")
       return json(await status(), 200, { "Cache-Control": "public,s-maxage=15" });
+    if (route === "index/status" || route === "index/markets") {
+      if (!indexDatabaseConfigured()) return json({ error: "PERSISTENT_INDEX_UNAVAILABLE" }, 503);
+      try {
+        const snapshot = await readArcIndexSnapshot();
+        if (route === "index/status") return json(snapshot, 200, { "Cache-Control": "no-store" });
+        return json(
+          {
+            schemaVersion: "v1",
+            items: await readIndexedMarkets(),
+            inventory: "INCOMPLETE",
+            coverage: snapshot,
+          },
+          200,
+          { "Cache-Control": "no-store" },
+        );
+      } catch {
+        return json({ error: "PERSISTENT_INDEX_QUERY_FAILED" }, 503);
+      }
+    }
     if (route === "stream") {
+      if (indexDatabaseConfigured()) return arcIndexStream(request);
       const stream = new ReadableStream<Uint8Array>({
         start(controller) {
           const encoder = new TextEncoder();

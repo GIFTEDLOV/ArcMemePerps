@@ -56,7 +56,7 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
   const connect = () => {
     if (stopped) return;
     onState("RECONNECTING");
-    source = new EventSource(streamUrl);
+    source = new EventSource(lastSequence > 0n ? `${streamUrl}?after=${lastSequence.toString()}` : streamUrl);
     source.onopen = () => onState("CONNECTED");
     const handleMessage = (message: MessageEvent<string>) => {
       try {

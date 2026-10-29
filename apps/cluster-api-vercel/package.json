@@ -8,6 +8,10 @@
   },
   "dependencies": {
     "@arcmemeperps/shared": "workspace:*",
+    "pg": "^8.23.1",
     "viem": "^2.37.0"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.23.1"
   }
 }
