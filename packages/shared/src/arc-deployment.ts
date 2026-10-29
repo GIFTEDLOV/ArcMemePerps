@@ -196,4 +196,3 @@ export function arcDeploymentSummary(config: ArcDeploymentConfig): Record<string
     persistenceNamespace: config.persistenceNamespace,
   };
 }
-
