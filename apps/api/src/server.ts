@@ -489,4 +489,3 @@ function parseAddress(value: string): string {
 function nextCursorFor(length: number, limit: number, offset: number): string | null {
   return length === limit ? String(offset + length) : null;
 }
-
