@@ -67,7 +67,7 @@ export const ProtocolStatusSchema = z
     readOnly: z.literal(true),
     network: z.string().optional(),
     chainId: z.number().int().positive().optional(),
-    deployment: z.enum(["DEPLOYMENT_PENDING", "DEPLOYED_ZERO_MARKETS", "LIVE_MARKETS_AVAILABLE"]).optional(),
+    deployment: z.enum(["DEPLOYMENT_PENDING", "DEPLOYED_MARKETS_UNVERIFIED", "DEPLOYED_ZERO_MARKETS", "LIVE_MARKETS_AVAILABLE"]).optional(),
     deploymentId: z.string().optional(),
     policyVersion: z.string().optional(),
     discoveryCount: z.number().int().nonnegative().optional(),
@@ -88,3 +88,4 @@ export type ProtocolStatus = z.infer<typeof ProtocolStatusSchema>;
 export function assertApiPath(path: string): void {
   if (!path.startsWith("/api/v1/")) throw new Error("API path must be versioned");
 }
+
