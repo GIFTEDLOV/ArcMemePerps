@@ -12,7 +12,7 @@ The Microgrants page requires a live, working Arc Mainnet deployment and a publi
 
 ## Accurate project description
 
-**Pitch (100â€“200 characters):** CLUSTER shows live multichain meme discovery with fail-closed Arc verification; todayâ€™s preview is read-only, and qualification, trading, history, and public LP backing remain unavailable.
+**Pitch (100–200 characters):** CLUSTER shows live multichain meme discovery with fail-closed Arc verification; today’s preview is read-only, and qualification, trading, history, and public LP backing remain unavailable.
 
 **Project:** CLUSTER (`ArcMemePerps`)
 
@@ -28,15 +28,15 @@ The preview displays external market discovery data and truthful availability st
 
 ## Proposed three-minute demo for a future open program
 
-1. **0:00â€“0:40 â€” Discovery:** open the preview's Markets page; show that discovered records carry provider/freshness information and that missing values remain unavailable.
-2. **0:40â€“1:20 â€” Safety boundary:** open a market detail page and show the `UNVERIFIED` / `Trading unavailable` state. Explain that discovery does not qualify an Arc market or certify an execution oracle.
-3. **1:20â€“2:05 â€” API transparency:** request `/api/v1/markets` and `/api/v1/protocol/status`; show chain ID 5042, read-only mode, disabled writes, and the unavailable persistent indexer.
-4. **2:05â€“2:30 â€” Event transport:** open `/api/v1/stream`; show the explicit heartbeat-only message and no fabricated event payload.
-5. **2:30â€“3:00 â€” Release gates:** explain that the existing Arc Mainnet contracts have unfinished governance bootstrap, the existing LP is not wired to settlement, and no live trade or LP withdrawal is demonstrated.
+1. **0:00–0:40 — Discovery:** open the preview's Markets page; show that discovered records carry provider/freshness information and that missing values remain unavailable.
+2. **0:40–1:20 — Safety boundary:** open a market detail page and show the `UNVERIFIED` / `Trading unavailable` state. Explain that discovery does not qualify an Arc market or certify an execution oracle.
+3. **1:20–2:05 — API transparency:** request `/api/v1/markets` and `/api/v1/protocol/status`; show chain ID 5042, read-only mode, disabled writes, and the unavailable persistent indexer.
+4. **2:05–2:30 — Event transport:** open `/api/v1/stream`; show the explicit heartbeat-only message and no fabricated event payload.
+5. **2:30–3:00 — Release gates:** explain that the existing Arc Mainnet contracts have unfinished governance bootstrap, the existing LP is not wired to settlement, and no live trade or LP withdrawal is demonstrated.
 
 Screenshots from the live preview are in `evidence/e2e/live-preview/`. These materials are a preview demonstration, not an application or claim that the published program is currently open.
 
-**Legacy video warning:** the repository's `arcmemeperps_3min_demo.mp4` is not suitable for submission. Its companion narration/recording scripts advertise zero-slippage/10x execution, completed trades, open positions and PnL against the old production terminal. Those claims are unsupported by the current verified product. Keep it out of the demo package; no replacement video was recorded in this review.
+**Legacy video warning:** the repository contains `arcmemeperps_3min_demo.mp4`, but its encoded content was not reviewed in this checkpoint. Its companion narration/recording scripts advertise zero-slippage/10x execution, completed trades, open positions and PnL against the old production terminal; those scripts are unsupported by current verified availability. Exclude the MP4 until its content is reviewed. No replacement video was recorded in this review.
 
 ## Verified transaction and contract evidence
 
@@ -46,8 +46,8 @@ Mainnet contract addresses and observed state are listed in `evidence/mainnet/co
 
 ## Remaining submission blockers
 
-- No currently open hackathon or grant window was found; the named published programs have closed.
-- The existing three-minute MP4 is stale and overclaims execution; only use the read-only walkthrough and current screenshots until a replacement recording is prepared.
+- No upcoming Arc hackathon or Arc Microgrants window was verified; the named programs above have closed. This review does not assess unrelated grant programs.
+- The existing three-minute MP4 content was not reviewed in this checkpoint; its companion scripts are stale and excluded pending content review. Only use the read-only walkthrough and current screenshots until a verified replacement recording is prepared.
 - No positive live market-verification canary or complete indexed market/qualification inventory exists.
 - No persistent event history or real indexed SSE feed is available.
 - No verified wallet-to-engine trade receipt, trader settlement, or LP-backed settlement is demonstrated.
