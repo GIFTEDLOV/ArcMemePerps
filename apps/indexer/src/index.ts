@@ -197,4 +197,3 @@ export const indexerBuildState = {
   reorgSafety: "checkpoint hash/slot guards and explicit rewind errors",
   networkWrites: false,
 } as const;
-
