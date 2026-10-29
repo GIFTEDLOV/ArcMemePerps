@@ -52,7 +52,7 @@ function marketFromProfile(profile:AnyRecord,pairs:AnyRecord[],at:string):AnyRec
   const buys=numberValue(pair?.txns?.h24?.buys),sells=numberValue(pair?.txns?.h24?.sells);
   const available=!!pair;
   return {
-    marketId:chain.toLowerCase()+":"+token.toLowerCase(),chain,tokenAddress:token,
+    marketId:chain.toLowerCase()+":"+(chain==="SOLANA"?token:token.toLowerCase()),chain,tokenAddress:token,
     symbol:stringValue(pair?.baseToken?.symbol),
     name:stringValue(pair?.baseToken?.name),decimals:null,
     imageUrl:stringValue(profile.icon),sourceUrl:stringValue(pair?.url)??stringValue(profile.url),
@@ -113,7 +113,7 @@ function page(all:AnyRecord[],source:AnyRecord,url:URL,path:string){
   const offset=Math.max(0,parseInt(url.searchParams.get("cursor")??"0")||0);
   const items=filtered.slice(offset,offset+limit);
   return json({schemaVersion:"v1",items,nextCursor:offset+limit<filtered.length?String(offset+limit):null,
-    total:filtered.length,discoveryCount:all.length,currentlyObservedCount:all.length,
+    total:filtered.length,discoveryCount:all.length,currentlyObservedCount:all.filter(m=>m.providerState.status==="AVAILABLE").length,
     staleRetainedCount:0,perpCount:null,sources:[source],
     releaseMode:"READ_ONLY_DISCOVERY",qualificationInventory:"UNVERIFIED"});
 }
