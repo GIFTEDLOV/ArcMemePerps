@@ -19,7 +19,7 @@ import {
   encodeVerificationRead,
   verificationAbi,
   verifyArcMarket,
-} from "./verification.js";
+} from "../api/verification.js";
 
 const ZERO_MARKET = `0x${"00".repeat(32)}` as Hex;
 
