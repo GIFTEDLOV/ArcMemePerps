@@ -12,7 +12,12 @@ import {
   type Address,
   type Hex,
 } from "viem";
-import { ARC_DEPLOYMENT_CONTRACTS, ARC_MAINNET, isEvmAddress } from "@arcmemeperps/shared";
+import { ARC_DEPLOYMENT_CONTRACTS, ARC_MAINNET } from "@arcmemeperps/shared";
+import {
+  resolveMainnetContractAddress,
+  resolveMainnetDeployer,
+  resolveMainnetDeploymentBlockRange,
+} from "./mainnet-deployment-identity";
 
 const ROOT = resolve(process.cwd());
 const contractsPath = resolve(ROOT, "evidence/mainnet/contracts.json");
@@ -21,7 +26,15 @@ const chain = defineChain({ id: ARC_MAINNET.chainId, name: ARC_MAINNET.chainName
 
 type Artifact = { readonly abi: Abi; readonly deployedBytecode: { readonly object: Hex } };
 type ContractEvidence = { readonly name: string; readonly address: Address; readonly txHash: Hex; readonly blockNumber: string; readonly runtimeHash: Hex };
-type ContractsFile = { readonly chainId: number; readonly contractSourceSha: string; readonly deploymentBlocks: { readonly first: string | null; readonly last: string | null }; readonly contracts: readonly ContractEvidence[] };
+type ContractsFile = {
+  readonly chainId: number;
+  readonly contractSourceSha?: string;
+  readonly deployer?: string;
+  readonly deployedAddresses?: Readonly<Record<string, string>>;
+  readonly receipts?: Readonly<Record<string, { readonly blockNumber?: string }>>;
+  readonly deploymentBlocks?: { readonly first: string | null; readonly last: string | null };
+  readonly contracts?: readonly ContractEvidence[];
+};
 
 function artifact(name: string): Artifact {
   return JSON.parse(readFileSync(resolve(ROOT, `out/${name}.sol/${name}.json`), "utf8")) as Artifact;
@@ -32,15 +45,15 @@ function runtimeHash(bytecode: Hex): Hex {
 }
 
 function requireAddress(file: ContractsFile, name: string): Address {
-  const record = file.contracts.find((item) => item.name === name);
-  if (!record || !isEvmAddress(record.address)) throw new Error(`MISSING_MAINNET_CONTRACT:${name}`);
-  return record.address;
+  return resolveMainnetContractAddress(file, name);
 }
 
 async function main(): Promise<void> {
   if (!existsSync(contractsPath)) throw new Error("MAINNET_CONTRACT_MANIFEST_NOT_FOUND");
   const file = JSON.parse(readFileSync(contractsPath, "utf8")) as ContractsFile;
   if (file.chainId !== ARC_MAINNET.chainId) throw new Error("MAINNET_CHAIN_ID_MISMATCH");
+  const deployer = resolveMainnetDeployer(file.deployer, process.env.MAINNET_DEPLOYER_ADDRESS);
+  if (!file.contractSourceSha) throw new Error("MAINNET_DEPLOYED_SOURCE_PROVENANCE_UNATTESTED");
   if (file.contractSourceSha !== expectedSourceSha) throw new Error("CONTRACT_SOURCE_SHA_MISMATCH");
   const publicClient = createPublicClient({ chain, transport: http(ARC_MAINNET.rpcUrl) });
   if (await publicClient.getChainId() !== ARC_MAINNET.chainId) throw new Error("MAINNET_RPC_CHAIN_ID_MISMATCH");
@@ -59,7 +72,6 @@ async function main(): Promise<void> {
     "function hasRole(bytes32,address) view returns (bool)",
   ]);
   const roles: Record<string, Hex> = Object.fromEntries(["GOVERNANCE_ADMIN", "RISK_ADMIN", "EMERGENCY_ADMIN", "ORACLE_ADMIN", "QUALIFICATION_WRITER", "KEEPER", "INSURANCE_MANAGER"].map((name) => [name, keccak256(stringToHex(name))]));
-  const deployer = (process.env.MAINNET_DEPLOYER_ADDRESS ?? "0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833") as Address;
   const roleState: Record<string, unknown> = {};
   for (const name of ARC_DEPLOYMENT_CONTRACTS) {
     const finalized = await read<boolean>(addresses[name]!, accessAbi, "bootstrapFinalized");
@@ -78,8 +90,9 @@ async function main(): Promise<void> {
   const badDebt = await read<bigint>(addresses.USDCMarginVault!, parseAbi(["function protocolBadDebt() view returns (uint256)"]), "protocolBadDebt");
   if (solvencyBlocked || nextPositionId !== 1n || badDebt !== 0n) throw new Error("GENESIS_ASSERTION_FAILED");
 
-  const fromBlock = file.deploymentBlocks.first === null ? undefined : BigInt(file.deploymentBlocks.first);
-  const toBlock = file.deploymentBlocks.last === null ? undefined : BigInt(file.deploymentBlocks.last);
+  const deploymentBlocks = resolveMainnetDeploymentBlockRange(file);
+  const fromBlock = deploymentBlocks.first;
+  const toBlock = deploymentBlocks.last;
   const registered = await publicClient.getLogs({ address: addresses.MarketRegistry, event: parseAbiItem("event MarketRegistered(bytes32 indexed marketId, bytes32 indexed originChain, bytes originToken)"), fromBlock, toBlock });
   const qualified = await publicClient.getLogs({ address: addresses.QualificationRegistry, event: parseAbiItem("event QualificationApproved(bytes32 indexed marketId, bytes32 indexed proofHash, bytes32 indexed ruleVersion, uint256 maxLeverage, uint256 maxOI, uint256 maxPosition, uint64 expiresAt)"), fromBlock, toBlock });
   const oracleUpdates = await publicClient.getLogs({ address: addresses.OracleRouter, event: parseAbiItem("event ReportUpdated(bytes32 indexed marketId, uint64 indexed sequence)"), fromBlock, toBlock });
@@ -88,3 +101,4 @@ async function main(): Promise<void> {
 }
 
 void main().catch((error: unknown) => { console.error(error instanceof Error ? error.message : error); process.exitCode = 1; });
+
