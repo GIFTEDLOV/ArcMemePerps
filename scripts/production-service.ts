@@ -76,4 +76,3 @@ server.listen(port, "127.0.0.1", () => process.stdout.write(`ARCMEMEPERPS_MAINNE
 const close = () => { server.close(); storage.close(); };
 process.once("SIGINT", close);
 process.once("SIGTERM", close);
-
