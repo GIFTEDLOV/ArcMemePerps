@@ -1,4 +1,4 @@
-﻿# CLUSTER autopilot progress
+# CLUSTER autopilot progress
 
 Review date: 2026-10-29 (UTC)
 Repository: https://github.com/GIFTEDLOV/ArcMemePerps
@@ -39,8 +39,8 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
 **Status: FAIL** - source and local-chain checks are substantial, but no permitted live Testnet wallet trade receipt or complete keeper index is available.
 
-- Branch/PR: `codex/cluster-group-c-trade-audit`, draft [PR #6](https://github.com/GIFTEDLOV/ArcMemePerps/pull/6), based on PR #5. Audit source checkpoint: `c54abc4308040f2c21c8fff62a0856cb532d0146`.
-- Exact-head GitHub CI: [run 40890612748](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40890612748) and [run 40890659091](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40890659091), both PASS (lint, typecheck, 53-file/268-test suite, frontend checks/build, `forge build`, `forge test`, `forge fmt --check`). Local `pnpm test` also PASS (53 files, 268 tests).
+- Branch/PR: `codex/cluster-group-c-trade-audit`, draft [PR #6](https://github.com/GIFTEDLOV/ArcMemePerps/pull/6), based on PR #5. Audit source checkpoint: `c54abc4308040f2c21c8fff62a0856cb532d0146`; progress checkpoint: `53d7c102bcc7389863c61cc5438c0e01eede9709`.
+- Exact-head GitHub CI for `53d7c10`: [run 40891277344](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40891277344) and [run 40891287252](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40891287252), both PASS (lint, typecheck, 53-file/268-test suite, frontend checks/build, `forge build`, `forge test`, `forge fmt --check`). Local `pnpm test` also PASS (53 files, 268 tests).
 - Mainnet snapshot at block `28,484,877`, hash `0xfd6dc29563cedbd9aa85c181f681b6f5d39b951a7d31a2790f5daae0788b8034`: LP inactive/zero shares/custody; MarginVault has 1 USDC trader free collateral, no protocol backing and zero withdrawable liquidity; InsuranceFund is empty; engine next position ID 1 and unbootstrapped.
 - Product Testnet snapshot at block `69,676,416`: PublicLPVault holds 1.8 USDC with `publicLpActive=true` and risk budget zero; MarginVault custody is 5.6 USDC including 5 USDC protocol backing; InsuranceFund holds 2 USDC; there are no open positions. The LP has no call path to MarginVault/PerpEngine. Testnet activation state was not altered.
 - Verified Mainnet transaction: historical 1.000000 USDC deposit into MarginVault, block 27,246,895, [`0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9`](https://explorer.arc.io/tx/0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9). This is trader collateral, not a trade or LP deposit.
@@ -50,7 +50,11 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
 ## Remaining groups
 
-- Group D - **UNKNOWN / not yet reviewed in this progress checkpoint**: existing PublicLPVault is isolated from settlement. The next checkpoint will provide the complete accounting invariants and deployment plan; no second pool will be proposed.
+- Group D - **FAIL** for live integration; the existing LP audit and migration/invariant plan are complete.
+  - Branch/PR: `codex/cluster-group-d-existing-lp-plan`, draft [PR #7](https://github.com/GIFTEDLOV/ArcMemePerps/pull/7), based on PR #6. Plan checkpoint: `699ef8065a6b56589d823c8510906a623d881b30`.
+  - Exact-head GitHub CI: [run 40891981392](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40891981392) and [run 40892028759](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40892028759), both PASS. No Solidity changes were made; these runs verify the inherited repository and documentation branch.
+  - Audit: [existing LP economic integration plan](CLUSTER_LP_ECONOMIC_INTEGRATION_AUDIT_2026-10-29.md). Mainnet LP is inactive/empty; Product Testnet LP has 1.8 USDC, active contract deposits, zero risk budget, and no MarginVault/Engine path. Direct contract replacements, full Testnet shareholder history, independent review, and migration sign-off remain blockers.
+  - No LP implementation was started because the immutable deployment/migration dependencies and signed-off accounting review are not established. No second pool or transaction is proposed.
 - Group E - **UNKNOWN / not yet reviewed in this progress checkpoint**: preview/browser checks pass, while durable backend integration, governance verification, and full source-to-production parity remain incomplete.
 - Group F - **FAIL** for current submission timing: the reviewed Arc Microgrants and Programmable Money Hackathon windows have closed; no current open Arc program was verified. A truthful submission report is prepared, but no application was submitted.
 
@@ -59,4 +63,5 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 - PR #2 merge readiness: **NO-GO** pending backend persistence, market evidence, independent security review, LP settlement integration, keeper continuity, and complete live verification.
 - Hackathon submission: **NO-GO today**; the named programs are closed, and the current preview is not a live Mainnet perpetual product.
 - Live financial production: **NO-GO**; Mainnet bootstrap/roles, positive market/oracle qualification, keeper/index completeness, live settlement receipts, and integrated LP solvency are not established.
-- Next: complete the Group D plan for the existing PublicLPVault, then the Groups E/F infrastructure and release evidence without financial actions.
+- Next: verify production deployment provenance and governance, fix safe verification tooling defects, then complete Group F release evidence without production financial actions.
+
