@@ -68,35 +68,39 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
   const chain=BigInt(await rpc("eth_chainId",[]));
   if(chain!==5042n)return result({error:"WRONG_NETWORK",tradingEnabled:false},503);
   const blockTag=await rpc("eth_blockNumber",[]);
-  const tasks:Record<string,Promise<bigint[]>>={
-    engineBootstrap:call(A.engine,S.bootstrap,null,blockTag),
-    lpBootstrap:call(A.lp,S.bootstrap,null,blockTag),
-    lpActive:call(A.lp,S.lpActive,null,blockTag),
-    engineSolvency:call(A.engine,S.insolvency,null,blockTag),
-    marketExists:call(A.market,S.exists,marketId,blockTag),
-    qualificationApproved:call(A.qualification,S.approved,marketId,blockTag),
-    qualification:call(A.qualification,S.qualification,marketId,blockTag),
-    marketState:call(A.market,S.state,marketId,blockTag),
-    riskConfig:call(A.risk,S.config,marketId,blockTag),
-    appliedProof:call(A.risk,S.appliedProof,marketId,blockTag),
-    oracleUsable:call(A.oracle,S.usable,marketId,blockTag),
-    oracleReport:call(A.oracle,S.report,marketId,blockTag),
-    openInterest:call(A.engine,S.oi,marketId,blockTag),
-    engineMarket:call(A.engine,S.engineMarket,null,blockTag),
-    engineRisk:call(A.engine,S.engineRisk,null,blockTag),
-    engineOracle:call(A.engine,S.engineOracle,null,blockTag),
-    engineMargin:call(A.engine,S.engineMargin,null,blockTag),
-    engineInsurance:call(A.engine,S.engineInsurance,null,blockTag),
-    marginEngine:call(A.margin,S.marginEngine,null,blockTag),
-    marginCustody:call(A.margin,S.custody,null,blockTag),
-    marginExpected:call(A.margin,S.expected,null,blockTag),
-    marginWithdrawable:call(A.margin,S.withdrawable,null,blockTag),
-    marginBadDebt:call(A.margin,S.badDebt,null,blockTag),
-    insuranceCapital:call(A.insurance,S.insuranceCapital,null,blockTag)
+  const tasks:Record<string,()=>Promise<bigint[]>>={
+    engineBootstrap:()=>call(A.engine,S.bootstrap,null,blockTag),
+    lpBootstrap:()=>call(A.lp,S.bootstrap,null,blockTag),
+    lpActive:()=>call(A.lp,S.lpActive,null,blockTag),
+    engineSolvency:()=>call(A.engine,S.insolvency,null,blockTag),
+    marketExists:()=>call(A.market,S.exists,marketId,blockTag),
+    qualificationApproved:()=>call(A.qualification,S.approved,marketId,blockTag),
+    qualification:()=>call(A.qualification,S.qualification,marketId,blockTag),
+    marketState:()=>call(A.market,S.state,marketId,blockTag),
+    riskConfig:()=>call(A.risk,S.config,marketId,blockTag),
+    appliedProof:()=>call(A.risk,S.appliedProof,marketId,blockTag),
+    oracleUsable:()=>call(A.oracle,S.usable,marketId,blockTag),
+    oracleReport:()=>call(A.oracle,S.report,marketId,blockTag),
+    openInterest:()=>call(A.engine,S.oi,marketId,blockTag),
+    engineMarket:()=>call(A.engine,S.engineMarket,null,blockTag),
+    engineRisk:()=>call(A.engine,S.engineRisk,null,blockTag),
+    engineOracle:()=>call(A.engine,S.engineOracle,null,blockTag),
+    engineMargin:()=>call(A.engine,S.engineMargin,null,blockTag),
+    engineInsurance:()=>call(A.engine,S.engineInsurance,null,blockTag),
+    marginEngine:()=>call(A.margin,S.marginEngine,null,blockTag),
+    marginCustody:()=>call(A.margin,S.custody,null,blockTag),
+    marginExpected:()=>call(A.margin,S.expected,null,blockTag),
+    marginWithdrawable:()=>call(A.margin,S.withdrawable,null,blockTag),
+    marginBadDebt:()=>call(A.margin,S.badDebt,null,blockTag),
+    insuranceCapital:()=>call(A.insurance,S.insuranceCapital,null,blockTag)
   };
-  const entries=await Promise.all(Object.entries(tasks).map(async ([name,promise])=>{
-   try{return [name,await promise] as const;}catch{return [name,null] as const;}
-  }));
+  const entries:Array<readonly [string,bigint[]|null]>=[];
+  const pairs=Object.entries(tasks);
+  for(let i=0;i<pairs.length;i+=4){
+    entries.push(...await Promise.all(pairs.slice(i,i+4).map(async ([name,run])=>{
+      try{return [name,await run()] as const;}catch{return [name,null] as const;}
+    })));
+  }
   const values=Object.fromEntries(entries) as Record<string,bigint[]|null>;
   function bool(name:string,key:string,expected:boolean){
     const x=values[key];
