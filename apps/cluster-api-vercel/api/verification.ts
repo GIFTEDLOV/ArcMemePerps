@@ -25,7 +25,7 @@ const S = {
   usable:"2333654c",report:"171c4f11",oi:"2768bcf1",
   insolvency:"e09b42ff",custody:"e177f4de",expected:"a1baae40",
   withdrawable:"8fff9ce7",lpActive:"8795ce2a",
-  badDebt:"a9c3cbb2",engineMarket:"ecb96fe6",
+  marginBadDebt:"5b81aa69",marginInsuranceCovered:"20d279fb",engineMarket:"ecb96fe6",
   engineRisk:"7c90a6ca",engineOracle:"55a29e91",
   engineMargin:"c2b12cb6",engineInsurance:"b7902303",
   marginEngine:"c9d4623f",insuranceCapital:"199cb7d8"
@@ -98,14 +98,16 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
     marginCustody:()=>call(A.margin,S.custody,null,blockTag),
     marginExpected:()=>call(A.margin,S.expected,null,blockTag),
     marginWithdrawable:()=>call(A.margin,S.withdrawable,null,blockTag),
-    marginBadDebt:()=>call(A.margin,S.badDebt,null,blockTag),
+    marginBadDebt:()=>call(A.margin,S.marginBadDebt,null,blockTag),
+    marginInsuranceCovered:()=>call(A.margin,S.marginInsuranceCovered,null,blockTag),
     insuranceCapital:()=>call(A.insurance,S.insuranceCapital,null,blockTag)
   };
+  const readErrors:Record<string,string>={};
   const entries:Array<readonly [string,bigint[]|null]>=[];
   const pairs=Object.entries(tasks);
   for(let i=0;i<pairs.length;i+=4){
     entries.push(...await Promise.all(pairs.slice(i,i+4).map(async ([name,run])=>{
-      try{return [name,await run()] as const;}catch{return [name,null] as const;}
+      try{return [name,await run()] as const;}catch(e){readErrors[name]=e instanceof Error?e.message:"UNKNOWN_RPC_ERROR";return [name,null] as const;}
     })));
   }
   const values=Object.fromEntries(entries) as Record<string,bigint[]|null>;
@@ -158,8 +160,11 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
   checks.marginCustodyReconciled=custody?.length&&expected?.length
    ? (custody[0]===expected[0]?pass("USDC base units="+short(custody[0]!)):fail("CUSTODY_ACCOUNTING_DISCREPANCY",short(custody[0]!)+" / "+short(expected[0]!)))
    :fail("READ_FAILED_OR_REVERTED");
-  const debt=values.marginBadDebt;
-  checks.noUncoveredBadDebt=debt?.length?(debt[0]===0n?pass("0"):fail("BAD_DEBT_RECORDED",short(debt[0]!))):fail("READ_FAILED_OR_REVERTED");
+  const debt=values.marginBadDebt,covered=values.marginInsuranceCovered;
+  if(debt?.length&&covered?.length){
+    const uncovered=debt[0]!>covered[0]!?debt[0]!-covered[0]!:0n;
+    checks.noUncoveredBadDebt=uncovered===0n?pass("0"):fail("UNCOVERED_BAD_DEBT",short(uncovered));
+  }else checks.noUncoveredBadDebt=fail("READ_FAILED_OR_REVERTED");
   const capacity=values.marginWithdrawable;
   checks.liquidityAvailable=capacity?.length?(capacity[0]!>0n?pass("USDC base units="+short(capacity[0]!)):fail("NO_WITHDRAWABLE_MARGIN_BACKING")):fail("READ_FAILED_OR_REVERTED");
   const oi=values.openInterest;
@@ -173,7 +178,7 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
     allReleaseGatesPassed:false,
     tradingEnabled:false,lpDepositsEnabled:false,
     status:"BLOCKED",
-    checks,failed,
+    checks,failed,readDiagnostics:readErrors,
     remainingMandatoryGates:[
       "CANONICAL_MARKET_ID_FROM_ORIGIN_TOKEN",
       "COMPLETE_MARKET_AND_EVENT_INDEX",
