@@ -70,6 +70,12 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
   const blockTag=await rpc("eth_blockNumber",[]);
   const tasks:Record<string,()=>Promise<bigint[]>>={
     engineBootstrap:()=>call(A.engine,S.bootstrap,null,blockTag),
+    oracleBootstrap:()=>call(A.oracle,S.bootstrap,null,blockTag),
+    qualificationBootstrap:()=>call(A.qualification,S.bootstrap,null,blockTag),
+    riskBootstrap:()=>call(A.risk,S.bootstrap,null,blockTag),
+    marketBootstrap:()=>call(A.market,S.bootstrap,null,blockTag),
+    marginBootstrap:()=>call(A.margin,S.bootstrap,null,blockTag),
+    insuranceBootstrap:()=>call(A.insurance,S.bootstrap,null,blockTag),
     lpBootstrap:()=>call(A.lp,S.bootstrap,null,blockTag),
     lpActive:()=>call(A.lp,S.lpActive,null,blockTag),
     engineSolvency:()=>call(A.engine,S.insolvency,null,blockTag),
@@ -79,6 +85,7 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
     marketState:()=>call(A.market,S.state,marketId,blockTag),
     riskConfig:()=>call(A.risk,S.config,marketId,blockTag),
     appliedProof:()=>call(A.risk,S.appliedProof,marketId,blockTag),
+    appliedAt:()=>call(A.risk,S.appliedAt,marketId,blockTag),
     oracleUsable:()=>call(A.oracle,S.usable,marketId,blockTag),
     oracleReport:()=>call(A.oracle,S.report,marketId,blockTag),
     openInterest:()=>call(A.engine,S.oi,marketId,blockTag),
@@ -111,6 +118,9 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
     checks[name]=actual===null?fail("READ_FAILED_OR_REVERTED"):actual.toLowerCase()===expected.toLowerCase()?pass(actual):fail("WRONG_CONTRACT_WIRING",actual);
   }
   bool("engineBootstrapFinalized","engineBootstrap",true);
+  for(const item of ["oracle","qualification","risk","market","margin","insurance"]){
+    bool(item+"BootstrapFinalized",item+"Bootstrap",true);
+  }
   bool("lpBootstrapFinalized","lpBootstrap",true);
   // LP must remain inactive until independent accounting reconciliation is evidenced.
   bool("marketRegistered","marketExists",true);
@@ -118,15 +128,14 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
   checks.marketLive=m?.length?(m[0]===3n?pass("LIVE"):fail("MARKET_NOT_LIVE",short(m[0]!))):fail("READ_FAILED_OR_REVERTED");
   bool("qualificationCurrentlyApproved","qualificationApproved",true);
   const q=values.qualification;
-  const nowSeconds=Math.floor(Date.now()/1000);
   if(q&&q.length>=8){
-    const good=nonzero(q[0]!)&&nonzero(q[1]!)&&q[7]===1n&&(q[3]===0n||q[3]!>BigInt(nowSeconds));
+    const good=nonzero(q[0]!)&&nonzero(q[1]!)&&q[7]===1n&&q[2]!>0n&&(q[3]===0n||q[3]!>q[2]!);
     checks.qualificationProof=good?pass("on-chain proof + rule hash, expiry, approval"):fail("PROOF_MISSING_REVOKED_OR_EXPIRED");
   }else checks.qualificationProof=fail("READ_FAILED_OR_REVERTED");
-  const cfg=values.riskConfig,ap=values.appliedProof;
-  if(cfg&&cfg.length>=6&&q&&q.length>=8&&ap?.length){
+  const cfg=values.riskConfig,ap=values.appliedProof,appliedAt=values.appliedAt;
+  if(cfg&&cfg.length>=6&&q&&q.length>=8&&ap?.length&&appliedAt?.length){
     const good=cfg[5]===3n&&cfg[0]!>0n&&cfg[1]!>0n&&cfg[2]!>0n&&
-     cfg[0]!<=q[4]!&&cfg[1]!<=q[5]!&&cfg[2]!<=q[6]!&&ap[0]===q[0]&&q[0]!==0n;
+     cfg[0]!<=q[4]!&&cfg[1]!<=q[5]!&&cfg[2]!<=q[6]!&&cfg[2]!<=cfg[1]!&&cfg[0]!<=5000000000000000000n&&ap[0]===q[0]&&appliedAt[0]===q[2]&&q[0]!==0n;
     checks.riskQualificationBound=good?pass("qualified rule / proof / risk bounds"):fail("RISK_STATUS_PROOF_OR_LIMIT_MISMATCH");
   }else checks.riskQualificationBound=fail("READ_FAILED_OR_REVERTED");
   bool("oracleReportCurrentlyUsable","oracleUsable",true);
@@ -135,7 +144,7 @@ export async function verifyArcMarket(marketId:string):Promise<Response>{
     const good=report[0]===BigInt(marketId)&&report[1]===5042n&&
       report[2]!>0n&&report[3]!<=report[2]!&&report[2]!<=report[4]!&&
       report[6]!>=report[7]!&&report[7]!>=2n&&report[12]!>0n&&
-      report[10]!>=BigInt(nowSeconds);
+      report[10]!>=report[9]!;
     checks.oracleReportEvidence=good?pass("sequence="+short(report[11]!)+" independentSources="+short(report[7]!)):fail("ORACLE_EVIDENCE_INCOMPLETE_STALE_OR_BAD_CHAIN");
   }else checks.oracleReportEvidence=fail("READ_FAILED_OR_REVERTED");
   bool("notSolvencyBlocked","engineSolvency",false);
