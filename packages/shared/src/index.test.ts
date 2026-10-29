@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { encodeAbiParameters, keccak256, parseAbiParameters, toBytes } from "viem";
 import {
   canonicalJson,
   canonicalMarketKey,
@@ -9,6 +10,7 @@ import {
   normalizeTokenAddress,
   NETWORK_CONFIGS,
   rpcUrlsForNetwork,
+  solanaPublicKeyBytes,
 } from "./index.js";
 
 describe("shared canonical identity helpers", () => {
@@ -59,6 +61,39 @@ describe("shared canonical identity helpers", () => {
     );
     expect(marketIdForToken("BASE", "0x0000000000000000000000000000000000000001")).not.toBe(
       marketIdForToken("BASE", "0x0000000000000000000000000000000000000002"),
+    );
+  });
+
+  it("matches MarketRegistry.computeEvmMarketId Solidity ABI encoding", () => {
+    const domain = keccak256(toBytes("ARCMEMEPERPS_MARKET_ID_V2"));
+    const chain = keccak256(toBytes("EVM"));
+    const token = "0x0000000000000000000000000000000000005042";
+    const solidityEquivalent = keccak256(
+      encodeAbiParameters(parseAbiParameters("bytes32, bytes32, uint256, address"), [
+        domain,
+        chain,
+        5042n,
+        token,
+      ]),
+    );
+    expect(marketIdForEvmToken(5042, token)).toBe(solidityEquivalent);
+  });
+
+  it("matches MarketRegistry.computeSolanaMarketId and retains base58 case", () => {
+    const publicKey = "So11111111111111111111111111111111111111112";
+    const domain = keccak256(toBytes("ARCMEMEPERPS_MARKET_ID_V2"));
+    const chain = keccak256(toBytes("SOLANA"));
+    const solidityEquivalent = keccak256(
+      encodeAbiParameters(parseAbiParameters("bytes32, bytes32, bytes32"), [
+        domain,
+        chain,
+        solanaPublicKeyBytes(publicKey),
+      ]),
+    );
+    expect(marketIdForSolanaToken(publicKey)).toBe(solidityEquivalent);
+    expect(solanaPublicKeyBytes(publicKey)).toMatch(/^0x[0-9a-f]{64}$/);
+    expect(marketIdForSolanaToken(publicKey.toLowerCase())).not.toBe(
+      marketIdForSolanaToken(publicKey),
     );
   });
 
