@@ -86,4 +86,3 @@ describe("replay-safe indexer state", () => {
     expect(applied).toBe(1);
   });
 });
-
