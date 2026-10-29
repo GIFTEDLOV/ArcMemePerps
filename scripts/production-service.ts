@@ -56,8 +56,6 @@ const runtime: ApiRuntimeStatus = {
   discoveryCount: canonical.markets.length,
   currentlyObservedCount: refreshSnapshot.markets.length,
   staleRetainedCount,
-  registeredPerpCount: 0,
-  livePerpCount: 0,
 };
 const server = createReadOnlyApiServer({
   readModel: model,
@@ -65,12 +63,12 @@ const server = createReadOnlyApiServer({
   runtime,
   health: () => [
     healthRecord("DATABASE", "OPERATIONAL", { lastSuccessAt: now, latencyMs: 0, error: null, freshness: "FRESH" }),
-    healthRecord("ARC_RPC", "OPERATIONAL", { lastSuccessAt: now, latencyMs: null, error: null, freshness: "FRESH" }),
-    healthRecord("MARKET_DISCOVERY", "OPERATIONAL", { lastSuccessAt: refreshSnapshot.observedAt, latencyMs: 0, error: null, freshness: "STALE" }),
-    healthRecord("INDEXER", "OPERATIONAL", { lastSuccessAt: null, latencyMs: null, error: indexer.lifecycle, freshness: "UNAVAILABLE" }),
-    healthRecord("ORACLE_REPORTERS", "OPERATIONAL", { lastSuccessAt: null, latencyMs: null, error: "HEALTHY_IDLE_ZERO_REGISTERED_MARKETS", freshness: "UNAVAILABLE" }),
-    healthRecord("KEEPER", "OPERATIONAL", { lastSuccessAt: null, latencyMs: null, error: "HEALTHY_IDLE_ZERO_ORDERS", freshness: "UNAVAILABLE" }),
-    healthRecord("REALTIME_STREAM", "OPERATIONAL", { lastSuccessAt: null, latencyMs: 0, error: "IDLE_ZERO_PROTOCOL_EVENTS", freshness: "UNAVAILABLE" }),
+    healthRecord("ARC_RPC", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "RPC_NOT_PROBED", freshness: "UNAVAILABLE" }),
+    healthRecord("MARKET_DISCOVERY", "STALE", { lastSuccessAt: refreshSnapshot.observedAt, latencyMs: 0, error: null, freshness: "STALE" }),
+    healthRecord("INDEXER", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: indexer.lifecycle, freshness: "UNAVAILABLE" }),
+    healthRecord("ORACLE_REPORTERS", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "REPORTER_EVIDENCE_NOT_INDEXED", freshness: "UNAVAILABLE" }),
+    healthRecord("KEEPER", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "KEEPER_CONTINUITY_NOT_VERIFIED", freshness: "UNAVAILABLE" }),
+    healthRecord("REALTIME_STREAM", "UNAVAILABLE", { lastSuccessAt: null, latencyMs: null, error: "NO_INDEXED_EVENT_SOURCE", freshness: "UNAVAILABLE" }),
   ],
 });
 
@@ -78,3 +76,4 @@ server.listen(port, "127.0.0.1", () => process.stdout.write(`ARCMEMEPERPS_MAINNE
 const close = () => { server.close(); storage.close(); };
 process.once("SIGINT", close);
 process.once("SIGTERM", close);
+
