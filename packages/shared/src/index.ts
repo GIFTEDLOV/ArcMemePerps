@@ -82,6 +82,11 @@ export function marketIdForSolanaToken(publicKey: string): Hex {
   );
 }
 
+/** Return the canonical 32-byte Solana public key used by MarketRegistry. */
+export function solanaPublicKeyBytes(publicKey: string): Hex {
+  return `0x${bytesToHex(decodeBase58PublicKey(publicKey))}`;
+}
+
 export function tokenIdentityHash(chain: SupportedChain, tokenAddress: string): Hex {
   const normalizedAddress = normalizeTokenAddress(chain, tokenAddress);
   const chainId = SUPPORTED_EVM_CHAIN_IDS[chain];

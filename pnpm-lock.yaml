@@ -79,6 +79,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/shared
 
+  apps/cluster-api-vercel:
+    dependencies:
+      '@arcmemeperps/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
+      viem:
+        specifier: ^2.37.0
+        version: 2.56.9(typescript@5.9.3)(zod@3.25.76)
+
   apps/frontend:
     dependencies:
       '@tailwindcss/vite':
@@ -323,7 +332,11 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
-  packages/shared: {}
+  packages/shared:
+    dependencies:
+      '@noble/hashes':
+        specifier: ^1.7.0
+        version: 1.8.0
 
   packages/simulator:
     dependencies:
