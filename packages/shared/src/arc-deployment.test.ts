@@ -1,7 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { loadArcDeploymentConfig } from "./arc-deployment.js";
+import { deploymentLifecycle, loadArcDeploymentConfig } from "./arc-deployment.js";
 
 describe("Arc deployment configuration", () => {
+  it("does not infer zero live markets from contract deployment alone", () => {
+    expect(deploymentLifecycle({ deploymentStatus: "DEPLOYED" })).toBe("DEPLOYED_MARKETS_UNVERIFIED");
+    expect(deploymentLifecycle({ deploymentStatus: "DEPLOYED", livePerpCount: 0 })).toBe("DEPLOYED_ZERO_MARKETS");
+    expect(deploymentLifecycle({ deploymentStatus: "DEPLOYED", livePerpCount: 1 })).toBe("LIVE_MARKETS_AVAILABLE");
+  });
   it("keeps an unaddressed Mainnet configuration pending", () => {
     const config = loadArcDeploymentConfig({
       ARCMEMEPERPS_DEPLOYMENT_NETWORK: "MAINNET",
@@ -19,3 +24,4 @@ describe("Arc deployment configuration", () => {
     expect(() => loadArcDeploymentConfig({ ARC_MAINNET_USDC_ADDRESS: "0x0000000000000000000000000000000000000001" })).toThrow("USDC");
   });
 });
+
