@@ -6,7 +6,7 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 ## Safety and branch state
 
 - The user's dirty `winner-rebuild` worktree was not modified.
-- PR #2 through #8 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, and #8 -> #7. No PR was merged.
+- PR #2 through #9 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, #8 -> #7, and #9 -> #8. No PR was merged.
 - No production deployment, alias change, contract deployment, wallet funding, governance write, or financial transaction was performed.
 - Trading and LP deposits remain disabled in the frontend/API preview. Product Testnet's existing PublicLPVault contract flag is active; the read-only audit did not change it.
 
@@ -63,9 +63,11 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
 - Branch/PR: `codex/cluster-group-e-production-readiness`, draft [PR #8](https://github.com/GIFTEDLOV/ArcMemePerps/pull/8), based on PR #7 head `9958be61efa046bceb35b6eeef1b9261e87b8bcf`. Exact source head `a6328ef59ef0d3d5d7203118bb05f22e6c7d1840`.
 - Exact-head GitHub CI: [run 40896938605](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40896938605), PASS (install, lint, typecheck, 277 root tests, frontend tests/build, Foundry build/test/format).
+- Final PR #8 progress/report head: `e8a9120266678a593bf76501057a799267192039`; exact-head CI [run 40899324226](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40899324226) also PASS, including the complete Foundry suite.
 - Exact-source previews: frontend `https://cluster-hackathon-preview-cltn3n6al.vercel.app` (`dpl_6FAVe59dDaNUjuotrdMoFDQoahpN`), API `https://cluster-readonly-5vvfsdulj-kolofahkelvin16-6437s-projects.vercel.app` (`dpl_4yAGsrLHTHrEdurhACNECRJY92bZ`), both READY at `a6328ef`. The preview frontend's network requests use the stable API alias at source `434512a2e0f01865172b9c341e5ca82fa36db6ce`, not its branch API preview.
 - Live browser run on the exact Group E frontend and API preview: `pnpm e2e:live` PASS 6/6 desktop/mobile; direct API assertions use the Group E API deployment and browser-origin assertions use the actual configured stable API origin.
 - At 2026-10-29 14:44 UTC, Vercel markets/status returned HTTP 200, SSE returned HTTP 200 heartbeat-only with no event payload, stable verification returned 503, and Railway markets/status returned HTTP 404. The Railway build failed pre-start on Node 20 with pnpm 11/`node:sqlite`; PR #2/4 fix the Node runtime source configuration, but no Railway deployment or billing action occurred.
+- Fresh endpoint recheck at 2026-10-29 15:25 UTC: Vercel `/api/v1/markets` and `/api/v1/protocol/status` returned HTTP 200. Markets contain provider-discovered data but no verified qualification; status reports `readOnly=true`, trading and LP deposits disabled, qualification `UNVERIFIED`, indexer `UNAVAILABLE_NO_PERSISTENT_INDEXER`, and SSE `HEARTBEAT_ONLY`. SSE returned HTTP 200 `text/event-stream` with retry and heartbeat comments only, no `data:` events. Railway markets/status returned HTTP 404 `Application not found`. No deployment occurred.
 - Production frontend `cluster-terminal.vercel.app` remains at `winner-rebuild` SHA `83d14d29d86aae5359c14b70ee7940626ea78ffc` and exposes seeded LP/trading claims. It was not changed.
 - Governance verifier now uses the actual deployed manifest's `0xB656...` deployer, parses deployed address/receipt shapes, and fails closed because the deployed manifest has no source SHA. `pnpm mainnet:verify` returns `MAINNET_DEPLOYED_SOURCE_PROVENANCE_UNATTESTED`. No current deployed bytecode/source parity claim is made.
 - Local results: typecheck PASS; root tests 54 files/277 tests PASS; lint PASS with one existing warning; frontend tests 6 files/16 tests PASS; build PASS with existing 511.76 kB advisory; Playwright 17 passed/1 expected skip; changed-file formatting PASS. Whole-repository `pnpm format:check` fails on 419 unchanged files. Foundry is unavailable locally; exact CI passes Foundry.
@@ -73,10 +75,12 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
 ## Group F - audit, submission, and release controls
 
-**Status: FAIL** for current submission timing. The Arc Microgrants deadline was October 14, the Programmable Money Hackathon ended August 22, and the official Arc Hackathons listing contains no upcoming entry as reviewed on October 29. The readiness package is prepared; no application was submitted.
+**Status: FAIL** for current submission timing. The reviewed Arc Microgrants deadline was October 14 and the Programmable Money Hackathon ended August 22. The official Arc Hackathons listing had no upcoming entry on October 29, and no Arc Microgrants window was verified as open. Other grant programs were not assessed. The public GitHub builder profile is confirmed. No application was submitted.
 
+- Branch/PR: `codex/cluster-group-f-submission-readiness`, draft [PR #9](https://github.com/GIFTEDLOV/ArcMemePerps/pull/9), based on PR #8. Exact-head CI passed; the [PR checks](https://github.com/GIFTEDLOV/ArcMemePerps/pull/9/checks) show the final tested commit and workflow run.
 - Updated package: [hackathon submission readiness](CLUSTER_HACKATHON_SUBMISSION_READINESS_2026-10-29.md) and [submission walkthrough](../ARC_MICROGRANT_SUBMISSION.md).
 - The package links the public repository, verified preview/API, one historical 1 USDC Mainnet MarginVault deposit receipt, 100-200 character truthful pitch, screenshots, three-minute demo outline, and all financial limitations.
+- The repository contains `arcmemeperps_3min_demo.mp4`, but its encoded content was not reviewed in this checkpoint. Its companion narration/recording scripts claim 10x/zero-slippage execution and completed positions/PnL on the old production terminal; those scripts are stale. Exclude the MP4 until its content is reviewed. No replacement recording was created. Use the read-only walkthrough and current preview screenshots.
 
 ## Decisions
 
