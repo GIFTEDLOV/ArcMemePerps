@@ -1,48 +1,50 @@
-ï»¿# CLUSTER autonomous completion progress
+# CLUSTER autopilot progress
 
-Updated: 2026-10-29 UTC
+Review date: 2026-10-29 (UTC)
+Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 
-Execution follows `CLUSTER_CODEX_AUTOPILOT_PLAYBOOK_2026-10-29.md`. PR #2 and PR #3 remain open and stacked. The local `winner-rebuild` worktree is preserved. Group A changes are isolated on `codex/cluster-group-a-verification`, based on PR #3 head `500c0ca96dff175b049ff9f2d2ddf4ce8bd6ac33`.
+## Safety and branch state
 
-## Group status
+- The user's dirty `winner-rebuild` worktree was not modified.
+- PR #2 and PR #3 remain draft and preserve their dependency (`#3` targets the PR #2 branch). No PR was merged.
+- No production deployment, alias change, contract deployment, wallet funding, governance write, or financial transaction was performed.
+- Trading and LP deposits remain disabled in the frontend/API preview. Testnet's existing PublicLPVault contract flag is active; the read-only audit did not change it.
 
-| Group                                            | Status  | Evidence summary                                                                                                                                                                                                           |
-| ------------------------------------------------ | ------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A - Canonical on-chain verification              | UNKNOWN | ABI decoding, canonical IDs, fail-closed multi-source pinned reads and negative canary implemented. Positive registered-market evidence, deployed-source parity and runtime governance gates remain unavailable.           |
-| B - Persistent history and oracle evidence       | UNKNOWN | Existing persistent store/indexer building blocks exist, but no supported running persistent deployment or complete Arc log backfill is verified. Railway is expired and public RPC log ranges/retention are insufficient. |
-| C - Trading engine, margin and keepers           | UNKNOWN | Audit underway; financial writes remain disabled.                                                                                                                                                                          |
-| D - Existing public LP economics                 | UNKNOWN | Audit underway; deployed LP is inactive and not connected to margin settlement. No second pool created.                                                                                                                    |
-| E - Production, frontend, governance and browser | UNKNOWN | Stable read-only endpoints respond. Preview browser verification and durable production service are pending. Production alias unchanged.                                                                                   |
-| F - Audit and submission package                 | UNKNOWN | Final package pending.                                                                                                                                                                                                     |
+## Group A — canonical Arc market verification
 
-## Group A - Canonical on-chain verification
+**Status: UNKNOWN** — exact-head code checks pass, but no positive registered/qualified Mainnet market canary or complete independently reconciled universe was established.
 
-**Branch/base:** `codex/cluster-group-a-verification` / PR #3 branch `deploy/vercel-readonly-api-2026-10-29` at `500c0ca96dff175b049ff9f2d2ddf4ce8bd6ac33`.
+- Branch/PR: `codex/cluster-group-a-verification`, draft [PR #4](https://github.com/GIFTEDLOV/ArcMemePerps/pull/4), base `deploy/vercel-readonly-api-2026-10-29` (PR #3).
+- Exact head: `ac2d53207c78ce1f64b642e32fc5ce2c3a16addb`.
+- Exact-head GitHub CI: [run 40886934646](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/40886934646), PASS (lint, typecheck, unit tests, frontend build, Foundry build/test/format).
+- Local results: `pnpm typecheck` PASS; `pnpm test` PASS (53 files, 268 tests); `pnpm lint` PASS with the existing unused-disable warning in `packages/providers/src/alerts.ts:201`; `pnpm frontend:build` PASS with the existing bundle-size advisory; serial Playwright PASS (17 passed, 1 expected project-specific skip); live no-mock preview Playwright PASS (6/6, desktop/mobile).
+- Visual comparison: landing, markets, market detail, portfolio, and earn at 1440x900 and 390x844 against the pre-hardening build showed no layout/design regression. CSS, tokens, assets, and component design were not changed. The intentional removal of unsupported financial claims is covered by UI regression captures.
+- Negative Mainnet canary: Arc USDC ID is `BLOCKED` at block `28,486,255` / hash `0x6c75530a6b336c2be00a6de4dd8506d082cd2f7430ae09818145d4aaad451384`; `marketRegistered=FAIL`. This is not a positive canary.
+- Frontend preview: `https://cluster-hackathon-preview-4j3j5e2l4.vercel.app`, READY at exact head `ac2d53207c78ce1f64b642e32fc5ce2c3a16addb` (`dpl_F5AXUiYS6e1EjTDHv24VbvQtYjm9`).
+- API preview: `https://cluster-readonly-8vqk7zas1-kolofahkelvin16-6437s-projects.vercel.app`, READY at API source `90d4f0044e0b4247241e83efdf5959c20bae1161` (`dpl_DsqmkQvAuNC6mptAp1WpqMTJDE7T`). Vercel skipped a duplicate deployment at `ac2d532` because no API project source changed. Do not describe the API runtime as deployed from `ac2d532`.
+- PR #2 merge-readiness remains **NO-GO** until stack-level reviews and the backend, persistence, economic integration, security, and live verification blockers are resolved.
 
-**Changes:** Replaced guessed selectors/manual word decoding with a viem ABI; decoded `getUsablePrice` and Oracle report tuples; computed EVM/Solana canonical IDs using the shared Solidity-parity functions; bound verification to chain plus origin token and registry origin tuple; checked bootstrap, governance executor, contract wiring, USDC decimals/custody, bad debt, insurance custody, LP state, risk and OI; pinned reads to EIP-1898 block hashes and compared four configured RPC sources; added bounded paired reads/retries and per-check source evidence. Added verification endpoint `GET /api/v1/verification/markets?chain=...&tokenAddress=...`. No UI/CSS/design assets changed. Trade and LP writes remain disabled.
+## Group B — persistent indexing, history, oracle provenance, and event stream
 
-**Checks:**
+**Status: FAIL** — the public read-only API is reachable, but persistent event indexing, reconstructable history, independent oracle evidence, and event-backed SSE are not deployed or verified.
 
-- `pnpm typecheck` - PASS.
-- `pnpm test` - PASS, 53 files / 268 tests.
-- `pnpm exec vitest run apps/cluster-api-vercel/tests/verification.test.ts packages/shared/src/index.test.ts` - PASS, 15 tests.
-- Focused ESLint on changed TS files - PASS after safe evidence serialization fix. Full repo lint is being rerun.
-- `pnpm format:check` - FAIL on 429 repository files, including untouched baseline files. No repository-wide formatting was applied; no CSS was edited.
-- `git diff --check` - PASS.
-- Foundry runtime unavailable (`forge` not on PATH); Foundry status UNKNOWN.
+- Branch: `codex/cluster-group-b-readiness`, based on PR #4. Group B source checkpoint: `cb2df9a` (documentation/evidence only; no runtime endpoint behavior changed).
+- Railway endpoint `https://api-production-0eb6.up.railway.app/api/v1/markets` returns platform HTTP 404 with `x-railway-fallback: true`. The latest deployment failed before application startup: the image used Node 20 with pnpm 11, which requires Node >=22.13 and uses `node:sqlite`. PR #2's Dockerfile now uses Node 22; no Railway deploy or billing operation was run.
+- Actual Vercel API preview results: markets HTTP 200 read-only discovery (5 returned of 29 discovered / 26 observed; qualification inventory `UNVERIFIED`); protocol status HTTP 200, chain 5042, `readOnly=true`, `trading=false`, `lpDeposits=false`, indexer `UNAVAILABLE_NO_PERSISTENT_INDEXER`; SSE HTTP 200 `text/event-stream`, heartbeat only, no `data:` events.
+- Live no-mock browser E2E against the exact frontend preview and API preview source above: 6/6 PASS. This verifies the honest unavailable state, not persistent history or trading.
+- Existing SQLite-backed indexer and read-only Product service sources are present, but the deployed Vercel fallback has no durable DB/worker. No non-Railway provider, persistent database, worker credential, or sustainable no-billing event source was provisioned or verified. Provider review documents the alternatives and blocker.
+- Reports: [backend restore review](CLUSTER_BACKEND_RESTORE_REVIEW.md), [live endpoint verification](CLUSTER_LIVE_ENDPOINT_VERIFICATION_2026-10-29.md), and [provider evaluation](CLUSTER_INDEXING_PROVIDER_EVALUATION_2026-10-29.md).
+- Exact-head CI for the Group B branch is pending push/PR creation.
 
-**Live read evidence:** Local route against actual Arc Mainnet RPC returned HTTP 200 / `BLOCKED` for Arc USDC at block `28477846`, hash `0x0fc84556e02187be61a9b045467aadb21cdf87af3994fdbc640eaa421a8df95e`; canonical market ID `0xfcf295389536fee7b263df68db00968ce8c0a4925b24e99a58859169bc37ee4b`; `marketExists=false`. Four RPCs (`rpc.mainnet.arc.io`, `arc.nodely.dev`, `arc.drpc.org`, `rpc.quicknode.mainnet.arc.io`) returned chain ID 5042 and matching pinned block evidence. This is a negative canary only. The live reads observed deployed code at manifest addresses, engine references to registry/risk/oracle/margin/insurance/ADL, margin actual/expected custody of 1,000,000 USDC base units, zero uncovered margin debt, insurance custody/capital zero, inactive LP with zero custody, USDC decimals 6, timelock delay 86,400 seconds, bootstrap unfinalized and zero governance executors. These facts do not establish source parity, roles, complete market inventory or trade readiness.
+## Remaining groups
 
-**Preview:** Vercel preview `https://cluster-readonly-9w9hunqoz-kolofahkelvin16-6437s-projects.vercel.app`, deployment `dpl_2eeq9xQ3Ex9qjeFA4sGncBZCn6xv`, commit `901fd6226434daa64cc2edb1f4fc81538484dafe`, READY. Actual smoke: `/api/v1/markets` HTTP 200 (29 current discovery items, qualification inventory UNVERIFIED); `/api/v1/protocol/status` HTTP 200 (read-only, trading/LP disabled, no persistent index); `/api/v1/stream` HTTP 200 but heartbeat-only and no indexed events; Arc USDC verification HTTP 200 / BLOCKED at block `28479856`, hash `0xba01c27f9a8db081f97bd5efcdad6e2dee8afb6d43a83699305b16aa80054cd3`, 74 checks, `marketExists=FAIL`. This verifies routed functions and the intended negative canary only.
+- Group C — **UNKNOWN / not yet reviewed in this progress checkpoint**: live settlement and keeper behavior still require source-level audit, full index readiness, and permitted Testnet receipt evidence. No financial transaction is authorized or performed.
+- Group D — **UNKNOWN / not yet reviewed in this progress checkpoint**: the existing PublicLPVault is not connected to PerpEngine settlement. A separate audit/implementation plan will preserve the current contracts and require explicit invariants and migration review.
+- Group E — **UNKNOWN / not yet reviewed in this progress checkpoint**: preview UI/browser checks pass, while durable backend integration, governance verification, and full source-to-production parity remain incomplete.
+- Group F — **FAIL** for present submission timing: the reviewed Arc Microgrants and Programmable Money Hackathon windows have closed; the truthful submission report is prepared, but no current open program is verified. Independent security audit and live financial gates also remain incomplete.
 
-**Unresolved Group A gates:** No positive registered market was discovered from complete logs; direct log history calls fail on public RPC range/history limits, so no zero-market inventory is claimed. Role membership is not enumerable and the manifest lacks role identities. Deployed bytecode/source parity and Oracle source provenance are unverified. The first preview at `e3204e2` returned `FUNCTION_INVOCATION_FAILED`; its runtime log showed Node could not find the workspace package's `packages/shared/src/index.ts` under Vercel's function bundle. Moved the test out of `api/` and configured `includeFiles` for the shared source, fixing the exact-SHA preview. Exact-commit GitHub CI has one check still pending. `pnpm format:check` has broad baseline violations. The group remains UNKNOWN.
+## Decisions and next steps
 
-## Group B - Initial diagnosis
-
-Railway is unavailable due to an expired trial; no Railway billing is requested. The Vercel API is stateless and reports `UNAVAILABLE_NO_PERSISTENT_INDEXER` and `HEARTBEAT_ONLY`; its SSE endpoint is not a real event feed. Existing `apps/indexer` and `packages/persistence` provide local abstractions, not evidence of a durable deployed Arc index. Arc RPC `eth_getLogs` backfill is incomplete because provider range caps, pruning and throttling prevent a complete deployment-block-to-finalized-head scan. A complete market count or event history must not be claimed. Need a verified persistent provider/runtime connection before this acceptance gate can pass.
-
-## Decisions
-
-- Hackathon submission: NO-GO until organizer rules, public exact-commit preview, browser evidence and accurate submission materials are verified.
-- Live financial production: NO-GO. Mainnet bootstrap/governance, qualified market, oracle provenance, trade/testnet settlement, LP backing/accounting, bytecode parity and independent review are not verified.
-- Existing stable production alias remains unchanged. No transaction, fund movement, governance action, contract deployment, merge or financial activation was performed.
+- Hackathon submission: **NO-GO today**; the named programs are closed and the preview is not a live Mainnet perpetual product.
+- Live financial production: **NO-GO**; governance bootstrap, positive market/oracle qualification, keeper/index completeness, trade receipt evidence, and integrated LP solvency are not established.
+- Next: push the Group B documentation checkpoint, open draft PR #5 against PR #4, verify exact-head CI, then continue the Group C and Group D audits and Groups E/F release evidence without production financial actions.
