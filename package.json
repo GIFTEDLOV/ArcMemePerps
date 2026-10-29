@@ -14,7 +14,7 @@
     }
   },
   "engines": {
-    "node": ">=22.5.0"
+    "node": ">=22.13.0"
   },
   "scripts": {
     "build": "tsc -p tsconfig.json --noEmit",
@@ -43,6 +43,7 @@
     "frontend:build": "pnpm --filter @arcmemeperps/frontend build",
     "frontend:test": "pnpm --filter @arcmemeperps/frontend test",
     "e2e": "pnpm --filter @arcmemeperps/frontend exec playwright test -c playwright.config.ts",
+    "e2e:live": "pnpm --filter @arcmemeperps/frontend exec playwright test -c playwright.live.config.ts",
     "winner:discover": "tsx scripts/winner-discovery.ts",
     "winner:service": "tsx scripts/winner-rebuild-service.ts",
     "keeper": "tsx scripts/mainnet-keeper-daemon.ts",
