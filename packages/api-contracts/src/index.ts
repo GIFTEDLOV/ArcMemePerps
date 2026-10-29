@@ -88,4 +88,3 @@ export type ProtocolStatus = z.infer<typeof ProtocolStatusSchema>;
 export function assertApiPath(path: string): void {
   if (!path.startsWith("/api/v1/")) throw new Error("API path must be versioned");
 }
-
