@@ -24,4 +24,3 @@ describe("Arc deployment configuration", () => {
     expect(() => loadArcDeploymentConfig({ ARC_MAINNET_USDC_ADDRESS: "0x0000000000000000000000000000000000000001" })).toThrow("USDC");
   });
 });
-
