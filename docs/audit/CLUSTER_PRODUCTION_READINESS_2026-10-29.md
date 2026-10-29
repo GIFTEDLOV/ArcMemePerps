@@ -1,0 +1,75 @@
+# CLUSTER production and operational readiness â€” 2026-10-29
+
+**Group E result: FAIL.** Read-only discovery works through the Vercel API, but production still points at an unavailable Railway service, the persistent index/history and event stream are absent, and the live frontend deployment predates the hardened preview. No production deployment, alias change, Railway restart, billing change, contract write, wallet signing, funding, or governance action was performed.
+
+## Verified deployments
+
+| Surface                   | URL / deployment                                                                                                                    | Exact source                                                                          | Result                                                                                                                                                                                                            |
+| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Production frontend       | `https://cluster-terminal.vercel.app`; Vercel deployment `dpl_JxETzuxQcGjUkrLs1iT2sYkpCg99`                                         | `winner-rebuild` at `83d14d29d86aae5359c14b70ee7940626ea78ffc`                        | READY; serves the legacy bundle. The live earn screen exposes seeded APY, pool size, revenue/utilization and an enabled deposit control. These values do not match Mainnet state (inactive, empty PublicLPVault). |
+| Hardened frontend preview | `https://cluster-hackathon-pre-git-11a671-kolofahkelvin16-6437s-projects.vercel.app`; deployment `dpl_J6yoZ1j7Qz8gKSj59ZGTGsG9ecsE` | `codex/cluster-group-b-readiness` at `2e292a31d014686fd77454540fe5825b77a51896`       | READY; read-only controls pass actual-backend browser checks at desktop and mobile sizes.                                                                                                                         |
+| Stable read-only API      | `https://cluster-readonly-api.vercel.app`; deployment `dpl_6iDSMntM37jAaQwgbyHvoVurwxvq`                                            | `deploy/vercel-readonly-api-2026-10-29` at `434512a2e0f01865172b9c341e5ca82fa36db6ce` | READY; GET markets/status and SSE heartbeat work. The verification route currently returns 503.                                                                                                                   |
+| Group B API preview       | `https://cluster-readonly-api-git-70bed4-kolofahkelvin16-6437s-projects.vercel.app`; deployment `dpl_5NX3Am5EjXEmDkn6WtuuNkH46JQ2`  | `codex/cluster-group-b-readiness` at `2e292a31d014686fd77454540fe5825b77a51896`       | READY. The frontend preview is configured to call the stable API origin instead of this branch preview; both provide read-only data, but source-to-preview parity should be corrected before a release claim.     |
+
+The Vercel production alias remains untouched. The existing production frontend still embeds the Railway API origin; a read-only browser inspection confirmed the active LP claims and deposit control. The hardened PR preview has truthful unavailable controls and no CSS or design-token changes.
+
+## Railway 404 root cause and source correction
+
+At 2026-10-29 14:44 UTC, `/api/v1/markets` and `/api/v1/protocol/status` on `https://api-production-0eb6.up.railway.app` returned HTTP 404. The earlier response carried Railway's `x-railway-fallback: true` marker. This is a platform fallback because no application instance handles the request, not an application route deliberately returning 404.
+
+The inspected Railway deployment `9dcfac24-4182-4310-9e8b-bd9331183f0d` failed during image build. It used `node:20-bookworm-slim` with repository-pinned `pnpm@11.0.9`; pnpm 11 requires Node `>=22.13.0`, and the build also needs the `node:sqlite` runtime that was unavailable under Node 20. The process never reached route registration. PR #2/PR #4 correct the Docker runtime and engine floor to Node 22.13+, and the existing source starts the read-only API entry point instead of the keeper. This fixes the source/configuration defect; it does not redeploy Railway or restore its service.
+
+Railway billing was not enabled. The API routes were verified locally and the Vercel fallback currently serves read-only responses, but neither fact means the Railway production backend is restored.
+
+## Live endpoint evidence
+
+Read-only checks at 2026-10-29 14:44 UTC:
+
+| Request                                                                       | Response                                                                                                                                                                                                  | Interpretation                                                                                                                                         |
+| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `GET https://cluster-readonly-api.vercel.app/api/v1/markets?limit=1`          | HTTP 200 JSON                                                                                                                                                                                             | Live DEX discovery record with external source and observation time; it is not a complete Arc registry or qualification inventory.                     |
+| `GET https://cluster-readonly-api.vercel.app/api/v1/protocol/status`          | HTTP 200 JSON; `chainId=5042`, `readOnly=true`, `tradingEnabled=false`, `lpDepositsEnabled=false`, `qualificationInventory=UNVERIFIED`, `indexer=UNAVAILABLE_NO_PERSISTENT_INDEXER`, `sse=HEARTBEAT_ONLY` | Accurate read-only boundary.                                                                                                                           |
+| `GET https://cluster-readonly-api.vercel.app/api/v1/stream`                   | HTTP 200 `text/event-stream`; `retry: 15000` and `: read-only heartbeat; no indexed events`; no `data:` event                                                                                             | SSE transport works, but no real indexed event feed exists.                                                                                            |
+| `GET https://cluster-readonly-api.vercel.app/api/v1/verification/markets?...` | HTTP 503                                                                                                                                                                                                  | Stable alias does not currently serve the verification function. The Group A preview's earlier negative canary remains evidence for that preview only. |
+| Railway `/api/v1/markets` and `/api/v1/protocol/status`                       | HTTP 404                                                                                                                                                                                                  | Platform fallback; production backend routes unavailable.                                                                                              |
+
+### Browser tests against the real preview and configured API origin
+
+- `pnpm e2e:live` with the Group B preview frontend and the exact API origin observed in its browser network requests: **6/6 PASS** across desktop and mobile. Tests verified read-only markets/status, heartbeat-only SSE with no fabricated `data:` events, and unavailable trade/LP deposit controls.
+- A first run pointed `E2E_LIVE_FRONTEND_API_BASE` at the separate API preview. It correctly failed 2 assertions because the deployed frontend was calling the stable API origin instead. The run was repeated against the actual configured origin and passed. This confirms the preview variable/project configuration mismatch and keeps the actual network target explicit.
+- This test does not prove persistent indexing, event history, qualification, or financial settlement.
+
+## Governance verifier repair and limitation
+
+The Mainnet verifier previously defaulted role checks to the deployer from the **pending** deployment plan (`0x456A3ab835Bea90b42FF207B6c42BCE0BFF3e833`) rather than the deployed-address manifest's actual deployer (`0xB65685037041Ff56574a53FC49B1F5dB88ABe043`). It also expected a `contracts[]` address array, source hash and deployment block range that the checked-in deployed `contracts.json` does not contain; that file uses `deployedAddresses` and transaction receipts. The pending plan is explicitly `broadcast:false` and must not be treated as deployed evidence.
+
+The verifier now resolves the deployer from the deployed manifest, rejects a mismatching override, accepts the deployed address-map or newer contract-record shape, and derives a block range from deployed receipts if needed. It no longer silently borrows identity from the pending plan. **Current read-only invocation fails closed with `MAINNET_DEPLOYED_SOURCE_PROVENANCE_UNATTESTED`**, because the deployed `contracts.json` has no source SHA. The separate file containing a source SHA is a pending plan with different planned addresses; it is not a valid substitute. Local Foundry artifacts are also unavailable in this worktree, so no independent current-bytecode parity claim can be made.
+
+Prior direct read-only Mainnet checks pinned to block `28,484,877` (hash `0xfd6dc29563cedbd9aa85c181f681b6f5d39b951a7d31a2790f5daae0788b8034`) show bootstrap is not finalized, governance executors are zero, PublicLPVault is inactive/empty, InsuranceFund is empty, and the PerpEngine has no position IDs or open interest. These facts remain production blockers; this change did not modify governance.
+
+## Local verification
+
+| Check                        | Result                                                                                                                                                        |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `pnpm typecheck`             | PASS                                                                                                                                                          |
+| `pnpm test`                  | PASS, 54 files / 277 tests after the manifest-parser additions.                                                                                               |
+| `pnpm frontend:test`         | PASS, 6 files / 16 tests                                                                                                                                      |
+| `pnpm frontend:build`        | PASS; existing Vite advisory for 511.76 kB minified JS chunk                                                                                                  |
+| `pnpm lint`                  | PASS; one pre-existing unused eslint-disable warning in `packages/providers/src/alerts.ts:201`                                                                |
+| `pnpm e2e`                   | PASS, 17 passed / 1 existing project-specific skip                                                                                                            |
+| Live preview `pnpm e2e:live` | PASS, 6/6 on actual configured API origin; initial wrong-origin run was 4 pass / 2 expected config assertions failed                                          |
+| `pnpm format:check`          | FAIL on 419 repository files already outside Prettier formatting; no broad formatting was applied. New verifier helper/test files were formatted.             |
+| Foundry                      | Not run locally; `forge` is not installed. Group D exact-head CI passed `forge build`, `forge test`, `forge fmt --check`; exact Group E CI is still required. |
+| `pnpm mainnet:verify`        | Expected fail-closed result: `MAINNET_DEPLOYED_SOURCE_PROVENANCE_UNATTESTED`                                                                                  |
+
+## Remaining blockers
+
+1. Production frontend still serves the old `winner-rebuild` deployment and seeded LP/trading claims. Do not present it as a safe production terminal.
+2. Railway remains unavailable. Do not turn on billing or restart it as a workaround.
+3. There is no approved persistent indexer, durable database, replay/reorg-tested history, or event-backed SSE provider.
+4. The preview frontend's API project variable points at the stable API origin rather than the Group B branch preview; exact source parity needs a reviewed preview configuration.
+5. Stable verification route returns 503, Mainnet source provenance is unattested, and bootstrap/governance state is incomplete.
+6. Keep trading and LP deposits disabled. Mainnet finance remains NO-GO until independent accounting/security review, governance approval and a reviewed contract migration satisfy Group C/D gates.
+
+No code in this change alters styles, design tokens, production aliases, contract state, or financial controls.
+
