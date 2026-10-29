@@ -6,7 +6,7 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 ## Safety and branch state
 
 - The user's dirty `winner-rebuild` worktree was not modified.
-- PR #2 through #9 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, #8 -> #7, and #9 -> #8. No PR was merged.
+- PR #2 through #10 remain drafts. The stack is PR #3 -> PR #2, #4 -> #3, #5 -> #4, #6 -> #5, #7 -> #6, #8 -> #7, #9 -> #8, and #10 -> #9. No PR was merged.
 - No production deployment, alias change, contract deployment, wallet funding, governance write, or financial transaction was performed.
 - Trading and LP deposits remain disabled in the frontend/API preview. Product Testnet's existing PublicLPVault contract flag is active; the read-only audit did not change it.
 
@@ -34,6 +34,7 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 - Live API at 2026-10-29 14:08:58 UTC: markets HTTP 200 JSON, 5 returned of 30 discovered and 28 observed; qualification inventory `UNVERIFIED`. Protocol status HTTP 200, chain 5042, read-only true, trading false, LP deposits false, indexer `UNAVAILABLE_NO_PERSISTENT_INDEXER`, stream `HEARTBEAT_ONLY`. SSE HTTP 200 `text/event-stream`, retry + heartbeat only, no `data:` events.
 - Live no-mock Playwright against the exact PR #5 preview frontend/API: 6/6 PASS desktop/mobile. It verifies the unavailable boundary, not persistence or trading.
 - The SQLite-backed service/indexer source exists, but the Vercel fallback has no durable store or worker. No sustainable no-billing alternative, provider credential, or database was provisioned. Reports are in `CLUSTER_BACKEND_RESTORE_REVIEW.md`, `CLUSTER_LIVE_ENDPOINT_VERIFICATION_2026-10-29.md`, and `CLUSTER_INDEXING_PROVIDER_EVALUATION_2026-10-29.md`.
+- Truthful status follow-up: `codex/cluster-group-b-index-status-2026-10-29`, draft [PR #10](https://github.com/GIFTEDLOV/ArcMemePerps/pull/10), based on PR #9. It removes the false `SYNCED` inference from deployment metadata, omits unverified zero market counts, and marks unprobed components unavailable in the local service. Full local root tests pass (54 files, 280 tests) and typecheck passes. [Detailed finding](CLUSTER_INDEX_STATUS_TRUTHFULNESS_2026-10-29.md). Group B remains FAIL; final PR CI is available from its checks.
 
 ## Group C - trading engine, settlement, and keepers
 
@@ -88,4 +89,3 @@ Repository: https://github.com/GIFTEDLOV/ArcMemePerps
 - Hackathon submission: **NO-GO now**. The reviewed windows are closed and the named Microgrants program requires a working Mainnet application.
 - Live financial production: **NO-GO**. Mainnet governance bootstrap, positive market/oracle qualification, complete indexing/keeper history, live trader settlement receipts, independent security review, and integrated LP solvency are not established.
 - No production deployment, transaction, funding, governance action, contract deployment, activation, PR merge, or branch promotion occurred.
-

@@ -2,7 +2,7 @@ import { get } from "node:http";
 import { type AddressInfo } from "node:net";
 import { describe, expect, it } from "vitest";
 import { loadArcDeploymentConfig } from "@arcmemeperps/shared";
-import { createReadOnlyApiServer, type ApiReadModel } from "./server.js";
+import { createReadOnlyApiServer, type ApiReadModel, type ApiRuntimeStatus } from "./server.js";
 
 function testReadModel(): ApiReadModel {
   return {
@@ -16,16 +16,20 @@ function testReadModel(): ApiReadModel {
   };
 }
 
-async function withServer(run: (baseUrl: string) => Promise<void>, readModel = testReadModel()): Promise<void> {
+async function withServer(
+  run: (baseUrl: string) => Promise<void>,
+  readModel = testReadModel(),
+  runtime: ApiRuntimeStatus = {
+    config: loadArcDeploymentConfig({ ARCMEMEPERPS_DEPLOYMENT_NETWORK: "MAINNET" }),
+    discoveryCount: 0,
+    registeredPerpCount: 0,
+    livePerpCount: 0,
+  },
+): Promise<void> {
   const server = createReadOnlyApiServer({
     readModel,
     health: () => [],
-    runtime: {
-      config: loadArcDeploymentConfig({ ARCMEMEPERPS_DEPLOYMENT_NETWORK: "MAINNET" }),
-      discoveryCount: 0,
-      registeredPerpCount: 0,
-      livePerpCount: 0,
-    },
+    runtime,
   });
   await new Promise<void>((resolve) => server.listen(0, "127.0.0.1", resolve));
   const address = server.address() as AddressInfo;
@@ -37,6 +41,18 @@ async function withServer(run: (baseUrl: string) => Promise<void>, readModel = t
 }
 
 describe("read-only API hostile input handling", () => {
+  it("omits market counts when the index has not established a complete market universe", async () => {
+    await withServer(async (baseUrl) => {
+      const response = await fetch(`${baseUrl}/protocol/status`);
+      expect(response.status).toBe(200);
+      const body = await response.json() as Record<string, unknown>;
+      expect(body).not.toHaveProperty("registeredPerpCount");
+      expect(body).not.toHaveProperty("livePerpCount");
+    }, testReadModel(), {
+      config: loadArcDeploymentConfig({ ARCMEMEPERPS_DEPLOYMENT_NETWORK: "MAINNET" }),
+      discoveryCount: 0,
+    });
+  });
   it("returns client errors for invalid pagination, chain, and addresses", async () => {
     await withServer(async (baseUrl) => {
       const invalidLimit = await fetch(`${baseUrl}/markets?limit=101`);

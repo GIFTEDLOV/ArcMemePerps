@@ -67,8 +67,8 @@ export interface ApiRuntimeStatus {
   readonly discoveryCount: number;
   readonly currentlyObservedCount?: number;
   readonly staleRetainedCount?: number;
-  readonly registeredPerpCount: number;
-  readonly livePerpCount: number;
+  readonly registeredPerpCount?: number;
+  readonly livePerpCount?: number;
 }
 
 class ApiRequestError extends Error {
@@ -410,8 +410,8 @@ async function handleRequest(
                 discoveryCount: runtime.discoveryCount,
                 ...(runtime.currentlyObservedCount === undefined ? {} : { currentlyObservedCount: runtime.currentlyObservedCount }),
                 ...(runtime.staleRetainedCount === undefined ? {} : { staleRetainedCount: runtime.staleRetainedCount }),
-                registeredPerpCount: runtime.registeredPerpCount,
-                livePerpCount: runtime.livePerpCount,
+                ...(runtime.registeredPerpCount === undefined ? {} : { registeredPerpCount: runtime.registeredPerpCount }),
+                ...(runtime.livePerpCount === undefined ? {} : { livePerpCount: runtime.livePerpCount }),
                 contracts: runtime.config.addresses,
               }),
         }),
