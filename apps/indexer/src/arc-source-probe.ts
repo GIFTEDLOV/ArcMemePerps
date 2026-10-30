@@ -1,8 +1,9 @@
-import { createPublicClient, http } from "viem";
+import { createPublicClient, http, type Hex } from "viem";
 import {
   ARC_CHAIN_ID,
   ARC_CONTRACTS,
   ARC_RPC,
+  compareProviderLogs,
   rpcEventSource,
   verifyLogReceipts,
 } from "./arc-history.js";
@@ -10,6 +11,7 @@ import { decodeArcEvent } from "./arc-decode.js";
 
 // Read-only archive capability probe. A successful sample is not a complete backfill.
 const rpc = process.env.ARC_INDEX_RPC_PRIMARY || ARC_RPC;
+const secondaryRpc = process.env.ARC_INDEX_RPC_SECONDARY || null;
 const depositTx = "0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9";
 
 export type SourceProbeFailureCode =
@@ -18,6 +20,8 @@ export type SourceProbeFailureCode =
   | "WRONG_ARC_CHAIN"
   | "DEPOSIT_RECEIPT_MISMATCH"
   | "HISTORICAL_LOG_MISSING"
+  | "RPC_SOURCE_MISMATCH"
+  | "SECONDARY_RPC_QUERY_FAILED"
   | "RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH"
   | "DEPOSIT_EVENT_DECODE_MISMATCH"
   | "SOURCE_PROBE_VALIDATION_FAILED";
@@ -26,6 +30,7 @@ const knownFailures = new Set<SourceProbeFailureCode>([
   "WRONG_ARC_CHAIN",
   "DEPOSIT_RECEIPT_MISMATCH",
   "HISTORICAL_LOG_MISSING",
+  "RPC_SOURCE_MISMATCH",
   "RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH",
   "DEPOSIT_EVENT_DECODE_MISMATCH",
 ]);
@@ -107,11 +112,56 @@ async function runProbe(): Promise<void> {
   const decoded = decodeArcEvent(depositLog);
   if (decoded?.eventName !== "CollateralDeposited" || decoded.arguments.amount !== "1000000")
     throw new Error("DEPOSIT_EVENT_DECODE_MISMATCH");
+  let secondaryHead: bigint | null = null;
+  if (secondaryRpc) {
+    const secondary = rpcEventSource(secondaryRpc);
+    try {
+      const [secondaryChainId, observedHead, secondaryDeployment, secondaryLogs, secondaryReceipt] =
+        await Promise.all([
+          secondary.chainId(),
+          secondary.head(),
+          secondary.block(ARC_CONTRACTS.USDCMarginVault[1]),
+          secondary.logs(ARC_CONTRACTS.USDCMarginVault[1], ARC_CONTRACTS.USDCMarginVault[1] + 10n, [
+            ARC_CONTRACTS.USDCMarginVault[0],
+          ]),
+          secondary.receipt(depositTx as Hex),
+        ]);
+      if (
+        secondaryChainId !== chainId ||
+        secondaryDeployment.hash.toLowerCase() !== deployment.hash.toLowerCase() ||
+        secondaryReceipt.status !== receipt.status ||
+        secondaryReceipt.blockHash.toLowerCase() !== receipt.blockHash.toLowerCase()
+      )
+        throw new Error("RPC_SOURCE_MISMATCH");
+      compareProviderLogs(logs, secondaryLogs);
+      await verifyLogReceipts(secondary, secondaryLogs, [ARC_CONTRACTS.USDCMarginVault[0]]);
+      secondaryHead = observedHead;
+    } catch (error) {
+      const reason =
+        error instanceof Error && error.message === "RPC_SOURCE_MISMATCH"
+          ? "RPC_SOURCE_MISMATCH"
+          : "SECONDARY_RPC_QUERY_FAILED";
+      process.stdout.write(
+        JSON.stringify({
+          status: "INCOMPLETE",
+          chainId,
+          head: head.toString(),
+          sourceCount: 1,
+          failures: [{ query: "secondarySource", reason }],
+        }) + "\n",
+      );
+      process.exitCode = 1;
+      return;
+    }
+  }
   process.stdout.write(
     JSON.stringify({
       status: "VERIFIED_SAMPLE_ONLY",
       chainId,
       head: head.toString(),
+      sourceCount: secondaryRpc ? 2 : 1,
+      secondaryHead: secondaryHead?.toString() ?? null,
+      crossSourceMatched: secondaryRpc ? true : null,
       deploymentBlock: deployment.number.toString(),
       deploymentHash: deployment.hash,
       receiptBlock: receipt.blockNumber.toString(),

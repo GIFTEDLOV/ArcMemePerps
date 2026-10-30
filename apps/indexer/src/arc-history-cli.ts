@@ -1,4 +1,5 @@
 import { runArcIndexer } from "./arc-history.js";
+import { safeIndexerErrorCode } from "./safe-error.js";
 
 let stopping = false;
 process.on("SIGINT", () => {
@@ -12,7 +13,7 @@ do {
   try {
     await runArcIndexer();
   } catch (error) {
-    process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    process.stderr.write(`${safeIndexerErrorCode(error)}\n`);
     if (!process.argv.includes("--loop")) process.exitCode = 1;
   }
   if (!process.argv.includes("--loop") || stopping) break;

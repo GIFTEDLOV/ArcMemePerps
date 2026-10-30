@@ -129,6 +129,7 @@ export async function verifyLogReceipts(
   source: ArcEventSource,
   logs: readonly IndexedLog[],
   addresses: readonly Address[],
+  secondary: ArcEventSource | null = null,
 ): Promise<void> {
   const watched = new Set(addresses.map((address) => address.toLowerCase()));
   const byTransaction = new Map<string, IndexedLog[]>();
@@ -138,19 +139,41 @@ export async function verifyLogReceipts(
       log,
     ]);
   for (const [txHash, expected] of byTransaction) {
-    const receipt = await source.receipt(txHash as Hex);
-    if (
-      receipt.status !== "success" ||
-      receipt.blockHash.toLowerCase() !== expected[0]!.blockHash.toLowerCase()
-    )
-      throw new Error("RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH");
-    const actual = receipt.logs
-      .filter((log) => watched.has(log.address.toLowerCase()))
-      .map(logIdentity)
-      .sort();
-    const observed = expected.map(logIdentity).sort();
-    if (actual.length !== observed.length || actual.some((id, index) => id !== observed[index]))
-      throw new Error("RPC_RECEIPT_LOG_MISMATCH");
+    const responses = await Promise.allSettled([
+      source.receipt(txHash as Hex),
+      ...(secondary ? [secondary.receipt(txHash as Hex)] : []),
+    ]);
+    const fulfilled = responses.filter(
+      (
+        response,
+      ): response is PromiseFulfilledResult<Awaited<ReturnType<ArcEventSource["receipt"]>>> =>
+        response.status === "fulfilled",
+    );
+    if (fulfilled.length === 0) {
+      const primaryFailure = responses[0];
+      throw primaryFailure?.status === "rejected"
+        ? primaryFailure.reason
+        : new Error("RPC_RECEIPT_UNAVAILABLE");
+    }
+
+    // A provider may not retain an old receipt even when its logs are available.
+    // Use the second, already log-matched RPC as receipt evidence in that case.
+    // Any receipt that is returned must still agree with the indexed logs.
+    for (const response of fulfilled) {
+      const receipt = response.value;
+      if (
+        receipt.status !== "success" ||
+        receipt.blockHash.toLowerCase() !== expected[0]!.blockHash.toLowerCase()
+      )
+        throw new Error("RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH");
+      const actual = receipt.logs
+        .filter((log) => watched.has(log.address.toLowerCase()))
+        .map(logIdentity)
+        .sort();
+      const observed = expected.map(logIdentity).sort();
+      if (actual.length !== observed.length || actual.some((id, index) => id !== observed[index]))
+        throw new Error("RPC_RECEIPT_LOG_MISMATCH");
+    }
   }
 }
 
@@ -488,7 +511,7 @@ export async function indexArcHistory(
         throw new Error("RPC_BLOCK_SOURCE_MISMATCH");
       compareProviderLogs(logs, otherLogs);
     }
-    await verifyLogReceipts(primary, logs, addresses);
+    await verifyLogReceipts(primary, logs, addresses, secondary);
     const accepted = logs.filter((log) => {
       const contract = Object.values(ARC_CONTRACTS).find(
         ([address]) => address.toLowerCase() === log.address.toLowerCase(),
