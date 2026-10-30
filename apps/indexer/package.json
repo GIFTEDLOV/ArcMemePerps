@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "arc:migrate": "tsx src/arc-history-cli.ts --migrate-only",
     "arc:backfill": "tsx src/arc-history-cli.ts",
     "arc:reconcile": "tsx src/arc-parity-cli.ts"
   },

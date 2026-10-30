@@ -1,0 +1,41 @@
+name: Arc read-only indexer
+
+on:
+  schedule:
+    - cron: "3/5 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arc-mainnet-read-only-indexer
+  cancel-in-progress: false
+
+jobs:
+  index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      DATABASE_URL: ${{ secrets.CLUSTER_INDEX_WORKER_DATABASE_URL }}
+      ARC_INDEX_RPC_PRIMARY: ${{ vars.CLUSTER_ARC_RPC_PRIMARY || 'https://rpc.mainnet.arc.io' }}
+      ARC_INDEX_RPC_SECONDARY: ${{ vars.CLUSTER_ARC_RPC_SECONDARY || 'https://rpc.quicknode.mainnet.arc.io' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Require configured persistent database
+        shell: bash
+        run: |
+          if [[ -z "$DATABASE_URL" ]]; then
+            echo "::error::CLUSTER_INDEX_WORKER_DATABASE_URL is not configured. No index run was attempted."
+            exit 1
+          fi
+      - name: Index finalized Arc events
+        run: pnpm --filter @arcmemeperps/indexer arc:backfill

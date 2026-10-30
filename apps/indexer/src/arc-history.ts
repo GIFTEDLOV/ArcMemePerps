@@ -538,10 +538,23 @@ export function journalFromEnvironment(): ArcEventJournal {
   );
 }
 
+/** Apply idempotent schema migrations using a dedicated owner connection. */
+export async function migrateArcIndexer(): Promise<void> {
+  const connectionString = process.env.ARC_INDEX_MIGRATION_DATABASE_URL || process.env.DATABASE_URL;
+  if (!connectionString) throw new Error("DATABASE_URL_REQUIRED");
+  const journal = new ArcEventJournal(
+    new Pool({ connectionString, max: 1, connectionTimeoutMillis: 10_000 }),
+  );
+  try {
+    await journal.migrate();
+  } finally {
+    await journal.pool.end();
+  }
+}
+
 export async function runArcIndexer(): Promise<void> {
   const journal = journalFromEnvironment();
   try {
-    await journal.migrate();
     const primary = rpcEventSource(process.env.ARC_INDEX_RPC_PRIMARY || ARC_RPC);
     const secondary = process.env.ARC_INDEX_RPC_SECONDARY
       ? rpcEventSource(process.env.ARC_INDEX_RPC_SECONDARY)

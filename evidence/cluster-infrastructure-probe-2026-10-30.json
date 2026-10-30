@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "observedAtUtc": "2026-10-30T08:35:14Z",
+  "codeUnderTest": {
+    "branch": "codex/cluster-infra-operations-2026-10-30",
+    "receiptFallbackCommit": "df72212c6db77d334d08d539eaa508584744af1a",
+    "deployedApiCommit": "969c10d60efc425242c6e3c3556983dbf334bbf6"
+  },
+  "arcMainnet": {
+    "chainId": 5042,
+    "rpcProbeObservedAtUtc": "2026-10-30T08:29:06Z",
+    "rpcSources": [
+      {
+        "endpoint": "https://rpc.mainnet.arc.io",
+        "head": "28618281"
+      },
+      {
+        "endpoint": "https://rpc.quicknode.mainnet.arc.io",
+        "head": "28618283"
+      }
+    ],
+    "historicalSample": {
+      "transactionHash": "0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9",
+      "blockNumber": "27246895",
+      "blockHash": "0x4af5d6b0b53f9c4147c712b2ce87fc5a1b1084fa30b1f0afdbbc741d53be7207",
+      "status": "success",
+      "receiptLogCount": 3,
+      "marginVaultLogCount": 1,
+      "decodedEvent": "CollateralDeposited",
+      "amountUsdcBaseUnits": "1000000",
+      "crossSourceReceiptAndLogMatch": true,
+      "scope": "one historical sample; not complete backfill coverage"
+    },
+    "pinnedCustodyObservedAtUtc": "2026-10-30T08:29:06Z",
+    "pinnedBlock": {
+      "number": "28618217",
+      "hash": "0xd5559fa3bfd55ad2964294379e89a8b5987c6ce2a109e7b22dd3377fc1355a09",
+      "finalityDepthAtProbe": 64,
+      "bothRpcSourcesAgreed": true
+    },
+    "custodyBaseUnitsAtPinnedBlock": {
+      "usdcMarginVault": {
+        "actualCustody": "1000000",
+        "expectedCustody": "1000000",
+        "usdcBalanceOf": "1000000"
+      },
+      "publicLpVault": {
+        "totalShares": "0",
+        "actualCustody": "0",
+        "expectedCustody": "0",
+        "usdcBalanceOf": "0"
+      },
+      "insuranceFund": {
+        "availableCapital": "0",
+        "badDebtCovered": "0",
+        "uncoveredBadDebt": "0",
+        "actualCustody": "0",
+        "usdcBalanceOf": "0"
+      }
+    },
+    "interpretation": "Mainnet MarginVault accounting matches its one-USDC custody. Mainnet PublicLPVault and InsuranceFund are empty at this pinned block. This does not prove full historical ledger parity, trading readiness, or LP-engine integration."
+  },
+  "vercel": {
+    "readOnlyApiProjectId": "prj_EHNonRa9PEW9AcnTQpHl6j03US7G",
+    "apiProjectEnvironmentVariableCount": 0,
+    "apiPreview": {
+      "deploymentId": "dpl_DQMnAtwYB6W1FErTuNxrHDMShL1r",
+      "url": "https://cluster-readonly-2tc2v8zv5-kolofahkelvin16-6437s-projects.vercel.app",
+      "state": "READY",
+      "commit": "969c10d60efc425242c6e3c3556983dbf334bbf6"
+    },
+    "frontendPreview": {
+      "deploymentId": "dpl_5oVnfLTBF8eiAyRT2ne9RwDxvsmy",
+      "url": "https://cluster-hackathon-preview-ks84b51vt.vercel.app",
+      "state": "READY",
+      "commit": "969c10d60efc425242c6e3c3556983dbf334bbf6"
+    },
+    "frontendConfiguredApiOrigin": "https://cluster-readonly-api-kolofahkelvin16-6437s-projects.vercel.app/api/v1",
+    "frontendConfiguredApiDeployment": {
+      "deploymentId": "dpl_6iDSMntM37jAaQwgbyHvoVurwxvq",
+      "url": "https://cluster-readonly-lpltnofv8-kolofahkelvin16-6437s-projects.vercel.app",
+      "state": "READY",
+      "commit": "434512a2e0f01865172b9c341e5ca82fa36db6ce"
+    },
+    "liveApiObservedAtUtc": "2026-10-30T08:35:14Z",
+    "liveResponses": {
+      "previewOrigin": "https://cluster-readonly-2tc2v8zv5-kolofahkelvin16-6437s-projects.vercel.app",
+      "frontendConfiguredOrigin": "https://cluster-readonly-api-kolofahkelvin16-6437s-projects.vercel.app/api/v1",
+      "markets": {
+        "http": 200,
+        "schemaVersion": "v1",
+        "items": 30,
+        "discoveryCount": 30,
+        "currentlyObservedCount": 30,
+        "staleRetainedCount": 0,
+        "qualificationInventory": "UNVERIFIED",
+        "releaseMode": "READ_ONLY_DISCOVERY",
+        "sources": 1
+      },
+      "protocolStatus": {
+        "http": 200,
+        "chainId": 5042,
+        "readOnly": true,
+        "tradingEnabled": false,
+        "lpDepositsEnabled": false,
+        "indexer": "UNAVAILABLE_NO_PERSISTENT_INDEXER",
+        "sse": "HEARTBEAT_ONLY",
+        "arcRpc": "OPERATIONAL",
+        "perpEngine": "DEPLOYED_NOT_BOOTSTRAP_VERIFIED",
+        "publicLp": "DEPLOYED_NOT_ACTIVE_VERIFIED"
+      },
+      "indexStatus": {
+        "http": 503,
+        "reason": "persistent index database is not configured"
+      },
+      "stream": {
+        "http": 200,
+        "receivedDataEvents": false,
+        "observed": "retry frame and heartbeat comment only"
+      }
+    },
+    "frontendConfiguredOriginResponses": {
+      "marketsHttp": 200,
+      "protocolStatusHttp": 200,
+      "indexStatusHttp": 503,
+      "streamHttp": 200,
+      "streamDataEvents": false
+    }
+  },
+  "infrastructureAccess": {
+    "visibleVercelProjects": 74,
+    "postgresOrNeonIntegration": "not present",
+    "availableVercelMarketplaceIntegration": {
+      "provider": "Upstash",
+      "attachedProjects": 0,
+      "billableCapability": true,
+      "suitablePostgresDatabase": false
+    },
+    "githubActionsSecretNames": [],
+    "githubActionsVariableNames": [],
+    "localDatabaseEnvironmentVariableNames": [],
+    "neonCliAvailable": false,
+    "dockerDaemonAvailable": false
+  }
+}
