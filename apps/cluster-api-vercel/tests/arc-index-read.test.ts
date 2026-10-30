@@ -10,6 +10,7 @@ describe("Arc index SSE contract", () => {
   it("sends committed receipt identity with an SSE ID and frontend-compatible sequence", () => {
     const frame = formatIndexedSse({
       id: "31",
+      type: "protocol.event",
       committedAt: new Date("2026-10-29T00:00:00Z"),
       payload: { transactionHash: "0xreceipt", blockNumber: "27246895", logIndex: 5 },
     });
@@ -17,5 +18,15 @@ describe("Arc index SSE contract", () => {
     expect(frame).toContain('"sequence":"31"');
     expect(frame).toContain('"transactionHash":"0xreceipt"');
     expect(frame.endsWith("\n\n")).toBe(true);
+  });
+  it("emits a monotonic reorg invalidation after orphaned events are removed", () => {
+    const frame = formatIndexedSse({
+      id: "32",
+      type: "protocol.reorg",
+      committedAt: new Date("2026-10-29T00:00:01Z"),
+      payload: { fromBlock: "100", previousThrough: "101" },
+    });
+    expect(frame).toContain("id: 32\nevent: protocol.reorg\ndata: ");
+    expect(frame).toContain('"type":"protocol.reorg"');
   });
 });

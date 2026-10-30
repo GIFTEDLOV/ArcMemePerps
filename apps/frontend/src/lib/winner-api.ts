@@ -68,7 +68,7 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
       } catch { onState("STALE"); }
     };
     source.onmessage = handleMessage;
-    for (const type of ["market.discovered", "market.snapshot", "protocol.event"]) {
+    for (const type of ["market.discovered", "market.snapshot", "protocol.event", "protocol.reorg"]) {
       source.addEventListener(type, handleMessage as EventListener);
     }
     source.onerror = () => {

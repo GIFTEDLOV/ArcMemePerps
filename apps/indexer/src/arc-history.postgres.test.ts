@@ -9,6 +9,7 @@ import {
   type Hex,
 } from "viem";
 import { ArcEventJournal } from "./arc-history.js";
+import { readArcIndexLedger } from "./arc-parity.js";
 import {
   readArcIndexSnapshot,
   readOutbox,
@@ -29,7 +30,7 @@ describe.skipIf(!pool)("Arc Postgres event journal", () => {
     const db = new ArcEventJournal(pool!, 100n);
     await db.migrate();
     await pool!.query(
-      "TRUNCATE arc_event_outbox,arc_raw_events,arc_index_ranges,arc_index_checkpoint RESTART IDENTITY CASCADE",
+      "TRUNCATE arc_reorg_notices,arc_event_outbox,arc_raw_events,arc_index_ranges,arc_index_checkpoint RESTART IDENTITY CASCADE",
     );
     const h = (n: number): Hex => `0x${n.toString(16).padStart(64, "0")}`;
     const first = { number: 100n, hash: h(100), parentHash: h(99) };
@@ -86,12 +87,18 @@ describe.skipIf(!pool)("Arc Postgres event journal", () => {
     expect(await db.coverage()).toMatchObject({ ranges: 0, events: 0 });
     const outbox = await pool!.query("SELECT count(*)::int AS count FROM arc_event_outbox");
     expect(outbox.rows[0].count).toBe(0);
+    expect(await readOutbox(0n, pool!)).toEqual([
+      expect.objectContaining({
+        type: "protocol.reorg",
+        payload: expect.objectContaining({ fromBlock: "100" }),
+      }),
+    ]);
   });
   it("rebuilds event-derived market, position, custody, and outbox reads from decoded receipts", async () => {
     const db = new ArcEventJournal(pool!, 100n);
     await db.migrate();
     await pool!.query(
-      "TRUNCATE arc_event_outbox,arc_raw_events,arc_index_ranges,arc_index_checkpoint RESTART IDENTITY CASCADE",
+      "TRUNCATE arc_reorg_notices,arc_event_outbox,arc_raw_events,arc_index_ranges,arc_index_checkpoint RESTART IDENTITY CASCADE",
     );
     const h = (n: number): Hex => `0x${n.toString(16).padStart(64, "0")}`;
     const market = h(3);
@@ -196,6 +203,75 @@ describe.skipIf(!pool)("Arc Postgres event journal", () => {
     expect(await readOutbox(0n, pool!)).toHaveLength(3);
     await db.rewindFrom(101n);
     expect(await readIndexedPositions(10, pool!)).toHaveLength(0);
-    expect(await readOutbox(0n, pool!)).toHaveLength(1);
+    expect(await readOutbox(0n, pool!)).toHaveLength(2);
+  });
+  it("aggregates LP shares and insurance coverage without double counting and removes them on rewind", async () => {
+    const db = new ArcEventJournal(pool!, 100n);
+    await db.migrate();
+    await pool!.query(
+      "TRUNCATE arc_reorg_notices,arc_event_outbox,arc_raw_events,arc_index_ranges,arc_index_checkpoint RESTART IDENTITY CASCADE",
+    );
+    const h = (n: number): Hex => `0x${n.toString(16).padStart(64, "0")}`;
+    const account = "0x1111111111111111111111111111111111111111" as Address;
+    const deposit = parseAbiItem(
+      "event Deposited(address indexed account,uint256 assets,uint256 shares)",
+    );
+    const funded = parseAbiItem("event CapitalFunded(uint256 amount)");
+    const debt = parseAbiItem(
+      "event BadDebtRecorded(uint256 amount,uint256 covered,uint256 uncovered)",
+    );
+    await db.commitRange(
+      { number: 100n, hash: h(100), parentHash: h(99) },
+      { number: 100n, hash: h(100), parentHash: h(99) },
+      [
+        {
+          blockNumber: 100n,
+          blockHash: h(100),
+          transactionHash: h(504),
+          transactionIndex: 0,
+          logIndex: 0,
+          address: "0x9ff8358dc5ee866e0b9707d0139cf47b399f5257" as Address,
+          topics: encodeEventTopics({
+            abi: [deposit],
+            eventName: "Deposited",
+            args: { account },
+          }) as Hex[],
+          data: encodeAbiParameters(parseAbiParameters("uint256,uint256"), [10n, 10n]),
+        },
+        {
+          blockNumber: 100n,
+          blockHash: h(100),
+          transactionHash: h(505),
+          transactionIndex: 1,
+          logIndex: 1,
+          address: "0x8b0550babc3b802d89c17dfbee85828e14e6a22b" as Address,
+          topics: encodeEventTopics({ abi: [funded], eventName: "CapitalFunded" }) as Hex[],
+          data: encodeAbiParameters(parseAbiParameters("uint256"), [20n]),
+        },
+        {
+          blockNumber: 100n,
+          blockHash: h(100),
+          transactionHash: h(506),
+          transactionIndex: 2,
+          logIndex: 2,
+          address: "0x8b0550babc3b802d89c17dfbee85828e14e6a22b" as Address,
+          topics: encodeEventTopics({ abi: [debt], eventName: "BadDebtRecorded" }) as Hex[],
+          data: encodeAbiParameters(parseAbiParameters("uint256,uint256,uint256"), [4n, 3n, 1n]),
+        },
+      ],
+      2,
+    );
+    expect(await readArcIndexLedger(pool!)).toMatchObject({
+      lpSharesDeposited: 10n,
+      insuranceCapitalFunded: 20n,
+      insuranceBadDebtCovered: 3n,
+      insuranceBadDebtUncovered: 1n,
+    });
+    await db.rewindFrom(100n);
+    expect(await readArcIndexLedger(pool!)).toMatchObject({
+      lpSharesDeposited: 0n,
+      insuranceCapitalFunded: 0n,
+      insuranceBadDebtCovered: 0n,
+    });
   });
 });

@@ -160,7 +160,12 @@ export class ArcEventJournal {
     readonly startBlock: bigint = ARC_CONTRACTS.USDCMarginVault[1],
   ) {}
   async migrate(): Promise<void> {
-    for (const name of ["001_arc_events.sql", "002_arc_projections.sql", "003_arc_read_models.sql"]) {
+    for (const name of [
+      "001_arc_events.sql",
+      "002_arc_projections.sql",
+      "003_arc_read_models.sql",
+      "004_arc_reorg_notice.sql",
+    ]) {
       const sql = await readFile(
         fileURLToPath(new URL(`../migrations/${name}`, import.meta.url)),
         "utf8",
@@ -313,6 +318,17 @@ export class ArcEventJournal {
     try {
       await client.query("BEGIN");
       await client.query("SELECT pg_advisory_xact_lock($1)", [ARC_CHAIN_ID]);
+      const old = await client.query<{ block_number: string; block_hash: string }>(
+        "SELECT block_number,block_hash FROM arc_index_checkpoint WHERE chain_id=$1 FOR UPDATE",
+        [ARC_CHAIN_ID],
+      );
+      const checkpoint = old.rows[0];
+      if (checkpoint && BigInt(checkpoint.block_number) >= block)
+        await client.query(
+          `INSERT INTO arc_reorg_notices
+          (chain_id,from_block,previous_through,previous_checkpoint_hash) VALUES ($1,$2,$3,$4)`,
+          [ARC_CHAIN_ID, block.toString(), checkpoint.block_number, checkpoint.block_hash],
+        );
       await client.query("DELETE FROM arc_index_ranges WHERE chain_id=$1 AND from_block >= $2", [
         ARC_CHAIN_ID,
         block.toString(),

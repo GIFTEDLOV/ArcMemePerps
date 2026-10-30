@@ -150,6 +150,7 @@ export async function readIndexedActivity(
 
 export interface OutboxEvent {
   id: string;
+  type: "protocol.event" | "protocol.reorg";
   payload: Record<string, unknown>;
   committedAt: Date;
 }
@@ -159,17 +160,27 @@ export async function readOutbox(
 ): Promise<OutboxEvent[]> {
   const result = await connection.query<{
     id: string;
+    type: "protocol.event" | "protocol.reorg";
     payload: Record<string, unknown>;
     committed_at: Date;
   }>(
     `
-    SELECT o.id::text AS id,o.payload,r.committed_at FROM arc_event_outbox o
-    JOIN arc_index_ranges r ON r.chain_id=o.chain_id AND o.block_number BETWEEN r.from_block AND r.to_block
-    WHERE o.chain_id=$1 AND o.id>$2 ORDER BY o.id LIMIT 100`,
+    SELECT id::text AS id,type,payload,committed_at FROM (
+      SELECT o.id,'protocol.event'::text AS type,o.payload,r.committed_at
+      FROM arc_event_outbox o JOIN arc_index_ranges r ON r.chain_id=o.chain_id
+        AND o.block_number BETWEEN r.from_block AND r.to_block
+      WHERE o.chain_id=$1 AND o.id>$2
+      UNION ALL
+      SELECT n.id,'protocol.reorg'::text AS type,
+        jsonb_build_object('fromBlock',n.from_block::text,'previousThrough',n.previous_through::text,
+          'previousCheckpointHash',n.previous_checkpoint_hash) AS payload,n.created_at AS committed_at
+      FROM arc_reorg_notices n WHERE n.chain_id=$1 AND n.id>$2
+    ) events ORDER BY events.id LIMIT 100`,
     [ARC_CHAIN_ID, afterId.toString()],
   );
   return result.rows.map((row) => ({
     id: row.id,
+    type: row.type,
     payload: row.payload,
     committedAt: row.committed_at,
   }));
@@ -181,10 +192,10 @@ export function parseResumeId(raw: string | null): bigint {
 }
 
 export function formatIndexedSse(row: OutboxEvent): string {
-  return `id: ${row.id}\nevent: protocol.event\ndata: ${JSON.stringify({
+  return `id: ${row.id}\nevent: ${row.type}\ndata: ${JSON.stringify({
     id: row.id,
     sequence: row.id,
-    type: "protocol.event",
+    type: row.type,
     occurredAt: row.committedAt.toISOString(),
     payload: row.payload,
   })}\n\n`;

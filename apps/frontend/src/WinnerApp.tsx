@@ -204,7 +204,7 @@ function useProductData() {
       void api.health().then(setHealth).catch(() => setHealth(null));
     }, 60000);
     const unsub = subscribeRealtime(WINNER_CONFIG.apiUrl, (event) => {
-      if (event.type === "market.discovered") void refresh(requestParams.current);
+      if (event.type === "market.discovered" || event.type === "protocol.reorg") void refresh(requestParams.current);
     }, setStream);
     return () => {
       clearInterval(interval);
