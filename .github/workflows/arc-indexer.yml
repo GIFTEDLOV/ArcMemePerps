@@ -23,7 +23,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ae8d2a768c5e2bf777fa06c44660555d4dbb53f1
+          ref: 53d193af2b24fab3b8bc98a276e61937d52259b3
       - uses: pnpm/action-setup@v4
         with:
           version: 11.0.9
