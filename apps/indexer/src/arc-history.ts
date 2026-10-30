@@ -528,10 +528,15 @@ export async function indexArcHistory(
 }
 
 export function journalFromEnvironment(): ArcEventJournal {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL_REQUIRED");
+  const raw =
+    process.env.DATABASE_URL ||
+    process.env.CLUSTER_INDEX_WORKER_DATABASE_URL ||
+    process.env.ARC_INDEX_DATABASE_URL;
+  if (!raw) throw new Error("DATABASE_URL_REQUIRED");
+  const connectionString = raw.trim().replace(/^["']|["']$/g, "");
   return new ArcEventJournal(
     new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
       max: 3,
       connectionTimeoutMillis: 10_000,
     }),
@@ -540,8 +545,12 @@ export function journalFromEnvironment(): ArcEventJournal {
 
 /** Apply idempotent schema migrations using a dedicated owner connection. */
 export async function migrateArcIndexer(): Promise<void> {
-  const connectionString = process.env.ARC_INDEX_MIGRATION_DATABASE_URL || process.env.DATABASE_URL;
-  if (!connectionString) throw new Error("DATABASE_URL_REQUIRED");
+  const raw =
+    process.env.ARC_INDEX_MIGRATION_DATABASE_URL ||
+    process.env.DATABASE_URL ||
+    process.env.CLUSTER_INDEX_WORKER_DATABASE_URL;
+  if (!raw) throw new Error("DATABASE_URL_REQUIRED");
+  const connectionString = raw.trim().replace(/^["']|["']$/g, "");
   const journal = new ArcEventJournal(
     new Pool({ connectionString, max: 1, connectionTimeoutMillis: 10_000 }),
   );
