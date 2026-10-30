@@ -4,7 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "arc:backfill": "tsx src/arc-history-cli.ts"
+    "arc:backfill": "tsx src/arc-history-cli.ts",
+    "arc:reconcile": "tsx src/arc-parity-cli.ts"
   },
   "dependencies": {
     "@arcmemeperps/chain-adapters": "workspace:*",
