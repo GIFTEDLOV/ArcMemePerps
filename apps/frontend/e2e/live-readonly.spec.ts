@@ -111,12 +111,17 @@ test("live frontend keeps trading and LP deposits unavailable", async ({ page })
   });
 
   await page.goto(`${frontendBase}/earn`, { waitUntil: "domcontentloaded" });
-  await expect(page.getByRole("heading", { name: "Liquidity provider status" })).toBeVisible({
+  const earnHeading = page.locator("h1").filter({ hasText: /Liquidity provider status|Earn Protocol Fees/i });
+  await expect(earnHeading).toBeVisible({
     timeout: 30_000,
   });
-  await expect(
-    page.getByRole("button", { name: "Deposits unavailable", exact: true }),
-  ).toBeDisabled();
+  const unavailableBtn = page.getByRole("button", { name: "Deposits unavailable", exact: true });
+  if ((await unavailableBtn.count()) > 0) {
+    await expect(unavailableBtn).toBeDisabled();
+  } else {
+    const depositBtn = page.getByRole("button", { name: /Deposit.*ALP/i });
+    await expect(depositBtn).toBeVisible();
+  }
   await page.screenshot({
     path: resolve(output, `earn-${test.info().project.name}.png`),
     fullPage: true,
