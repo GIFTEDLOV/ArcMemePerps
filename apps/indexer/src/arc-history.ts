@@ -563,7 +563,21 @@ export async function migrateArcIndexer(): Promise<void> {
 
 export async function runArcIndexer(): Promise<void> {
   const journal = journalFromEnvironment();
+  const lockClient = await journal.pool.connect();
+  let lockAcquired = false;
   try {
+    const lockRes = await lockClient.query<{ locked: boolean }>(
+      "SELECT pg_try_advisory_lock($1) AS locked",
+      [ARC_CHAIN_ID],
+    );
+    if (!lockRes.rows[0]?.locked) {
+      process.stdout.write(
+        JSON.stringify({ status: "SKIPPED_CONCURRENT_INDEXER_RUNNING", chainId: ARC_CHAIN_ID }) + "\n",
+      );
+      return;
+    }
+    lockAcquired = true;
+
     const primary = rpcEventSource(process.env.ARC_INDEX_RPC_PRIMARY || ARC_RPC);
     const secondary = process.env.ARC_INDEX_RPC_SECONDARY
       ? rpcEventSource(process.env.ARC_INDEX_RPC_SECONDARY)
@@ -587,6 +601,10 @@ export async function runArcIndexer(): Promise<void> {
       ) + "\n",
     );
   } finally {
+    if (lockAcquired) {
+      await lockClient.query("SELECT pg_advisory_unlock($1)", [ARC_CHAIN_ID]).catch(() => {});
+    }
+    lockClient.release();
     await journal.pool.end();
   }
 }
