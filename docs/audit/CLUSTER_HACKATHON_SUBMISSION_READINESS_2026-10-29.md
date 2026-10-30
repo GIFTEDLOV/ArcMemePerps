@@ -1,4 +1,4 @@
-# CLUSTER submission readiness — corrected 2026-10-29
+# CLUSTER submission readiness — Arc Studio round correction (updated 2026-10-30)
 
 ## Organizer round and correction
 
@@ -15,8 +15,8 @@ Repository search on 2026-10-29 found no `studio.arc.io/app/...` project URL or 
 ## Accurate technical package
 
 - Repository: [GIFTEDLOV/ArcMemePerps](https://github.com/GIFTEDLOV/ArcMemePerps); [public builder profile](https://github.com/GIFTEDLOV).
-- Read-only [frontend preview](https://cluster-hackathon-preview-cltn3n6al.vercel.app) and [API preview](https://cluster-readonly-5vvfsdulj-kolofahkelvin16-6437s-projects.vercel.app) were verified at Group E source `a6328ef59ef0d3d5d7203118bb05f22e6c7d1840`. The frontend calls the stable API origin; exact current source parity needs rechecking before any submission.
-- Historical [Arc Mainnet 1 USDC MarginVault deposit](https://explorer.arc.io/tx/0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9), block 27,246,895. A fresh public-RPC historical receipt/log sample on 2026-10-29 matched that transaction. It proves trader collateral movement only, not a trade, LP investment, or app-mediated flow.
+- Read-only [frontend preview](https://cluster-hackathon-preview-cltn3n6al.vercel.app) and [API preview](https://cluster-readonly-5vvfsdulj-kolofahkelvin16-6437s-projects.vercel.app) were previously verified at Group E source `a6328ef59ef0d3d5d7203118bb05f22e6c7d1840`. A live browser recheck on 2026-10-30 found the frontend currently requests `https://cluster-readonly-api-kolofahkelvin16-6437s-projects.vercel.app`, a different API origin. Playwright passed 6/6 desktop/mobile checks when configured to that observed origin. Markets and protocol status returned HTTP 200; the index status returned HTTP 503 and SSE sent heartbeat comments only. Source-to-preview parity and persistent indexing are not established.
+- Historical [Arc Mainnet 1 USDC MarginVault deposit](https://explorer.arc.io/tx/0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9), block 27,246,895. One public-RPC sample on 2026-10-29 matched its receipt/log. A 2026-10-30 recheck reached Arc Mainnet but the configured RPC returned no receipt for the same hash. This illustrates the unresolved historical-provider gap; the transaction proves trader collateral movement only, not a trade, LP investment, complete history, or app-mediated flow.
 - Mainnet deployment addresses: [`evidence/mainnet/contracts.json`](../../evidence/mainnet/contracts.json). Existing LP is inactive on Mainnet; qualification, execution oracle, trading, and settlement remain unreleased.
 - The current preview is read-only discovery with fail-closed Arc verification. The production `cluster-terminal.vercel.app` alias remains on the older seeded `winner-rebuild` build and is unsuitable as a financial demo.
 
