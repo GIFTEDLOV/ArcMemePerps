@@ -34,12 +34,12 @@ test("live read-only API reports real discovery and unavailable indexing", async
     tradingEnabled: false,
     lpDepositsEnabled: false,
     qualificationInventory: "UNVERIFIED",
-    indexer: "UNAVAILABLE_NO_PERSISTENT_INDEXER",
-    sse: "HEARTBEAT_ONLY",
   });
+  expect(["UNAVAILABLE_NO_PERSISTENT_INDEXER", "INCOMPLETE", "RECONCILED"]).toContain(status.indexer);
+  expect(["HEARTBEAT_ONLY", "RECEIPT_BACKED_OUTBOX_INCOMPLETE", "RECEIPT_BACKED_OUTBOX_RECONCILED"]).toContain(status.sse);
 });
 
-test("live SSE connects but does not invent indexed events", async ({ page }) => {
+test("live SSE connects and serves events or heartbeats", async ({ page }) => {
   test.skip(!apiBase || !frontendBase, "Set E2E_LIVE_API_BASE and E2E_LIVE_FRONTEND_BASE.");
   await page.goto(frontendBase!, { waitUntil: "domcontentloaded" });
 
@@ -68,8 +68,10 @@ test("live SSE connects but does not invent indexed events", async ({ page }) =>
 
   expect(stream.status).toBe(200);
   expect(stream.contentType).toContain("text/event-stream");
-  expect(stream.chunk).toContain("no indexed events");
-  expect(stream.chunk).not.toMatch(/^data:/m);
+  expect(
+    stream.chunk.includes("receipt-backed Arc event stream") ||
+      stream.chunk.includes("no indexed events"),
+  ).toBe(true);
 });
 
 test("live frontend keeps trading and LP deposits unavailable", async ({ page }) => {

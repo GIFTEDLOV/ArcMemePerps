@@ -559,7 +559,14 @@ export async function runArcIndexer(): Promise<void> {
     const secondary = process.env.ARC_INDEX_RPC_SECONDARY
       ? rpcEventSource(process.env.ARC_INDEX_RPC_SECONDARY)
       : null;
-    const result = await indexArcHistory(journal, primary, secondary, { maxWindows: 100 });
+    const maxWindows = process.env.ARC_INDEX_MAX_WINDOWS
+      ? parseInt(process.env.ARC_INDEX_MAX_WINDOWS, 10)
+      : 100;
+    const options: IndexRunOptions = { maxWindows };
+    if (process.env.ARC_INDEX_WINDOW_SIZE) {
+      options.windowSize = BigInt(process.env.ARC_INDEX_WINDOW_SIZE);
+    }
+    const result = await indexArcHistory(journal, primary, secondary, options);
     process.stdout.write(
       JSON.stringify(
         {
