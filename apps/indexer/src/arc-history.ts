@@ -561,6 +561,8 @@ export async function migrateArcIndexer(): Promise<void> {
   }
 }
 
+export const ARC_INDEX_WORKER_LOCK_ID = 5042001n;
+
 export async function runArcIndexer(): Promise<void> {
   const journal = journalFromEnvironment();
   const lockClient = await journal.pool.connect();
@@ -568,7 +570,7 @@ export async function runArcIndexer(): Promise<void> {
   try {
     const lockRes = await lockClient.query<{ locked: boolean }>(
       "SELECT pg_try_advisory_lock($1) AS locked",
-      [ARC_CHAIN_ID],
+      [ARC_INDEX_WORKER_LOCK_ID.toString()],
     );
     if (!lockRes.rows[0]?.locked) {
       process.stdout.write(
@@ -602,7 +604,7 @@ export async function runArcIndexer(): Promise<void> {
     );
   } finally {
     if (lockAcquired) {
-      await lockClient.query("SELECT pg_advisory_unlock($1)", [ARC_CHAIN_ID]).catch(() => {});
+      await lockClient.query("SELECT pg_advisory_unlock($1)", [ARC_INDEX_WORKER_LOCK_ID.toString()]).catch(() => {});
     }
     lockClient.release();
     await journal.pool.end();
