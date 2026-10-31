@@ -104,6 +104,25 @@ contract LPMarginBridgeTest {
         _assertCustody();
     }
 
+    function testCollectedProtocolFeesCannotInflateLpNav() public {
+        vm.prank(EXECUTOR);
+        lp.allocateToMargin(400_000);
+        usdc.mint(TRADER, 100_000);
+        vm.prank(TRADER);
+        usdc.approve(address(margin), type(uint256).max);
+        vm.prank(TRADER);
+        margin.deposit(100_000);
+
+        // Trader collateral turns into a protocol fee, not an LP dividend.
+        margin.collectFee(TRADER, 50_000);
+        margin.accrueInsuranceReserve(10_000);
+        require(margin.accruedFees() == 50_000, "fee was not accrued");
+        require(margin.insuranceReserve() == 10_000, "insurance allocation missing");
+        require(margin.lpRecoverable() == 400_000, "protocol fee counted as LP equity");
+        require(lp.navAssets() == 1_000_000, "LP NAV includes unearned protocol fee");
+        _assertCustody();
+    }
+
     function testRiskBudgetAndSurplusDonationBlockAllocation() public {
         vm.prank(EXECUTOR);
         vm.expectRevert();
