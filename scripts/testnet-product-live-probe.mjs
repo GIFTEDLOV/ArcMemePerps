@@ -28,7 +28,7 @@ const abis = {
 };
 const read = (address, abi, functionName, args=[]) =>
   client.readContract({ address, abi, functionName, args });
-const A=data.addresses;
+const A=Object.fromEntries(Object.entries(data.addresses).map(([key,address]) => [key, String(address).toLowerCase()]));
 const [approved,oracleFresh,seq,blocked,openInterest,lpActive,shares,lpCustody,marginCustody] = await Promise.all([
   read(A.QualificationRegistry,abis.qualification,"isApproved",[id]),
   read(A.OracleRouter,abis.oracle,"isReportUsable",[id]),
