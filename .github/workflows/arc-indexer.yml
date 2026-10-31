@@ -25,11 +25,11 @@ jobs:
       ARC_INDEX_RPC_SECONDARY: ${{ vars.CLUSTER_ARC_RPC_SECONDARY || 'https://rpc.quicknode.mainnet.arc.io' }}
       ARC_INDEX_MAX_WINDOWS: ${{ vars.ARC_INDEX_MAX_WINDOWS || '25' }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout in-repo worker at exact reviewed source commit
+        uses: actions/checkout@v4
         with:
-          ref: codex/cluster-infra-operations-2026-10-30
-      - name: Pin to exact tested indexer commit
-        run: git checkout 3f34681fc16cd9020b9c4f6574b1412db4546a6a
+          ref: 96f9b7e60420924d1dfae1eb60c4acb72d33ed79
+          persist-credentials: false
       - uses: pnpm/action-setup@v4
         with:
           version: 11.0.9
