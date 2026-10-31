@@ -33,7 +33,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     uint256 public lpBacking;
     address public lpVault;
     uint256 public cumulativeLpWriteOff;
-    uint256 public accruedFees;
+    uint256 public override accruedFees;
     uint256 public insuranceReserve;
     uint256 public realizedTraderPnlGains;
     uint256 public realizedTraderPnlLosses;
