@@ -150,7 +150,11 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function requestWithdraw(uint256 shares) external {
         if (shares == 0 || shareBalance[msg.sender] < shares) revert InsufficientShares();
         WithdrawalRequest storage request = withdrawals[msg.sender];
-        request.shares += shares;
+        // Each account may queue at most its currently owned shares, even
+        // across repeated requests. Do not create impossible withdrawal claims.
+        uint256 queuedShares = request.shares + shares;
+        if (queuedShares > shareBalance[msg.sender]) revert InsufficientShares();
+        request.shares = queuedShares;
         uint256 availableAt = block.timestamp + withdrawalCooldown;
         // Timestamp is used only for the bounded withdrawal queue window.
         // forge-lint: disable-next-line(block-timestamp)
