@@ -6,6 +6,15 @@ import { IERC20 } from "./IERC20.sol";
 import { ReentrancyGuard } from "./ReentrancyGuard.sol";
 import { SafeTransferLib } from "./SafeTransferLib.sol";
 
+interface ILpMarginCustody {
+    function collateralToken() external view returns (address);
+    function lpVault() external view returns (address);
+    function lpRecoverable() external view returns (uint256);
+    function receiveLpBacking(uint256 amount) external;
+    function returnLpBacking(uint256 amount) external;
+    function writeDownLpBacking(uint256 amount) external;
+}
+
 /**
  *  Queued public LP accounting. NAV includes pending profitable-trader
  * liabilities and withdrawals cannot settle in the same block as a deposit.
@@ -21,6 +30,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     uint256 public insuranceReserve;
     uint256 public cumulativeBadDebt;
     uint256 public marketRiskBudget;
+    address public marginVault;
+    uint256 public allocatedBacking;
+    uint256 public cumulativeLpBackingLosses;
     address public riskController;
     bool public publicLpActive;
     mapping(address account => uint256 shares) public shareBalance;
@@ -41,6 +53,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error PublicLPInactive();
     error ActivationUnsafe();
     error InvalidActivationState();
+    error InvalidMarginVault();
 
     enum CustodyStatus {
         MATCH,
@@ -60,6 +73,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     );
     event MarketRiskBudgetSet(uint256 riskBudget);
     event PublicLPActivationSet(bool active, address indexed actor);
+    event MarginVaultLinked(address indexed vault);
+    event LpBackingAllocated(uint256 amount);
+    event LpBackingRecovered(uint256 amount);
+    event LpBackingLossRealized(uint256 amount);
 
     modifier onlyController() {
         if (msg.sender != riskController && !(!bootstrapFinalized && msg.sender == owner)) {
@@ -72,6 +89,73 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (asset_ == address(0) || asset_.code.length == 0) revert InvalidAsset();
         asset = IERC20(asset_);
         withdrawalCooldown = withdrawalCooldown_;
+    }
+
+    function setMarginVault(address vault) external onlyGovernanceExecutor {
+        if (marginVault != address(0) || vault == address(0) || vault.code.length == 0) {
+            revert InvalidMarginVault();
+        }
+        ILpMarginCustody margin = ILpMarginCustody(vault);
+        if (margin.collateralToken() != address(asset) || margin.lpVault() != address(this)) {
+            revert InvalidMarginVault();
+        }
+        marginVault = vault;
+        emit MarginVaultLinked(vault);
+    }
+
+    /**
+     * Only finalized governance may allocate governed capital to the verified margin vault.
+     */
+    function allocateToMargin(uint256 amount) external onlyGovernanceExecutor nonReentrant {
+        if (
+            !bootstrapFinalized || !publicLpActive || marginVault == address(0) || amount == 0
+                || allocatedBacking + amount > marketRiskBudget
+        ) revert ActivationUnsafe();
+        (CustodyStatus status,,,) = custodyStatus();
+        uint256 reserved = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
+        if (
+            status != CustodyStatus.MATCH || managedAssets < reserved
+                || amount > managedAssets - reserved
+        ) revert InsufficientLiquidity();
+
+        managedAssets -= amount;
+        allocatedBacking += amount;
+        asset.safeTransfer(marginVault, amount);
+        ILpMarginCustody(marginVault).receiveLpBacking(amount);
+        emit LpBackingAllocated(amount);
+    }
+
+    /**
+     * Only the verified recoverable residual may return to the LP share issuer.
+     */
+    function recoverFromMargin(uint256 amount) external onlyGovernanceExecutor nonReentrant {
+        if (
+            marginVault == address(0) || !bootstrapFinalized || amount == 0
+                || amount > allocatedBacking
+        ) revert InsufficientLiquidity();
+        uint256 beforeBalance = asset.balanceOf(address(this));
+        ILpMarginCustody(marginVault).returnLpBacking(amount);
+        uint256 afterBalance = asset.balanceOf(address(this));
+        if (afterBalance < beforeBalance || afterBalance - beforeBalance != amount) {
+            revert CustodyDeltaMismatch();
+        }
+        allocatedBacking -= amount;
+        managedAssets += amount;
+        emit LpBackingRecovered(amount);
+    }
+
+    /**
+     * Realize verified lost backing without falsely creating USDC or NAV.
+     */
+    function realizeBackingLoss(uint256 amount) external onlyGovernanceExecutor nonReentrant {
+        if (
+            marginVault == address(0) || !bootstrapFinalized || amount == 0
+                || amount > allocatedBacking
+        ) revert InsufficientLiquidity();
+        ILpMarginCustody(marginVault).writeDownLpBacking(amount);
+        allocatedBacking -= amount;
+        cumulativeLpBackingLosses += amount;
+        emit LpBackingLossRealized(amount);
     }
 
     function setRiskController(address controller) external onlyGovernanceExecutor {
@@ -115,11 +199,15 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     }
 
     function navAssets() public view returns (uint256) {
-        uint256 balance = asset.balanceOf(address(this));
+        uint256 balance = managedAssets;
+        // Only recoverable LP-attributable margin equity counts as NAV;
+        // nominal allocations already consumed by trader wins are not assets.
+        if (allocatedBacking != 0 && marginVault != address(0)) {
+            uint256 recoverable = ILpMarginCustody(marginVault).lpRecoverable();
+            balance += recoverable < allocatedBacking ? recoverable : allocatedBacking;
+        }
         uint256 liabilities = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
-        // managedAssets is the accounting source of truth. An unsolicited token
-        // transfer is reported as surplus and cannot mint LP NAV.
-        balance = managedAssets;
+        // Unsolicited token transfers are surplus and never silently mint NAV.
         return balance > liabilities ? balance - liabilities : 0;
     }
 
@@ -130,6 +218,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
 
     function deposit(uint256 assets) external nonReentrant returns (uint256 shares) {
         if (!publicLpActive) revert PublicLPInactive();
+        // Never reset the share series while old allocated backing remains.
+        if (totalShares == 0 && allocatedBacking != 0) revert InsufficientLiquidity();
         if (assets == 0) revert InvalidAmount();
         uint256 navBefore = navAssets();
         if (totalShares != 0 && navBefore == 0) revert InsufficientLiquidity();
@@ -171,6 +261,11 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         }
         // forge-lint: disable-next-line(block-timestamp)
         if (block.timestamp < request.availableAt) revert CooldownActive();
+        // Closing the final share series requires all historic backing to
+        // return or be explicitly written down, preventing cross-generation PnL.
+        if (request.shares == totalShares && allocatedBacking != 0) {
+            revert InsufficientLiquidity();
+        }
         assets = (request.shares * navAssets()) / totalShares;
         uint256 available = managedAssets;
         uint256 reserved = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
