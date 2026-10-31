@@ -103,16 +103,20 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit MarginVaultLinked(vault);
     }
 
-    /** Only finalized governance may allocate governed capital to the verified margin vault. */
+    /**
+     * Only finalized governance may allocate governed capital to the verified margin vault.
+     */
     function allocateToMargin(uint256 amount) external onlyGovernanceExecutor nonReentrant {
         if (
-            !bootstrapFinalized || !publicLpActive || marginVault == address(0)
-                || amount == 0 || allocatedBacking + amount > marketRiskBudget
+            !bootstrapFinalized || !publicLpActive || marginVault == address(0) || amount == 0
+                || allocatedBacking + amount > marketRiskBudget
         ) revert ActivationUnsafe();
         (CustodyStatus status,,,) = custodyStatus();
         uint256 reserved = pendingTraderLiability + insuranceReserve + cumulativeBadDebt;
-        if (status != CustodyStatus.MATCH || managedAssets < reserved
-            || amount > managedAssets - reserved) revert InsufficientLiquidity();
+        if (
+            status != CustodyStatus.MATCH || managedAssets < reserved
+                || amount > managedAssets - reserved
+        ) revert InsufficientLiquidity();
 
         managedAssets -= amount;
         allocatedBacking += amount;
@@ -121,10 +125,14 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit LpBackingAllocated(amount);
     }
 
-    /** Only the verified recoverable residual may return to the LP share issuer. */
+    /**
+     * Only the verified recoverable residual may return to the LP share issuer.
+     */
     function recoverFromMargin(uint256 amount) external onlyGovernanceExecutor nonReentrant {
-        if (marginVault == address(0) || !bootstrapFinalized
-            || amount == 0 || amount > allocatedBacking) revert InsufficientLiquidity();
+        if (
+            marginVault == address(0) || !bootstrapFinalized || amount == 0
+                || amount > allocatedBacking
+        ) revert InsufficientLiquidity();
         uint256 beforeBalance = asset.balanceOf(address(this));
         ILpMarginCustody(marginVault).returnLpBacking(amount);
         uint256 afterBalance = asset.balanceOf(address(this));
@@ -136,7 +144,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit LpBackingRecovered(amount);
     }
 
-    /** Realize verified lost backing without falsely creating USDC or NAV. */
+    /**
+     * Realize verified lost backing without falsely creating USDC or NAV.
+     */
     function realizeBackingLoss(uint256 amount) external onlyGovernanceExecutor nonReentrant {
         if (marginVault == address(0) || !bootstrapFinalized
             || amount == 0 || amount > allocatedBacking) revert InsufficientLiquidity();
