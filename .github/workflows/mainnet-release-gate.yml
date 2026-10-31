@@ -1,6 +1,10 @@
 name: CLUSTER Mainnet release gate (read-only)
 
 on:
+  pull_request:
+    paths:
+      - "scripts/mainnet-readiness-gate*.mjs"
+      - ".github/workflows/mainnet-release-gate.yml"
   push:
     branches: [main]
     paths:
