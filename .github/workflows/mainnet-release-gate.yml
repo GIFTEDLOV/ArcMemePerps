@@ -1,0 +1,43 @@
+name: CLUSTER Mainnet release gate (read-only)
+
+on:
+  pull_request:
+    paths:
+      - "scripts/mainnet-readiness-gate*.mjs"
+      - ".github/workflows/mainnet-release-gate.yml"
+  push:
+    branches: [main]
+    paths:
+      - "scripts/mainnet-readiness-gate*.mjs"
+      - ".github/workflows/mainnet-release-gate.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "43 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cluster-mainnet-release-gate
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Verify fail-closed release logic
+        run: node --test scripts/mainnet-readiness-gate.test.mjs
+      - name: Inspect on-chain governance and live API without signing
+        run: node scripts/mainnet-readiness-gate.mjs
