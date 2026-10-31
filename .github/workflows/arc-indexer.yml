@@ -45,5 +45,26 @@ jobs:
             echo "::error::CLUSTER_INDEX_WORKER_DATABASE_URL is not configured. No index run was attempted."
             exit 1
           fi
-      - name: Index finalized Arc events
-        run: pnpm --filter @arcmemeperps/indexer arc:backfill
+      - name: Index finalized Arc events with bounded catch-up
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Multiple bounded cycles recover after GitHub schedule delays.
+          for cycle in {1..6}; do
+            echo "Arc indexer catch-up cycle ${cycle}/6"
+            result="$(pnpm --filter @arcmemeperps/indexer arc:backfill)"
+            printf '%s\n' "$result"
+            if [[ "$result" == *'"status":"SKIPPED_CONCURRENT_INDEXER_RUNNING"'* ]]; then
+              echo "A different Neon writer holds the lock; no overlapping run."
+              break
+            fi
+            if [[ "$result" != *'"windows":'* ]]; then
+              echo "::error::Indexer returned no structured coverage."
+              exit 1
+            fi
+            if [[ "$result" == *'"windows":0'* ]]; then
+              echo "Already at selected finalized head."
+              break
+            fi
+            if [[ "$cycle" -lt 6 ]]; then sleep 15; fi
+          done
