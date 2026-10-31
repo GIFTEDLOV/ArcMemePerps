@@ -8,7 +8,7 @@ import imageio_ffmpeg
 SCENES = [
     {
         "id": "scene1_landing",
-        "text": "Welcome to CLUSTER, the institutional perpetual futures exchange engineered specifically for volatile meme assets, settling natively in USDC on Arc Network. In this walkthrough, we will explore the complete application—from real-time multichain market discovery to leveraged trade execution, our institutional Anti-Rug Risk Passport, and donation-immune LP vault accounting. Let's launch the terminal and step inside."
+        "text": "Welcome to CLUSTER, the premier decentralized perpetual futures exchange engineered specifically for volatile meme assets, settling natively in USDC on Arc Network. Here on our official landing page, you can see our core mission: sub-second multichain discovery, dynamic leverage capacity, and 100% physically backed Arc USDC clearing. Notice our live preview ticker and institutional metrics. Now let's click 'Launch Terminal' and dive directly into the live trading experience."
     },
     {
         "id": "scene2_tour",

@@ -120,49 +120,62 @@ def record_demo():
         page = context.new_page()
 
         # ==========================================
-        # SCENE 1: LANDING PAGE & VISION (26.42s)
+        # SCENE 1: OFFICIAL LANDING PAGE (31.85s)
         # ==========================================
         s1_start = time.time()
-        print("Starting Scene 1: Landing Page & Vision (26.42s)...")
-        page.goto("https://cluster-terminal.vercel.app", wait_until="domcontentloaded")
+        print("Starting Scene 1: Official Landing Page (/landing) (31.85s)...")
+        page.goto("https://cluster-terminal.vercel.app/landing", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
         
         # Cursor explores header navigation
-        move_cursor_to_coords(page, 200, 45, wait_ms=400)
-        move_cursor_to_coords(page, 750, 45, wait_ms=500)
-        move_cursor_to_coords(page, 900, 45, wait_ms=500)
-        move_cursor_to_coords(page, 1750, 45, wait_ms=600)
+        move_cursor_to_coords(page, 220, 28, wait_ms=500)
+        move_cursor_to_coords(page, 380, 28, wait_ms=400)
+        move_cursor_to_coords(page, 520, 28, wait_ms=400)
+        move_cursor_to_coords(page, 640, 28, wait_ms=500)
+        move_cursor_to_coords(page, 1720, 28, wait_ms=600)
 
-        # Move to Hero Title & Tagline
-        move_cursor_to_coords(page, 480, 320, wait_ms=800)
-        move_cursor_to_coords(page, 420, 440, wait_ms=800)
+        # Move down to the giant Hero Headline
+        move_cursor_to_coords(page, 960, 220, wait_ms=1000)
+        move_cursor_to_coords(page, 960, 290, wait_ms=1000)
 
-        # Move to ticker section
-        move_cursor_to_coords(page, 960, 520, wait_ms=800)
+        # Move to Subtitle detailing Arc USDC settlement
+        move_cursor_to_coords(page, 960, 390, wait_ms=1000)
 
-        # Smooth scroll down to explore features & stats
-        smooth_scroll(page, 420, steps=8, interval=50)
+        # Smooth scroll down to explore trending market cards & stats
+        smooth_scroll(page, 480, steps=10, interval=40)
+        page.wait_for_timeout(1000)
+        move_cursor_to_coords(page, 550, 420, wait_ms=800)
+        move_cursor_to_coords(page, 960, 420, wait_ms=800)
+        move_cursor_to_coords(page, 1370, 420, wait_ms=800)
+
+        # Scroll further to institutional solvency & features
+        smooth_scroll(page, 400, steps=8, interval=40)
+        page.wait_for_timeout(1000)
+        move_cursor_to_coords(page, 960, 320, wait_ms=1000)
+
+        # Scroll smoothly back up to the hero CTA button
+        smooth_scroll(page, -880, steps=12, interval=35)
         page.wait_for_timeout(800)
-        move_cursor_to_coords(page, 600, 400, wait_ms=600)
-        move_cursor_to_coords(page, 1200, 420, wait_ms=600)
-
-        # Scroll back to hero CTA
-        smooth_scroll(page, -420, steps=8, interval=45)
-        page.wait_for_timeout(600)
         
-        # Move to CTA button and click
-        move_cursor_to_coords(page, 420, 530, wait_ms=500)
+        # Move to "Launch Memes Terminal" CTA button and click
+        move_cursor_to_coords(page, 860, 520, wait_ms=800)
         page.evaluate("window.__clickCursor()")
         page.wait_for_timeout(400)
+        page.evaluate("""(() => {
+            const btn = document.querySelector('a[href="/memes"], a[href="/markets"], .launch-btn');
+            if (btn) btn.click();
+        })()""")
+        page.wait_for_timeout(600)
         
-        sync_scene_time("Scene 1", s1_start, 26.42, page)
+        sync_scene_time("Scene 1", s1_start, 31.85, page)
 
         # ==========================================
         # SCENE 2: INTERACTIVE TOUR (21.98s)
         # ==========================================
         s2_start = time.time()
         print("Starting Scene 2: Interactive Tour (21.98s)...")
-        page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
+        if "/markets" not in page.url and "/memes" not in page.url:
+            page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
         # Connect wallet button
