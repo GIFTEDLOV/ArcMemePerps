@@ -172,7 +172,9 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit AccountingCredit(trader, amount);
     }
 
-    /** One-time, asset-matched LP source; never an arbitrary recipient. */
+    /**
+     * One-time, asset-matched LP source; never an arbitrary recipient.
+     */
     function setLpVault(address vault) external onlyGovernanceExecutor {
         if (lpVault != address(0) || vault == address(0) || vault.code.length == 0) {
             revert UnauthorizedLpVault();
@@ -207,7 +209,9 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit LpBackingReceived(amount);
     }
 
-    /** Conservative residual after senior trader claims, protocol backing and reserves. */
+    /**
+     * Conservative residual after senior trader claims, protocol backing and reserves.
+     */
     function lpRecoverable() public view returns (uint256) {
         uint256 spare = withdrawableLiquidity();
         uint256 seniorBacking = protocolBacking + insuranceReserve;
@@ -229,7 +233,9 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit LpBackingReturned(amount);
     }
 
-    /** Write down only the verified irrecoverable portion; never credit cash. */
+    /**
+     * Write down only the verified irrecoverable portion; never credit cash.
+     */
     function writeDownLpBacking(uint256 amount) external onlyLpVault nonReentrant {
         if (amount == 0 || amount > lpBacking - lpRecoverable()) {
             revert LpBackingUnavailable();
