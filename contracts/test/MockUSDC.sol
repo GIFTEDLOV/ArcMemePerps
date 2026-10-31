@@ -23,6 +23,14 @@ contract MockUSDC {
         failTransfers = value;
     }
 
+    // Test-only simulated asset seizure for custody-deficit regression cases.
+    function burn(address account, uint256 amount) external {
+        if (balanceOf[account] < amount) revert();
+        balanceOf[account] -= amount;
+        totalSupply -= amount;
+        emit Transfer(account, address(0), amount);
+    }
+
     function approve(address spender, uint256 amount) external returns (bool) {
         allowance[msg.sender][spender] = amount;
         emit Approval(msg.sender, spender, amount);
