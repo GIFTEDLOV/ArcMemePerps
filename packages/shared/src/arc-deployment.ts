@@ -31,7 +31,7 @@ export const ARC_DEPLOYMENT_CONTRACTS = [
 
 export type ArcDeploymentContract = (typeof ARC_DEPLOYMENT_CONTRACTS)[number];
 export type ArcDeploymentNetwork = "MAINNET" | "TESTNET";
-export type ArcDeploymentLifecycle = "DEPLOYMENT_PENDING" | "DEPLOYED_ZERO_MARKETS" | "LIVE_MARKETS_AVAILABLE";
+export type ArcDeploymentLifecycle = "DEPLOYMENT_PENDING" | "DEPLOYED_MARKETS_UNVERIFIED" | "DEPLOYED_ZERO_MARKETS" | "LIVE_MARKETS_AVAILABLE";
 export type ArcDeploymentAddresses = Partial<Record<ArcDeploymentContract, string>>;
 
 export interface ArcDeploymentConfig {
@@ -116,7 +116,8 @@ export function deploymentLifecycle(input: {
   readonly livePerpCount?: number;
 }): ArcDeploymentLifecycle {
   if (input.deploymentStatus !== "DEPLOYED") return "DEPLOYMENT_PENDING";
-  if ((input.livePerpCount ?? 0) > 0) return "LIVE_MARKETS_AVAILABLE";
+  if (input.livePerpCount === undefined) return "DEPLOYED_MARKETS_UNVERIFIED";
+  if (input.livePerpCount > 0) return "LIVE_MARKETS_AVAILABLE";
   return "DEPLOYED_ZERO_MARKETS";
 }
 
