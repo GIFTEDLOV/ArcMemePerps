@@ -98,8 +98,13 @@ def sync_scene_time(scene_name, start_time, target_duration, page):
         page.wait_for_timeout(int(remaining * 1000))
 
 def record_demo():
-    video_dir = os.path.abspath("demo_video_raw")
+    video_dir = os.path.abspath("scripts/demo/demo_video_raw")
     os.makedirs(video_dir, exist_ok=True)
+    for old_file in os.listdir(video_dir):
+        try:
+            os.remove(os.path.join(video_dir, old_file))
+        except:
+            pass
     
     with sync_playwright() as p:
         browser = p.chromium.launch(
@@ -115,10 +120,10 @@ def record_demo():
         page = context.new_page()
 
         # ==========================================
-        # SCENE 1: LANDING PAGE (29.23s)
+        # SCENE 1: LANDING PAGE & VISION (26.42s)
         # ==========================================
         s1_start = time.time()
-        print("Starting Scene 1: Landing Page (29.23s)...")
+        print("Starting Scene 1: Landing Page & Vision (26.42s)...")
         page.goto("https://cluster-terminal.vercel.app", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
         
@@ -141,12 +146,8 @@ def record_demo():
         move_cursor_to_coords(page, 600, 400, wait_ms=600)
         move_cursor_to_coords(page, 1200, 420, wait_ms=600)
 
-        smooth_scroll(page, 480, steps=8, interval=50)
-        page.wait_for_timeout(800)
-        move_cursor_to_coords(page, 800, 500, wait_ms=800)
-
         # Scroll back to hero CTA
-        smooth_scroll(page, -900, steps=10, interval=45)
+        smooth_scroll(page, -420, steps=8, interval=45)
         page.wait_for_timeout(600)
         
         # Move to CTA button and click
@@ -154,13 +155,13 @@ def record_demo():
         page.evaluate("window.__clickCursor()")
         page.wait_for_timeout(400)
         
-        sync_scene_time("Scene 1", s1_start, 29.23, page)
+        sync_scene_time("Scene 1", s1_start, 26.42, page)
 
         # ==========================================
-        # SCENE 2: FIRST-TIME WALLET & TOUR (24.02s)
+        # SCENE 2: INTERACTIVE TOUR (21.98s)
         # ==========================================
         s2_start = time.time()
-        print("Starting Scene 2: Interactive Visual Tour (24.02s)...")
+        print("Starting Scene 2: Interactive Tour (21.98s)...")
         page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
@@ -171,35 +172,35 @@ def record_demo():
         
         # Trigger the visual onboarding tour
         page.evaluate("window.triggerAppTour ? window.triggerAppTour() : null")
-        page.wait_for_timeout(1200)
+        page.wait_for_timeout(1000)
 
         # Point to Spotlight Card 1 (Navigation & Ticker)
-        move_cursor_to_coords(page, 960, 360, wait_ms=1200)
-        move_cursor_to_coords(page, 960, 420, wait_ms=1000)
+        move_cursor_to_coords(page, 960, 360, wait_ms=1000)
+        move_cursor_to_coords(page, 960, 420, wait_ms=800)
         
         # Click "Next" in the Tour Modal
-        move_cursor_to_element(page, ".tour-modal button:has-text('Next'), button:has-text('Next')", click=True, wait_ms=1200)
+        move_cursor_to_element(page, ".tour-modal button:has-text('Next'), button:has-text('Next')", click=True, wait_ms=1000)
         
         # Point to Spotlight Card 2 (Chart / Risk Passport)
-        move_cursor_to_coords(page, 650, 480, wait_ms=1400)
-        move_cursor_to_coords(page, 720, 540, wait_ms=1000)
+        move_cursor_to_coords(page, 650, 480, wait_ms=1200)
+        move_cursor_to_coords(page, 720, 540, wait_ms=800)
 
         # Click "Next" again
-        move_cursor_to_element(page, ".tour-modal button:has-text('Next'), button:has-text('Next')", click=True, wait_ms=1200)
+        move_cursor_to_element(page, ".tour-modal button:has-text('Next'), button:has-text('Next')", click=True, wait_ms=1000)
         
         # Point to Spotlight Card 3 (Order Rail)
-        move_cursor_to_coords(page, 1500, 350, wait_ms=1200)
+        move_cursor_to_coords(page, 1500, 350, wait_ms=1000)
         
         # Click "Start Trading" or "Skip" to complete tour
-        move_cursor_to_element(page, ".tour-modal button:has-text('Start'), .tour-modal button:has-text('Done'), .tour-modal button:has-text('Skip')", click=True, wait_ms=1200)
+        move_cursor_to_element(page, ".tour-modal button:has-text('Start'), .tour-modal button:has-text('Done'), .tour-modal button:has-text('Skip')", click=True, wait_ms=1000)
         
-        sync_scene_time("Scene 2", s2_start, 24.02, page)
+        sync_scene_time("Scene 2", s2_start, 21.98, page)
 
         # ==========================================
-        # SCENE 3: MARKETS TERMINAL (23.38s)
+        # SCENE 3: MARKETS TERMINAL (27.79s)
         # ==========================================
         s3_start = time.time()
-        print("Starting Scene 3: Markets Terminal (23.38s)...")
+        print("Starting Scene 3: Markets Terminal (27.79s)...")
         page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
 
@@ -226,13 +227,13 @@ def record_demo():
         # Click the first token row to enter Token Detail
         move_cursor_to_element(page, ".market-row-link:first-child, tr.token-row:first-child, table tbody tr:first-child, a[href*='/markets/']", click=True, wait_ms=1200)
 
-        sync_scene_time("Scene 3", s3_start, 23.38, page)
+        sync_scene_time("Scene 3", s3_start, 27.79, page)
 
         # ==========================================
-        # SCENE 4: TOKEN DETAIL & CHART & RISK PASSPORT (29.06s)
+        # SCENE 4: TOKEN DETAIL & RISK PASSPORT (27.34s)
         # ==========================================
         s4_start = time.time()
-        print("Starting Scene 4: Token Detail & Chart (29.06s)...")
+        print("Starting Scene 4: Token Detail & Risk Passport (27.34s)...")
         if "/markets/arc-1" not in page.url:
             page.goto("https://cluster-terminal.vercel.app/markets/arc-1", wait_until="domcontentloaded")
         page.wait_for_timeout(1200)
@@ -272,13 +273,13 @@ def record_demo():
         smooth_scroll(page, -350, steps=8, interval=40)
         page.wait_for_timeout(800)
 
-        sync_scene_time("Scene 4", s4_start, 29.06, page)
+        sync_scene_time("Scene 4", s4_start, 27.34, page)
 
         # ==========================================
-        # SCENE 5: HIGH-SPEED TRADE RAIL (24.65s)
+        # SCENE 5: HIGH-SPEED TRADE EXECUTION (28.01s)
         # ==========================================
         s5_start = time.time()
-        print("Starting Scene 5: High-Speed Trade Execution (24.65s)...")
+        print("Starting Scene 5: High-Speed Trade Execution (28.01s)...")
         # Move to Trade Rail on the right
         move_cursor_to_coords(page, 1650, 140, wait_ms=600)
 
@@ -303,13 +304,13 @@ def record_demo():
         # Click "Open Long Position"
         move_cursor_to_element(page, ".trade-action-btn, button:has-text('Open Long'), button:has-text('Submit')", click=True, wait_ms=1500)
 
-        sync_scene_time("Scene 5", s5_start, 24.65, page)
+        sync_scene_time("Scene 5", s5_start, 28.01, page)
 
         # ==========================================
-        # SCENE 6: ACTIVE POSITIONS & PNL SHARE (23.23s)
+        # SCENE 6: ACTIVE POSITIONS & PNL SHARE (22.99s)
         # ==========================================
         s6_start = time.time()
-        print("Starting Scene 6: Open Positions & PnL Brag Card (23.23s)...")
+        print("Starting Scene 6: Open Positions & PnL Brag Card (22.99s)...")
         # Move to Positions Tab in bottom terminal
         smooth_scroll(page, 300, steps=6, interval=40)
         page.wait_for_timeout(600)
@@ -334,13 +335,46 @@ def record_demo():
         smooth_scroll(page, -300, steps=6, interval=40)
         page.wait_for_timeout(800)
 
-        sync_scene_time("Scene 6", s6_start, 23.23, page)
+        sync_scene_time("Scene 6", s6_start, 22.99, page)
 
         # ==========================================
-        # SCENE 7: PROFILE & CYBERPUNK AVATARS (28.97s)
+        # SCENE 7: PUBLIC LP VAULT (27.79s)
         # ==========================================
         s7_start = time.time()
-        print("Starting Scene 7: Profile & Cyberpunk Avatars (28.97s)...")
+        print("Starting Scene 7: Public LP Vault (27.79s)...")
+        page.goto("https://cluster-terminal.vercel.app/vault", wait_until="domcontentloaded")
+        page.wait_for_timeout(1000)
+
+        # Highlight LP Vault hero & title
+        move_cursor_to_coords(page, 320, 80, wait_ms=800)
+        move_cursor_to_coords(page, 550, 80, wait_ms=800)
+
+        # Highlight Vault NAV and Share Price cards
+        move_cursor_to_coords(page, 260, 160, wait_ms=800)
+        move_cursor_to_coords(page, 650, 160, wait_ms=800)
+        move_cursor_to_coords(page, 1050, 160, wait_ms=800)
+        move_cursor_to_coords(page, 1450, 160, wait_ms=800)
+
+        # Move to Senior vs Junior Capital breakdown
+        smooth_scroll(page, 280, steps=6, interval=40)
+        page.wait_for_timeout(800)
+        move_cursor_to_coords(page, 450, 340, wait_ms=800)
+        move_cursor_to_coords(page, 950, 340, wait_ms=800)
+
+        # Hover Queued Withdrawal Panel
+        move_cursor_to_coords(page, 1500, 340, wait_ms=1000)
+
+        # Scroll back up
+        smooth_scroll(page, -280, steps=6, interval=40)
+        page.wait_for_timeout(800)
+
+        sync_scene_time("Scene 7", s7_start, 27.79, page)
+
+        # ==========================================
+        # SCENE 8: PROFILE & CYBERPUNK AVATARS (24.91s)
+        # ==========================================
+        s8_start = time.time()
+        print("Starting Scene 8: Profile & Cyberpunk Avatars (24.91s)...")
         page.goto("https://cluster-terminal.vercel.app/profile", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
 
@@ -354,8 +388,6 @@ def record_demo():
         move_cursor_to_coords(page, 520, 140, wait_ms=600)
         move_cursor_to_coords(page, 840, 140, wait_ms=600)
         move_cursor_to_coords(page, 1160, 140, wait_ms=600)
-        move_cursor_to_coords(page, 1480, 140, wait_ms=600)
-        move_cursor_to_coords(page, 1780, 140, wait_ms=600)
 
         # Switch to "Avatars & Persona" Tab
         move_cursor_to_element(page, "button:has-text('Avatars'), .profile-tab-btn:nth-child(2)", click=True, wait_ms=1000)
@@ -385,7 +417,7 @@ def record_demo():
         move_cursor_to_coords(page, 900, 280, wait_ms=500)
         move_cursor_to_coords(page, 960, 290, wait_ms=1000)
 
-        sync_scene_time("Scene 7", s7_start, 28.97, page)
+        sync_scene_time("Scene 8", s8_start, 24.91, page)
 
         print("Recording complete! Closing context...")
         context.close()

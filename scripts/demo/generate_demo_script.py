@@ -3,47 +3,72 @@ import edge_tts
 import json
 import os
 import subprocess
+import imageio_ffmpeg
 
 SCENES = [
     {
         "id": "scene1_landing",
-        "text": "Hey everyone! Welcome to ArcMemePerps, the high-performance perpetual trading terminal built natively for meme coins on the Arc Mainnet. Today, I'm going to walk you through everything from the landing page to executing your first leveraged perp trade and customizing your trader profile. As you can see on our landing page, we've got a live market ticker, real-time safety sentinels, and zero-slippage execution. Let's hit 'Launch Terminal' and dive right in."
+        "text": "Welcome to CLUSTER, the institutional perpetual futures exchange engineered specifically for volatile meme assets, settling natively in USDC on Arc Network. In this walkthrough, we will explore the complete application—from real-time multichain market discovery to leveraged trade execution, our institutional Anti-Rug Risk Passport, and donation-immune LP vault accounting. Let's launch the terminal and step inside."
     },
     {
         "id": "scene2_tour",
-        "text": "When you connect your wallet for the first time, ArcMemePerps automatically launches an interactive onboarding tour. Notice how the background smoothly blurs while spotlight boxes highlight key functional zones, from the top navigation and market ticker, to the live charting engine and the isolated perpetual order rail. You can click 'Next' to walk through each area or skip directly into the action."
+        "text": "When connecting your wallet for the first time, CLUSTER presents an interactive onboarding tour. Notice how the spotlight gracefully guides new traders through critical interfaces: top-level market health, live candlestick charting, real-time risk scores, and the isolated perpetual order rail. You can step through each spotlight or jump straight into the terminal."
     },
     {
         "id": "scene3_markets",
-        "text": "Here on the Markets Terminal, you get instant visibility into every trending meme pair on Arc. You can filter by top gainers, 24-hour volume, or market cap. Every token is paired with real-time risk scores and liquidity metrics, so you know exactly what you're trading before opening a position. Let's select one of our top trending pairs to analyze its chart."
+        "text": "On the Markets Discovery Terminal, CLUSTER continuously indexes over two hundred and sixty meme markets across Solana, Arc, Base, and BNB. Users can filter by trending gainers, 24-hour volume, or liquidity depth. Most importantly, CLUSTER enforces a mathematical 5-Gate qualification engine. While discovery is open to all tokens, only mathematically verified tokens can unlock leveraged trading."
     },
     {
         "id": "scene4_chart",
-        "text": "Now we're inside the Token Detail page. Notice the compact, GMGN-inspired layout that maximizes screen space. At the top, you have the token contract chip, quick copy, and direct links to ArcScan and Bubblemaps. Below is the live DexScreener charting interface, and underneath that, our institutional Risk Passport. It checks holder concentration, honeypot safety, and contract solvency in real time."
+        "text": "Now inside the Token Trading Terminal, you see a compact, high-density layout inspired by GMGN. At the top, traders get instant contract copy tools, verification tags, and direct links to ArcScan. In the center is the real-time candlestick chart powered by DexScreener, paired directly with our institutional Risk Passport below, which inspects holder concentration, liquidity floors, and mint authority in real time."
     },
     {
         "id": "scene5_trade",
-        "text": "Executing a trade is lightning-fast. Over on the right rail, choose between Long or Short, dial in your leverage up to 10x, and input your collateral in Arc USDC. We also have integrated Take-Profit and Stop-Loss toggles with dynamic liquidation risk calculations. When you're ready, click 'Open Position' — it executes on-chain with non-custodial speed."
+        "text": "Executing a trade is completely non-custodial and instantaneous. On the right execution rail, choose Long or Short, select leverage up to 5x, and input your margin collateral in native Arc USDC. Notice the real-time liquidation price breakdown, borrowing cost calculations, and integrated Take-Profit and Stop-Loss triggers. Clicking 'Open Position' sends the transaction directly to Arc's high-speed blockspace."
     },
     {
         "id": "scene6_positions",
-        "text": "Your open position immediately appears in the active tracker. You can monitor your entry price, real-time unrealized PnL, and margin ratio. Want to share your wins? Click the share icon to generate a high-res cyberpunk PnL brag card complete with your custom trader avatar, QR code, and ROI percentage ready for X and Telegram."
+        "text": "Once executed, your open position is tracked live in the bottom console with sub-second mark price updates, dynamic margin ratios, and real-time unrealized PnL. Traders can celebrate their wins by clicking Share, instantly generating a high-resolution cyberpunk PnL brag card complete with their custom avatar, entry details, and scan-able QR code ready for X and Telegram."
     },
     {
-        "id": "scene7_profile",
-        "text": "Finally, let's head over to the Profile page. Here you have your verified Arc Mainnet trader identity, your non-custodial wallet balances, and solvency guarantees. You can browse all 12 custom cyberpunk trader avatars, customize your default leverage and slippage, and replay the visual tour anytime. That's ArcMemePerps — trade meme perps faster, safer, and smarter. Thanks for watching, and happy trading!"
+        "id": "scene7_vault",
+        "text": "Next, let's explore the Public LP Vault. CLUSTER solves the classic vulnerability where toxic meme liquidations drain LP pools. Our vault implements donation-immune ERC-4626 share pricing with two-phase queued withdrawals and loss-aware accounting. Trading losses and liquidation bad debt are segregated without double-counting, ensuring the LP net asset value remains mathematically solvent at all times."
+    },
+    {
+        "id": "scene8_profile",
+        "text": "Finally, the Trader Profile dashboard displays your verified Arc identity, physical USDC custody balances, and platform activity. Here you can personalize your trading terminal with twelve custom cyberpunk avatars, configure default leverage and slippage limits, and view our cryptographic solvency ledger. That is CLUSTER—fail-closed safety and lightning speed for meme perps on Arc."
     }
 ]
 
 async def main():
-    os.makedirs("demo_audio", exist_ok=True)
+    audio_dir = "scripts/demo/demo_audio"
+    os.makedirs(audio_dir, exist_ok=True)
     voice = "en-US-ChristopherNeural"
     
+    scene_durations = {}
+    ffmpeg = imageio_ffmpeg.get_ffmpeg_exe()
+    
     for scene in SCENES:
-        out_path = f"demo_audio/{scene['id']}.mp3"
-        comm = edge_tts.Communicate(scene['text'], voice, rate="+1%")
+        out_path = os.path.join(audio_dir, f"{scene['id']}.mp3")
+        comm = edge_tts.Communicate(scene['text'], voice, rate="+2%")
         await comm.save(out_path)
-        print(f"Generated {out_path}")
+        
+        # probe duration
+        res = subprocess.run([ffmpeg, "-i", out_path], capture_output=True, text=True, errors="ignore")
+        dur = 0.0
+        for line in res.stderr.splitlines():
+            if "Duration:" in line:
+                part = line.split("Duration:")[1].split(",")[0].strip()
+                h, m, s = part.split(":")
+                dur = float(h)*3600 + float(m)*60 + float(s)
+                break
+        scene_durations[scene['id']] = round(dur, 2)
+        print(f"Generated {out_path} -> {dur:.2f}s")
+        
+    total_sec = sum(scene_durations.values())
+    print(f"\nTotal Audio Duration: {total_sec:.2f}s ({int(total_sec//60)}m {total_sec%60:.1f}s)")
+    with open(os.path.join(audio_dir, "scene_durations.json"), "w") as f:
+        json.dump(scene_durations, f, indent=2)
 
 if __name__ == "__main__":
     asyncio.run(main())
