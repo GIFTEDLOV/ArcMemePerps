@@ -13,6 +13,9 @@ const SAFE_INDEXER_CODES = new Set([
   "RPC_RECEIPT_UNAVAILABLE",
   "RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH",
   "RPC_RECEIPT_LOG_MISMATCH",
+  "RPC_RATE_LIMITED",
+  "RPC_TIMEOUT",
+  "RPC_CONNECTION_ERROR",
 ]);
 
 /** Return only reviewed diagnostics; provider/driver messages may contain credentials or URLs. */
@@ -20,5 +23,25 @@ export function safeIndexerErrorCode(error: unknown): string {
   if (!(error instanceof Error)) return "INDEXER_OPERATION_FAILED";
   if (SAFE_INDEXER_CODES.has(error.message)) return error.message;
   if (error.name === "TransactionReceiptNotFoundError") return "HISTORICAL_RECEIPT_UNAVAILABLE";
+  const msg = error.message.toLowerCase();
+  if (msg.includes("429") || msg.includes("too many requests") || msg.includes("rate limit")) {
+    return "RPC_RATE_LIMITED";
+  }
+  if (
+    error.name === "TimeoutError" ||
+    msg.includes("timeout") ||
+    msg.includes("etimedout") ||
+    msg.includes("504")
+  ) {
+    return "RPC_TIMEOUT";
+  }
+  if (
+    msg.includes("econnreset") ||
+    msg.includes("fetch failed") ||
+    msg.includes("503") ||
+    msg.includes("502")
+  ) {
+    return "RPC_CONNECTION_ERROR";
+  }
   return "INDEXER_OPERATION_FAILED";
 }

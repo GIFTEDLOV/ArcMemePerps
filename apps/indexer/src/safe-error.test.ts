@@ -22,4 +22,16 @@ describe("indexer operational error redaction", () => {
     error.name = "TransactionReceiptNotFoundError";
     expect(safeIndexerErrorCode(error)).toBe("HISTORICAL_RECEIPT_UNAVAILABLE");
   });
+
+  it("classifies transient network and rate-limiting errors cleanly without leaking URLs", () => {
+    expect(
+      safeIndexerErrorCode(new Error("HTTP 429 Too Many Requests from https://rpc.example/key")),
+    ).toBe("RPC_RATE_LIMITED");
+    expect(
+      safeIndexerErrorCode(new Error("Connection timeout to https://rpc.example/key")),
+    ).toBe("RPC_TIMEOUT");
+    expect(
+      safeIndexerErrorCode(new Error("fetch failed: ECONNRESET on https://rpc.example/key")),
+    ).toBe("RPC_CONNECTION_ERROR");
+  });
 });
