@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {PublicLPVault} from "../src/PublicLPVault.sol";
 import {USDCMarginVault} from "../src/USDCMarginVault.sol";
+import {IUSDCMarginVault} from "../src/interfaces/IUSDCMarginVault.sol";
 import {MockUSDC} from "./MockUSDC.sol";
 
 interface VmLpBridge {
@@ -118,8 +119,8 @@ contract LPMarginBridgeTest {
 
     function _assertCustody() private view {
         (PublicLPVault.CustodyStatus a,,,) = lp.custodyStatus();
-        (USDCMarginVault.CustodyStatus b,,,) = margin.reconcileCustody();
+        (IUSDCMarginVault.CustodyStatus b,,,) = margin.reconcileCustody();
         require(a == PublicLPVault.CustodyStatus.MATCH, "LP custody mismatch");
-        require(b == USDCMarginVault.CustodyStatus.MATCH, "margin custody mismatch");
+        require(b == IUSDCMarginVault.CustodyStatus.MATCH, "margin custody mismatch");
     }
 }
