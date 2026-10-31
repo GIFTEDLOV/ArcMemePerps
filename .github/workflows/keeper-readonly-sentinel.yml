@@ -21,7 +21,6 @@ jobs:
     env:
       ARC_RPC_URL: https://rpc.mainnet.arc.io
       KEEPER_ENABLE_MAINNET_LIQUIDATIONS: "false"
-      KEEPER_STATE_FILE: ${{ runner.temp }}/cluster-readonly-keeper-state.json
     steps:
       - name: Checkout reviewed read-only keeper implementation
         uses: actions/checkout@v4
@@ -41,4 +40,6 @@ jobs:
         run: pnpm install --frozen-lockfile
       - name: Run read-only Mainnet diagnostics
         # Explicitly no ARC_KEEPER_PRIVATE_KEY, wallet or execution enablement.
+        env:
+          KEEPER_STATE_FILE: ${{ runner.temp }}/cluster-readonly-keeper-state.json
         run: pnpm keeper:once --dry-run
