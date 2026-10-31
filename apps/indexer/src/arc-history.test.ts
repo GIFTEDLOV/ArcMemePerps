@@ -65,6 +65,7 @@ function source(
     events?: IndexedLog[];
     wrongChain?: boolean;
     failLogs?: boolean;
+    failReceipt?: boolean;
     badReceipt?: boolean;
   } = {},
 ): ArcEventSource {
@@ -78,12 +79,16 @@ function source(
         (log) => log.blockNumber >= from && log.blockNumber <= to,
       );
     },
-    receipt: async (txHash) => ({
-      status: options.badReceipt ? "reverted" : "success",
-      blockHash:
-        (options.events ?? []).find((log) => log.transactionHash === txHash)?.blockHash ?? hash(0),
-      logs: (options.events ?? []).filter((log) => log.transactionHash === txHash),
-    }),
+    receipt: async (txHash) => {
+      if (options.failReceipt) throw new Error("HISTORICAL_RECEIPT_UNAVAILABLE");
+      return {
+        status: options.badReceipt ? "reverted" : "success",
+        blockHash:
+          (options.events ?? []).find((log) => log.transactionHash === txHash)?.blockHash ??
+          hash(0),
+        logs: (options.events ?? []).filter((log) => log.transactionHash === txHash),
+      };
+    },
   };
 }
 const journal = () => new MemoryJournal() as unknown as ArcEventJournal & MemoryJournal;
@@ -171,6 +176,44 @@ describe("Arc historical indexing boundary", () => {
     await expect(
       indexArcHistory(db, source({ events: [event(start)], badReceipt: true }), null, {
         finalityDepth: 0n,
+      }),
+    ).rejects.toThrow("RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH");
+    expect(await db.checkpoint()).toBeNull();
+  });
+  it("uses a matching secondary RPC receipt when the primary has no historical receipt", async () => {
+    const db = journal();
+    const log = event(start);
+    const result = await indexArcHistory(
+      db,
+      source({ events: [log], failReceipt: true }),
+      source({ events: [log] }),
+      { finalityDepth: 0n, windowSize: 1n },
+    );
+    expect(result.through).toBe(start + 5n);
+    expect(db.events).toEqual([log]);
+    expect(db.ranges[0]?.count).toBe(2);
+  });
+  it("does not commit a range when neither RPC can provide receipt evidence", async () => {
+    const db = journal();
+    const log = event(start);
+    await expect(
+      indexArcHistory(
+        db,
+        source({ events: [log], failReceipt: true }),
+        source({ events: [log], failReceipt: true }),
+        { finalityDepth: 0n, windowSize: 1n },
+      ),
+    ).rejects.toThrow("HISTORICAL_RECEIPT_UNAVAILABLE");
+    expect(await db.checkpoint()).toBeNull();
+    expect(db.events).toHaveLength(0);
+  });
+  it("rejects conflicting secondary receipts even when the primary receipt matches", async () => {
+    const db = journal();
+    const log = event(start);
+    await expect(
+      indexArcHistory(db, source({ events: [log] }), source({ events: [log], badReceipt: true }), {
+        finalityDepth: 0n,
+        windowSize: 1n,
       }),
     ).rejects.toThrow("RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH");
     expect(await db.checkpoint()).toBeNull();

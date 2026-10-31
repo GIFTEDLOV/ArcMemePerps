@@ -24,6 +24,10 @@
 
 No external API key, plan credit, durable database, or always-on worker was available to this review. Accordingly, the provider evaluation could not run an authenticated Arc Substreams query or prove project-specific cost and retention. The existing Vercel endpoint currently returns live discovery data but reports `UNAVAILABLE_NO_PERSISTENT_INDEXER`; its stream emits only an explicit heartbeat comment.
 
+### 2026-10-30 scheduled-worker implementation follow-up
+
+The indexer branch now includes a GitHub Actions schedule as a non-Railway worker option. Standard GitHub-hosted runners are free for public repositories, the shortest documented schedule interval is five minutes, and a hosted job may run for up to six hours; GitHub also warns scheduled runs may be delayed or dropped during high load. The implemented worker uses one bounded pass per invocation and a concurrency group, so checkpointed progress can resume on later invocations. This trades sub-minute freshness for a zero-runner-fee polling path and is **not active** until the workflow reaches the default branch and a durable database secret is configured. See the [GitHub runner documentation](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job), [workflow schedule documentation](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#schedule), and [`apps/indexer/README.md`](../../apps/indexer/README.md).
+
 Group B is **FAIL**, not complete. Before marking it PASS, provision an approved non-Railway worker/store, deploy/test the event schema and migration, run a bounded historical Arc query, prove restart/reorg/replay behavior and full deployment-block-to-finalized-head continuity, compare indexed qualification state with pinned on-chain reads, and verify SSE event IDs against indexed receipts. No billing or infrastructure resource was created as part of this work.
 
 ## Sources

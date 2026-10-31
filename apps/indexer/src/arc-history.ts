@@ -44,6 +44,32 @@ export interface ArcEventSource {
   ): Promise<{ status: "success" | "reverted"; blockHash: Hex; logs: IndexedLog[] }>;
 }
 
+async function withRpcRetry<T>(fn: () => Promise<T>, maxAttempts = 3): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < maxAttempts; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error;
+      const msg = error instanceof Error ? error.message.toLowerCase() : "";
+      const isTransient =
+        msg.includes("429") ||
+        msg.includes("too many requests") ||
+        msg.includes("rate limit") ||
+        msg.includes("503") ||
+        msg.includes("504") ||
+        msg.includes("timeout") ||
+        msg.includes("etimedout") ||
+        msg.includes("econnreset") ||
+        msg.includes("fetch failed");
+      if (!isTransient && attempt > 0) throw error;
+      const backoffMs = Math.min(300 * Math.pow(2, attempt) + Math.floor(Math.random() * 100), 3000);
+      await new Promise((resolve) => setTimeout(resolve, backoffMs));
+    }
+  }
+  throw lastError;
+}
+
 export function rpcEventSource(url: string): ArcEventSource {
   const client: PublicClient = createPublicClient({
     transport: http(url, { timeout: 20_000, retryCount: 2 }),
@@ -51,35 +77,37 @@ export function rpcEventSource(url: string): ArcEventSource {
   return {
     chainId: () => client.getChainId(),
     head: () => client.getBlockNumber(),
-    async block(number) {
-      const block = await client.getBlock({ blockNumber: number });
-      return { number: block.number, hash: block.hash, parentHash: block.parentHash };
-    },
-    async logs(from, to, addresses) {
-      const logs = await client.getLogs({ address: [...addresses], fromBlock: from, toBlock: to });
-      return logs.map((log) => {
-        if (
-          log.blockNumber === null ||
-          log.blockHash === null ||
-          log.transactionHash === null ||
-          log.transactionIndex === null ||
-          log.logIndex === null ||
-          log.topics[0] === undefined
-        ) {
-          throw new Error("INCOMPLETE_RPC_LOG");
-        }
-        return {
-          blockNumber: log.blockNumber,
-          blockHash: log.blockHash,
-          transactionHash: log.transactionHash,
-          transactionIndex: log.transactionIndex,
-          logIndex: log.logIndex,
-          address: log.address,
-          topics: log.topics,
-          data: log.data,
-        };
-      });
-    },
+    block: (number) =>
+      withRpcRetry(async () => {
+        const block = await client.getBlock({ blockNumber: number });
+        return { number: block.number, hash: block.hash, parentHash: block.parentHash };
+      }),
+    logs: (from, to, addresses) =>
+      withRpcRetry(async () => {
+        const logs = await client.getLogs({ address: [...addresses], fromBlock: from, toBlock: to });
+        return logs.map((log) => {
+          if (
+            log.blockNumber === null ||
+            log.blockHash === null ||
+            log.transactionHash === null ||
+            log.transactionIndex === null ||
+            log.logIndex === null ||
+            log.topics[0] === undefined
+          ) {
+            throw new Error("INCOMPLETE_RPC_LOG");
+          }
+          return {
+            blockNumber: log.blockNumber,
+            blockHash: log.blockHash,
+            transactionHash: log.transactionHash,
+            transactionIndex: log.transactionIndex,
+            logIndex: log.logIndex,
+            address: log.address,
+            topics: log.topics,
+            data: log.data,
+          };
+        });
+      }),
     async receipt(txHash) {
       let lastError: unknown;
       for (let attempt = 0; attempt < 3; attempt++) {
@@ -129,6 +157,7 @@ export async function verifyLogReceipts(
   source: ArcEventSource,
   logs: readonly IndexedLog[],
   addresses: readonly Address[],
+  secondary: ArcEventSource | null = null,
 ): Promise<void> {
   const watched = new Set(addresses.map((address) => address.toLowerCase()));
   const byTransaction = new Map<string, IndexedLog[]>();
@@ -138,19 +167,41 @@ export async function verifyLogReceipts(
       log,
     ]);
   for (const [txHash, expected] of byTransaction) {
-    const receipt = await source.receipt(txHash as Hex);
-    if (
-      receipt.status !== "success" ||
-      receipt.blockHash.toLowerCase() !== expected[0]!.blockHash.toLowerCase()
-    )
-      throw new Error("RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH");
-    const actual = receipt.logs
-      .filter((log) => watched.has(log.address.toLowerCase()))
-      .map(logIdentity)
-      .sort();
-    const observed = expected.map(logIdentity).sort();
-    if (actual.length !== observed.length || actual.some((id, index) => id !== observed[index]))
-      throw new Error("RPC_RECEIPT_LOG_MISMATCH");
+    const responses = await Promise.allSettled([
+      source.receipt(txHash as Hex),
+      ...(secondary ? [secondary.receipt(txHash as Hex)] : []),
+    ]);
+    const fulfilled = responses.filter(
+      (
+        response,
+      ): response is PromiseFulfilledResult<Awaited<ReturnType<ArcEventSource["receipt"]>>> =>
+        response.status === "fulfilled",
+    );
+    if (fulfilled.length === 0) {
+      const primaryFailure = responses[0];
+      throw primaryFailure?.status === "rejected"
+        ? primaryFailure.reason
+        : new Error("RPC_RECEIPT_UNAVAILABLE");
+    }
+
+    // A provider may not retain an old receipt even when its logs are available.
+    // Use the second, already log-matched RPC as receipt evidence in that case.
+    // Any receipt that is returned must still agree with the indexed logs.
+    for (const response of fulfilled) {
+      const receipt = response.value;
+      if (
+        receipt.status !== "success" ||
+        receipt.blockHash.toLowerCase() !== expected[0]!.blockHash.toLowerCase()
+      )
+        throw new Error("RPC_RECEIPT_STATUS_OR_BLOCK_MISMATCH");
+      const actual = receipt.logs
+        .filter((log) => watched.has(log.address.toLowerCase()))
+        .map(logIdentity)
+        .sort();
+      const observed = expected.map(logIdentity).sort();
+      if (actual.length !== observed.length || actual.some((id, index) => id !== observed[index]))
+        throw new Error("RPC_RECEIPT_LOG_MISMATCH");
+    }
   }
 }
 
@@ -456,7 +507,10 @@ export async function indexArcHistory(
         primary.logs(fromNumber, toNumber, addresses),
       ]);
     } catch (error) {
-      if (activeWindow === 1n) throw error;
+      if (activeWindow === 1n) {
+        if (windows > 0) return { windows, through: (await journal.checkpoint())?.blockNumber ?? null };
+        throw error;
+      }
       activeWindow = activeWindow / 2n;
       continue;
     }
@@ -477,7 +531,10 @@ export async function indexArcHistory(
           secondary.logs(fromNumber, toNumber, addresses),
         ]);
       } catch (error) {
-        if (activeWindow === 1n) throw error;
+        if (activeWindow === 1n) {
+          if (windows > 0) return { windows, through: (await journal.checkpoint())?.blockNumber ?? null };
+          throw error;
+        }
         activeWindow = activeWindow / 2n;
         continue;
       }
@@ -488,7 +545,7 @@ export async function indexArcHistory(
         throw new Error("RPC_BLOCK_SOURCE_MISMATCH");
       compareProviderLogs(logs, otherLogs);
     }
-    await verifyLogReceipts(primary, logs, addresses);
+    await verifyLogReceipts(primary, logs, addresses, secondary);
     const accepted = logs.filter((log) => {
       const contract = Object.values(ARC_CONTRACTS).find(
         ([address]) => address.toLowerCase() === log.address.toLowerCase(),
@@ -500,30 +557,78 @@ export async function indexArcHistory(
     windows++;
     if (activeWindow < windowSize)
       activeWindow = activeWindow * 2n > windowSize ? windowSize : activeWindow * 2n;
+    if (windows < (options.maxWindows ?? Number.MAX_SAFE_INTEGER)) {
+      await new Promise((resolve) => setTimeout(resolve, 80));
+    }
   }
   return { windows, through: (await journal.checkpoint())?.blockNumber ?? null };
 }
 
 export function journalFromEnvironment(): ArcEventJournal {
-  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL_REQUIRED");
+  const raw =
+    process.env.DATABASE_URL ||
+    process.env.CLUSTER_INDEX_WORKER_DATABASE_URL ||
+    process.env.ARC_INDEX_DATABASE_URL;
+  if (!raw) throw new Error("DATABASE_URL_REQUIRED");
+  const connectionString = raw.trim().replace(/^["']|["']$/g, "");
   return new ArcEventJournal(
     new Pool({
-      connectionString: process.env.DATABASE_URL,
+      connectionString,
       max: 3,
       connectionTimeoutMillis: 10_000,
     }),
   );
 }
 
-export async function runArcIndexer(): Promise<void> {
-  const journal = journalFromEnvironment();
+/** Apply idempotent schema migrations using a dedicated owner connection. */
+export async function migrateArcIndexer(): Promise<void> {
+  const raw =
+    process.env.ARC_INDEX_MIGRATION_DATABASE_URL ||
+    process.env.DATABASE_URL ||
+    process.env.CLUSTER_INDEX_WORKER_DATABASE_URL;
+  if (!raw) throw new Error("DATABASE_URL_REQUIRED");
+  const connectionString = raw.trim().replace(/^["']|["']$/g, "");
+  const journal = new ArcEventJournal(
+    new Pool({ connectionString, max: 1, connectionTimeoutMillis: 10_000 }),
+  );
   try {
     await journal.migrate();
+  } finally {
+    await journal.pool.end();
+  }
+}
+
+export const ARC_INDEX_WORKER_LOCK_ID = 5042001n;
+
+export async function runArcIndexer(): Promise<void> {
+  const journal = journalFromEnvironment();
+  const lockClient = await journal.pool.connect();
+  let lockAcquired = false;
+  try {
+    const lockRes = await lockClient.query<{ locked: boolean }>(
+      "SELECT pg_try_advisory_lock($1) AS locked",
+      [ARC_INDEX_WORKER_LOCK_ID.toString()],
+    );
+    if (!lockRes.rows[0]?.locked) {
+      process.stdout.write(
+        JSON.stringify({ status: "SKIPPED_CONCURRENT_INDEXER_RUNNING", chainId: ARC_CHAIN_ID }) + "\n",
+      );
+      return;
+    }
+    lockAcquired = true;
+
     const primary = rpcEventSource(process.env.ARC_INDEX_RPC_PRIMARY || ARC_RPC);
     const secondary = process.env.ARC_INDEX_RPC_SECONDARY
       ? rpcEventSource(process.env.ARC_INDEX_RPC_SECONDARY)
       : null;
-    const result = await indexArcHistory(journal, primary, secondary, { maxWindows: 100 });
+    const maxWindows = process.env.ARC_INDEX_MAX_WINDOWS
+      ? parseInt(process.env.ARC_INDEX_MAX_WINDOWS, 10)
+      : 25;
+    const options: IndexRunOptions = { maxWindows };
+    if (process.env.ARC_INDEX_WINDOW_SIZE) {
+      options.windowSize = BigInt(process.env.ARC_INDEX_WINDOW_SIZE);
+    }
+    const result = await indexArcHistory(journal, primary, secondary, options);
     process.stdout.write(
       JSON.stringify(
         {
@@ -535,6 +640,10 @@ export async function runArcIndexer(): Promise<void> {
       ) + "\n",
     );
   } finally {
+    if (lockAcquired) {
+      await lockClient.query("SELECT pg_advisory_unlock($1)", [ARC_INDEX_WORKER_LOCK_ID.toString()]).catch(() => {});
+    }
+    lockClient.release();
     await journal.pool.end();
   }
 }

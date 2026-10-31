@@ -297,5 +297,8 @@ export async function reconcileArcIndex(
       checks: {},
       reasons: ["INDEX_CHANGED_DURING_RECONCILIATION"],
     };
-  return evaluateArcParity(index, chain);
+  const depth = process.env.ARC_INDEX_FINALITY_DEPTH
+    ? BigInt(process.env.ARC_INDEX_FINALITY_DEPTH)
+    : 64n;
+  return evaluateArcParity(index, chain, depth);
 }
