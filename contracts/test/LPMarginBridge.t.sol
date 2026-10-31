@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {PublicLPVault} from "../src/PublicLPVault.sol";
-import {USDCMarginVault} from "../src/USDCMarginVault.sol";
-import {IUSDCMarginVault} from "../src/interfaces/IUSDCMarginVault.sol";
-import {MockUSDC} from "./MockUSDC.sol";
+import { PublicLPVault } from "../src/PublicLPVault.sol";
+import { USDCMarginVault } from "../src/USDCMarginVault.sol";
+import { IUSDCMarginVault } from "../src/interfaces/IUSDCMarginVault.sol";
+import { MockUSDC } from "./MockUSDC.sol";
 
 interface VmLpBridge {
     function prank(address sender) external;
@@ -14,7 +14,8 @@ interface VmLpBridge {
 }
 
 contract LPMarginBridgeTest {
-    VmLpBridge private constant vm = VmLpBridge(address(uint160(uint256(keccak256("hevm cheat code")))));
+    VmLpBridge private constant vm =
+        VmLpBridge(address(uint160(uint256(keccak256("hevm cheat code")))));
     address private constant EXECUTOR = address(0xA11CE);
     address private constant TRADER = address(0xBEEF);
 
