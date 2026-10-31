@@ -335,8 +335,6 @@ importers:
         specifier: workspace:*
         version: link:../shared
 
-  packages/shared: {}
-
   packages/shared:
     dependencies:
       '@noble/hashes':
