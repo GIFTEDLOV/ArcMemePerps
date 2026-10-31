@@ -29,7 +29,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     // rawCash is physical ERC-20 custody as represented by protocol-controlled transitions.
     uint256 public rawCash;
     uint256 public protocolBacking;
-    uint256 public accruedFees;
+    uint256 public override accruedFees;
     uint256 public insuranceReserve;
     uint256 public realizedTraderPnlGains;
     uint256 public realizedTraderPnlLosses;
