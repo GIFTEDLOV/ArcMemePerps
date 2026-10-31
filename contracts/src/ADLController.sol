@@ -33,7 +33,7 @@ contract ADLController is AccessControlled, ReentrancyGuard {
     mapping(bytes32 episode => uint256 lastPositionId) public lastPositionId;
     mapping(bytes32 episode => uint256 count) public candidateCount;
     mapping(bytes32 episode => uint256 count) public availableCandidates;
-    mapping(bytes32 episode => bool sealed) public candidateRegistrationSealed;
+    mapping(bytes32 episode => bool registrationClosed) public candidateRegistrationSealed;
     address public keeper;
 
     error UnauthorizedKeeper();
