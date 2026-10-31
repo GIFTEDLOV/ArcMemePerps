@@ -211,8 +211,20 @@ contract Gate4F1ClosureTest {
         controller.registerCandidate(unresolved, 1_001, 1, 1);
         vm.expectRevert();
         controller.registerCandidate(unresolved, 1_000, 1, 1);
+        // No terminal halt while registration is open or an eligible
+        // candidate still has unused capacity.
+        vm.prank(KEEPER);
+        vm.expectRevert();
+        controller.finalizeUnresolved(unresolved);
+        controller.sealCandidateRegistration(unresolved);
+        vm.prank(KEEPER);
+        vm.expectRevert();
+        controller.finalizeUnresolved(unresolved);
+        vm.expectRevert();
+        controller.registerCandidate(unresolved, 1_002, 1, 1);
         vm.prank(KEEPER);
         controller.execute(unresolved, 1_001, 1, 2e18);
+        require(controller.availableCandidates(unresolved) == 0, "unexhausted candidate");
         require(controller.remainingDeficit(unresolved) == 9, "deficit accounting");
         vm.prank(KEEPER);
         controller.finalizeUnresolved(unresolved);

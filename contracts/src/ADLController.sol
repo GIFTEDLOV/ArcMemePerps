@@ -14,7 +14,7 @@ interface IAdlEngine {
 
 /**
  *  Deterministic last-resort exposure reduction. The deficit budget is the
- * hard upper bound for one ADL episode; each candidate can be used once.
+ * hard upper bound for one ADL episode; candidate capacity may be partially consumed.
  */
 contract ADLController is AccessControlled, ReentrancyGuard {
     struct Candidate {
@@ -31,6 +31,9 @@ contract ADLController is AccessControlled, ReentrancyGuard {
     mapping(bytes32 episode => bool finalized) public episodeFinalized;
     mapping(bytes32 episode => uint256 lastRankingScore) public lastRankingScore;
     mapping(bytes32 episode => uint256 lastPositionId) public lastPositionId;
+    mapping(bytes32 episode => uint256 count) public candidateCount;
+    mapping(bytes32 episode => uint256 count) public availableCandidates;
+    mapping(bytes32 episode => bool registrationClosed) public candidateRegistrationSealed;
     address public keeper;
 
     error UnauthorizedKeeper();
@@ -50,6 +53,7 @@ contract ADLController is AccessControlled, ReentrancyGuard {
     event ADLFinalized(bytes32 indexed episode);
     event ADLTerminalized(bytes32 indexed episode, uint256 unresolvedDeficit);
     event KeeperSet(address indexed keeper, bool enabled);
+    event CandidateRegistrationSealed(bytes32 indexed episode, uint256 count);
 
     modifier onlyKeeper() {
         if (msg.sender != keeper && !(!bootstrapFinalized && msg.sender == owner)) {
@@ -87,8 +91,8 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         uint256 rankingScore
     ) external onlyGovernanceExecutor {
         if (
-            remainingDeficit[episode] == 0 || episodeFinalized[episode] || positionId == 0
-                || size == 0
+            remainingDeficit[episode] == 0 || episodeFinalized[episode]
+                || candidateRegistrationSealed[episode] || positionId == 0 || size == 0
         ) {
             revert InvalidEpisode();
         }
@@ -102,9 +106,25 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         ) revert CandidateOrderInvalid();
         candidates[positionId] = Candidate(positionId, size, rankingScore, false);
         candidateEpisode[positionId] = episode;
+        candidateCount[episode]++;
+        availableCandidates[episode]++;
         lastRankingScore[episode] = rankingScore;
         lastPositionId[episode] = positionId;
         emit CandidateRegistered(episode, positionId, rankingScore);
+    }
+
+    /**
+     * An episode cannot be terminalized until registration is explicitly
+     * sealed and every registered candidate has used its actual position size.
+     * Merely omitting profitable candidates is not proof of exhaustion.
+     */
+    function sealCandidateRegistration(bytes32 episode) external onlyGovernanceExecutor {
+        if (
+            remainingDeficit[episode] == 0 || episodeFinalized[episode]
+                || candidateRegistrationSealed[episode] || candidateCount[episode] == 0
+        ) revert InvalidEpisode();
+        candidateRegistrationSealed[episode] = true;
+        emit CandidateRegistrationSealed(episode, candidateCount[episode]);
     }
 
     function execute(bytes32 episode, uint256 positionId, uint256 reduction, uint256 executionPrice)
@@ -123,12 +143,16 @@ contract ADLController is AccessControlled, ReentrancyGuard {
         if (reduction == 0 || reduction > candidate.size || reduction > remaining) {
             revert ReductionExceedsDeficit();
         }
-        candidate.used = true;
-        // Candidate consumption is reverted atomically if the engine cannot
-        // produce a bounded economic reduction from the selected position slice.
+        // The engine and candidate changes revert atomically on any invalid
+        // outcome, preserving unused capacity after a partial ADL reduction.
         uint256 economicReduction = engine.adlReducePosition(positionId, reduction, executionPrice);
         if (economicReduction == 0 || economicReduction > remaining) {
             revert ReductionExceedsDeficit();
+        }
+        candidate.size -= reduction;
+        if (candidate.size == 0) {
+            candidate.used = true;
+            availableCandidates[episode]--;
         }
         remainingDeficit[episode] = remaining - economicReduction;
         emit ADLExecuted(
@@ -149,7 +173,10 @@ contract ADLController is AccessControlled, ReentrancyGuard {
      */
     function finalizeUnresolved(bytes32 episode) external onlyKeeper {
         uint256 unresolved = remainingDeficit[episode];
-        if (unresolved == 0 || episodeFinalized[episode]) revert InvalidEpisode();
+        if (
+            unresolved == 0 || episodeFinalized[episode] || !candidateRegistrationSealed[episode]
+                || availableCandidates[episode] != 0
+        ) revert InvalidEpisode();
         engine.enterTerminalInsolvencyState();
         episodeFinalized[episode] = true;
         emit ADLTerminalized(episode, unresolved);
