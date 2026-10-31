@@ -214,7 +214,12 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
      */
     function lpRecoverable() public view returns (uint256) {
         uint256 spare = withdrawableLiquidity();
-        uint256 seniorBacking = protocolBacking + insuranceReserve;
+        // Accrued fees are protocol-owned, not LP returns. Insurance reserve
+        // is a fee allocation, so deduct the greater amount rather than both
+        // (which would count the same collected fee twice).
+        uint256 protocolFeesAndReserves =
+            accruedFees > insuranceReserve ? accruedFees : insuranceReserve;
+        uint256 seniorBacking = protocolBacking + protocolFeesAndReserves;
         if (spare <= seniorBacking) return 0;
         uint256 residual = spare - seniorBacking;
         return residual < lpBacking ? residual : lpBacking;
