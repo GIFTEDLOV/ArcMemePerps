@@ -29,6 +29,10 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     // rawCash is physical ERC-20 custody as represented by protocol-controlled transitions.
     uint256 public rawCash;
     uint256 public protocolBacking;
+    // Separate from governance-funded protocol backing and trader collateral.
+    uint256 public lpBacking;
+    address public lpVault;
+    uint256 public cumulativeLpWriteOff;
     uint256 public accruedFees;
     uint256 public insuranceReserve;
     uint256 public realizedTraderPnlGains;
@@ -49,7 +53,13 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     error RealCustodyRequired();
     error InvalidSettlement();
     error CustodyDeltaMismatch();
+    error LpBackingUnavailable();
+    error UnauthorizedLpVault();
 
+    event LpVaultSet(address indexed vault);
+    event LpBackingReceived(uint256 amount);
+    event LpBackingReturned(uint256 amount);
+    event LpBackingWrittenDown(uint256 amount);
     event EngineSet(address indexed engine);
     event CollateralTokenSet(address indexed token, uint8 decimals);
     event AccountingCredit(address indexed trader, uint256 amount);
@@ -160,6 +170,73 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         totalFreeCollateral += amount;
         rawCash += amount;
         emit AccountingCredit(trader, amount);
+    }
+
+    /** One-time, asset-matched LP source; never an arbitrary recipient. */
+    function setLpVault(address vault) external onlyGovernanceExecutor {
+        if (lpVault != address(0) || vault == address(0) || vault.code.length == 0) {
+            revert UnauthorizedLpVault();
+        }
+        if (address(_collateralToken) == address(0)) revert RealCustodyRequired();
+        (bool ok, bytes memory data) = vault.staticcall(abi.encodeWithSignature("asset()"));
+        if (!ok || data.length < 32 || abi.decode(data, (address)) != address(_collateralToken)) {
+            revert InvalidCollateralToken();
+        }
+        lpVault = vault;
+        emit LpVaultSet(vault);
+    }
+
+    modifier onlyLpVault() {
+        if (lpVault == address(0) || msg.sender != lpVault || !bootstrapFinalized) {
+            revert UnauthorizedLpVault();
+        }
+        _;
+    }
+
+    /**
+     * The existing PublicLPVault transfers real USDC immediately before this
+     * call. Reject donations/surplus as LP capital and require exact custody.
+     */
+    function receiveLpBacking(uint256 amount) external onlyLpVault nonReentrant {
+        if (amount == 0) revert LpBackingUnavailable();
+        if (_collateralToken.balanceOf(address(this)) != rawCash + amount) {
+            revert CustodyDeltaMismatch();
+        }
+        rawCash += amount;
+        lpBacking += amount;
+        emit LpBackingReceived(amount);
+    }
+
+    /** Conservative residual after senior trader claims, protocol backing and reserves. */
+    function lpRecoverable() public view returns (uint256) {
+        uint256 spare = withdrawableLiquidity();
+        uint256 seniorBacking = protocolBacking + insuranceReserve;
+        if (spare <= seniorBacking) return 0;
+        uint256 residual = spare - seniorBacking;
+        return residual < lpBacking ? residual : lpBacking;
+    }
+
+    function returnLpBacking(uint256 amount) external onlyLpVault nonReentrant {
+        if (amount == 0 || amount > lpRecoverable()) revert LpBackingUnavailable();
+        lpBacking -= amount;
+        rawCash -= amount;
+        uint256 beforeBalance = _collateralToken.balanceOf(address(this));
+        _collateralToken.safeTransfer(lpVault, amount);
+        uint256 afterBalance = _collateralToken.balanceOf(address(this));
+        if (afterBalance > beforeBalance || beforeBalance - afterBalance != amount) {
+            revert CustodyDeltaMismatch();
+        }
+        emit LpBackingReturned(amount);
+    }
+
+    /** Write down only the verified irrecoverable portion; never credit cash. */
+    function writeDownLpBacking(uint256 amount) external onlyLpVault nonReentrant {
+        if (amount == 0 || amount > lpBacking - lpRecoverable()) {
+            revert LpBackingUnavailable();
+        }
+        lpBacking -= amount;
+        cumulativeLpWriteOff += amount;
+        emit LpBackingWrittenDown(amount);
     }
 
     function fundProtocolBacking(uint256 amount) external onlyGovernanceExecutor {
