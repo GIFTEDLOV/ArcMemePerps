@@ -2,7 +2,7 @@ name: Arc read-only indexer
 
 on:
   schedule:
-    - cron: "3/5 * * * *"
+    - cron: "*/5 * * * *"
   workflow_dispatch:
 
 permissions:
@@ -20,10 +20,11 @@ jobs:
       DATABASE_URL: ${{ secrets.CLUSTER_INDEX_WORKER_DATABASE_URL }}
       ARC_INDEX_RPC_PRIMARY: ${{ vars.CLUSTER_ARC_RPC_PRIMARY || 'https://rpc.mainnet.arc.io' }}
       ARC_INDEX_RPC_SECONDARY: ${{ vars.CLUSTER_ARC_RPC_SECONDARY || 'https://rpc.quicknode.mainnet.arc.io' }}
+      ARC_INDEX_MAX_WINDOWS: ${{ vars.ARC_INDEX_MAX_WINDOWS || '25' }}
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 53d193af2b24fab3b8bc98a276e61937d52259b3
+          ref: 65221f649bfba23c727021eb9d58b16a414e2d37
       - uses: pnpm/action-setup@v4
         with:
           version: 11.0.9
