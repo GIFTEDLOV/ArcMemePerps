@@ -174,8 +174,8 @@ contract ADLController is AccessControlled, ReentrancyGuard {
     function finalizeUnresolved(bytes32 episode) external onlyKeeper {
         uint256 unresolved = remainingDeficit[episode];
         if (
-            unresolved == 0 || episodeFinalized[episode]
-                || !candidateRegistrationSealed[episode] || availableCandidates[episode] != 0
+            unresolved == 0 || episodeFinalized[episode] || !candidateRegistrationSealed[episode]
+                || availableCandidates[episode] != 0
         ) revert InvalidEpisode();
         engine.enterTerminalInsolvencyState();
         episodeFinalized[episode] = true;
