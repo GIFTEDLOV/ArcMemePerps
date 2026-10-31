@@ -25,6 +25,8 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: codex/cluster-infra-operations-2026-10-30
+      - name: Pin to exact tested indexer commit
+        run: git checkout 3f34681fc16cd9020b9c4f6574b1412db4546a6a
       - uses: pnpm/action-setup@v4
         with:
           version: 11.0.9
