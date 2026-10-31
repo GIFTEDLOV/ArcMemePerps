@@ -213,6 +213,10 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
      * Conservative residual after senior trader claims, protocol backing and reserves.
      */
     function lpRecoverable() public view returns (uint256) {
+        // A token custody shortfall cannot be treated as realizable LP NAV.
+        // Pure ledger parity without physical balance verification is unsafe.
+        if (address(_collateralToken) == address(0) ||
+            _collateralToken.balanceOf(address(this)) < rawCash) return 0;
         uint256 spare = withdrawableLiquidity();
         // Accrued fees are protocol-owned, not LP returns. Insurance reserve
         // is a fee allocation, so deduct the greater amount rather than both
