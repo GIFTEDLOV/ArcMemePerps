@@ -123,6 +123,19 @@ contract LPMarginBridgeTest {
         _assertCustody();
     }
 
+    function testMissingPhysicalMarginUsdcCannotSupportLpNavOrRecoveries() public {
+        vm.prank(EXECUTOR);
+        lp.allocateToMargin(400_000);
+        require(margin.lpRecoverable() == 400_000, "normal backing not recoverable");
+        usdc.burn(address(margin), 1);
+        require(margin.lpRecoverable() == 0, "deficient custody was counted");
+        require(lp.navAssets() == 600_000, "LP minted against missing cash");
+        vm.prank(EXECUTOR);
+        vm.expectRevert();
+        lp.recoverFromMargin(1);
+        require(lp.allocatedBacking() == 400_000, "rejected recovery modified backing");
+    }
+
     function testRiskBudgetAndSurplusDonationBlockAllocation() public {
         vm.prank(EXECUTOR);
         vm.expectRevert();
