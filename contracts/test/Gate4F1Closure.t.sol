@@ -106,6 +106,38 @@ contract Gate4F1ClosureTest {
         require(vault.publicLpActive(), "governance reactivation failed");
     }
 
+    function testPublicLpWithdrawalQueueCannotExceedOwnedShares() public {
+        MockUSDC usdc = new MockUSDC();
+        PublicLPVault vault = new PublicLPVault(address(usdc), 10);
+        _configure(vault);
+        usdc.mint(LP1, 1_000_000);
+        vm.prank(EXECUTOR);
+        vault.setPublicLpActive(true);
+        vm.prank(LP1);
+        usdc.approve(address(vault), type(uint256).max);
+        vm.prank(LP1);
+        vault.deposit(1_000_000);
+
+        vm.prank(LP1);
+        vault.requestWithdraw(600_000);
+        vm.prank(LP1);
+        vm.expectRevert();
+        vault.requestWithdraw(500_000);
+        (uint256 queuedAfterRevert,) = vault.withdrawals(LP1);
+        require(queuedAfterRevert == 600_000, "over-queue mutated state");
+
+        vm.prank(LP1);
+        vault.requestWithdraw(400_000);
+        (uint256 fullyQueued,) = vault.withdrawals(LP1);
+        require(fullyQueued == vault.shareBalance(LP1), "full queue should be allowed");
+
+        vm.prank(LP1);
+        vm.expectRevert();
+        vault.requestWithdraw(1);
+        (uint256 unchanged,) = vault.withdrawals(LP1);
+        require(unchanged == 1_000_000, "repeated over-queue mutated state");
+    }
+
     function testPublicLpActiveLifecycleReconcilesNAVSharesAndWithdrawals() public {
         MockUSDC usdc = new MockUSDC();
         PublicLPVault vault = new PublicLPVault(address(usdc), 10);
