@@ -8,7 +8,6 @@ overrides:
   source-map-js: 1.2.2
 
 importers:
-
   .:
     dependencies:
       '@noble/hashes':
@@ -63,9 +62,6 @@ importers:
       '@arcmemeperps/domain':
         specifier: workspace:*
         version: link:../../packages/domain
-      '@arcmemeperps/market-universe':
-        specifier: workspace:*
-        version: link:../../packages/market-universe
       '@arcmemeperps/persistence':
         specifier: workspace:*
         version: link:../../packages/persistence
@@ -149,25 +145,12 @@ importers:
       '@arcmemeperps/domain':
         specifier: workspace:*
         version: link:../../packages/domain
-      '@arcmemeperps/oracle':
-        specifier: workspace:*
-        version: link:../../packages/oracle
       '@arcmemeperps/persistence':
         specifier: workspace:*
         version: link:../../packages/persistence
       '@arcmemeperps/shared':
         specifier: workspace:*
         version: link:../../packages/shared
-      pg:
-        specifier: ^8.23.1
-        version: 8.23.1
-      viem:
-        specifier: ^2.57.13
-        version: 2.57.13(typescript@5.9.3)(zod@3.25.76)
-    devDependencies:
-      '@types/pg':
-        specifier: ^8.23.1
-        version: 8.23.1
 
   apps/keeper:
     dependencies:
@@ -351,6 +334,8 @@ importers:
       '@arcmemeperps/shared':
         specifier: workspace:*
         version: link:../shared
+
+  packages/shared: {}
 
   packages/shared:
     dependencies:
