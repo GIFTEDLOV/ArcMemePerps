@@ -24,7 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: 65221f649bfba23c727021eb9d58b16a414e2d37
+          ref: codex/cluster-infra-operations-2026-10-30
       - uses: pnpm/action-setup@v4
         with:
           version: 11.0.9
