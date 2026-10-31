@@ -51,6 +51,8 @@ interface IUSDCMarginVault {
 
     function collectFee(address trader, uint256 amount) external;
 
+    function accruedFees() external view returns (uint256);
+
     function accrueInsuranceReserve(uint256 amount) external;
 
     function receiveInsuranceCoverage(uint256 amount) external;

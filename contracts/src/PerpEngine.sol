@@ -677,6 +677,9 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
             activePosition[_accountMarket(position.trader, position.marketId)] = 0;
         }
         emit PositionReduced(positionId, collateralReleased, sizeReduced);
+        // Route only fees genuinely collected by the settlement vault, not
+        // the nominal fee that may have become uncollectible bad debt.
+        uint256 feesBeforeSettlement = marginVault.accruedFees();
         // The vault emits the settlement event; this engine emits the canonical position mutation.
         // State is complete and the public entrypoint holds ReentrancyGuard.
         (uint256 payout, uint256 badDebt, uint256 remainingCollateral) = marginVault.settlePartialWad(
@@ -687,6 +690,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
                 || remainingCollateral != expectedRemaining
         ) revert InvalidSettlementOutcome();
         emit PartialSettlementOutcome(positionId, payout, badDebt);
+        uint256 collected = marginVault.accruedFees() - feesBeforeSettlement;
+        if (collected > 0) _routeFee(collected);
         if (badDebt > 0) _coverBadDebt(badDebt);
     }
 
@@ -735,7 +740,10 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 fee = _feeUsdc(position.size, feeConfig.closeFeeRateWad);
         _removePosition(positionId, position);
         // State and OI are already removed before settlement.
+        uint256 feesBeforeSettlement = marginVault.accruedFees();
         badDebt = marginVault.settlePositionWad(account, position.collateral, netPnl, fee);
+        uint256 collected = marginVault.accruedFees() - feesBeforeSettlement;
+        if (collected > 0) _routeFee(collected);
         if (badDebt > 0) _coverBadDebt(badDebt);
         emit PositionClosed(positionId, netPnl, badDebt);
     }

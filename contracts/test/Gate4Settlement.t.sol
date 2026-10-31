@@ -100,8 +100,16 @@ contract Gate4SettlementTest {
         require(engine.totalOpenInterest(marketId) == 40_000_000);
 
         oracle.setPrice(marketId, 2e18, uint64(vm.getBlockTimestamp()), 9_500);
+        uint256 feesBeforeClose = vault.accruedFees();
+        uint256 insuranceBeforeClose = vault.insuranceReserve();
         vm.prank(TRADER);
         engine.closePosition(positionId);
+        uint256 actualCloseFee = vault.accruedFees() - feesBeforeClose;
+        require(actualCloseFee > 0, "close fee was not collected");
+        require(
+            vault.insuranceReserve() == insuranceBeforeClose + (actualCloseFee * 2_000) / 10_000,
+            "close insurance share not based on actual fee"
+        );
 
         require(engine.totalOpenInterest(marketId) == 0);
         require(vault.lockedCollateral(TRADER) == 0);
@@ -160,8 +168,16 @@ contract Gate4SettlementTest {
         uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
         oracle.setPrice(marketId, 2e18, uint64(vm.getBlockTimestamp()), 9_500);
 
+        uint256 feesBeforeReduce = vault.accruedFees();
+        uint256 insuranceBeforeReduce = vault.insuranceReserve();
         vm.prank(TRADER);
         engine.reducePosition(positionId, 20_000_000, 10_000_000);
+        uint256 actualReduceFee = vault.accruedFees() - feesBeforeReduce;
+        require(actualReduceFee > 0, "partial-close fee was not collected");
+        require(
+            vault.insuranceReserve() == insuranceBeforeReduce + (actualReduceFee * 2_000) / 10_000,
+            "partial-close insurance share not based on actual fee"
+        );
 
         (address trader, bytes32 id, bool isLong, uint256 collateral, uint256 size,, bool open) =
             engine.positions(positionId);
