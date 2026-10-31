@@ -113,6 +113,12 @@ contract Gate4DCompletionTest {
         require(engine.lastReduction() == 60);
         require(controller.remainingDeficit(episode) == 40);
 
+        // The unused 30-size slice must remain executable, not be
+        // permanently consumed after the first partial reduction.
+        vm.prank(keeper);
+        controller.execute(episode, 7, 30, 2e18);
+        require(controller.remainingDeficit(episode) == 10);
+        require(controller.availableCandidates(episode) == 0);
         vm.prank(keeper);
         vm.expectRevert();
         controller.execute(episode, 7, 1, 2e18);
