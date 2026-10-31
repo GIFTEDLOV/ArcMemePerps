@@ -14,6 +14,12 @@ interface IUSDCMarginVault {
 
     function withdraw(uint256 amount) external;
 
+    function fundProtocolBacking(uint256 amount) external;
+
+    function returnProtocolBacking(address recipient, uint256 amount) external;
+
+    function transferFeesToLP(uint256 amount) external;
+
     function lockCollateral(address trader, uint256 amount) external;
 
     function unlockCollateral(address trader, uint256 amount) external;
@@ -58,6 +64,16 @@ interface IUSDCMarginVault {
     function applyADLResolution(uint256 amount) external;
 
     function withdrawableLiquidity() external view returns (uint256);
+
+    function withdrawableCollateral() external view returns (uint256);
+
+    function cumulativeUncoveredBadDebt() external view returns (uint256);
+
+    function pendingPositivePnl() external view returns (uint256);
+
+    function rawCash() external view returns (uint256);
+
+    function traderLiabilities() external view returns (uint256);
 
     function actualCustodyUsdc() external view returns (uint256);
 

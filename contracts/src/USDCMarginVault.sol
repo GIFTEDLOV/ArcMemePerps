@@ -4,6 +4,7 @@ pragma solidity ^0.8.24;
 import { AccessControlled } from "./AccessControlled.sol";
 import { FixedPointMath } from "./FixedPointMath.sol";
 import { IERC20 } from "./IERC20.sol";
+import { IPublicLPVault } from "./interfaces/IPublicLPVault.sol";
 import { IUSDCMarginVault } from "./interfaces/IUSDCMarginVault.sol";
 import { ReentrancyGuard } from "./ReentrancyGuard.sol";
 import { SafeCast } from "./SafeCast.sol";
@@ -39,8 +40,10 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     uint256 public insuranceCoveredBadDebt;
     uint256 public adlCoveredBadDebt;
     address public engine;
+    address public liquidityPool;
 
     error UnauthorizedEngine();
+    error UnauthorizedCaller();
     error InsufficientFreeCollateral();
     error InsufficientLockedCollateral();
     error InvalidCollateralToken();
@@ -54,6 +57,9 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     event CollateralTokenSet(address indexed token, uint8 decimals);
     event AccountingCredit(address indexed trader, uint256 amount);
     event ProtocolBackingFunded(uint256 amount);
+    event ProtocolBackingReturned(address indexed recipient, uint256 amount);
+    event FeesTransferredToLP(address indexed pool, uint256 amount);
+    event LiquidityPoolSet(address indexed pool);
     event CollateralDeposited(address indexed trader, uint256 amount);
     event CollateralWithdrawn(address indexed trader, uint256 amount);
     event CollateralLocked(address indexed trader, uint256 amount);
@@ -92,8 +98,24 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         _;
     }
 
+    modifier onlyGovernanceOrLiquidityPool() {
+        if (
+            msg.sender != liquidityPool && msg.sender != governanceExecutor
+                && !(!bootstrapFinalized && msg.sender == owner)
+        ) {
+            revert UnauthorizedCaller();
+        }
+        _;
+    }
+
     function collateralToken() external view returns (address) {
         return address(_collateralToken);
+    }
+
+    function setLiquidityPool(address pool) external onlyGovernanceExecutor {
+        if (pool == address(0)) revert ZeroAddress();
+        liquidityPool = pool;
+        emit LiquidityPoolSet(pool);
     }
 
     function setCollateralToken(address token) external onlyGovernanceExecutor {
@@ -136,7 +158,7 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         if (amount == 0 || freeCollateral[msg.sender] < amount) {
             revert InsufficientFreeCollateral();
         }
-        uint256 available = withdrawableLiquidity();
+        uint256 available = withdrawableCollateral();
         if (amount > available) revert InsufficientWithdrawableLiquidity();
         // Effects precede the external token transfer and the guard remains held.
         freeCollateral[msg.sender] -= amount;
@@ -162,7 +184,11 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit AccountingCredit(trader, amount);
     }
 
-    function fundProtocolBacking(uint256 amount) external onlyGovernanceExecutor {
+    function fundProtocolBacking(uint256 amount)
+        external
+        nonReentrant
+        onlyGovernanceOrLiquidityPool
+    {
         if (amount == 0) revert InvalidSettlement();
         if (address(_collateralToken) == address(0)) revert RealCustodyRequired();
         uint256 beforeBalance = _collateralToken.balanceOf(address(this));
@@ -174,6 +200,56 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         protocolBacking += amount;
         rawCash += amount;
         emit ProtocolBackingFunded(amount);
+    }
+
+    function returnProtocolBacking(address recipient, uint256 amount)
+        external
+        nonReentrant
+        onlyGovernanceOrLiquidityPool
+    {
+        if (recipient == address(0) || amount == 0) revert InvalidSettlement();
+        if (address(_collateralToken) == address(0)) revert RealCustodyRequired();
+        uint256 available = withdrawableLiquidity();
+        if (amount > available || amount > protocolBacking) {
+            revert InsufficientWithdrawableLiquidity();
+        }
+
+        protocolBacking -= amount;
+        rawCash -= amount;
+
+        uint256 beforeBalance = _collateralToken.balanceOf(address(this));
+        _collateralToken.safeTransfer(recipient, amount);
+        uint256 afterBalance = _collateralToken.balanceOf(address(this));
+        if (beforeBalance < afterBalance || beforeBalance - afterBalance != amount) {
+            revert CustodyDeltaMismatch();
+        }
+        emit ProtocolBackingReturned(recipient, amount);
+    }
+
+    function transferFeesToLP(uint256 amount)
+        external
+        nonReentrant
+        onlyGovernanceOrLiquidityPool
+    {
+        if (amount == 0 || amount > accruedFees) revert InvalidSettlement();
+        if (liquidityPool == address(0)) revert InvalidSettlement();
+        if (address(_collateralToken) == address(0)) revert RealCustodyRequired();
+
+        uint256 available = withdrawableLiquidity();
+        if (amount > available) revert InsufficientWithdrawableLiquidity();
+
+        accruedFees -= amount;
+        rawCash -= amount;
+
+        uint256 beforeBalance = _collateralToken.balanceOf(address(this));
+        _collateralToken.safeTransfer(liquidityPool, amount);
+        uint256 afterBalance = _collateralToken.balanceOf(address(this));
+        if (beforeBalance < afterBalance || beforeBalance - afterBalance != amount) {
+            revert CustodyDeltaMismatch();
+        }
+        // Atomically record fee revenue in liquidity pool
+        IPublicLPVault(liquidityPool).recordFeeRevenue(amount);
+        emit FeesTransferredToLP(liquidityPool, amount);
     }
 
     function accrueFee(uint256 amount) external onlyEngine {
@@ -484,6 +560,26 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         pendingNegativePnl -= amount;
         adlCoveredBadDebt += amount;
         emit ADLResolutionApplied(amount, protocolBadDebt);
+    }
+
+    function traderLiabilities() public view returns (uint256) {
+        return totalFreeCollateral + totalLockedCollateral + pendingPositivePnl;
+    }
+
+    function cumulativeUncoveredBadDebt() public view returns (uint256) {
+        if (protocolBadDebt <= insuranceCoveredBadDebt) return 0;
+        return protocolBadDebt - insuranceCoveredBadDebt;
+    }
+
+    function withdrawableCollateral() public view returns (uint256) {
+        uint256 seniorLiabilities = totalLockedCollateral + pendingPositivePnl;
+        uint256 uncoveredBadDebt = cumulativeUncoveredBadDebt();
+        uint256 protocolShortfall = uncoveredBadDebt > protocolBacking
+            ? uncoveredBadDebt - protocolBacking
+            : 0;
+        uint256 reserved = seniorLiabilities + protocolShortfall;
+        if (rawCash <= reserved) return 0;
+        return rawCash - reserved;
     }
 
     function withdrawableLiquidity() public view returns (uint256) {
