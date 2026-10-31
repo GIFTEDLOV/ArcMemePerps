@@ -148,8 +148,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
      * Realize verified lost backing without falsely creating USDC or NAV.
      */
     function realizeBackingLoss(uint256 amount) external onlyGovernanceExecutor nonReentrant {
-        if (marginVault == address(0) || !bootstrapFinalized
-            || amount == 0 || amount > allocatedBacking) revert InsufficientLiquidity();
+        if (
+            marginVault == address(0) || !bootstrapFinalized || amount == 0
+                || amount > allocatedBacking
+        ) revert InsufficientLiquidity();
         ILpMarginCustody(marginVault).writeDownLpBacking(amount);
         allocatedBacking -= amount;
         cumulativeLpBackingLosses += amount;
