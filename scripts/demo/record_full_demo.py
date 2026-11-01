@@ -51,6 +51,11 @@ CURSOR_SCRIPT = """
 
   try {
     window.localStorage.setItem('arcmemeperps.risk.accepted', 'true');
+    window.localStorage.setItem('arcmemeperps.risk_ack_agreed', 'true');
+    window.localStorage.setItem('arcmemeperps.active_email_session', JSON.stringify({
+      email: 'trader@cluster.arc',
+      address: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
+    }));
   } catch (e) {}
 
   if (document.body) setup();
@@ -327,38 +332,33 @@ def record_demo():
         # ==========================================
         s7_start = time.time()
         print("Starting Scene 7: Trade Execution & PnL Brag Card (26.83s)...")
-        # 0s - 5s: Move to trade rail & select LONG
-        move_cursor_to_coords(page, 1650, 140, wait_ms=600)
-        move_cursor_to_element(page, "button:has-text('Long'), .side-btn.long, button:has-text('LONG')", click=True, wait_ms=600)
+        # 0s - 4s: Move to trade rail & select Buy / Long
+        move_cursor_to_coords(page, 1650, 140, wait_ms=500)
+        move_cursor_to_element(page, "button:has-text('Buy / Long'), .gmgn-btn-buy, button:has-text('Long')", click=True, wait_ms=500)
 
-        # 5s - 9s: 5x leverage & input 50 USDC
-        move_cursor_to_element(page, "button:has-text('5x'), .leverage-btn:has-text('5x')", click=True, wait_ms=600)
-        move_cursor_to_element(page, ".field input, input[type='number']", click=True, wait_ms=300)
-        page.keyboard.type("50", delay=80)
+        # 4s - 8s: 5x leverage & input 50 USDC
+        move_cursor_to_element(page, ".leverage-presets button:has-text('5x'), button:has-text('5x')", click=True, wait_ms=500)
+        move_cursor_to_element(page, ".field input, input[placeholder='100.00']", click=True, wait_ms=300)
+        page.keyboard.type("50", delay=70)
+        page.wait_for_timeout(400)
+
+        # 8s - 13s: TP (+50%) & SL (-20%) toggles & liquidation price
+        move_cursor_to_element(page, ".tpsl-pills button:has-text('50%'), button:has-text('+50%')", click=True, wait_ms=500)
+        move_cursor_to_element(page, ".tpsl-pills button:has-text('20%'), button:has-text('-20%')", click=True, wait_ms=500)
+        move_cursor_to_coords(page, 1650, 520, wait_ms=600)
+
+        # 13s - 17s: Click execute trade button ("LONG $ARCPUP (5x)")
+        move_cursor_to_element(page, ".trade-action-btn", click=True, wait_ms=1000)
+        page.wait_for_timeout(800)
+
+        # 17s - 21s: Click "Share PnL Flex Card" on green notification
+        move_cursor_to_element(page, ".share-pnl-trigger, button:has-text('Share PnL Flex Card')", click=True, wait_ms=1000)
         page.wait_for_timeout(600)
 
-        # 9s - 14s: TP (+50%) & SL (-20%) toggles & liquidation price
-        move_cursor_to_element(page, "button:has-text('+50%'), button:has-text('50%')", click=True, wait_ms=600)
-        move_cursor_to_element(page, "button:has-text('-20%'), button:has-text('20%')", click=True, wait_ms=600)
-        move_cursor_to_coords(page, 1650, 440, wait_ms=800)
-
-        # 14s - 18s: Click "Open Long Position"
-        move_cursor_to_element(page, ".trade-action-btn, button:has-text('Open Long'), button:has-text('Submit')", click=True, wait_ms=1200)
-
-        # 18s - 22s: Scroll down to active position & click "Share"
-        smooth_scroll(page, 280, steps=6, interval=40)
-        page.wait_for_timeout(600)
-        move_cursor_to_element(page, "button:has-text('Positions'), .panel-heading button:has-text('Open Positions')", click=True, wait_ms=600)
-        move_cursor_to_coords(page, 350, 480, wait_ms=800)
-        move_cursor_to_element(page, "button:has-text('Share'), .share-pnl-btn, button[title*='Share']", click=True, wait_ms=1000)
-        page.wait_for_timeout(600)
-
-        # 22s - 26.83s: Explore PnL Brag Card Modal & Close
-        move_cursor_to_coords(page, 960, 360, wait_ms=800)
-        move_cursor_to_coords(page, 960, 500, wait_ms=800)
-        move_cursor_to_element(page, ".modal-close, button:has-text('✕'), button:has-text('Close')", click=True, wait_ms=600)
-        smooth_scroll(page, -280, steps=6, interval=35)
-        page.wait_for_timeout(600)
+        # 21s - 26.83s: Explore PnL Brag Card Modal & Close
+        move_cursor_to_coords(page, 960, 360, wait_ms=700)
+        move_cursor_to_coords(page, 960, 480, wait_ms=700)
+        move_cursor_to_element(page, ".modal-close, button:has-text('✕')", click=True, wait_ms=500)
 
         sync_scene_time("Scene 7", s7_start, 26.83, page)
 
@@ -398,33 +398,37 @@ def record_demo():
         page.goto("https://cluster-terminal.vercel.app/vault", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 4s - 11s: Highlight ALP NAV, 18.4% APY, and capital split
-        move_cursor_to_coords(page, 320, 80, wait_ms=800)
-        move_cursor_to_coords(page, 550, 80, wait_ms=800)
-        move_cursor_to_coords(page, 260, 160, wait_ms=800)
-        move_cursor_to_coords(page, 650, 160, wait_ms=800)
-        move_cursor_to_coords(page, 1050, 160, wait_ms=800)
+        # 4s - 8s: Highlight ALP NAV & 18.4% APY
+        move_cursor_to_coords(page, 320, 140, wait_ms=600)
+        move_cursor_to_coords(page, 550, 140, wait_ms=600)
 
-        # 11s - 15s: Move to Profile in top nav
+        # 8s - 13s: Active LP deposit: enter 250 USDC and deposit
+        move_cursor_to_element(page, "input[placeholder*='0.00'], .proof-card input", click=True, wait_ms=300)
+        page.keyboard.type("250", delay=70)
+        page.wait_for_timeout(300)
+        move_cursor_to_element(page, ".proof-card button:has-text('Deposit'), button:has-text('Deposit USDC')", click=True, wait_ms=800)
+        page.wait_for_timeout(500)
+
+        # 13s - 16s: Move to Profile in top nav
         page.goto("https://cluster-terminal.vercel.app/profile", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 15s - 20s: Switch to "Avatars & Persona" tab and select an avatar
-        move_cursor_to_element(page, "button:has-text('Avatars'), .profile-tab-btn:nth-child(2)", click=True, wait_ms=800)
-        page.wait_for_timeout(600)
-        move_cursor_to_coords(page, 220, 260, wait_ms=500)
+        # 16s - 21s: Switch to "Avatars & Persona" tab and select an avatar
+        move_cursor_to_element(page, "button:has-text('Avatars'), .profile-tab-btn:nth-child(2)", click=True, wait_ms=600)
+        page.wait_for_timeout(400)
+        move_cursor_to_coords(page, 220, 260, wait_ms=400)
         move_cursor_to_coords(page, 420, 260, wait_ms=400)
         page.evaluate("window.__clickCursor()")
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(500)
 
-        # 20s - 25.82s: Switch to "Trading Defaults", select 5x, & final wave
-        move_cursor_to_element(page, "button:has-text('Defaults'), .profile-tab-btn:nth-child(4)", click=True, wait_ms=800)
-        page.wait_for_timeout(600)
+        # 21s - 25.82s: Switch to "Trading Defaults", select 5x, & final wave
+        move_cursor_to_element(page, "button:has-text('Defaults'), .profile-tab-btn:nth-child(4)", click=True, wait_ms=600)
+        page.wait_for_timeout(400)
         move_cursor_to_element(page, ".profile-content-panel button:has-text('5x')", click=True, wait_ms=500)
-        move_cursor_to_coords(page, 960, 300, wait_ms=500)
-        move_cursor_to_coords(page, 1020, 280, wait_ms=400)
-        move_cursor_to_coords(page, 900, 280, wait_ms=400)
-        move_cursor_to_coords(page, 960, 290, wait_ms=800)
+        move_cursor_to_coords(page, 960, 300, wait_ms=400)
+        move_cursor_to_coords(page, 1020, 280, wait_ms=300)
+        move_cursor_to_coords(page, 900, 280, wait_ms=300)
+        move_cursor_to_coords(page, 960, 290, wait_ms=600)
 
         sync_scene_time("Scene 9", s9_start, 25.82, page)
 
