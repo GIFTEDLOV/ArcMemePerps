@@ -1,10 +1,11 @@
 {
-  "scene1_landing": 31.85,
-  "scene2_tour": 21.98,
-  "scene3_markets": 27.79,
-  "scene4_chart": 27.34,
-  "scene5_trade": 28.01,
-  "scene6_positions": 22.99,
-  "scene7_vault": 27.79,
-  "scene8_profile": 24.91
+  "scene1_landing": 30.14,
+  "scene2_memes": 23.81,
+  "scene3_trending": 15.96,
+  "scene4_tour": 27.5,
+  "scene5_markets": 25.42,
+  "scene6_chart_passport": 26.66,
+  "scene7_trade_positions": 26.83,
+  "scene8_competitions_proof": 21.65,
+  "scene9_vault_profile": 25.82
 }

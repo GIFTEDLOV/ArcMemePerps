@@ -5,13 +5,14 @@ import imageio_ffmpeg
 ffmpeg_exe = imageio_ffmpeg.get_ffmpeg_exe()
 files = [
     'scripts/demo/demo_audio/scene1_landing.mp3',
-    'scripts/demo/demo_audio/scene2_tour.mp3',
-    'scripts/demo/demo_audio/scene3_markets.mp3',
-    'scripts/demo/demo_audio/scene4_chart.mp3',
-    'scripts/demo/demo_audio/scene5_trade.mp3',
-    'scripts/demo/demo_audio/scene6_positions.mp3',
-    'scripts/demo/demo_audio/scene7_vault.mp3',
-    'scripts/demo/demo_audio/scene8_profile.mp3'
+    'scripts/demo/demo_audio/scene2_memes.mp3',
+    'scripts/demo/demo_audio/scene3_trending.mp3',
+    'scripts/demo/demo_audio/scene4_tour.mp3',
+    'scripts/demo/demo_audio/scene5_markets.mp3',
+    'scripts/demo/demo_audio/scene6_chart_passport.mp3',
+    'scripts/demo/demo_audio/scene7_trade_positions.mp3',
+    'scripts/demo/demo_audio/scene8_competitions_proof.mp3',
+    'scripts/demo/demo_audio/scene9_vault_profile.mp3'
 ]
 
 list_path = 'scripts/demo/demo_audio/concat_list.txt'

@@ -8,35 +8,39 @@ import imageio_ffmpeg
 SCENES = [
     {
         "id": "scene1_landing",
-        "text": "Welcome to CLUSTER, the premier decentralized perpetual futures exchange engineered specifically for volatile meme assets, settling natively in USDC on Arc Network. Here on our official landing page, you can see our core mission: sub-second multichain discovery, dynamic leverage capacity, and 100% physically backed Arc USDC clearing. Notice our live preview ticker and institutional metrics. Now let's click 'Launch Terminal' and dive directly into the live trading experience."
+        "text": "Welcome to CLUSTER, the premier decentralized perpetual futures protocol built natively on Arc Mainnet, settled entirely in USDC. We begin on our official landing page. Notice the floating header with direct links to our trading environments. In the center, our hero highlights sub-second discovery and physically backed clearing. Below, the live ticker displays real-time trending pairs. Let's click 'Launch Memes Terminal' to enter the live floor."
     },
     {
-        "id": "scene2_tour",
-        "text": "When connecting your wallet for the first time, CLUSTER presents an interactive onboarding tour. Notice how the spotlight gracefully guides new traders through critical interfaces: top-level market health, live candlestick charting, real-time risk scores, and the isolated perpetual order rail. You can step through each spotlight or jump straight into the terminal."
+        "id": "scene2_memes",
+        "text": "Here on the Memes tab, traders get instant access to the trenches. CLUSTER continuously monitors mempools across Solana, Base, and Arc, displaying raw deployments with live liquidity, age, and 24-hour volume. You can scan newly deployed tokens before they hit major trackers. Now let's explore our top navigation tabs by clicking 'Trending'."
     },
     {
-        "id": "scene3_markets",
-        "text": "On the Markets Discovery Terminal, CLUSTER continuously indexes over two hundred and sixty meme markets across Solana, Arc, Base, and BNB. Users can filter by trending gainers, 24-hour volume, or liquidity depth. Most importantly, CLUSTER enforces a mathematical 5-Gate qualification engine. While discovery is open to all tokens, only mathematically verified tokens can unlock leveraged trading."
+        "id": "scene3_trending",
+        "text": "On the Trending tab, the terminal highlights the strongest volume and momentum leaders on Arc with dynamic price change indicators. Next, let's click into the Markets tab, where tokens undergo full institutional qualification before unlocking perpetual leverage."
     },
     {
-        "id": "scene4_chart",
-        "text": "Now inside the Token Trading Terminal, you see a compact, high-density layout inspired by GMGN. At the top, traders get instant contract copy tools, verification tags, and direct links to ArcScan. In the center is the real-time candlestick chart powered by DexScreener, paired directly with our institutional Risk Passport below, which inspects holder concentration, liquidity floors, and mint authority in real time."
+        "id": "scene4_tour",
+        "text": "Whenever a new trader arrives, CLUSTER launches an interactive visual onboarding tour. The terminal spotlights critical areas: first, our Chain Identity and Solvency Hub. Let's click 'Next' to spotlight the navigation bar. Clicking 'Next' again highlights our live search tool. And clicking 'Next' takes us straight into the live order rail. Let's click 'Start Trading' to complete the tour."
     },
     {
-        "id": "scene5_trade",
-        "text": "Executing a trade is completely non-custodial and instantaneous. On the right execution rail, choose Long or Short, select leverage up to 5x, and input your margin collateral in native Arc USDC. Notice the real-time liquidation price breakdown, borrowing cost calculations, and integrated Take-Profit and Stop-Loss triggers. Clicking 'Open Position' sends the transaction directly to Arc's high-speed blockspace."
+        "id": "scene5_markets",
+        "text": "Now on the Markets directory, you can filter through all qualified perpetual assets. Let's test the instant search: typing 'BSW' filters matching tokens in milliseconds. We also have category quick-filters: Hot and Gainers. Notice the 5-Gate Anti-Rug badges verifying on-chain liquidity floors. Let's click into ARCPUP to analyze its live terminal."
     },
     {
-        "id": "scene6_positions",
-        "text": "Once executed, your open position is tracked live in the bottom console with sub-second mark price updates, dynamic margin ratios, and real-time unrealized PnL. Traders can celebrate their wins by clicking Share, instantly generating a high-resolution cyberpunk PnL brag card complete with their custom avatar, entry details, and scan-able QR code ready for X and Telegram."
+        "id": "scene6_chart_passport",
+        "text": "Inside the Token Detail workspace, we have a high-density GMGN-style terminal. At the top, click the contract chip to copy the contract address with instant visual confirmation. In the center is the real-time DexScreener candlestick chart. Scrolling down reveals the Anti-Rug Risk Passport, showing verified liquidity floors, zero percent tax honeypot checks, and real USDC custody proof."
     },
     {
-        "id": "scene7_vault",
-        "text": "Next, let's explore the Public LP Vault. CLUSTER solves the classic vulnerability where toxic meme liquidations drain LP pools. Our vault implements donation-immune ERC-4626 share pricing with two-phase queued withdrawals and loss-aware accounting. Trading losses and liquidation bad debt are segregated without double-counting, ensuring the LP net asset value remains mathematically solvent at all times."
+        "id": "scene7_trade_positions",
+        "text": "Executing a trade is fast and non-custodial. On the right rail, we select Long, choose 5x leverage, and enter 50 USDC collateral. We toggle Take-Profit and Stop-Loss triggers with dynamic liquidation pricing, and click 'Open Position'. Looking at our active position below, we click 'Share' to pop up the cyberpunk PnL brag card, complete with our avatar and scan-able QR code."
     },
     {
-        "id": "scene8_profile",
-        "text": "Finally, the Trader Profile dashboard displays your verified Arc identity, physical USDC custody balances, and platform activity. Here you can personalize your trading terminal with twelve custom cyberpunk avatars, configure default leverage and slippage limits, and view our cryptographic solvency ledger. That is CLUSTER—fail-closed safety and lightning speed for meme perps on Arc."
+        "id": "scene8_competitions_proof",
+        "text": "Now let's explore our platform tabs. Clicking Competitions opens the Arc Season 1 Meme Perps Championship with a 25,000 dollar USDC prize pool and live trader rankings. Next, clicking Protocol Proof opens our cryptographic Solvency Ledger, displaying verified USDC margin custody and insurance fund coverage."
+    },
+    {
+        "id": "scene9_vault_profile",
+        "text": "Finally, clicking ALP Earn opens the Public LP Vault. CLUSTER enforces donation-immune ERC-4626 accounting with loss-aware netting, ensuring LP capital is never drained by liquidation bad debt. Lastly, clicking Profile lets you select from 12 cyberpunk avatars and customize trading defaults. That is CLUSTER—the future of meme perpetuals on Arc."
     }
 ]
 
