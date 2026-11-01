@@ -56,6 +56,9 @@ CURSOR_SCRIPT = """
       email: 'trader@cluster.arc',
       address: '0x7a250d5630b4cf539739df2c5dacb4c659f2488d'
     }));
+    // Pre-suppress tour so Scenes 1, 2, 3 remain clean
+    window.localStorage.setItem('arcmemeperps.tour_done.0x7a250d5630b4cf539739df2c5dacb4c659f2488d', 'true');
+    window.localStorage.setItem('arcmemeperps.tour_done.null', 'true');
   } catch (e) {}
 
   if (document.body) setup();
@@ -85,7 +88,7 @@ def move_cursor_to_element(page, selector, click=False, wait_ms=300, timeout=150
                         pass
                     page.wait_for_timeout(wait_ms)
                 return True
-    except Exception as e:
+    except Exception:
         pass
     return False
 
@@ -132,14 +135,14 @@ def record_demo():
         page.goto("https://cluster-terminal.vercel.app/landing", wait_until="domcontentloaded")
         page.wait_for_timeout(1000)
         
-        # 0s - 5s: Gliding across floating navigation
+        # 0s - 6s: Floating navigation links
         move_cursor_to_coords(page, 240, 28, wait_ms=600)
         move_cursor_to_coords(page, 380, 28, wait_ms=600)
         move_cursor_to_coords(page, 450, 28, wait_ms=600)
         move_cursor_to_coords(page, 520, 28, wait_ms=600)
         move_cursor_to_coords(page, 640, 28, wait_ms=800)
 
-        # 5s - 14s: Tracing Hero Headline & Subtitle
+        # 6s - 14s: Tracing Hero Headline & Subtitle
         move_cursor_to_coords(page, 960, 220, wait_ms=1200)
         move_cursor_to_coords(page, 960, 290, wait_ms=1200)
         move_cursor_to_coords(page, 960, 390, wait_ms=1200)
@@ -158,12 +161,7 @@ def record_demo():
         # 26s - 30.14s: Move to "Launch Memes Terminal" CTA and click
         move_cursor_to_coords(page, 860, 520, wait_ms=800)
         page.evaluate("window.__clickCursor()")
-        page.wait_for_timeout(400)
-        page.evaluate("""(() => {
-            const btn = document.querySelector('a[href="/memes"], a[href="/markets"], .launch-btn');
-            if (btn) btn.click();
-        })()""")
-        page.wait_for_timeout(600)
+        page.wait_for_timeout(500)
         
         sync_scene_time("Scene 1", s1_start, 30.14, page)
 
@@ -172,29 +170,29 @@ def record_demo():
         # ==========================================
         s2_start = time.time()
         print("Starting Scene 2: Memes Trenches Tab (/memes) (23.81s)...")
-        if "/memes" not in page.url:
-            page.goto("https://cluster-terminal.vercel.app/memes", wait_until="domcontentloaded")
+        page.goto("https://cluster-terminal.vercel.app/memes", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 0s - 5s: Highlight active "Memes" nav pill & feed header
-        move_cursor_to_coords(page, 220, 25, wait_ms=800)
-        move_cursor_to_coords(page, 450, 80, wait_ms=800)
+        # 0s - 5s: Active "Memes" nav pill & feed header
+        move_cursor_to_coords(page, 130, 25, wait_ms=800)
+        move_cursor_to_coords(page, 180, 80, wait_ms=800)
 
         # 5s - 13s: Sweeping across live meme rows & liquidity badges
-        move_cursor_to_coords(page, 450, 160, wait_ms=1000)
-        move_cursor_to_coords(page, 850, 160, wait_ms=1000)
-        move_cursor_to_coords(page, 1250, 160, wait_ms=1000)
-        move_cursor_to_coords(page, 450, 240, wait_ms=1000)
+        move_cursor_to_coords(page, 200, 180, wait_ms=900)
+        move_cursor_to_coords(page, 520, 180, wait_ms=900)
+        move_cursor_to_coords(page, 850, 180, wait_ms=900)
+        move_cursor_to_coords(page, 200, 270, wait_ms=900)
+        move_cursor_to_coords(page, 520, 270, wait_ms=900)
 
-        # 13s - 19s: Scroll down to reveal mempool depth, then scroll back up
+        # 13s - 18s: Scroll down to reveal mempool depth, then scroll back up
         smooth_scroll(page, 280, steps=8, interval=40)
-        page.wait_for_timeout(800)
-        move_cursor_to_coords(page, 850, 350, wait_ms=1000)
-        smooth_scroll(page, -280, steps=8, interval=35)
         page.wait_for_timeout(600)
+        move_cursor_to_coords(page, 520, 360, wait_ms=800)
+        smooth_scroll(page, -280, steps=8, interval=35)
+        page.wait_for_timeout(500)
 
-        # 19s - 23.81s: Move to "Trending" tab in header and click
-        move_cursor_to_element(page, "nav a[href='/trending'], header a:has-text('Trending')", click=True, wait_ms=1000)
+        # 18s - 23.81s: Move to "Trending" tab in header and click
+        move_cursor_to_element(page, "nav a[href='/trending'], a:has-text('Trending')", click=True, wait_ms=800)
         
         sync_scene_time("Scene 2", s2_start, 23.81, page)
 
@@ -208,17 +206,17 @@ def record_demo():
         page.wait_for_timeout(800)
 
         # 0s - 5s: Highlight active Trending tab
-        move_cursor_to_coords(page, 280, 25, wait_ms=600)
-        move_cursor_to_coords(page, 450, 150, wait_ms=800)
+        move_cursor_to_coords(page, 180, 25, wait_ms=600)
+        move_cursor_to_coords(page, 320, 150, wait_ms=800)
 
         # 5s - 11s: Sweep over top gainers & volume columns
-        move_cursor_to_coords(page, 850, 150, wait_ms=800)
-        move_cursor_to_coords(page, 1250, 150, wait_ms=800)
-        move_cursor_to_coords(page, 450, 220, wait_ms=800)
+        move_cursor_to_coords(page, 650, 220, wait_ms=800)
+        move_cursor_to_coords(page, 950, 220, wait_ms=800)
+        move_cursor_to_coords(page, 1250, 220, wait_ms=800)
 
         # 11s - 15.96s: Move to "Markets" tab in header and click
-        move_cursor_to_element(page, "nav a[href='/markets'], header a:has-text('Markets')", click=True, wait_ms=1000)
-
+        move_cursor_to_element(page, "nav a[href='/markets'], a:has-text('Markets')", click=True, wait_ms=800)
+        
         sync_scene_time("Scene 3", s3_start, 15.96, page)
 
         # ==========================================
@@ -228,35 +226,36 @@ def record_demo():
         print("Starting Scene 4: Interactive Onboarding Tour (27.50s)...")
         if "/markets" not in page.url:
             page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
+        page.wait_for_timeout(600)
+
+        # 0s: Trigger the interactive onboarding tour right as the voiceover introduces it!
+        page.evaluate('window.dispatchEvent(new CustomEvent("arcmemeperps:start_tour"))')
         page.wait_for_timeout(800)
 
-        # Dispatch tour trigger event
-        page.evaluate('window.dispatchEvent(new CustomEvent("arcmemeperps:start_tour"))')
-        page.wait_for_timeout(1000)
-
-        # 0s - 6s: Spotlight on Step 1 (Chain Identity & Solvency Hub)
-        move_cursor_to_coords(page, 150, 25, wait_ms=1000)
-        move_cursor_to_coords(page, 320, 240, wait_ms=1200)
+        # 0s - 6s: Spotlight on Chain Identity & Solvency Hub (.gmgn-brand)
+        move_cursor_to_coords(page, 80, 25, wait_ms=800)
+        move_cursor_to_coords(page, 120, 180, wait_ms=1000)
 
         # 6s - 12s: Click "Next →" to advance to Step 2 (Navigation Bar)
-        move_cursor_to_element(page, ".tour-next-btn, .tour-card button:has-text('Next')", click=True, wait_ms=1000)
-        page.wait_for_timeout(600)
-        move_cursor_to_coords(page, 320, 25, wait_ms=1000)
-        move_cursor_to_coords(page, 320, 260, wait_ms=1200)
+        move_cursor_to_element(page, ".tour-card button:has-text('Next'), .tour-next-btn", click=True, wait_ms=800)
+        page.wait_for_timeout(400)
+        move_cursor_to_coords(page, 320, 25, wait_ms=800)
+        move_cursor_to_coords(page, 320, 220, wait_ms=1000)
 
         # 12s - 18s: Click "Next →" to advance to Step 3 (Quick Search)
-        move_cursor_to_element(page, ".tour-next-btn, .tour-card button:has-text('Next')", click=True, wait_ms=1000)
-        page.wait_for_timeout(600)
-        move_cursor_to_coords(page, 720, 25, wait_ms=1000)
-        move_cursor_to_coords(page, 720, 260, wait_ms=1200)
+        move_cursor_to_element(page, ".tour-card button:has-text('Next'), .tour-next-btn", click=True, wait_ms=800)
+        page.wait_for_timeout(400)
+        move_cursor_to_coords(page, 720, 25, wait_ms=800)
+        move_cursor_to_coords(page, 720, 220, wait_ms=1000)
 
         # 18s - 23s: Click "Next →" to advance to Step 4 (Order Rail)
-        move_cursor_to_element(page, ".tour-next-btn, .tour-card button:has-text('Next')", click=True, wait_ms=1000)
-        page.wait_for_timeout(600)
-        move_cursor_to_coords(page, 1600, 300, wait_ms=1200)
+        move_cursor_to_element(page, ".tour-card button:has-text('Next'), .tour-next-btn", click=True, wait_ms=800)
+        page.wait_for_timeout(400)
+        move_cursor_to_coords(page, 1600, 260, wait_ms=1200)
 
         # 23s - 27.50s: Click "Start Trading" or "Skip" to complete tour cleanly
-        move_cursor_to_element(page, ".tour-card button:has-text('Start'), .tour-card button:has-text('Skip'), .tour-next-btn", click=True, wait_ms=1000)
+        move_cursor_to_element(page, ".tour-card button:has-text('Start'), .tour-card button:has-text('Skip'), .tour-card button:has-text('Next')", click=True, wait_ms=800)
+        page.wait_for_timeout(500)
 
         sync_scene_time("Scene 4", s4_start, 27.50, page)
 
@@ -267,7 +266,7 @@ def record_demo():
         print("Starting Scene 5: Markets Directory & Anti-Rug (25.42s)...")
         if "/markets" not in page.url:
             page.goto("https://cluster-terminal.vercel.app/markets", wait_until="domcontentloaded")
-        page.wait_for_timeout(800)
+        page.wait_for_timeout(600)
 
         # 0s - 7s: Instant search typing "BSW" and clearing
         move_cursor_to_element(page, "input[placeholder*='Search'], .global-search input, .toolbar-search input", click=True, wait_ms=300)
@@ -334,31 +333,39 @@ def record_demo():
         print("Starting Scene 7: Trade Execution & PnL Brag Card (26.83s)...")
         # 0s - 4s: Move to trade rail & select Buy / Long
         move_cursor_to_coords(page, 1650, 140, wait_ms=500)
-        move_cursor_to_element(page, "button:has-text('Buy / Long'), .gmgn-btn-buy, button:has-text('Long')", click=True, wait_ms=500)
+        move_cursor_to_element(page, "button:has-text('Buy / Long'), .gmgn-btn-buy, button:has-text('Long')", click=True, wait_ms=600)
 
-        # 4s - 8s: 5x leverage & input 50 USDC
-        move_cursor_to_element(page, ".leverage-presets button:has-text('5x'), button:has-text('5x')", click=True, wait_ms=500)
-        move_cursor_to_element(page, ".field input, input[placeholder='100.00']", click=True, wait_ms=300)
-        page.keyboard.type("50", delay=70)
-        page.wait_for_timeout(400)
+        # 4s - 8s: 5x leverage
+        move_cursor_to_element(page, ".leverage-presets button:has-text('5x'), button:has-text('5x')", click=True, wait_ms=700)
 
-        # 8s - 13s: TP (+50%) & SL (-20%) toggles & liquidation price
+        # 8s - 12s: Input exactly 50 USDC collateral (clears default and fills 50)
+        input_el = page.wait_for_selector(".field input")
+        if input_el:
+            box = input_el.bounding_box()
+            if box:
+                move_cursor_to_coords(page, box['x'] + box['width']/2, box['y'] + box['height']/2, wait_ms=300)
+                page.evaluate("window.__clickCursor()")
+            input_el.fill("50")
+        page.wait_for_timeout(800)
+
+        # 12s - 15.5s: TP (+50%) & SL (-20%) toggles & liquidation price
         move_cursor_to_element(page, ".tpsl-pills button:has-text('50%'), button:has-text('+50%')", click=True, wait_ms=500)
         move_cursor_to_element(page, ".tpsl-pills button:has-text('20%'), button:has-text('-20%')", click=True, wait_ms=500)
         move_cursor_to_coords(page, 1650, 520, wait_ms=600)
 
-        # 13s - 17s: Click execute trade button ("LONG $ARCPUP (5x)")
+        # 15.5s - 18s: Click "LONG $ARCPUP (5x)" exactly when voice says "and click Open Position"
         move_cursor_to_element(page, ".trade-action-btn", click=True, wait_ms=1000)
         page.wait_for_timeout(800)
 
-        # 17s - 21s: Click "Share PnL Flex Card" on green notification
-        move_cursor_to_element(page, ".share-pnl-trigger, button:has-text('Share PnL Flex Card')", click=True, wait_ms=1000)
-        page.wait_for_timeout(600)
+        # 18s - 22s: Voice says "Looking at our active position below, we click Share to pop up the brag card"
+        # The brag card opens upon execution. Cursor inspects ROI, entry price, Arc USDC settlement
+        move_cursor_to_coords(page, 960, 340, wait_ms=800)
+        move_cursor_to_coords(page, 960, 480, wait_ms=800)
 
-        # 21s - 26.83s: Explore PnL Brag Card Modal & Close
-        move_cursor_to_coords(page, 960, 360, wait_ms=700)
-        move_cursor_to_coords(page, 960, 480, wait_ms=700)
-        move_cursor_to_element(page, ".modal-close, button:has-text('✕')", click=True, wait_ms=500)
+        # 22s - 26.83s: Close modal cleanly by clicking backdrop
+        page.evaluate("document.querySelector('.pnl-modal-backdrop')?.click()")
+        page.wait_for_timeout(500)
+        move_cursor_to_coords(page, 960, 600, wait_ms=800)
 
         sync_scene_time("Scene 7", s7_start, 26.83, page)
 
@@ -367,21 +374,22 @@ def record_demo():
         # ==========================================
         s8_start = time.time()
         print("Starting Scene 8: Competitions & Protocol Proof Tabs (21.65s)...")
-        # 0s - 4s: Click Competitions tab in top nav
+        # 0s - 10.5s: Click Competitions tab in top nav
         page.goto("https://cluster-terminal.vercel.app/competitions", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 4s - 10s: Highlight Championship title, $25,000 prize pool, & leaderboard
-        move_cursor_to_coords(page, 500, 100, wait_ms=800)
-        move_cursor_to_coords(page, 850, 100, wait_ms=800)
-        move_cursor_to_coords(page, 500, 220, wait_ms=800)
-        move_cursor_to_coords(page, 850, 220, wait_ms=800)
+        # Highlight Championship title, $25,000 prize pool, & leaderboard
+        move_cursor_to_coords(page, 450, 95, wait_ms=900)
+        move_cursor_to_coords(page, 850, 95, wait_ms=900)
+        move_cursor_to_coords(page, 450, 220, wait_ms=900)
+        move_cursor_to_coords(page, 850, 220, wait_ms=900)
+        move_cursor_to_coords(page, 450, 320, wait_ms=900)
 
-        # 10s - 14s: Move to "Proof" tab in header and click
+        # 10.5s - 21.65s: Move to "Proof" tab in header when voiceover says "Next, clicking Protocol Proof opens..."
         page.goto("https://cluster-terminal.vercel.app/proof", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 14s - 21.65s: Highlight Solvency Ledger & USDC physical custody
+        # Highlight Solvency Ledger & USDC physical custody
         move_cursor_to_coords(page, 450, 100, wait_ms=800)
         move_cursor_to_coords(page, 850, 100, wait_ms=800)
         move_cursor_to_coords(page, 450, 220, wait_ms=800)
@@ -394,26 +402,31 @@ def record_demo():
         # ==========================================
         s9_start = time.time()
         print("Starting Scene 9: Public LP Vault & Profile (25.82s)...")
-        # 0s - 4s: Click ALP Earn / Vault in top nav
-        page.goto("https://cluster-terminal.vercel.app/vault", wait_until="domcontentloaded")
+        # 0s - 12s: Click ALP Earn (/earn) in top nav
+        page.goto("https://cluster-terminal.vercel.app/earn", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 4s - 8s: Highlight ALP NAV & 18.4% APY
-        move_cursor_to_coords(page, 320, 140, wait_ms=600)
-        move_cursor_to_coords(page, 550, 140, wait_ms=600)
+        # Highlight ALP NAV, 18.4% APY, and capital split
+        move_cursor_to_coords(page, 320, 140, wait_ms=700)
+        move_cursor_to_coords(page, 550, 140, wait_ms=700)
 
-        # 8s - 13s: Active LP deposit: enter 250 USDC and deposit
-        move_cursor_to_element(page, "input[placeholder*='0.00'], .proof-card input", click=True, wait_ms=300)
-        page.keyboard.type("250", delay=70)
-        page.wait_for_timeout(300)
-        move_cursor_to_element(page, ".proof-card button:has-text('Deposit'), button:has-text('Deposit USDC')", click=True, wait_ms=800)
+        # Interactive deposit: enter 250 USDC and deposit into LP Vault
+        dep_input = page.wait_for_selector("input[type='number']")
+        if dep_input:
+            box = dep_input.bounding_box()
+            if box:
+                move_cursor_to_coords(page, box['x'] + box['width']/2, box['y'] + box['height']/2, wait_ms=300)
+                page.evaluate("window.__clickCursor()")
+            dep_input.fill("250")
         page.wait_for_timeout(500)
+        move_cursor_to_element(page, "button:has-text('Deposit'), button:has-text('Deposit USDC')", click=True, wait_ms=800)
+        page.wait_for_timeout(600)
 
-        # 13s - 16s: Move to Profile in top nav
+        # 12s - 25.82s: Move to Profile in top nav when voice says "Lastly, clicking Profile..."
         page.goto("https://cluster-terminal.vercel.app/profile", wait_until="domcontentloaded")
         page.wait_for_timeout(800)
 
-        # 16s - 21s: Switch to "Avatars & Persona" tab and select an avatar
+        # Switch to "Avatars & Persona" tab and select an avatar
         move_cursor_to_element(page, "button:has-text('Avatars'), .profile-tab-btn:nth-child(2)", click=True, wait_ms=600)
         page.wait_for_timeout(400)
         move_cursor_to_coords(page, 220, 260, wait_ms=400)
@@ -421,7 +434,7 @@ def record_demo():
         page.evaluate("window.__clickCursor()")
         page.wait_for_timeout(500)
 
-        # 21s - 25.82s: Switch to "Trading Defaults", select 5x, & final wave
+        # Switch to "Trading Defaults", select 5x, & final wave
         move_cursor_to_element(page, "button:has-text('Defaults'), .profile-tab-btn:nth-child(4)", click=True, wait_ms=600)
         page.wait_for_timeout(400)
         move_cursor_to_element(page, ".profile-content-panel button:has-text('5x')", click=True, wait_ms=500)
@@ -433,10 +446,10 @@ def record_demo():
         sync_scene_time("Scene 9", s9_start, 25.82, page)
 
         print("Recording complete! Closing context...")
+        page.close()
         context.close()
         browser.close()
-
-    print("Raw video recorded successfully!")
+        print("Raw video recorded successfully!")
 
 if __name__ == "__main__":
     record_demo()
