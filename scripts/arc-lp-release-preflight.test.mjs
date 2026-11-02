@@ -10,6 +10,7 @@ const template = JSON.parse(readFileSync(
 ));
 const source = Object.fromEntries([
   "contracts/src/PublicLPVault.sol",
+  "contracts/src/PerpEngine.sol",
   "contracts/src/USDCMarginVault.sol",
   "scripts/arc-mainnet-deployment.ts",
   "scripts/deploy-mainnet-suite.ts",
@@ -61,6 +62,16 @@ test("approval checkboxes do not bypass unverified PerpEngine accounting", () =>
   const result = evaluateLpReleasePlan(plan, source, fakeHead);
   assert.equal(result.status, "NO_GO");
   assert.ok(result.blockers.includes("TRADER_PNL_TO_LP_NAV_INTEGRATION_UNVERIFIED"));
+});
+
+test("missing engine settlement epoch is an unconditional release blocker", () => {
+  const broken = { ...source,
+    "contracts/src/PerpEngine.sol": source["contracts/src/PerpEngine.sol"]
+      .replace("uint256 public settlementSequence;", "uint256 public omittedSettlementEpoch;"),
+  };
+  const result = evaluateLpReleasePlan(template, broken, fakeHead);
+  assert.equal(result.status, "NO_GO");
+  assert.ok(result.blockers.includes("ENGINE_SETTLEMENT_SEQUENCE_GUARD_MISSING"));
 });
 
 test("historical mainnet broadcaster may not be re-enabled", () => {
