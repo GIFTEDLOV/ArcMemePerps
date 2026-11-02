@@ -1,11 +1,15 @@
 # CLUSTER (ArcMemePerps): Arc Studio Hackathon Official Submission Dossier
 
+> [!IMPORTANT]
+> **Steward review update — November 2, 2026:** This submission dossier contains historical snapshots, not a current attestation that live trading, liquidity, keeper infrastructure, or every indexer checkpoint is operational. The mainnet historical LP remains inactive and security PR #28 is **unmerged and undeployed**. Read [the current steward verification and limitations](CLUSTER_STEWARD_REVIEW_STATUS_2026-11-02.md) before relying on any production or audit claim below. The 77-test Foundry security suite and the keyless Arc fork simulation passed, but Issue #29 remains a blocker for public trading-backed LP activation.
+
+
 **Project Name:** CLUSTER (ArcMemePerps)  
 **Tagline:** High-Velocity Meme Perpetual Futures with Multi-Source Oracle Verification and Donation-Immune LP Accounting on Arc Network.  
 **Repository:** [https://github.com/GIFTEDLOV/ArcMemePerps](https://github.com/GIFTEDLOV/ArcMemePerps)  
 **Production API:** [https://cluster-readonly-api.vercel.app](https://cluster-readonly-api.vercel.app)  
 **Interactive Web Terminal:** [https://cluster-hackathon-preview.vercel.app](https://cluster-hackathon-preview.vercel.app)  
-**Demo Video:** [`arcmemeperps_3min_demo.mp4`](file:///C:/Users/DELL/.gemini/antigravity/brain/75966656-aa47-446b-98b6-6357ca8e94a7/arcmemeperps_3min_demo.mp4)  
+**Demo Video:** [`arcmemeperps_3min_demo.mp4` (public GitHub source)](https://github.com/GIFTEDLOV/ArcMemePerps/blob/main/arcmemeperps_3min_demo.mp4)  
 **Track:** DeFi & Derivatives / Arc Ecosystem  
 
 ---
@@ -98,7 +102,7 @@ ArcMemePerps/
 
 ---
 
-## 5. Live Verification Endpoints
+## 5. Published API Endpoints (recheck live responses)
 
 1. **Production Protocol Status**:  
    [`https://cluster-readonly-api.vercel.app/api/v1/protocol/status`](https://cluster-readonly-api.vercel.app/api/v1/protocol/status)  
@@ -118,12 +122,12 @@ ArcMemePerps/
 
 ---
 
-## 6. Official Submission Checklist
+## 6. Historical Submission Checklist (not current mainnet approval)
 
-- [x] **Smart Contracts Verified**: 104 Foundry test suites passing, invariant fuzzing clean.
+- [x] **Historical contract test evidence exists**. New security PR #28 has independently recorded 77 Foundry tests passing, but the new contract bytecode is **not deployed**; this is not an external audit.
 - [x] **LP-Margin Bridge Integrated**: PR #26 reviewed and merged to `main` (`6ba8b12`).
 - [x] **Testnet Parity Verified**: Arc Testnet deployment confirmed with 0 custody deficit (`5.6 USDC` Margin, `1.8 USDC` LP).
-- [x] **Dual-RPC Indexer Active**: 1,164 continuous ranges, 0 gaps, verified across Primary Arc RPC and Secondary QuickNode RPC.
-- [x] **Continuous Integration Clean**: Exact-head CI workflows (`CI`, `Arc read-only indexer`, `CLUSTER Product Testnet live audit`) all passing on `main`.
-- [x] **Fail-Closed Security**: Mainnet financial gates strictly locked against unverified risk until live multi-sig ceremony.
+- [ ] **Current live dual-RPC indexer state:** Historical 1,164-range results are recorded above; fresh multi-source coverage and every API/SSE response still require a new operational verification.
+- [x] **Source test CI:** The exact security-branch head passed [CI](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41495362004) and an [Arc fork rehearsal](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41495342172). This is not a release sign-off or proof of operational infrastructure.
+- [ ] **Full public-LP mainnet security:** Historical LP inactive; replacement is only a draft. Trading-backed NAV settlement, approved governance identities and authorized migration remain unresolved ([Issue #29](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29)).
 - [x] **Demo Video & Visual Evidence**: 3-minute comprehensive walk-through (`arcmemeperps_3min_demo.mp4`) and high-res UI captures.
