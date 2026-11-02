@@ -31,7 +31,7 @@ a transparent upgrade to a fully live LP market.
    insurance and bad-debt obligations.
 2. Governance disables deposits using `setPublicLpActive(false)`.
 3. The risk controller sets `marketRiskBudget` to zero; `allocatedBacking`
-   must be zero and vault custody must match the accounting ledger.
+   must be zero and vault token custody must not be below the accounting ledger.
 4. After checking the *actual* engine state, oracle data, margin ledger,
    uninsured bad debt and every upstream source, the controller calls
    `certifyWithdrawalAccounting()`. The contract **cannot independently prove**
@@ -39,9 +39,13 @@ a transparent upgrade to a fully live LP market.
 5. Governance calls `setWithdrawalSettlementEnabled(true)` to let matured
    requests claim a reconciled price. The emergency administrator can call
    `emergencyPauseWithdrawalSettlement()` at any time.
-6. Any later controller accounting update invalidates the certification and
-   closes the settlement interval. Withdrawal requests expire 24 hours after
-   their cooldown ends; `renewWithdrawalRequest()` starts a new cooldown.
+6. Any later controller accounting update, LP deposit or reactivation
+   invalidates the certification and closes the settlement interval. Withdrawal
+   requests expire 24 hours after cooldown; `renewWithdrawalRequest()` starts
+   a new cooldown.
+7. Unsolicited token donations are tracked as surplus, never minted into
+   NAV, and do not veto a de-risked withdrawal. Physical custody **deficits**
+   always block settlement, including deficits that appear after certification.
 
 Governance must close the withdrawal settlement interval before reopening
 deposits; new risk activity must only resume after the window is closed.
@@ -53,8 +57,9 @@ solvency or elimination of all timing and keeper liveness risks.
 
 `contracts/test/StaleNavWithdrawal.t.sol` covers stale trader liability,
 bad-debt timing, prevention of deposits during active exposure, explicit
-certification, controller update invalidation, known-debt valuation and queue
-expiry/renewal. Older LP integration tests have been updated for the
+certification, controller update and deposit-reactivation invalidation,
+emergency settlement shutdown, surplus-donation grief resistance, custody
+deficits arising after certification, known-debt valuation and queue expiry/renewal. Older LP integration tests have been updated for the
 settlement-only withdrawal pathway.
 
 Run:
