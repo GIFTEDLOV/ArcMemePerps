@@ -73,8 +73,9 @@ contract StaleNavWithdrawalTest {
         // The deployment bootstrap owner grants this capability to a guardian.
         address guardian = address(0xC);
         // The vault is already finalized, so a governance executor assigns it.
+        bytes32 emergencyRole = vault.EMERGENCY_ADMIN_ROLE();
         vm.prank(GOVERNANCE);
-        vault.setRole(vault.EMERGENCY_ADMIN_ROLE(), guardian, true);
+        vault.setRole(emergencyRole, guardian, true);
         vm.prank(LP_A);
         vault.requestWithdraw(500_000);
 
