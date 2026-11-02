@@ -1,0 +1,45 @@
+name: CLUSTER LP Release Safety Gate (NO-GO Expected)
+
+on:
+  push:
+    branches:
+      - security/lp-withdrawal-accounting-20261102
+    paths:
+      - deployments/arc-lp-security-release-plan.template.json
+      - scripts/arc-lp-release-preflight.mjs
+      - scripts/arc-lp-release-preflight.test.mjs
+      - scripts/arc-mainnet-deployment.ts
+      - scripts/verify-mainnet-deployment.ts
+      - contracts/src/PublicLPVault.sol
+      - contracts/src/USDCMarginVault.sol
+      - .github/workflows/arc-lp-release-preflight.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  assert-release-is-blocked:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Validate failure-closed release plan
+        run: node --test scripts/arc-lp-release-preflight.test.mjs
+      - name: Report blockers without any signing or deployment
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/arc-lp-release-preflight.mjs --report > "$RUNNER_TEMP/lp-preflight.json"
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const r = JSON.parse(readFileSync(process.argv[1], "utf8"));
+            if (r.status !== "NO_GO" || r.broadcastAuthorized !== false || r.blockers.length === 0) {
+              throw Error("Expected blocked release and zero broadcast authorization");
+            }
+            console.log("Security release status: NO_GO");
+            console.log("Unresolved release gates:", r.blockers.join(", "));
+          ' "$RUNNER_TEMP/lp-preflight.json"
