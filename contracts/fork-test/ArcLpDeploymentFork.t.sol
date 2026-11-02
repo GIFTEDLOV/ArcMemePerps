@@ -199,12 +199,23 @@ contract ArcLpDeploymentForkTest {
         lp.certifyWithdrawalAccounting();
         vm.prank(LP_A);
         lp.renewWithdrawalRequest();
-        _execute(
-            timelock,
-            address(lp),
-            abi.encodeCall(PublicLPVault.setWithdrawalSettlementEnabled, (true)),
-            "enable-claim"
-        );
+
+        // A post-certification engine mutation must invalidate the old
+        // epoch, even if the engine ends flat and margin cash is unchanged.
+        settlementSequence += 1;
+        bytes memory enableClaim =
+            abi.encodeCall(PublicLPVault.setWithdrawalSettlementEnabled, (true));
+        bytes32 claimSalt = keccak256("enable-claim");
+        vm.prank(GOVERNANCE);
+        timelock.queue(address(lp), 0, enableClaim, claimSalt);
+        vm.warp(block.timestamp + ONE_DAY);
+        vm.expectRevert();
+        timelock.execute(address(lp), 0, enableClaim, claimSalt);
+
+        // The failed timelock execution does not consume its queue entry.
+        // Fresh controller certification permits a new governance execution.
+        lp.certifyWithdrawalAccounting();
+        timelock.execute(address(lp), 0, enableClaim, claimSalt);
         vm.prank(LP_A);
         require(lp.claimWithdraw() == 1_000_000, "fair payout failed");
         require(lp.totalShares() == 1_000_000, "remaining LP shares corrupted");
