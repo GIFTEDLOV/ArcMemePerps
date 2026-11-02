@@ -27,6 +27,8 @@ interface ILpMarginExposure {
     function pendingPositivePnl() external view returns (uint256);
     function pendingNegativePnl() external view returns (uint256);
     function protocolBadDebt() external view returns (uint256);
+    function actualCustodyUsdc() external view returns (uint256);
+    function expectedCustodyUsdc() external view returns (uint256);
 }
 
 /**
@@ -228,6 +230,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                 || ILpMarginExposure(marginVault).pendingPositivePnl() != 0
                 || ILpMarginExposure(marginVault).pendingNegativePnl() != 0
                 || ILpMarginExposure(marginVault).protocolBadDebt() != 0
+                || ILpMarginExposure(marginVault).actualCustodyUsdc()
+                    < ILpMarginExposure(marginVault).expectedCustodyUsdc()
         ) revert EngineExposureStillOpen();
     }
 
@@ -246,6 +250,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function setPublicLpActive(bool active) external onlyGovernanceExecutor {
         if (publicLpActive == active) revert InvalidActivationState();
         if (active) {
+            if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
             if (withdrawalSettlementEnabled) revert ActivationUnsafe();
             if (!bootstrapFinalized || riskController == address(0)) revert ActivationUnsafe();
             (CustodyStatus status,,,) = custodyStatus();
@@ -344,6 +349,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
 
     function deposit(uint256 assets) external nonReentrant returns (uint256 shares) {
         if (!publicLpActive) revert PublicLPInactive();
+        if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
         // Without atomic mark-to-market, deposits during active risk may also
         // transfer value between old and new LPs through stale share prices.
         if (
