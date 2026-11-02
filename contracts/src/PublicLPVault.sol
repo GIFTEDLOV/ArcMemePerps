@@ -317,6 +317,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
             revert ActiveLpExposure();
         }
+        // An already-open governance window is valid only for its original
+        // ledger epoch. Controller recertification always closes that window,
+        // so governance must expressly approve the replacement certificate.
+        _invalidateWithdrawalAccounting();
         if (hasEverOpenedMarketRisk) {
             _assertNoEngineExposure();
             certifiedMarginStateDigest = ILpMarginExposure(marginVault).settlementStateDigest();
