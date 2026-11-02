@@ -33,9 +33,17 @@ contract ArcLpDeploymentForkTest {
 
     // Local fork test contract models the engine; the live deployment must
     // bind to the real, verified PerpEngine instead of this test stand-in.
-    function marginVault() external view returns (address) { return forkMargin; }
-    function activePositionCount() external view returns (uint256) { return simulatedActivePositions; }
-    function totalOpenNotionalUsdc() external view returns (uint256) { return simulatedNotional; }
+    function marginVault() external view returns (address) {
+        return forkMargin;
+    }
+
+    function activePositionCount() external view returns (uint256) {
+        return simulatedActivePositions;
+    }
+
+    function totalOpenNotionalUsdc() external view returns (uint256) {
+        return simulatedNotional;
+    }
 
     function testNewPairConfiguresAgainstRealArcUSDCWithoutTouchingExistingCustody() public {
         require(block.chainid == 5042, "wrong fork chain");
