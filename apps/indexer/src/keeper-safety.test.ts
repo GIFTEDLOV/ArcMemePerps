@@ -28,6 +28,12 @@ describe("CLUSTER mainnet keeper release boundary", () => {
     expect(daemon).toContain("MAINNET_KEEPER_SIGNER_REQUIRED");
     expect(daemon).toContain('!args.includes("--live")');
   });
+  it("does not turn absent provider liquidity into an asserted rug", () => {
+    expect(daemon).toContain("market.originSpotLiquidityUsd == null");
+    expect(daemon).toContain("if (!Number.isFinite(liq) || liq < 0) continue");
+    expect(daemon).not.toContain('Number(market.originSpotLiquidityUsd || "0")');
+    expect(daemon).toContain("requires review");
+  });
   it("simulates liquidation before any keeper write transaction", () => {
     const simulation = daemon.indexOf("await publicClient.simulateContract(");
     const broadcast = daemon.indexOf("await walletClient.writeContract(");
