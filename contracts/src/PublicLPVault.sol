@@ -308,8 +308,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         }
         if (hasEverOpenedMarketRisk) {
             _assertNoEngineExposure();
-            certifiedMarginStateDigest =
-                ILpMarginExposure(marginVault).settlementStateDigest();
+            certifiedMarginStateDigest = ILpMarginExposure(marginVault).settlementStateDigest();
         }
         (CustodyStatus status,,,) = custodyStatus();
         // Unsolicited surplus is excluded from NAV; deficit must block exit.
