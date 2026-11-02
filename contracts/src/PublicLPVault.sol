@@ -90,6 +90,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error SettlementEngineUnverified();
     error EngineExposureStillOpen();
     error MarginSettlementStateChanged();
+    error EngineSettlementSequenceChanged();
 
     enum CustodyStatus {
         MATCH,
@@ -256,11 +257,13 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
             _assertNoEngineExposure();
             if (
                 certifiedMarginStateDigest == bytes32(0)
-                    || ILpEngineExposure(settlementEngine).settlementSequence()
-                        != certifiedEngineSettlementSequence
                     || ILpMarginExposure(marginVault).settlementStateDigest()
                         != certifiedMarginStateDigest
             ) revert MarginSettlementStateChanged();
+            if (
+                ILpEngineExposure(settlementEngine).settlementSequence()
+                    != certifiedEngineSettlementSequence
+            ) revert EngineSettlementSequenceChanged();
         }
     }
 
