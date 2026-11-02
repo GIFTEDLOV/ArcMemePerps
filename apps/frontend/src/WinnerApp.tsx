@@ -2596,7 +2596,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
           <h2>Trade {market.symbol ?? "Market"}</h2>
           <span>Arc USDC Margin Settlement (5042)</span>
         </div>
-        <StatusPill value={market.perp.status} tone={market.perp.status === "LIVE" ? "good" : "neutral"} label={market.perp.status === "LIVE" ? "PERP LIVE" : "TRADING UNVERIFIED"} />
+        <StatusPill value={market.perp.status} tone={market.perp.status === "LIVE" ? "good" : "muted"} label={market.perp.status === "LIVE" ? "PERP LIVE" : "TRADING UNVERIFIED"} />
       </div>
 
       <LongShortSentimentBar market={market} />
