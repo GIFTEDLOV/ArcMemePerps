@@ -9,11 +9,19 @@ MARGIN="0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf"
 USDC="0x3600000000000000000000000000000000000000"
 
 read_call() {
-  timeout 40s cast call "$1" "$2" ${3:+"$3"} --rpc-url "$RPC_URL"
+  local result
+  result="$(timeout 40s cast call "$1" "$2" ${3:+"$3"} --rpc-url "$RPC_URL")"
+  if [[ -z "$result" ]]; then
+    # An empty return payload can mean this getter is absent in deployed bytecode.
+    echo "UNAVAILABLE_NO_RETURN_DATA"
+  else
+    echo "$result"
+  fi
 }
 
 CHAIN_ID="$(timeout 40s cast chain-id --rpc-url "$RPC_URL")"
 echo "network_chain_id=$CHAIN_ID"
+echo "observed_block=$(timeout 40s cast block-number --rpc-url "$RPC_URL")"
 if [[ "$CHAIN_ID" != "5042" ]]; then
   echo "ERROR: RPC does not report Arc mainnet chain 5042" >&2
   exit 1
@@ -30,6 +38,7 @@ done
 
 echo "--- PublicLPVault ledger and permissions ---"
 for signature in \
+  'owner()(address)' \
   'publicLpActive()(bool)' \
   'totalShares()(uint256)' \
   'managedAssets()(uint256)' \
@@ -51,6 +60,8 @@ echo "--- Margin vault custody and exposure ---"
 for signature in \
   'lpBacking()(uint256)' \
   'rawCash()(uint256)' \
+  'totalFreeCollateral()(uint256)' \
+  'totalLockedCollateral()(uint256)' \
   'pendingPositivePnl()(uint256)' \
   'protocolBadDebt()(uint256)' \
   'withdrawableLiquidity()(uint256)' \
@@ -60,6 +71,7 @@ for signature in \
 done
 
 echo "--- USDC native ERC20 balances in base units ---"
+echo "USDC_decimals=$(read_call "$USDC" 'decimals()(uint8)')"
 echo "vaultUSDC=$(read_call "$USDC" 'balanceOf(address)(uint256)' "$PUBLIC_LP")"
 echo "marginUSDC=$(read_call "$USDC" 'balanceOf(address)(uint256)' "$MARGIN")"
 echo "STATUS: read-only calls complete. Do not infer withdrawal safety without reviewing roles, market exposure and state freshness."
