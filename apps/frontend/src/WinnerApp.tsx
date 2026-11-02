@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { Link, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CHAIN_OPTIONS, LIFECYCLE_OPTIONS, STRESS_EVIDENCE, WINNER_CONFIG } from "./lib/winner-config";
-import { WinnerApi, subscribeRealtime } from "./lib/winner-api";
+import { WinnerApi, subscribeRealtime, type IndexedArcWallet } from "./lib/winner-api";
 import { ageLabel, formatDecimal, formatPercentBps, formatUsd, shorten, statusClass } from "./lib/winner-format";
 import type { Health, MarketPage, OriginMarket, Pretrade, RealtimeEvent } from "./lib/winner-types";
 import { isPretradeIntact } from "./lib/winner-plan";
@@ -3062,8 +3062,31 @@ function WalletEmpty({ title, copy, wallet }: { title: string; copy: string; wal
 }
 
 function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeof useWallet>; data?: ReturnType<typeof useProductData>; onClosePosition?: (id: string, reason?: string) => void }) {
-  const [usdcBalance, setUsdcBalance] = useState<string>("0.00");
+  const [usdcBalance, setUsdcBalance] = useState<string>("—");
   const [positions, setPositions] = useState<StoredPosition[]>([]);
+  const [indexedPortfolio, setIndexedPortfolio] = useState<IndexedArcWallet | null>(null);
+  const [indexError, setIndexError] = useState<string | null>(null);
+  useEffect(() => {
+    const address = wallet.state.address;
+    if (!address) {
+      setIndexedPortfolio(null);
+      setIndexError(null);
+      return;
+    }
+    let active = true;
+    void api.portfolio(address)
+      .then((snapshot) => {
+        if (!active) return;
+        setIndexedPortfolio(snapshot);
+        setIndexError(null);
+      })
+      .catch((errorValue) => {
+        if (!active) return;
+        setIndexedPortfolio(null);
+        setIndexError(errorValue instanceof Error ? errorValue.message : "ARC_INDEX_UNAVAILABLE");
+      });
+    return () => { active = false; };
+  }, [wallet.state.address]);
   const [sharePos, setSharePos] = useState<StoredPosition | null>(null);
 
   // Historical arcmemeperps.positions entries were created without a chain
@@ -3124,7 +3147,9 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
 
   const totalPositionSize = positions.reduce((acc, p) => acc + Number(p.size.replace(/[^0-9.-]+/g, "") || 0), 0);
   const totalCollateral = 0;
-  const availableBal = Math.max(0, Number(usdcBalance) - totalCollateral);
+  const availableBal = Number.isFinite(Number(usdcBalance))
+    ? Math.max(0, Number(usdcBalance) - totalCollateral).toFixed(2)
+    : "—";
 
   return (
     <section className="page portfolio-page">
@@ -3168,7 +3193,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
 
         <div className="portfolio-header-actions">
           <span className="profile-conn-pill">
-            <i /> ARC 5042 CONNECTED
+            <i /> {wallet.state.chainId === 5042 ? "ARC 5042 CONNECTED" : "WRONG NETWORK"}
           </span>
           <Link to="/markets" className="button button-primary compact" style={{ padding: "0 10px", minHeight: "26px", fontSize: "10px" }}>
             + Open Position
@@ -3185,7 +3210,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
         </div>
         <div className="metric">
           <span>Available Collateral</span>
-          <strong>${availableBal.toFixed(2)} USDC</strong>
+          <strong>${availableBal} USDC</strong>
           <small>Wallet USDC only; margin availability unverified</small>
         </div>
         <div className="metric">
@@ -3208,9 +3233,9 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
       <div className="portfolio-panel">
         <div className="portfolio-panel-heading">
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <h2>Active Perpetual Positions</h2>
+            <h2>Indexed Perpetual Positions (Read-Only)</h2>
             <span className="status-pill status-good" style={{ fontSize: "9px" }}>
-              {positions.length > 0 ? `${positions.length} Open` : "Zero Exposure"}
+              {indexedPortfolio ? `${indexedPortfolio.wallet.positions.length} indexed` : "Unverified"}
             </span>
           </div>
           <Link to="/markets" className="profile-mini-btn accent" style={{ textDecoration: "none" }}>
@@ -3218,7 +3243,23 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
           </Link>
         </div>
 
-        {positions.length > 0 ? (
+        {indexedPortfolio && indexedPortfolio.wallet.positions.length > 0 ? (
+          <div className="evidence-table">
+            <p className="micro">Receipt-derived position events only; not a reconciled live balance. Indexed through block {indexedPortfolio.coverage.throughBlock ?? "unknown"}.</p>
+            <div className="evidence-row evidence-head">
+              <span>Position ID</span><span>Market ID</span><span>Event-derived Size</span><span>Last Event</span>
+            </div>
+            {indexedPortfolio.wallet.positions.map((position) => (
+              <div className="evidence-row" key={position.positionId}>
+                <b>#{position.positionId}</b>
+                <code>{typeof position.openingArguments?.marketId === "string"
+                  ? shorten(position.openingArguments.marketId, 8) : "Not available"}</code>
+                <span>{position.eventDerivedSize ?? "—"} (raw units)</span>
+                <span>{position.lastEvent ?? "Unknown"}</span>
+              </div>
+            ))}
+          </div>
+        ) : positions.length > 0 ? (
           <div className="evidence-table">
             <div className="evidence-row evidence-head">
               <span>Market</span>
@@ -3268,10 +3309,12 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
           <div className="portfolio-empty-box">
             <div className="portfolio-empty-icon">📊</div>
             <h3 style={{ margin: "0 0 3px", fontSize: "14px", color: "#fff", fontWeight: 700 }}>
-              No Active Perpetual Positions
+              No Verified Position Readback
             </h3>
             <p style={{ margin: "0 0 10px", color: "var(--muted)", fontSize: "11px", maxWidth: "440px" }}>
-              No chain-verified positions are available. Browser-saved records are not proof of trading or collateral.
+              {indexError
+                ? `Indexer unavailable (${indexError}). No position count can be confirmed.`
+                : "No receipt-derived position events are available. This does not prove zero open exposure."}
             </p>
 
             <div className="portfolio-quick-tokens">
