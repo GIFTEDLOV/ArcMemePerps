@@ -608,7 +608,13 @@ function useProductData() {
       runContinuousAntiRugScan();
     }, 60000);
     void api.health().then(setHealth).catch(() => setHealth(null));
-    const unsub = subscribeRealtime(WINNER_CONFIG.apiUrl, (event) => setEvents((current) => [event, ...current].slice(0, 30)), setStream);
+    const unsub = subscribeRealtime(WINNER_CONFIG.apiUrl, (event) => {
+      setEvents((current) => event.type === "protocol.reorg"
+        ? [] : [event, ...current].slice(0, 30));
+      // Receipt-derived wallet history is invalid after a chain reorg. All
+      // viewers must refresh from the reconciled index, never keep stale rows.
+      window.dispatchEvent(new CustomEvent("cluster:arc-index-update", { detail: event.type }));
+    }, setStream);
     return () => {
       clearInterval(interval);
       unsub();
@@ -3074,18 +3080,30 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
       return;
     }
     let active = true;
-    void api.portfolio(address)
-      .then((snapshot) => {
-        if (!active) return;
-        setIndexedPortfolio(snapshot);
-        setIndexError(null);
-      })
-      .catch((errorValue) => {
-        if (!active) return;
+    const load = () => {
+      void api.portfolio(address)
+        .then((snapshot) => {
+          if (!active) return;
+          setIndexedPortfolio(snapshot);
+          setIndexError(null);
+        })
+        .catch((errorValue) => {
+          if (!active) return;
+          setIndexedPortfolio(null);
+          setIndexError(errorValue instanceof Error ? errorValue.message : "ARC_INDEX_UNAVAILABLE");
+        });
+    };
+    const onIndexEvent = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === "protocol.reorg")
         setIndexedPortfolio(null);
-        setIndexError(errorValue instanceof Error ? errorValue.message : "ARC_INDEX_UNAVAILABLE");
-      });
-    return () => { active = false; };
+      load();
+    };
+    window.addEventListener("cluster:arc-index-update", onIndexEvent);
+    load();
+    return () => {
+      active = false;
+      window.removeEventListener("cluster:arc-index-update", onIndexEvent);
+    };
   }, [wallet.state.address]);
   const [sharePos, setSharePos] = useState<StoredPosition | null>(null);
 
@@ -3371,16 +3389,28 @@ function Activity({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
       return;
     }
     let active = true;
-    void api.portfolio(address).then((snapshot) => {
-      if (!active) return;
-      setChainActivity(snapshot.wallet.activity);
-      setChainStatus(snapshot.state);
-    }).catch(() => {
-      if (!active) return;
-      setChainActivity([]);
-      setChainStatus("INDEX_UNAVAILABLE");
-    });
-    return () => { active = false; };
+    const load = () => {
+      void api.portfolio(address).then((snapshot) => {
+        if (!active) return;
+        setChainActivity(snapshot.wallet.activity);
+        setChainStatus(snapshot.state);
+      }).catch(() => {
+        if (!active) return;
+        setChainActivity([]);
+        setChainStatus("INDEX_UNAVAILABLE");
+      });
+    };
+    const onIndexEvent = (event: Event) => {
+      if ((event as CustomEvent<string>).detail === "protocol.reorg")
+        setChainActivity([]);
+      load();
+    };
+    window.addEventListener("cluster:arc-index-update", onIndexEvent);
+    load();
+    return () => {
+      active = false;
+      window.removeEventListener("cluster:arc-index-update", onIndexEvent);
+    };
   }, [wallet.state.address]);
 
   useEffect(() => {
