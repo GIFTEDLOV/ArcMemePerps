@@ -3359,6 +3359,29 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
 
 function Activity({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
   const [events, setEvents] = useState<StoredActivity[]>([]);
+  const [chainActivity, setChainActivity] =
+    useState<IndexedArcWallet["wallet"]["activity"]>([]);
+  const [chainStatus, setChainStatus] = useState("INDEX_UNAVAILABLE");
+
+  useEffect(() => {
+    const address = wallet.state.address;
+    if (!address) {
+      setChainActivity([]);
+      setChainStatus("WALLET_NOT_CONNECTED");
+      return;
+    }
+    let active = true;
+    void api.portfolio(address).then((snapshot) => {
+      if (!active) return;
+      setChainActivity(snapshot.wallet.activity);
+      setChainStatus(snapshot.state);
+    }).catch(() => {
+      if (!active) return;
+      setChainActivity([]);
+      setChainStatus("INDEX_UNAVAILABLE");
+    });
+    return () => { active = false; };
+  }, [wallet.state.address]);
 
   useEffect(() => {
     try {
@@ -3387,7 +3410,23 @@ function Activity({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
   return (
     <section className="page">
       <PageIntro eyebrow="Activity" title="A clear record of what happened." copy="Order submissions, fills, and position settlements recorded for your wallet." />
-      {events.length > 0 ? (
+      {chainActivity.length > 0 ? (
+        <div className="activity-list">
+          <p className="micro">Indexed Arc receipts · {chainStatus}. This feed does not establish account balance parity.</p>
+          {chainActivity.map((entry, idx) => (
+            <article key={entry.transactionHash + "-" + idx}>
+              <span className="activity-icon">•</span>
+              <div>
+                <b>{entry.eventName} · {entry.contract}</b>
+                <p>Block {entry.blockNumber} · {entry.marketId ? shorten(entry.marketId, 8) : "Protocol event"}</p>
+                <a href={`https://explorer.arc.io/tx/${entry.transactionHash}`} target="_blank" rel="noreferrer">
+                  View Arc transaction
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+      ) : events.length > 0 ? (
         <div className="activity-list">
           {events.map((evt, idx) => (
             <article key={idx}>
@@ -3404,7 +3443,7 @@ function Activity({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
         <div className="panel">
           <Empty
             title="No activity recorded yet"
-            copy="You haven't placed any trades or collateral movements yet. Place an order on the terminal to start your on-chain activity record."
+            copy="No wallet-specific indexed receipt events are available. This does not prove that the chain has no activity."
             action={<Link to="/markets" className="button button-primary">Explore Markets</Link>}
           />
         </div>
