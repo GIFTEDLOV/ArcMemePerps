@@ -20,8 +20,8 @@ contract ArcLpDeploymentForkTest {
         VmArcLpFork(address(uint160(uint256(keccak256("hevm cheat code")))));
 
     address private constant USDC = 0x3600000000000000000000000000000000000000;
-    address private constant OLD_LP = 0x9ff8358dc5ee866e0b9707d0139cf47b399f5257;
-    address private constant OLD_MARGIN = 0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf;
+    address private constant OLD_LP = 0x9FF8358DC5eE866e0B9707D0139CF47B399F5257;
+    address private constant OLD_MARGIN = 0xa818DD503641FFDfe11ff8A4B7E8020D2A36BCaf;
     address private constant GOVERNANCE = address(0xA001);
     address private constant GUARDIAN = address(0xA002);
     address private constant LP_A = address(0xA003);
