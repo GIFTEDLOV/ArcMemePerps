@@ -8,6 +8,7 @@ import { IUSDCMarginVault } from "../src/interfaces/IUSDCMarginVault.sol";
 import { MarketRegistry } from "../src/MarketRegistry.sol";
 import { OracleRouter } from "../src/OracleRouter.sol";
 import { PerpEngine } from "../src/PerpEngine.sol";
+import { PublicLPVault } from "../src/PublicLPVault.sol";
 import { QualificationRegistry } from "../src/QualificationRegistry.sol";
 import { RiskConfig } from "../src/RiskConfig.sol";
 import { USDCMarginVault } from "../src/USDCMarginVault.sol";
@@ -91,6 +92,45 @@ contract Gate4SettlementTest {
             }),
             10_000
         );
+    }
+
+    function testRealEngineOpenPositionBlocksLpCertificationDespiteFalseZeroRiskBudget() public {
+        PublicLPVault lp = new PublicLPVault(address(usdc), 10);
+        vault.setLpVault(address(lp));
+        lp.setMarginVault(address(vault));
+        lp.setSettlementEngine(address(engine));
+        lp.setRiskController(address(this));
+        address governor = address(0xA11CE);
+        lp.setGovernanceExecutor(governor);
+        lp.finalizeBootstrap();
+
+        usdc.mint(address(this), 80_000_000);
+        usdc.approve(address(lp), 80_000_000);
+        vm.prank(governor);
+        lp.setPublicLpActive(true);
+        lp.deposit(80_000_000);
+        lp.setMarketRiskBudget(40_000_000);
+
+        vm.prank(TRADER);
+        uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
+        require(engine.activePositionCount() == 1, "engine must report the position");
+        require(engine.totalOpenNotionalUsdc() == 40_000_000, "engine notional missing");
+
+        // Controller sends a false report that all LP market risk is gone.
+        lp.setMarketRiskBudget(0);
+        vm.prank(governor);
+        lp.setPublicLpActive(false);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalAccountingCertified(), "unsettled trader escaped guard");
+
+        vm.prank(TRADER);
+        engine.closePosition(positionId);
+        require(engine.activePositionCount() == 0, "trader close did not clear count");
+        require(engine.totalOpenNotionalUsdc() == 0, "trader close did not clear notional");
+        require(vault.totalLockedCollateral() == 0, "margin collateral still locked");
+        lp.certifyWithdrawalAccounting();
+        require(lp.withdrawalAccountingCertified(), "fully flat engine still blocked");
     }
 
     function testDepositOpenCloseAndCustodyMatch() public {
