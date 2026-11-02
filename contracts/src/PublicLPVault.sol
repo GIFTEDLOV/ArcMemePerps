@@ -19,6 +19,8 @@ interface ILpEngineExposure {
     function marginVault() external view returns (address);
     function activePositionCount() external view returns (uint256);
     function totalOpenNotionalUsdc() external view returns (uint256);
+    function settlementSequence() external view returns (uint256);
+    function solvencyBlocked() external view returns (bool);
 }
 
 interface ILpMarginExposure {
@@ -31,6 +33,8 @@ interface ILpMarginExposure {
     function expectedCustodyUsdc() external view returns (uint256);
     function seniorLiabilitiesCovered() external view returns (bool);
     function settlementStateDigest() external view returns (bytes32);
+    function lpBacking() external view returns (uint256);
+    function cumulativeLpWriteOff() external view returns (uint256);
 }
 
 /**
@@ -59,6 +63,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     address public settlementEngine;
     bool public hasEverOpenedMarketRisk;
     bytes32 public certifiedMarginStateDigest;
+    uint256 public certifiedEngineSettlementSequence;
     uint256 public constant WITHDRAWAL_CLAIM_WINDOW = 1 days;
     mapping(address account => uint256 shares) public shareBalance;
     mapping(address account => WithdrawalRequest request) public withdrawals;
@@ -230,6 +235,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (
             ILpEngineExposure(engine_).activePositionCount() != 0
                 || ILpEngineExposure(engine_).totalOpenNotionalUsdc() != 0
+                || ILpEngineExposure(engine_).solvencyBlocked()
+                || ILpMarginExposure(marginVault).lpBacking() != allocatedBacking
+                || ILpMarginExposure(marginVault).cumulativeLpWriteOff()
+                    != cumulativeLpBackingLosses
                 || ILpMarginExposure(marginVault).totalLockedCollateral() != 0
                 || ILpMarginExposure(marginVault).pendingPositivePnl() != 0
                 || ILpMarginExposure(marginVault).pendingNegativePnl() != 0
@@ -247,6 +256,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
             _assertNoEngineExposure();
             if (
                 certifiedMarginStateDigest == bytes32(0)
+                    || ILpEngineExposure(settlementEngine).settlementSequence()
+                        != certifiedEngineSettlementSequence
                     || ILpMarginExposure(marginVault).settlementStateDigest()
                         != certifiedMarginStateDigest
             ) revert MarginSettlementStateChanged();
@@ -309,6 +320,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (hasEverOpenedMarketRisk) {
             _assertNoEngineExposure();
             certifiedMarginStateDigest = ILpMarginExposure(marginVault).settlementStateDigest();
+            certifiedEngineSettlementSequence =
+                ILpEngineExposure(settlementEngine).settlementSequence();
         }
         (CustodyStatus status,,,) = custodyStatus();
         // Unsolicited surplus is excluded from NAV; deficit must block exit.
@@ -338,6 +351,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         withdrawalAccountingCertified = false;
         withdrawalSettlementEnabled = false;
         certifiedMarginStateDigest = bytes32(0);
+        certifiedEngineSettlementSequence = 0;
         emit WithdrawalSettlementChanged(false, msg.sender);
     }
 
@@ -346,6 +360,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function _invalidateWithdrawalAccounting() internal {
         withdrawalAccountingCertified = false;
         certifiedMarginStateDigest = bytes32(0);
+        certifiedEngineSettlementSequence = 0;
         if (withdrawalSettlementEnabled) {
             withdrawalSettlementEnabled = false;
             emit WithdrawalSettlementChanged(false, msg.sender);
