@@ -110,7 +110,12 @@ contract ArcLpDeploymentForkTest {
         lp.finalizeBootstrap();
         timelock.finalizeBootstrap();
 
-        _execute(timelock, address(lp), abi.encodeCall(PublicLPVault.setPublicLpActive, (true)), "activate");
+        _execute(
+            timelock,
+            address(lp),
+            abi.encodeCall(PublicLPVault.setPublicLpActive, (true)),
+            "activate"
+        );
         usdc.mint(LP_A, 1_000_000);
         usdc.mint(LP_B, 1_000_000);
         vm.prank(LP_A);
@@ -124,8 +129,15 @@ contract ArcLpDeploymentForkTest {
         require(lp.totalShares() == 2_000_000, "incorrect share series");
 
         lp.setMarketRiskBudget(400_000);
-        _execute(timelock, address(lp), abi.encodeCall(PublicLPVault.allocateToMargin, (400_000)), "allocate");
-        require(margin.lpBacking() == 400_000 && lp.allocatedBacking() == 400_000, "bad backing link");
+        _execute(
+            timelock,
+            address(lp),
+            abi.encodeCall(PublicLPVault.allocateToMargin, (400_000)),
+            "allocate"
+        );
+        require(
+            margin.lpBacking() == 400_000 && lp.allocatedBacking() == 400_000, "bad backing link"
+        );
         require(lp.navAssets() == 2_000_000, "backing duplicated NAV");
 
         vm.prank(LP_A);
@@ -141,7 +153,12 @@ contract ArcLpDeploymentForkTest {
         lp.certifyWithdrawalAccounting(); // risk and backing still live
 
         // Simulate reconciliation and return of actual allocated backing.
-        _execute(timelock, address(lp), abi.encodeCall(PublicLPVault.recoverFromMargin, (400_000)), "recover");
+        _execute(
+            timelock,
+            address(lp),
+            abi.encodeCall(PublicLPVault.recoverFromMargin, (400_000)),
+            "recover"
+        );
         lp.setMarketRiskBudget(0);
         require(lp.allocatedBacking() == 0 && margin.lpBacking() == 0, "backing not returned");
         lp.certifyWithdrawalAccounting();
@@ -161,9 +178,12 @@ contract ArcLpDeploymentForkTest {
         require(margin.rawCash() == 0, "margin custody residual");
     }
 
-    function _execute(ProtocolTimelock timelock, address target, bytes memory callData, string memory label)
-        internal
-    {
+    function _execute(
+        ProtocolTimelock timelock,
+        address target,
+        bytes memory callData,
+        string memory label
+    ) internal {
         bytes32 salt = keccak256(bytes(label));
         vm.prank(GOVERNANCE);
         timelock.queue(target, 0, callData, salt);
