@@ -71,8 +71,9 @@ production release**:
   Its green status means the *blocking guard works*, not that production may
   deploy.
 - `scripts/arc-mainnet-deployment.ts` now performs reciprocal
-  `setLpVault` / `setMarginVault` calls, checks inactive zero-share
-  genesis and requires the actual local Git checkout to equal its frozen
+  `setLpVault` / `setMarginVault` calls, binds `setSettlementEngine` to
+  the freshly deployed PerpEngine, checks inactive zero-share genesis
+  and requires the actual local Git checkout to equal its frozen
   release commit. That historical commit constant is intentionally stale on
   this branch, so `--deploy` must fail until a separately approved freeze.
 - `scripts/deploy-mainnet-suite.ts` has been **disabled** because it reused
@@ -84,15 +85,24 @@ production release**:
 
 ### Residual findings that block mainnet LP activation
 
-1. **Controller trust / NAV integrity:** `PerpEngine` does not automatically
-   prove all unrealized positions, PnL and bad debt to `PublicLPVault`.
-   A controller that sets risk budget to zero prematurely and certifies stale
-   liabilities can still authorize a loss-shifting withdrawal. The permanent
-   known-limit regression test
-   `StaleNavWithdrawalTest.testKnownLimitationFalseControllerCertificationStillMispricesNav`
-   deliberately demonstrates that residual exposure and is **not evidence
-   the economic issue has been fully repaired**. The temporary
-   fail-closed model requires verified de-risking and offchain human review.
+1. **Controller trust / NAV integrity (partially hardened):**
+   A pool that has ever taken a nonzero market-risk budget now requires a
+   governance-bound `settlementEngine` with a matching linked margin vault.
+   `PerpEngine` tracks global `activePositionCount` and
+   `totalOpenNotionalUsdc` across opening, increasing, reducing, closing,
+   liquidation and ADL paths. Before certifying, opening settlement or
+   paying a claim, the LP checks those totals are zero **and** checks margin
+   locked collateral, pending positive/negative PnL, protocol bad debt and
+   actual-vs-accounted token custody. LP deposits/reactivation are also
+   blocked while this onchain exposure remains open. See
+   `StaleNavWithdrawalTest.testFalseControllerCertificationFailsWithoutVerifiedEngine`
+   and `Gate4SettlementTest.testRealEngineOpenPositionBlocksLpCertificationDespiteFalseZeroRiskBudget`.
+   This prevents an operator merely resetting `marketRiskBudget=0` from
+   authorizing a withdrawal while the verified engine is still open.
+   **Remaining gap:** the flatness proof does not itself prove that *all*
+   historical PnL and external obligations have been correctly accounted
+   and reconciled into LP NAV. It cannot replace a formally designed
+   valuation/epoch settlement mechanism or external security review.
    A continuously active LP product needs a separately designed and
    independently reviewed onchain settlement/epoch mechanism.
 2. **Historical deployed bytecode:** Old vaults on Arc mainnet have missing
