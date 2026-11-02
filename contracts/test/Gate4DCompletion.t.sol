@@ -67,6 +67,11 @@ contract Gate4DCompletionTest {
         vault.claimWithdraw();
 
         vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(address(0xCAFE));
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(address(0xCAFE));
+        vault.setWithdrawalSettlementEnabled(true);
         uint256 withdrawn = vault.claimWithdraw();
         require(withdrawn == 400_000);
         require(vault.totalShares() == 500_000);
