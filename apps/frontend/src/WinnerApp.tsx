@@ -1521,21 +1521,21 @@ function GmgnFooterBar() {
       <div className="gmgn-footer-left">
         <span className="footer-badge-item">
           <span className="pulse" />
-          <strong>ARC MAINNET (5042)</strong> · 12ms Fast
+          <strong>ARC MAINNET (5042)</strong> · Latency unverified
         </span>
         <span className="footer-badge-item">
-          <span>Vault Backing:</span> <strong>$5,000,000 USDC</strong>
+          <span>Vault Backing:</span> <strong>Not verified</strong>
         </span>
         <span className="footer-badge-item">
-          <span>Insurance:</span> <strong>$2,000,000 USDC</strong>
+          <span>Insurance:</span> <strong>Not verified</strong>
         </span>
       </div>
       <div className="gmgn-footer-right">
         <span className="footer-badge-item">
-          <span>Gas:</span> <strong>12 Gwei</strong>
+          <span>Gas:</span> <strong>Check wallet</strong>
         </span>
         <span className="footer-badge-item">
-          <span>Cluster Radar:</span> <strong style={{ color: "#00f5a0" }}>AUDITED SAFE</strong>
+          <span>Cluster Radar:</span> <strong style={{ color: "#00f5a0" }}>NOT INDEPENDENTLY AUDITED</strong>
         </span>
         <span className="footer-badge-item">
           <span>Sound:</span> <strong>ON</strong>
@@ -2223,26 +2223,25 @@ function MiniChart({ history, market }: { history: OriginMarket["history"]; mark
 type PassportRow = { label: string; value: string; note: string; tone?: "good" | "warn" | "bad" | "muted" };
 
 function passportRows(market: OriginMarket): PassportRow[] {
-  const isArc = market.chain === "ARC";
-  const chainName = market.chain.toUpperCase();
-  const top10 = market.top10ConcentrationBps ? (market.top10ConcentrationBps / 100).toFixed(1) + "%" : "21.0%";
-  const cluster = market.largestClusterBps ? (market.largestClusterBps / 100).toFixed(1) + "%" : "5.2%";
-  const largest = market.top10ConcentrationBps ? ((market.top10ConcentrationBps / 100) * 0.35).toFixed(1) + "%" : "7.2%";
-
+  const top10 = market.top10ConcentrationBps == null
+    ? "Not verified" : `${(market.top10ConcentrationBps / 100).toFixed(1)}%`;
+  const cluster = market.largestClusterBps == null
+    ? "Not verified" : `${(market.largestClusterBps / 100).toFixed(1)}%`;
+  const unavailable = "Requires chain-verified evidence";
   return [
-    { label: "Mint authority", value: "Revoked", note: isArc ? "Arc token immutable" : `${chainName} mint authority revoked`, tone: "good" },
-    { label: "Freeze authority", value: "Revoked", note: "No blacklist / freeze capability", tone: "good" },
-    { label: "Admin control", value: "Renounced", note: "Zero privileged owner keys", tone: "good" },
-    { label: "Upgradeability", value: "Immutable", note: "Direct contract bytecode (non-proxy)", tone: "good" },
-    { label: "Transfer safety", value: "0% / 0% Clean", note: "0% buy tax, 0% sell tax, fully sellable", tone: "good" },
-    { label: "LP control", value: "Burned / Locked", note: "100% pool LP burned or timelocked", tone: "good" },
-    { label: "Largest holder", value: largest, note: "Separated from LP pool custody", tone: "good" },
-    { label: "Connected cluster", value: cluster, note: "Sybil / cluster risk analysis clean", tone: "good" },
-    { label: "Bundle", value: "Clean launch", note: "No sniper bundle concentration", tone: "good" },
-    { label: "Activity", value: "Active", note: `${market.transactions24h ?? "1,400+"} 24h transactions`, tone: "good" },
-    { label: "Depth ±2%", value: formatUsd(market.originDepth2PctUsd ?? (market.originSpotLiquidityUsd ? String(Number(market.originSpotLiquidityUsd) * 0.08) : "1500")), note: "Executable origin market depth", tone: "good" },
-    { label: "Oracle", value: market.derivatives.oracleQuality ?? (isArc ? "Arc 2-of-3 Quorum" : "Pyth / Dex Median"), note: "Real-time oracle freshness verified", tone: "good" },
-    { label: "Settlement Vault", value: "Arc Mainnet (5042)", note: "USDCMarginVault (0xa818...bcaf)", tone: "good" },
+    { label: "Mint authority", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "Freeze authority", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "Admin control", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "Upgradeability", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "Transfer safety", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "LP control", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "Top 10 holders", value: top10, note: top10 === "Not verified" ? unavailable : "Provider observation, not an independent audit", tone: "muted" },
+    { label: "Connected cluster", value: cluster, note: cluster === "Not verified" ? unavailable : "Provider observation, not a Sybil audit", tone: "muted" },
+    { label: "Bundle", value: "Not verified", note: unavailable, tone: "muted" },
+    { label: "Activity", value: market.transactions24h == null ? "Not verified" : String(market.transactions24h), note: "Observed spot-market count; not perpetual fills", tone: "muted" },
+    { label: "Depth ±2%", value: displayed(market.originDepth2PctUsd, formatUsd), note: "Origin spot estimate, not executable perp capacity", tone: "muted" },
+    { label: "Oracle", value: "Not verified", note: "Arc quorum and freshness proof required", tone: "muted" },
+    { label: "Settlement Vault", value: "Historical vault", note: "Mainnet LP contract not active or release-approved", tone: "muted" },
   ];
 }
 
@@ -3105,7 +3104,7 @@ function LiquidityPanel({ market }: { market: OriginMarket }) {
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Liquidity Provider Status</span>
-          <span style={{ color: "var(--good)" }}>100% Permanently Committed (Zero Rug Risk)</span>
+          <span style={{ color: "var(--good)" }}>Not verified; LP lock evidence required</span>
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Settlement Pair</span>
@@ -3117,20 +3116,10 @@ function LiquidityPanel({ market }: { market: OriginMarket }) {
 }
 
 function HoldersPanel({ market }: { market: OriginMarket }) {
-  const top10 = market.top10ConcentrationBps ? (market.top10ConcentrationBps / 100).toFixed(1) + "%" : "21.0%";
-  const cluster = market.largestClusterBps ? (market.largestClusterBps / 100).toFixed(1) + "%" : "5.2%";
-  const holderCount = market.holders ?? 420;
+  const top10 = market.top10ConcentrationBps == null ? "Not verified" : (market.top10ConcentrationBps / 100).toFixed(1) + "%";
+  const cluster = market.largestClusterBps == null ? "Not verified" : (market.largestClusterBps / 100).toFixed(1) + "%";
+  const holderCount = market.holders == null ? "Not verified" : formatDecimal(String(market.holders), 0);
 
-  const poolName = market.chain === "SOLANA" ? "Raydium AMM Pool" : market.chain === "BASE" ? "Aerodrome Pool" : market.chain === "BNB" ? "PancakeSwap Pool" : market.chain === "ARC" ? "Arc Pool" : "Uniswap Pool";
-  const mockHolders = [
-    { address: "0x000000000000000000000000000000000000dead", sharePct: "28.5%", classification: "BURN", label: "Burn Address" },
-    { address: market.marketId, sharePct: "24.2%", classification: "POOL", label: poolName },
-    { address: "0x71c89369b183656e104a...3f9c", sharePct: "4.8%", classification: "REGULAR", label: "Whale 1" },
-    { address: "0x39ba2e54d682498b812a...12ae", sharePct: "3.5%", classification: "REGULAR", label: "Whale 2" },
-    { address: "0x91fa87b92648710a775b...88dc", sharePct: "2.9%", classification: "REGULAR", label: "Whale 3" },
-    { address: "0x15f4e69837a2810cd041...a410", sharePct: "2.1%", classification: "REGULAR", label: "Whale 4" },
-    { address: "0x0000000000000000000000000000000000000000", sharePct: "0.0%", classification: "RENOUNCED", label: "Deployer (Renounced)" },
-  ];
 
   return (
     <section className="panel evidence-panel">
@@ -3142,7 +3131,7 @@ function HoldersPanel({ market }: { market: OriginMarket }) {
         <span className="micro">On-chain census & liquidity verification</span>
       </div>
       <div className="holder-summary">
-        <Metric label="Holders" value={formatDecimal(String(holderCount), 0)} />
+        <Metric label="Holders" value={holderCount} />
         <Metric label="Top 10" value={top10} />
         <Metric label="Cluster" value={cluster} />
       </div>
@@ -3153,14 +3142,10 @@ function HoldersPanel({ market }: { market: OriginMarket }) {
           <span>Share</span>
           <span>Class</span>
         </div>
-        {mockHolders.map((holder, index) => (
-          <div className="evidence-row" key={holder.address + index}>
-            <span>{index + 1}</span>
-            <code>{holder.label} <small style={{ color: "var(--faint)" }}>({shorten(holder.address, 6)})</small></code>
-            <b>{holder.sharePct}</b>
-            <StatusPill value={holder.classification} tone={holder.classification === "BURN" || holder.classification === "POOL" ? "muted" : "good"} label={holder.classification} />
-          </div>
-        ))}
+        <div className="evidence-row">
+          <span>—</span><code>On-chain holder census not verified</code>
+          <b>—</b><span>Unknown</span>
+        </div>
       </div>
     </section>
   );
@@ -3174,29 +3159,29 @@ function DeployerPanel({ market }: { market: OriginMarket }) {
           <div className="eyebrow">Deployer Evidence</div>
           <h2>Contract & Creator Provenance</h2>
         </div>
-        <span className="micro">Verified on blockchain explorer</span>
+        <span className="micro">On-chain verification pending</span>
       </div>
       <div className="holder-summary">
-        <Metric label="Creator Holdings" value="0.0% (Renounced)" />
+        <Metric label="Creator Holdings" value="Not verified" />
         <Metric label="Origin Chain" value={market.chain} />
         <Metric label="Token Age" value={lifecycleLabel(market.lifecycle.status)} />
       </div>
       <div className="evidence-table" style={{ marginTop: "16px" }}>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Deployer Address</span>
-          <code>{shorten(market.marketId, 12)} <span style={{ color: "var(--good)", marginLeft: "6px" }}>Verified Contract Creator</span></code>
+          <code>{shorten(market.marketId, 12)} <span style={{ color: "var(--muted)", marginLeft: "6px" }}>Market ID, not creator proof</span></code>
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Admin Keys</span>
-          <b style={{ color: "var(--good)" }}>Renounced — Zero Privileged Functions</b>
+          <b style={{ color: "var(--good)" }}>Not verified</b>
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Initial Liquidity</span>
-          <b>100% Permanently Committed to Pool</b>
+          <b>Not verified</b>
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Contract Bytecode</span>
-          <b>Standard ERC-20 / SPL Immutable Program</b>
+          <b>Bytecode not verified here</b>
         </div>
         <div className="evidence-row" style={{ gridTemplateColumns: "180px 1fr" }}>
           <span>Arc Margin Vault</span>
@@ -3483,9 +3468,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
 
             <div className="portfolio-quick-tokens">
               <span style={{ fontSize: "10px", color: "var(--faint)", textTransform: "uppercase", letterSpacing: "0.06em" }}>Trending:</span>
-              <Link to="/markets/arc-1" className="portfolio-token-chip">🔥 $BSW $0.50 (+2.8%)</Link>
-              <Link to="/markets/arc-2" className="portfolio-token-chip">⚡ $XDP $0.01 (+2.8%)</Link>
-              <Link to="/markets/arc-4" className="portfolio-token-chip">🚀 $Falcons $0.00033 (+3305%)</Link>
+              <span className="micro">Live market qualification requires verified source evidence</span>
               <Link to="/markets" className="button button-primary compact" style={{ minHeight: "24px", padding: "0 8px", fontSize: "9.5px" }}>
                 Browse All Markets →
               </Link>
