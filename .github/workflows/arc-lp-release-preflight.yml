@@ -11,6 +11,7 @@ on:
       - scripts/arc-mainnet-deployment.ts
       - scripts/verify-mainnet-deployment.ts
       - contracts/src/PublicLPVault.sol
+      - contracts/src/PerpEngine.sol
       - contracts/src/USDCMarginVault.sol
       - .github/workflows/arc-lp-release-preflight.yml
   workflow_dispatch:
