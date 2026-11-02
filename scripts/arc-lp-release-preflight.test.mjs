@@ -12,6 +12,7 @@ const source = Object.fromEntries([
   "contracts/src/PublicLPVault.sol",
   "contracts/src/USDCMarginVault.sol",
   "scripts/arc-mainnet-deployment.ts",
+  "scripts/deploy-mainnet-suite.ts",
   "scripts/verify-mainnet-deployment.ts",
 ].map(p => [p, readFileSync(resolve(repo, p), "utf8")]));
 const fakeHead = "a".repeat(40);
@@ -60,6 +61,16 @@ test("approval checkboxes do not bypass unverified PerpEngine accounting", () =>
   const result = evaluateLpReleasePlan(plan, source, fakeHead);
   assert.equal(result.status, "NO_GO");
   assert.ok(result.blockers.includes("TRADER_PNL_TO_LP_NAV_INTEGRATION_UNVERIFIED"));
+});
+
+test("historical mainnet broadcaster may not be re-enabled", () => {
+  const broken = { ...source,
+    "scripts/deploy-mainnet-suite.ts": source["scripts/deploy-mainnet-suite.ts"]
+      .replace("blockUnsafeLegacyMainnetDeployment();", "// unsafe bypass"),
+  };
+  const result = evaluateLpReleasePlan(template, broken, fakeHead);
+  assert.equal(result.status, "NO_GO");
+  assert.ok(result.blockers.includes("LEGACY_MAINNET_BROADCASTER_NOT_DISABLED"));
 });
 
 test("mainnet auto-activation is always forbidden in the release plan", () => {
