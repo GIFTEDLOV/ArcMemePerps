@@ -2,23 +2,25 @@ name: CLUSTER Safety & Liquidation Keeper Watchdog
 
 on:
   schedule:
-    # Run every 15 minutes autonomously
+    # Read-only sentinel every 15 minutes; never broadcast from a schedule
     - cron: '*/15 * * * *'
   workflow_dispatch:
     inputs:
       dryRun:
         description: 'Run in dry-run mode (no external webhooks)'
         required: false
-        default: 'false'
+        default: 'true'
 
 jobs:
   watchdog-cycle:
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: read
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+        with:
+          persist-credentials: false
 
       - name: Install pnpm
         uses: pnpm/action-setup@v3
@@ -38,18 +40,20 @@ jobs:
         env:
           ARC_RPC_URL: https://rpc.mainnet.arc.io
           ARC_KEEPER_PRIVATE_KEY: ${{ secrets.ARC_KEEPER_PRIVATE_KEY }}
+          CLUSTER_KEEPER_LIVE_APPROVED: ${{ vars.CLUSTER_KEEPER_LIVE_APPROVED }}
+          CLUSTER_MAINNET_TRADING_ENABLED: ${{ vars.CLUSTER_MAINNET_TRADING_ENABLED }}
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
         run: |
-          if [ "${{ github.event.inputs.dryRun }}" = "true" ]; then
-            pnpm keeper:once --dry-run
+          set -euo pipefail
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" &&
+                "${{ github.event.inputs.dryRun }}" == "false" &&
+                "$CLUSTER_KEEPER_LIVE_APPROVED" == "true" &&
+                "$CLUSTER_MAINNET_TRADING_ENABLED" == "true" ]]; then
+            echo "Manual keeper invocation: release conditions explicitly approved."
+            pnpm keeper:once --live
           else
-            pnpm keeper:once
+            echo "Keyless read-only Arc keeper monitoring; no signed transactions."
+            pnpm keeper:once --dry-run
           fi
-
-      - name: Commit Updated Keeper State
-        uses: stefanzweifel/git-auto-commit-action@v5
-        with:
-          commit_message: "chore(keeper): update keeper state & risk audit [skip ci]"
-          file_pattern: "evidence/keeper-state.json"
