@@ -73,9 +73,14 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
   add(!vault.includes("certifyWithdrawalAccounting()") ||
       !vault.includes("emergencyPauseWithdrawalSettlement()") ||
       !vault.includes("_assertNoEngineExposure()") ||
+      !vault.includes("_assertCertifiedMarginState()") ||
+      !vault.includes("certifiedMarginStateDigest") ||
       !vault.includes("hasEverOpenedMarketRisk"),
     "LP_WITHDRAWAL_CERTIFICATION_GUARDS_MISSING");
   add(!margin.includes("function lpRecoverable()"), "MARGIN_LP_RECOVERY_INTERFACE_MISSING");
+  add(!margin.includes("function seniorLiabilitiesCovered()") ||
+      !margin.includes("function settlementStateDigest()"),
+    "MARGIN_SOLVENCY_AND_STATE_COMMITMENT_MISSING");
   add(verify.includes('const expectedSourceSha = "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b"'),
     "HISTORICAL_MAINNET_VERIFY_HASH_NOT_REFROZEN");
 
