@@ -346,118 +346,58 @@ export function PnlShareModal({ position, onClose }: { position: StoredPosition 
   );
 }
 
-export function LiveTradeStream({ market }: { market: OriginMarket }) {
-  const price = Number(market.priceUsd ?? "0.01");
-  const [trades, setTrades] = useState<Array<{ id: string; side: "LONG" | "SHORT" | "LIQ"; sizeUsd: string; price: string; trader: string; time: string }>>(() => [
-    { id: "t1", side: "LONG", sizeUsd: "$750.00", price: `$${(price * 1.002).toFixed(4)}`, trader: "0x45...833", time: "3s ago" },
-    { id: "t2", side: "SHORT", sizeUsd: "$250.00", price: `$${price.toFixed(4)}`, trader: "0x9a...12e", time: "9s ago" },
-    { id: "t3", side: "LONG", sizeUsd: "$1,400.00", price: `$${(price * 0.998).toFixed(4)}`, trader: "0x82...b3c", time: "18s ago" },
-    { id: "t4", side: "LIQ", sizeUsd: "$120.00", price: `$${(price * 0.965).toFixed(4)}`, trader: "0x11...fe2", time: "34s ago" },
-    { id: "t5", side: "LONG", sizeUsd: "$500.00", price: `$${price.toFixed(4)}`, trader: "0xd4...7a9", time: "52s ago" },
-  ]);
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      const sides: Array<"LONG" | "SHORT"> = ["LONG", "LONG", "SHORT", "LONG"];
-      const chosenSide = sides[Math.floor(Math.random() * sides.length)];
-      const randSize = (Math.floor(Math.random() * 15) * 50 + 50).toFixed(2);
-      const delta = (Math.random() - 0.48) * 0.008;
-      const tradePrice = (price * (1 + delta)).toFixed(4);
-      const hex = Math.random().toString(16).slice(2, 6);
-      const newTrade = {
-        id: `trade-${Date.now()}`,
-        side: chosenSide,
-        sizeUsd: `$${randSize}`,
-        price: `$${tradePrice}`,
-        trader: `0x${hex}...${Math.random().toString(16).slice(2, 5)}`,
-        time: "Just now",
-      };
-      setTrades((prev) => [newTrade, ...prev.slice(0, 14)]);
-    }, 4500);
-
-    return () => clearInterval(timer);
-  }, [price]);
-
+export function LiveTradeStream({ market: _market }: { market: OriginMarket }) {
+  // Do not render invented trade volume or wallets. A canonical indexed,
+  // receipt-backed execution feed must exist before calling a tape live.
   return (
     <div className="panel evidence-panel">
       <div className="panel-heading">
-        <div>
-          <div className="eyebrow">Realtime tape</div>
-          <h2>Live Order Flow & Executions</h2>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <span className="pulse-dot pulse-green" />
-          <span className="micro">Live Stream Active</span>
-        </div>
+        <div><div className="eyebrow">Execution tape</div><h2>On-chain Order Flow</h2></div>
+        <span className="micro">Verified execution feed unavailable</span>
       </div>
-
       <div className="trade-stream-table">
         <div className="trade-stream-head">
-          <span>Type</span>
-          <span>Size (USDC)</span>
-          <span>Price</span>
-          <span>Trader</span>
-          <span>Time</span>
+          <span>Type</span><span>Size (USDC)</span><span>Price</span>
+          <span>Trader</span><span>Time</span>
         </div>
-        {trades.map((t) => (
-          <div className="trade-stream-row" key={t.id}>
-            <span className={t.side === "LONG" ? "trade-tag-long" : t.side === "SHORT" ? "trade-tag-short" : "trade-tag-liq"}>
-              {t.side === "LONG" ? "LONG" : t.side === "SHORT" ? "SHORT" : "LIQ"}
-            </span>
-            <strong>{t.sizeUsd}</strong>
-            <span className="mono">{t.price}</span>
-            <span className="mono" style={{ color: "var(--faint)" }}>{t.trader}</span>
-            <span style={{ color: "var(--faint)" }}>{t.time}</span>
-          </div>
-        ))}
+        <p className="micro">No verifiable Arc execution events are available for this market.</p>
       </div>
     </div>
   );
 }
 
 export function calculateRugScore(market: OriginMarket): { score: number; rating: "SAFE" | "MEDIUM" | "RISKY" | "RUG"; details: Array<{ label: string; pass: boolean; note: string }>; quarantineReason?: string | null } {
-  const isArc = market.chain === "ARC";
-  const isSol = market.chain === "SOLANA";
-  const liquidity = Number(market.originSpotLiquidityUsd ?? "0");
-  const volume = Number(market.volume24hUsd ?? "0");
-  const top10 = market.top10ConcentrationBps ?? 1850;
-  const isDrained = liquidity < 1000;
-  const isWashTrading = volume > 0 && liquidity > 0 && (volume / liquidity > 300) && liquidity < 25000;
-  const isQuarantined = Boolean(market.isQuarantined || isDrained || isWashTrading);
-  const quarantineReason = market.quarantineReason || (isDrained ? `Drained Liquidity ($${liquidity.toFixed(2)} < $1,000 floor)` : isWashTrading ? `Wash Trading Bot Farm (${(volume / liquidity).toFixed(0)}x Vol/Liq Ratio)` : null);
-
+  const liquidity = market.originSpotLiquidityUsd == null ? null : Number(market.originSpotLiquidityUsd);
+  const volume = market.volume24hUsd == null ? null : Number(market.volume24hUsd);
+  const isDrained = liquidity !== null && liquidity < 1000;
+  const isVolumeAnomaly = liquidity !== null && volume !== null &&
+    liquidity > 0 && volume / liquidity > 300 && liquidity < 25000;
+  const reason = market.quarantineReason ||
+    (isDrained ? "Observed liquidity below $1,000" :
+      isVolumeAnomaly ? "High volume relative to spot liquidity" : null);
+  const confirmedQualified = market.integrity.status === "QUALIFIED" &&
+    market.derivatives.status === "LIVE" && market.perp.status === "LIVE" &&
+    !market.isQuarantined && !isDrained && !isVolumeAnomaly &&
+    liquidity !== null && market.top10ConcentrationBps !== null;
   const details = [
-    { label: "Liquidity Floor", pass: !isDrained, note: isDrained ? "Drained (<$1k)" : liquidity >= 25000 ? "Deep Pool ($25k+)" : "Adequate Depth" },
-    { label: "Fake Vol Check", pass: !isWashTrading, note: isWashTrading ? "Wash Bots Detected" : "Organic Volume" },
-    { label: "Mint Authority", pass: isArc || (isSol && market.integrity.status !== "REJECTED"), note: isArc ? "Revoked / Fixed" : isSol ? "Revoked" : "Standard ERC-20" },
-    { label: "Freeze Authority", pass: isArc || (isSol && market.integrity.status !== "REJECTED"), note: "No blacklists" },
-    { label: "LP Lock / Burn", pass: isArc || liquidity > 25000, note: isArc ? "Verified on Arc" : liquidity > 25000 ? "Locked / Deep" : "Bonding / Fair" },
-    { label: "Top 10 Supply", pass: top10 < 3000, note: `${(top10 / 100).toFixed(1)}% supply` },
-    { label: "Capacity Bound", pass: isArc || market.derivatives.status === "ELIGIBLE", note: isArc ? "Arc USDC Settlement" : "Dynamic OI" },
+    { label: "Liquidity Floor", pass: liquidity !== null && liquidity >= 1000,
+      note: liquidity === null ? "Not verified" : isDrained ? "Below $1k" : "Observed spot liquidity only" },
+    { label: "Volume Anomaly", pass: volume !== null && !isVolumeAnomaly,
+      note: volume === null ? "Not verified" : isVolumeAnomaly ? "Requires review" : "No anomaly in this heuristic" },
+    { label: "Mint Authority", pass: false, note: "On-chain authority proof required" },
+    { label: "Freeze Authority", pass: false, note: "On-chain freeze proof required" },
+    { label: "LP Lock / Burn", pass: false, note: "On-chain custody/lock proof required" },
+    { label: "Top 10 Supply", pass: market.top10ConcentrationBps !== null && market.top10ConcentrationBps < 3000,
+      note: market.top10ConcentrationBps === null ? "Not verified" : `${(market.top10ConcentrationBps / 100).toFixed(1)}% observed` },
+    { label: "Capacity Bound", pass: confirmedQualified,
+      note: confirmedQualified ? "Protocol qualification attested" : "Derivative capacity not verified" },
   ];
-
-  if (isDrained) {
-    return { score: 5, rating: "RUG", details, quarantineReason };
-  }
-  if (isWashTrading) {
-    return { score: 12, rating: "RUG", details, quarantineReason };
-  }
-  if (isQuarantined) {
-    return { score: 15, rating: "RUG", details, quarantineReason };
-  }
-
-  let score = 55;
-  if (isArc) score += 39;
-  else if (market.integrity.status === "QUALIFIED") score += 32;
-  else if (market.integrity.status === "PENDING") score += 15;
-  if (liquidity >= 100000) score += 8;
-  else if (liquidity >= 25000) score += 4;
-  if ((market.transactions24h ?? 0) > 400) score += 4;
-  if (top10 <= 2000) score += 4;
-  score = Math.min(Math.max(score, 28), 98);
-
-  const rating = score >= 80 ? "SAFE" : score >= 55 ? "MEDIUM" : "RISKY";
-  return { score, rating, details, quarantineReason: null };
+  if (market.isQuarantined || isDrained || isVolumeAnomaly)
+    return { score: 5, rating: "RUG", details, quarantineReason: reason };
+  // Unknown proofs never receive a fabricated 'SAFE' grade. A score here
+  // only summarizes observed evidence; it cannot authorize margin trading.
+  const score = confirmedQualified ? 70 : 25;
+  return { score, rating: confirmedQualified ? "MEDIUM" : "RISKY", details, quarantineReason: null };
 }
 
 export async function fetchLiveDexPairs(): Promise<OriginMarket[]> {
