@@ -12,6 +12,7 @@ const SOURCE_PATHS = [
   "contracts/src/PublicLPVault.sol",
   "contracts/src/USDCMarginVault.sol",
   "scripts/arc-mainnet-deployment.ts",
+  "scripts/deploy-mainnet-suite.ts",
   "scripts/verify-mainnet-deployment.ts",
 ];
 const KNOWN_USDC = "0x3600000000000000000000000000000000000000";
@@ -57,12 +58,15 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
   }
 
   const deployer = source["scripts/arc-mainnet-deployment.ts"] ?? "";
+  const legacyDeployer = source["scripts/deploy-mainnet-suite.ts"] ?? "";
   const vault = source["contracts/src/PublicLPVault.sol"] ?? "";
   const margin = source["contracts/src/USDCMarginVault.sol"] ?? "";
   const verify = source["scripts/verify-mainnet-deployment.ts"] ?? "";
   add(!deployer.includes('await call("USDCMarginVault", "setLpVault"') ||
       !deployer.includes('await call("PublicLPVault", "setMarginVault"'),
     "DEPLOYMENT_MISSING_TWO_WAY_LP_MARGIN_LINK");
+  add(!legacyDeployer.includes("blockUnsafeLegacyMainnetDeployment();"),
+    "LEGACY_MAINNET_BROADCASTER_NOT_DISABLED");
   add(!deployer.includes("assertCheckoutMatchesFrozenRelease();"),
     "DEPLOYMENT_RELEASE_CHECKOUT_GUARD_MISSING");
   add(!vault.includes("certifyWithdrawalAccounting()") ||
