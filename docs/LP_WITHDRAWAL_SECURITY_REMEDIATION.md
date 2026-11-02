@@ -69,3 +69,30 @@ No real funds, mainnet trading or production contract changes should be
 performed by these tests. A separate contract deployment/migration, with
 user share preservation and live reconciliation, must be prepared before
 making any claim that Arc mainnet is protected.
+
+## Read-only mainnet snapshot (2026-11-02, Arc block 29,158,309)
+
+[Workflow evidence](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41445468886)
+queried the addresses in `evidence/mainnet-suite-deployment.json` without
+using a signing key. At that single observed block:
+
+- PublicLPVault `0x9ff8358dc5ee866e0b9707d0139cf47b399f5257`:
+  `publicLpActive=false`, `totalShares=0`, `managedAssets=0`, real
+  USDC balance 0, recorded pending trader liability 0, bad debt 0, risk
+  budget 0, and `bootstrapFinalized=false`.
+- Its `riskController` and `governanceExecutor` were unset.
+- USDCMarginVault `0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf`:
+  1,000,000 USDC base units (6 decimals = 1 USDC) of token custody,
+  `rawCash=1,000,000`, `totalFreeCollateral=1,000,000`,
+  `totalLockedCollateral=0`, pending positive PnL 0 and protocol bad debt 0.
+- `allocatedBacking()`, `marginVault()`, `lpBacking()`,
+  `lpRecoverable()`, and `lpVault()` returned **no data**, not zero.
+  These newer getters may not exist in the deployed runtime. Never substitute
+  current GitHub source for independently verified deployed bytecode.
+
+This snapshot suggests the reported public-LP withdrawal flaw does not
+currently expose funded public LP shares at the listed mainnet vault, but
+**does not** constitute an audit, make the old contract safe to activate, or
+prove the engine and all governance roles are correct. The repaired source is
+not installed at this mainnet address. Keep the old public LP vault inactive
+until an independently reviewed migration and settlement design is ready.
