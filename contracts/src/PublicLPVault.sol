@@ -35,6 +35,10 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     uint256 public cumulativeLpBackingLosses;
     address public riskController;
     bool public publicLpActive;
+    // LP shares can only be settled after the controller certifies a de-risked NAV.
+    bool public withdrawalAccountingCertified;
+    bool public withdrawalSettlementEnabled;
+    uint256 public constant WITHDRAWAL_CLAIM_WINDOW = 1 days;
     mapping(address account => uint256 shares) public shareBalance;
     mapping(address account => WithdrawalRequest request) public withdrawals;
 
@@ -54,6 +58,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error ActivationUnsafe();
     error InvalidActivationState();
     error InvalidMarginVault();
+    error ActiveLpExposure();
+    error WithdrawalSettlementClosed();
+    error WithdrawalRequestExpired();
 
     enum CustodyStatus {
         MATCH,
@@ -77,6 +84,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     event LpBackingAllocated(uint256 amount);
     event LpBackingRecovered(uint256 amount);
     event LpBackingLossRealized(uint256 amount);
+    event WithdrawalAccountingCertified(address indexed controller, uint256 nav);
+    event WithdrawalSettlementChanged(bool enabled, address indexed actor);
+    event WithdrawalRequestRenewed(address indexed account, uint256 shares, uint64 availableAt);
 
     modifier onlyController() {
         if (msg.sender != riskController && !(!bootstrapFinalized && msg.sender == owner)) {
@@ -100,6 +110,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
             revert InvalidMarginVault();
         }
         marginVault = vault;
+        _invalidateWithdrawalAccounting();
         emit MarginVaultLinked(vault);
     }
 
@@ -118,6 +129,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                 || amount > managedAssets - reserved
         ) revert InsufficientLiquidity();
 
+        _invalidateWithdrawalAccounting();
         managedAssets -= amount;
         allocatedBacking += amount;
         asset.safeTransfer(marginVault, amount);
@@ -139,6 +151,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (afterBalance < beforeBalance || afterBalance - beforeBalance != amount) {
             revert CustodyDeltaMismatch();
         }
+        _invalidateWithdrawalAccounting();
         allocatedBacking -= amount;
         managedAssets += amount;
         emit LpBackingRecovered(amount);
@@ -153,6 +166,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                 || amount > allocatedBacking
         ) revert InsufficientLiquidity();
         ILpMarginCustody(marginVault).writeDownLpBacking(amount);
+        _invalidateWithdrawalAccounting();
         allocatedBacking -= amount;
         cumulativeLpBackingLosses += amount;
         emit LpBackingLossRealized(amount);
@@ -160,6 +174,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
 
     function setRiskController(address controller) external onlyGovernanceExecutor {
         if (controller == address(0)) revert ZeroAddress();
+        _invalidateWithdrawalAccounting();
         riskController = controller;
         emit RiskControllerSet(controller);
     }
@@ -172,6 +187,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function setPublicLpActive(bool active) external onlyGovernanceExecutor {
         if (publicLpActive == active) revert InvalidActivationState();
         if (active) {
+            if (withdrawalSettlementEnabled) revert ActivationUnsafe();
             if (!bootstrapFinalized || riskController == address(0)) revert ActivationUnsafe();
             (CustodyStatus status,,,) = custodyStatus();
             if (status != CustodyStatus.MATCH) revert ActivationUnsafe();
@@ -198,6 +214,52 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit PublicLPActivationSet(false, msg.sender);
     }
 
+    /// @notice A reconciled, fully de-risked accounting state is required before
+    /// any claims. The controller MUST first stop trading, settle PnL and bad debt,
+    /// and return or write down all LP backing. Certification is invalidated by
+    /// any subsequent controller accounting write.
+    function certifyWithdrawalAccounting() external onlyController {
+        if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
+            revert ActiveLpExposure();
+        }
+        (CustodyStatus status,,,) = custodyStatus();
+        if (status != CustodyStatus.MATCH) revert InsufficientLiquidity();
+        withdrawalAccountingCertified = true;
+        emit WithdrawalAccountingCertified(msg.sender, navAssets());
+    }
+
+    /// @notice Governance opens a withdrawal-only settlement interval after
+    /// the controller's reconciliation. It cannot coexist with active LP risk.
+    function setWithdrawalSettlementEnabled(bool enabled) external onlyGovernanceExecutor {
+        if (enabled) {
+            if (
+                !withdrawalAccountingCertified || publicLpActive || marketRiskBudget != 0
+                    || allocatedBacking != 0
+            ) revert ActiveLpExposure();
+            (CustodyStatus status,,,) = custodyStatus();
+            if (status != CustodyStatus.MATCH) revert InsufficientLiquidity();
+        }
+        withdrawalSettlementEnabled = enabled;
+        emit WithdrawalSettlementChanged(enabled, msg.sender);
+    }
+
+    /// @notice Separate guardian control: pausing deposits never paused claims.
+    function emergencyPauseWithdrawalSettlement() external onlyEmergencyAdmin {
+        withdrawalAccountingCertified = false;
+        withdrawalSettlementEnabled = false;
+        emit WithdrawalSettlementChanged(false, msg.sender);
+    }
+
+    /// @dev Every controller change makes the previously approved settlement
+    /// snapshot unusable until the new values are independently reconciled.
+    function _invalidateWithdrawalAccounting() internal {
+        withdrawalAccountingCertified = false;
+        if (withdrawalSettlementEnabled) {
+            withdrawalSettlementEnabled = false;
+            emit WithdrawalSettlementChanged(false, msg.sender);
+        }
+    }
+
     function navAssets() public view returns (uint256) {
         uint256 balance = managedAssets;
         // Only recoverable LP-attributable margin equity counts as NAV;
@@ -218,6 +280,12 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
 
     function deposit(uint256 assets) external nonReentrant returns (uint256 shares) {
         if (!publicLpActive) revert PublicLPInactive();
+        // Without atomic mark-to-market, deposits during active risk may also
+        // transfer value between old and new LPs through stale share prices.
+        if (
+            marketRiskBudget != 0 || allocatedBacking != 0 || pendingTraderLiability != 0
+                || cumulativeBadDebt != 0
+        ) revert ActiveLpExposure();
         // Never reset the share series while old allocated backing remains.
         if (totalShares == 0 && allocatedBacking != 0) revert InsufficientLiquidity();
         if (assets == 0) revert InvalidAmount();
@@ -254,13 +322,24 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit WithdrawalRequested(msg.sender, shares, request.availableAt);
     }
 
+    /// @notice Matured requests cannot be redeemed while the LP pool is backing
+    /// live trading. A fully de-risked, controller-certified settlement is needed.
     function claimWithdraw() external nonReentrant returns (uint256 assets) {
+        if (!withdrawalSettlementEnabled || !withdrawalAccountingCertified) {
+            revert WithdrawalSettlementClosed();
+        }
+        if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
+            revert ActiveLpExposure();
+        }
         WithdrawalRequest memory request = withdrawals[msg.sender];
         if (request.shares == 0 || shareBalance[msg.sender] < request.shares) {
             revert InsufficientShares();
         }
         // forge-lint: disable-next-line(block-timestamp)
         if (block.timestamp < request.availableAt) revert CooldownActive();
+        if (block.timestamp > uint256(request.availableAt) + WITHDRAWAL_CLAIM_WINDOW) {
+            revert WithdrawalRequestExpired();
+        }
         // Closing the final share series requires all historic backing to
         // return or be explicitly written down, preventing cross-generation PnL.
         if (request.shares == totalShares && allocatedBacking != 0) {
@@ -285,12 +364,28 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         emit Withdrawn(msg.sender, assets, request.shares);
     }
 
+    /// @notice An expired request retains its queued shares; the LP can restart
+    /// the cooldown without issuing or losing shares.
+    function renewWithdrawalRequest() external {
+        WithdrawalRequest storage request = withdrawals[msg.sender];
+        if (request.shares == 0 || request.shares > shareBalance[msg.sender]) {
+            revert InsufficientShares();
+        }
+        uint256 nextAvailableAt = block.timestamp + withdrawalCooldown;
+        if (nextAvailableAt > type(uint64).max) revert InvalidAmount();
+        // forge-lint: disable-next-line(unsafe-typecast)
+        request.availableAt = uint64(nextAvailableAt);
+        emit WithdrawalRequestRenewed(msg.sender, request.shares, request.availableAt);
+    }
+
     function recordTraderLiability(uint256 pendingLiability) external onlyController {
+        _invalidateWithdrawalAccounting();
         pendingTraderLiability = pendingLiability;
         emit TraderLiabilityUpdated(pendingLiability);
     }
 
     function recordManagedAssets(uint256 assets) external onlyController {
+        _invalidateWithdrawalAccounting();
         if (assets > asset.balanceOf(address(this))) revert InsufficientLiquidity();
         managedAssets = assets;
         (CustodyStatus status,,,) = custodyStatus();
@@ -298,6 +393,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     }
 
     function setMarketRiskBudget(uint256 riskBudget) external onlyController {
+        _invalidateWithdrawalAccounting();
         if (riskBudget > navAssets()) revert InsufficientLiquidity();
         marketRiskBudget = riskBudget;
         emit MarketRiskBudgetSet(riskBudget);
@@ -324,11 +420,13 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     }
 
     function recordBadDebt(uint256 amount) external onlyController {
+        _invalidateWithdrawalAccounting();
         cumulativeBadDebt += amount;
         emit BadDebtRecorded(amount);
     }
 
     function accountInsurance(uint256 amount) external onlyController {
+        _invalidateWithdrawalAccounting();
         insuranceReserve = amount;
         emit InsuranceAccounted(amount);
     }
