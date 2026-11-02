@@ -189,7 +189,9 @@ contract LPMarginBridgeTest {
         require(lp.totalShares() == 1_000_000, "stale approval consumed LP shares");
 
         lp.certifyWithdrawalAccounting();
-        require(lp.certifiedMarginStateDigest() == margin.settlementStateDigest(), "fresh digest wrong");
+        require(
+            lp.certifiedMarginStateDigest() == margin.settlementStateDigest(), "fresh digest wrong"
+        );
         require(lp.claimWithdraw() == 1_000_000, "freshly reconciled exit refused");
         require(lp.totalShares() == 0, "shares not consumed on fresh claim");
     }
@@ -202,7 +204,9 @@ contract LPMarginBridgeTest {
         bytes32 beforeDigest = margin.settlementStateDigest();
         usdc.mint(address(margin), 1);
         require(margin.settlementStateDigest() == beforeDigest, "donation changed ledger");
-        require(lp.certifiedMarginStateDigest() == beforeDigest, "certification unexpectedly changed");
+        require(
+            lp.certifiedMarginStateDigest() == beforeDigest, "certification unexpectedly changed"
+        );
     }
 
     function testCollectedProtocolFeesCannotInflateLpNav() public {
