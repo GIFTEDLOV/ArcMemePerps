@@ -10,7 +10,7 @@ USDC="0x3600000000000000000000000000000000000000"
 
 read_call() {
   local result
-  result="$(timeout 40s cast call "$1" "$2" ${3:+"$3"} --rpc-url "$RPC_URL")"
+  result="$(timeout 40s cast call "$1" "$2" ${3:+"$3"} --block "$OBSERVED_BLOCK" --rpc-url "$RPC_URL")"
   if [[ -z "$result" ]]; then
     # An empty return payload can mean this getter is absent in deployed bytecode.
     echo "UNAVAILABLE_NO_RETURN_DATA"
@@ -21,14 +21,15 @@ read_call() {
 
 CHAIN_ID="$(timeout 40s cast chain-id --rpc-url "$RPC_URL")"
 echo "network_chain_id=$CHAIN_ID"
-echo "observed_block=$(timeout 40s cast block-number --rpc-url "$RPC_URL")"
+OBSERVED_BLOCK="$(timeout 40s cast block-number --rpc-url "$RPC_URL")"
+echo "observed_block=$OBSERVED_BLOCK"
 if [[ "$CHAIN_ID" != "5042" ]]; then
   echo "ERROR: RPC does not report Arc mainnet chain 5042" >&2
   exit 1
 fi
 
 for contract in "$PUBLIC_LP" "$MARGIN"; do
-  code="$(timeout 40s cast code "$contract" --rpc-url "$RPC_URL")"
+  code="$(timeout 40s cast code "$contract" --block "$OBSERVED_BLOCK" --rpc-url "$RPC_URL")"
   if [[ "$code" == "0x" || -z "$code" ]]; then
     echo "ERROR: no runtime bytecode at $contract" >&2
     exit 1
