@@ -7,6 +7,8 @@ import {
   readIndexedPositions,
   readIndexedFinancialTotals,
   readIndexedActivity,
+  readIndexedWalletPositions,
+  readIndexedWalletActivity,
 } from "./arc-index-read.js";
 import { marketIdForToken, type SupportedChain } from "@arcmemeperps/shared";
 /**
@@ -403,6 +405,31 @@ export default {
         if (error instanceof Error && error.message === "UNSUPPORTED_INDEX_CATEGORY")
           return json({ error: "UNSUPPORTED_INDEX_CATEGORY" }, 400);
         return json({ error: "PERSISTENT_INDEX_QUERY_FAILED" }, 503);
+      }
+    }
+    if (route.startsWith("wallet/")) {
+      const parts = route.split("/");
+      if (parts.length !== 2 || !/^0x[0-9a-fA-F]{40}$/.test(parts[1] ?? ""))
+        return json({ error: "INVALID_ARC_ADDRESS" }, 400, { "Cache-Control": "no-store" });
+      if (!indexDatabaseConfigured())
+        return json({ error: "PERSISTENT_INDEX_UNAVAILABLE" }, 503, { "Cache-Control": "no-store" });
+      try {
+        const address = parts[1]!;
+        const [coverage, positions, activity] = await Promise.all([
+          readArcIndexSnapshot(),
+          readIndexedWalletPositions(address),
+          readIndexedWalletActivity(address),
+        ]);
+        return json({
+          schemaVersion: "v1",
+          wallet: { address, positions, activity },
+          coverage,
+          state: "RECEIPT_EVENT_PROJECTION_NOT_ONCHAIN_BALANCE_PARITY",
+          readOnly: true,
+          complete: false,
+        }, 200, { "Cache-Control": "no-store" });
+      } catch {
+        return json({ error: "WALLET_INDEX_QUERY_FAILED" }, 503, { "Cache-Control": "no-store" });
       }
     }
     if (route === "stream") {
