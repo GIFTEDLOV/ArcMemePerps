@@ -10,6 +10,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const PLAN = resolve(ROOT, "deployments/arc-lp-security-release-plan.template.json");
 const SOURCE_PATHS = [
   "contracts/src/PublicLPVault.sol",
+  "contracts/src/PerpEngine.sol",
   "contracts/src/USDCMarginVault.sol",
   "scripts/arc-mainnet-deployment.ts",
   "scripts/deploy-mainnet-suite.ts",
@@ -61,6 +62,7 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
   const legacyDeployer = source["scripts/deploy-mainnet-suite.ts"] ?? "";
   const vault = source["contracts/src/PublicLPVault.sol"] ?? "";
   const margin = source["contracts/src/USDCMarginVault.sol"] ?? "";
+  const engine = source["contracts/src/PerpEngine.sol"] ?? "";
   const verify = source["scripts/verify-mainnet-deployment.ts"] ?? "";
   add(!deployer.includes('await call("USDCMarginVault", "setLpVault"') ||
       !deployer.includes('await call("PublicLPVault", "setMarginVault"') ||
@@ -75,9 +77,15 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
       !vault.includes("_assertNoEngineExposure()") ||
       !vault.includes("_assertCertifiedMarginState()") ||
       !vault.includes("certifiedMarginStateDigest") ||
+      !vault.includes("certifiedEngineSettlementSequence") ||
+      !vault.includes("EngineSettlementSequenceChanged") ||
       !vault.includes("hasEverOpenedMarketRisk"),
     "LP_WITHDRAWAL_CERTIFICATION_GUARDS_MISSING");
   add(!margin.includes("function lpRecoverable()"), "MARGIN_LP_RECOVERY_INTERFACE_MISSING");
+  add(!engine.includes("uint256 public settlementSequence;") ||
+      !engine.includes("settlementSequence += 1;") ||
+      !vault.includes("ILpEngineExposure(settlementEngine).settlementSequence()"),
+    "ENGINE_SETTLEMENT_SEQUENCE_GUARD_MISSING");
   add(!margin.includes("function seniorLiabilitiesCovered()") ||
       !margin.includes("function settlementStateDigest()"),
     "MARGIN_SOLVENCY_AND_STATE_COMMITMENT_MISSING");
