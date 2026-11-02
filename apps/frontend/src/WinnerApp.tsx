@@ -2678,7 +2678,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
           </div>
           <div className="gmgn-sec-cell">
             <label>HONEYPOT</label>
-            <strong className="good">0% CLEAN</strong>
+            <strong>Not verified</strong>
           </div>
         </div>
       </div>
@@ -2697,174 +2697,40 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
   const [tab, setTab] = useState("Overview");
   const [provenance, setProvenance] = useState<PassportRow | null>(null);
 
-  // Synchronous resolver so the view never renders empty
-  const resolveSyncMarket = (): OriginMarket | null => {
-    const rawId = marketId || "";
-    const decoded = decodeURIComponent(rawId);
-    const lower = decoded.toLowerCase();
-
-    const inPage = data.page.items.find((item) =>
-      item.marketId === decoded ||
-      item.marketId.toLowerCase() === lower ||
-      item.tokenAddress.toLowerCase() === lower ||
-      item.symbol?.toLowerCase() === lower
-    );
-    if (inPage) return inPage;
-
-    const snapshot = ((fallbackSnapshot as unknown as { markets: unknown[] }).markets ?? []).map(normalize);
-    const inSnap = snapshot.find((item) =>
-      item.marketId === decoded ||
-      item.marketId.toLowerCase() === lower ||
-      item.tokenAddress.toLowerCase() === lower ||
-      item.symbol?.toLowerCase() === lower
-    );
-    if (inSnap) return inSnap;
-
-    // Fallback to first available market
-    return data.page.items[0] || (snapshot[0] as OriginMarket) || null;
-  };
-
-  const [market, setMarket] = useState<OriginMarket | null>(resolveSyncMarket);
-
+  const [market, setMarket] = useState<OriginMarket | null>(null);
   useEffect(() => {
-    if (!marketId) {
-      if (data.page.items[0]) setMarket(data.page.items[0]);
-      return;
-    }
-    const decoded = decodeURIComponent(marketId);
-    const lower = decoded.toLowerCase();
-
-    // 1. Check in data items
-    let found: OriginMarket | null = data.page.items.find((item) =>
-      item.marketId === decoded ||
-      item.marketId.toLowerCase() === lower ||
-      item.tokenAddress.toLowerCase() === lower ||
-      item.symbol?.toLowerCase() === lower
-    ) ?? null;
-
-    // 2. Check in snapshot
-    if (!found) {
-      const snapshot = ((fallbackSnapshot as unknown as { markets: unknown[] }).markets ?? []).map(normalize);
-      found = snapshot.find((item) =>
-        item.marketId === decoded ||
-        item.marketId.toLowerCase() === lower ||
-        item.tokenAddress.toLowerCase() === lower ||
-        item.symbol?.toLowerCase() === lower
-      ) ?? null;
-    }
-
-    // 3. Check custom storage
-    if (!found) {
-      try {
-        const saved = JSON.parse(window.localStorage.getItem("arcmemeperps.custom_markets") || "[]") as OriginMarket[];
-        found = saved.find((item) =>
-          item.marketId === decoded ||
-          item.marketId.toLowerCase() === lower ||
-          item.tokenAddress.toLowerCase() === lower ||
-          item.symbol?.toLowerCase() === lower
-        ) ?? null;
-      } catch {
-        /* ignore */
-      }
-    }
-
+    let active = true;
+    const decoded = marketId ? decodeURIComponent(marketId) : "";
+    const found = data.page.items.find((item) =>
+      item.marketId.toLowerCase() === decoded.toLowerCase() ||
+      item.tokenAddress.toLowerCase() === decoded.toLowerCase()
+    );
     if (found) {
       setMarket(found);
-      return;
+      return () => { active = false; };
     }
-
-    // 4. Try API or RPC hydration
-    if (decoded && decoded !== "arc-mainnet-gf") {
+    // Never invent a token's price, qualification, custody, or holder count,
+    // nor redirect an unknown market to an unrelated snapshot.
+    setMarket(null);
+    if (decoded) {
       void api.market(decoded)
-        .then((raw) => {
-          if (raw) setMarket(normalize(raw));
-        })
-        .catch(async () => {
-          if (/^0x[a-fA-F0-9]{40}$/.test(decoded)) {
-            try {
-              const rpcUrl = "https://rpc.mainnet.arc.io";
-              const call = async (d: string) => {
-                const res = await fetch(rpcUrl, {
-                  method: "POST",
-                  headers: { "content-type": "application/json" },
-                  body: JSON.stringify({ jsonrpc: "2.0", id: 1, method: "eth_call", params: [{ to: decoded, data: d }, "latest"] }),
-                });
-                const json = (await res.json()) as { result?: string };
-                return json.result ?? "";
-              };
-              const [symRaw, nameRaw, decRaw] = await Promise.all([call("0x95d89b41"), call("0x06fdde03"), call("0x313ce567")]);
-              const sym = decodeAbiString(symRaw) || "ARC";
-              const nm = decodeAbiString(nameRaw) || `Arc Meme ${decoded.slice(0, 6)}`;
-              const decimals = decRaw ? parseInt(decRaw, 16) || 18 : 18;
-              const now = new Date().toISOString();
-              const hydrated: OriginMarket = {
-                marketId: decoded,
-                chain: "ARC",
-                tokenAddress: decoded.toLowerCase(),
-                symbol: sym,
-                name: nm,
-                decimals,
-                imageUrl: `https://api.dicebear.com/7.x/bottts/svg?seed=${sym}`,
-                sourceUrl: `https://explorer.arc.io/token/${decoded}`,
-                originPlatform: "ArcSwap",
-                lifecycle: { status: "DEX_LIVE", observedAt: now, confidenceBps: 9500, evidenceHash: null },
-                priceUsd: "0.01",
-                priceChange24hBps: 450,
-                volume24hUsd: "100000",
-                transactions24h: 520,
-                originSpotLiquidityUsd: "350000",
-                originDepth2PctUsd: "35000",
-                holders: 1200,
-                top10ConcentrationBps: 1850,
-                largestClusterBps: 420,
-                integrity: { status: "QUALIFIED", reasonCodes: ["ARC_MAINNET_HYDRATED"], observations: [] },
-                derivatives: { status: "ELIGIBLE", safeOiUsd: "50000", safePositionUsd: "10000", maxLeverage: "5x", oracleQuality: "HIGH", sourceIndependence: 3, reasonCodes: [] },
-                perp: { status: "ELIGIBLE", deploymentId: "arc-mainnet-production", marketId: decoded, currentOiUsd: "0", capacityUsd: "100000", qualificationHash: null, riskRuleVersion: "0.4.0" },
-                providerState: { status: "AVAILABLE", fetchedAt: now, reason: null },
-                freshness: { status: "AVAILABLE", observedAt: now, maxAgeSeconds: 60 },
-                history: [{ observedAt: now, priceUsd: "0.01" }],
-              };
-              data.addCustomMarket(hydrated);
-              setMarket(hydrated);
-              return;
-            } catch {
-              /* ignore */
-            }
-          }
-          // Never leave user on empty dead end
-          const fallback = data.page.items[0] || (fallbackSnapshot.markets[0] ? normalize(fallbackSnapshot.markets[0]) : null);
-          if (fallback) setMarket(fallback);
-        });
-    } else {
-      const fallback = data.page.items[0] || (fallbackSnapshot.markets[0] ? normalize(fallbackSnapshot.markets[0]) : null);
-      if (fallback) setMarket(fallback);
+        .then((value) => { if (active) setMarket(normalize(value)); })
+        .catch(() => { if (active) setMarket(null); });
     }
-  }, [marketId, data]);
+    return () => { active = false; };
+  }, [marketId, data.page.items]);
 
   if (!market) {
-    const fallback = data.page.items[0] || (fallbackSnapshot.markets[0] ? normalize(fallbackSnapshot.markets[0]) : null);
-    if (fallback) {
-      return (
-        <section className="page detail-page">
-          <div className="panel" style={{ textAlign: "center", padding: "48px 24px" }}>
-            <p style={{ color: "var(--muted)", fontSize: "13px" }}>Loading market...</p>
-          </div>
-        </section>
-      );
-    }
     return (
       <section className="page detail-page">
         <Empty
-          title="Market loading"
-          copy="Connecting to Arc Mainnet decentralized oracle and DEX liquidity pools."
-          action={<Link to="/markets" className="button button-primary">Browse All Markets</Link>}
+          title="No verified market data"
+          copy="This market is not available in the current read-only discovery feed. No price or derivatives eligibility is inferred."
+          action={<Link to="/markets" className="button button-primary">Browse Markets</Link>}
         />
       </section>
     );
   }
-
-  const state = productState(market);
-  const tabs = ["Overview", "Trades", "Holders", "Risk", "Liquidity", "Deployer", "Proof"];
 
   return (
     <section className="page detail-page">
