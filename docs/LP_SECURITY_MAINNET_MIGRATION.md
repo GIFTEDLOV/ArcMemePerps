@@ -87,7 +87,11 @@ production release**:
 1. **Controller trust / NAV integrity:** `PerpEngine` does not automatically
    prove all unrealized positions, PnL and bad debt to `PublicLPVault`.
    A controller that sets risk budget to zero prematurely and certifies stale
-   liabilities can still authorize a loss-shifting withdrawal. The temporary
+   liabilities can still authorize a loss-shifting withdrawal. The permanent
+   known-limit regression test
+   `StaleNavWithdrawalTest.testKnownLimitationFalseControllerCertificationStillMispricesNav`
+   deliberately demonstrates that residual exposure and is **not evidence
+   the economic issue has been fully repaired**. The temporary
    fail-closed model requires verified de-risking and offchain human review.
    A continuously active LP product needs a separately designed and
    independently reviewed onchain settlement/epoch mechanism.
