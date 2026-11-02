@@ -70,28 +70,66 @@ function normalize(raw: unknown): OriginMarket {
 
   const numLiq = Number(rawLiq || "0");
   const numVol = Number(rawVol || "0");
-  const calculatedTxns = rawTxns ?? Math.max(Math.round(numVol > 0 ? numVol / 220 : 180), 85);
-  const calculatedHolders = rawHolders ?? Math.max(Math.round(calculatedTxns * 0.35 + Math.sqrt(Math.max(numLiq, 1000)) * 1.2), 240);
-  const calculatedTop10 = rawTop10 ?? 1850;
-  const calculatedCluster = rawCluster ?? 480;
-  const calculatedChange = rawChange ?? (chain === "ARC" ? 450 : 280);
-
+  // Missing on-chain evidence is unknown, never a generated statistic.
   const nonMemes = ["USDC", "USDT", "USDG", "PYUSD", "DAI", "BUSD", "USDS", "WETH", "WBNB", "WSOL", "WBTC"];
-  const isDrained = numLiq < 1000;
-  const isWashTrading = numVol > 0 && numLiq > 0 && (numVol / numLiq > 300) && numLiq < 25000;
+  const isDrained = rawLiq !== null && numLiq < 1000;
+  const isWashTrading = rawVol !== null && rawLiq !== null && numLiq > 0 && numVol / numLiq > 300 && numLiq < 25000;
   const isNonMeme = nonMemes.includes(symbol.toUpperCase()) && chain !== "ARC";
   const isQuarantined = Boolean(r.isQuarantined || isDrained || isWashTrading || isNonMeme);
-  const quarantineReason = stringValue(r.quarantineReason) ?? (isDrained ? `Drained Liquidity ($${numLiq.toFixed(2)} < $1,000 floor)` : isWashTrading ? `Wash Trading Bot Farm (${(numVol / numLiq).toFixed(0)}x Vol/Liq Ratio)` : isNonMeme ? "Non-Meme Asset Excluded" : null);
+  const quarantineReason = stringValue(r.quarantineReason) ?? (isDrained ? `Drained Liquidity ($${numLiq.toFixed(2)} < $1,000 floor)` : isWashTrading ? `Suspicious volume/liquidity ratio (${(numVol / numLiq).toFixed(0)}x)` : isNonMeme ? "Non-Meme Asset Excluded" : null);
 
   return {
-    marketId, chain, tokenAddress, symbol, name, decimals: numberValue(r.decimals) ?? numberValue(token.decimals) ?? 18, imageUrl: stringValue(r.imageUrl) ?? stringValue(token.imageUrl) ?? `https://api.dicebear.com/7.x/bottts/svg?seed=${symbol}`, sourceUrl: stringValue(r.sourceUrl), originPlatform: stringValue(r.originPlatform) ?? "DexSwap",
-    lifecycle: { status: (stringValue(life.status) ?? stringValue(r.lifecycleStatus) ?? "DISCOVERED") as OriginMarket["lifecycle"]["status"], observedAt: stringValue(life.observedAt) ?? new Date().toISOString(), confidenceBps: numberValue(life.confidenceBps) ?? 9200, evidenceHash: stringValue(life.evidenceHash) },
-    priceUsd: rawPriceUsd ?? "0.001", priceChange24hBps: calculatedChange, volume24hUsd: rawVol ?? "25000", transactions24h: calculatedTxns, originSpotLiquidityUsd: rawLiq ?? "15000", originDepth2PctUsd: stringValue(r.originDepth2PctUsd) ?? (numLiq ? String(Math.round(numLiq * 0.08)) : "1200"), holders: calculatedHolders, top10ConcentrationBps: calculatedTop10, largestClusterBps: calculatedCluster,
-    integrity: { status: (stringValue(integrity.status) ?? (isQuarantined ? "REJECTED" : "QUALIFIED")) as OriginMarket["integrity"]["status"], reasonCodes: Array.isArray(integrity.reasonCodes) ? integrity.reasonCodes.filter((value): value is string => typeof value === "string") : [isQuarantined ? "ANTI_RUG_QUARANTINED" : "ANTI_RUG_VETTED"], observations },
-    derivatives: { status: (stringValue(derivatives.status) ?? (isQuarantined ? "BLOCKED" : "ELIGIBLE")) as OriginMarket["derivatives"]["status"], safeOiUsd: stringValue(derivatives.safeOiUsd) ?? "50000", safePositionUsd: stringValue(derivatives.safePositionUsd) ?? "10000", maxLeverage: isQuarantined ? "None" : (stringValue(derivatives.maxLeverage) ?? "5x"), oracleQuality: stringValue(derivatives.oracleQuality) ?? "HIGH", sourceIndependence: numberValue(derivatives.sourceIndependence) ?? 2, reasonCodes: Array.isArray(derivatives.reasonCodes) ? derivatives.reasonCodes.filter((value): value is string => typeof value === "string") : ["ARC_USDC_SETTLEMENT"] },
-    perp: { status: (stringValue(perp.status) ?? (isQuarantined ? "BLOCKED" : "ELIGIBLE")) as OriginMarket["perp"]["status"], deploymentId: stringValue(perp.deploymentId) ?? "arc-mainnet-production", marketId: stringValue(perp.marketId) ?? marketId, currentOiUsd: stringValue(perp.currentOiUsd) ?? "0", capacityUsd: stringValue(perp.capacityUsd) ?? "100000", qualificationHash: stringValue(perp.qualificationHash), riskRuleVersion: stringValue(perp.riskRuleVersion) ?? "0.4.0" },
-    providerState: { status: (stringValue(provider.status) ?? "AVAILABLE") as OriginMarket["providerState"]["status"], fetchedAt: stringValue(provider.fetchedAt) ?? new Date().toISOString(), reason: stringValue(provider.reason) }, freshness: { status: (stringValue(freshness.status) ?? "AVAILABLE") as OriginMarket["freshness"]["status"], observedAt: stringValue(freshness.observedAt) ?? new Date().toISOString(), maxAgeSeconds: numberValue(freshness.maxAgeSeconds) ?? 60 }, history: history.length ? history : [{ observedAt: new Date().toISOString(), priceUsd: rawPriceUsd ?? "0.001" }],
-    isQuarantined, quarantineReason,
+    marketId, chain, tokenAddress, symbol, name,
+    decimals: numberValue(r.decimals) ?? numberValue(token.decimals),
+    imageUrl: stringValue(r.imageUrl) ?? stringValue(token.imageUrl),
+    sourceUrl: stringValue(r.sourceUrl), originPlatform: stringValue(r.originPlatform),
+    lifecycle: {
+      status: (stringValue(life.status) ?? stringValue(r.lifecycleStatus) ?? "DISCOVERED") as OriginMarket["lifecycle"]["status"],
+      observedAt: stringValue(life.observedAt),
+      confidenceBps: numberValue(life.confidenceBps),
+      evidenceHash: stringValue(life.evidenceHash),
+    },
+    priceUsd: rawPriceUsd, priceChange24hBps: rawChange, volume24hUsd: rawVol,
+    transactions24h: rawTxns, originSpotLiquidityUsd: rawLiq,
+    originDepth2PctUsd: stringValue(r.originDepth2PctUsd), holders: rawHolders,
+    top10ConcentrationBps: rawTop10, largestClusterBps: rawCluster,
+    integrity: {
+      status: (stringValue(integrity.status) ?? (isQuarantined ? "REJECTED" : "UNKNOWN")) as OriginMarket["integrity"]["status"],
+      reasonCodes: Array.isArray(integrity.reasonCodes)
+        ? integrity.reasonCodes.filter((value): value is string => typeof value === "string")
+        : [isQuarantined ? "SPOT_RISK_FLAG" : "NOT_ASSESSED_ONCHAIN"],
+      observations,
+    },
+    derivatives: {
+      status: (stringValue(derivatives.status) ?? (isQuarantined ? "BLOCKED" : "NOT_REGISTERED")) as OriginMarket["derivatives"]["status"],
+      safeOiUsd: stringValue(derivatives.safeOiUsd),
+      safePositionUsd: stringValue(derivatives.safePositionUsd),
+      maxLeverage: stringValue(derivatives.maxLeverage),
+      oracleQuality: stringValue(derivatives.oracleQuality),
+      sourceIndependence: numberValue(derivatives.sourceIndependence),
+      reasonCodes: Array.isArray(derivatives.reasonCodes)
+        ? derivatives.reasonCodes.filter((value): value is string => typeof value === "string")
+        : ["NOT_VERIFIED_AGAINST_ARC_REGISTRY"],
+    },
+    perp: {
+      status: (stringValue(perp.status) ?? (isQuarantined ? "BLOCKED" : "NOT_REGISTERED")) as OriginMarket["perp"]["status"],
+      deploymentId: stringValue(perp.deploymentId),
+      marketId: stringValue(perp.marketId),
+      currentOiUsd: stringValue(perp.currentOiUsd),
+      capacityUsd: stringValue(perp.capacityUsd),
+      qualificationHash: stringValue(perp.qualificationHash),
+      riskRuleVersion: stringValue(perp.riskRuleVersion),
+    },
+    providerState: {
+      status: (stringValue(provider.status) ?? "PARTIAL") as OriginMarket["providerState"]["status"],
+      fetchedAt: stringValue(provider.fetchedAt), reason: stringValue(provider.reason),
+    },
+    freshness: {
+      status: (stringValue(freshness.status) ?? "UNAVAILABLE") as OriginMarket["freshness"]["status"],
+      observedAt: stringValue(freshness.observedAt),
+      maxAgeSeconds: numberValue(freshness.maxAgeSeconds),
+    },
+    history, isQuarantined, quarantineReason,
   };
 }
 
@@ -2463,7 +2501,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
     void fetchBal();
   }, [wallet.state.address]);
 
-  const priceNum = Number(market.priceUsd ?? "1.00");
+  const priceNum = Number(market.priceUsd ?? "0");
   const collateralNum = Number(collateral || "0");
   const leverageNum = Number(leverage || "1");
   const positionSizeUsd = collateralNum * leverageNum;
