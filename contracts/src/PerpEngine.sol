@@ -108,6 +108,9 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     // the engine is flat when multiple markets can be traded.
     uint256 public activePositionCount;
     uint256 public totalOpenNotionalUsdc;
+    // Monotonic trade-lifecycle sequence: a flat engine may be different
+    // from the engine that the controller previously certified.
+    uint256 public settlementSequence;
     address public adlController;
 
     EconomicModel.FundingConfig public fundingConfig;
@@ -273,6 +276,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     }
 
     function enterTerminalInsolvencyState() external onlyADLController {
+        settlementSequence += 1;
         solvencyBlocked = true;
         emit TerminalInsolvencyStateEntered();
     }
@@ -568,6 +572,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
             lastIncreasedAt: now64
         });
         positionStates[positionId] = state;
+        settlementSequence += 1;
         activePosition[accountMarket] = positionId;
         activePositionCount += 1;
         totalOpenNotionalUsdc += size;
@@ -619,6 +624,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         state.entryFundingIndex = marketAccrual[position.marketId].fundingIndexWad;
         state.entryBorrowIndex = marketAccrual[position.marketId].borrowIndexWad;
         state.lastIncreasedAt = SafeCast.toUint64(block.timestamp);
+        settlementSequence += 1;
         totalOpenInterest[position.marketId] += sizeAdded;
         totalOpenNotionalUsdc += sizeAdded;
         if (position.isLong) longOpenInterest[position.marketId] += sizeAdded;
@@ -676,6 +682,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         storedState.collateralUsdc = expectedRemaining;
         storedState.entryFundingIndex = accrual.fundingIndexWad;
         storedState.entryBorrowIndex = accrual.borrowIndexWad;
+        settlementSequence += 1;
         totalOpenInterest[position.marketId] -= sizeReduced;
         totalOpenNotionalUsdc -= sizeReduced;
         if (position.isLong) longOpenInterest[position.marketId] -= sizeReduced;
@@ -758,6 +765,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     }
 
     function _removePosition(uint256 positionId, Position memory position) private {
+        settlementSequence += 1;
         totalOpenNotionalUsdc -= position.size;
         activePositionCount -= 1;
         totalOpenInterest[position.marketId] -= position.size;
@@ -908,6 +916,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 remainingSize = position.size - sizeReduced;
         positions[positionId].size = remainingSize;
         positionStates[positionId].sizeUsdWad -= state.sizeUsdWad;
+        settlementSequence += 1;
         positionStates[positionId].entryFundingIndex =
         marketAccrual[position.marketId].fundingIndexWad;
         positionStates[positionId].entryBorrowIndex =
