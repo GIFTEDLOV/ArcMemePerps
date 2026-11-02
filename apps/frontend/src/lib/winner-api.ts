@@ -44,26 +44,65 @@ export class WinnerApi {
   public attention(address: string): Promise<{ items: Array<Record<string, unknown>> }> { return this.get(`/attention/${address}`); }
 }
 
+// Arc streams use explicit SSE event names, not default message events.
+// Consumers must subscribe to protocol.event AND protocol.reorg to receive
+// canonical receipts and invalidate any orphaned-chain projections.
+export const ARC_INDEX_SSE_TYPES = ["protocol.event", "protocol.reorg"] as const;
+
+export function decodeArcIndexEvent(
+  raw: string,
+): RealtimeEvent | null {
+  try {
+    const value: unknown = JSON.parse(raw);
+    if (!value || typeof value !== "object") return null;
+    const event = value as Record<string, unknown>;
+    if (
+      (event.type !== "protocol.event" && event.type !== "protocol.reorg") ||
+      typeof event.sequence !== "string" ||
+      !/^[1-9][0-9]{0,18}$/.test(event.sequence) ||
+      typeof event.occurredAt !== "string" ||
+      !event.payload || typeof event.payload !== "object" ||
+      Array.isArray(event.payload)
+    ) return null;
+    return event as unknown as RealtimeEvent;
+  } catch {
+    return null;
+  }
+}
+
 export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEvent) => void, onState: (state: "LIVE" | "RECONNECTING" | "STALE" | "OFFLINE") => void): () => void {
-  const streamUrl = `${baseUrl.replace(/\/api\/v1$/, "")}/api/v1/stream`;
+  const streamUrl = `${baseUrl.replace(/\\/api\\/v1\\/?$/, "")}/api/v1/stream`;
   let source: EventSource | null = null;
   let lastSequence = 0n;
   let reconnectTimer: number | null = null;
   let stopped = false;
+  const handleEvent = (message: MessageEvent<string>) => {
+    const event = decodeArcIndexEvent(message.data);
+    if (!event) {
+      onState("STALE");
+      return;
+    }
+    // Invalidating a reorg is necessary even if another stream event has
+    // the same numeric ID in an independent table.
+    const sequence = BigInt(event.sequence);
+    if (event.type === "protocol.event" && sequence <= lastSequence) return;
+    if (sequence > lastSequence) lastSequence = sequence;
+    onState("LIVE");
+    onEvent(event);
+  };
   const connect = () => {
     if (stopped) return;
     onState("RECONNECTING");
-    source = new EventSource(streamUrl);
-    source.onopen = () => onState("LIVE");
-    source.onmessage = (message) => {
-      try {
-        const event = JSON.parse(message.data) as RealtimeEvent;
-        const sequence = BigInt(event.sequence);
-        if (sequence <= lastSequence) return;
-        lastSequence = sequence;
-        onEvent(event);
-      } catch { onState("STALE"); }
-    };
+    const url = new URL(streamUrl, window.location.href);
+    if (lastSequence > 0n) url.searchParams.set("after", lastSequence.toString());
+    source = new EventSource(url.toString());
+    // A successful SSE handshake/heartbeat alone does not prove indexed
+    // executions are flowing. Only receipt-backed data marks the tape LIVE.
+    source.onopen = () => onState("STALE");
+    source.onmessage = handleEvent;
+    for (const name of ARC_INDEX_SSE_TYPES) {
+      source.addEventListener(name, handleEvent as EventListener);
+    }
     source.onerror = () => {
       source?.close();
       source = null;
@@ -72,5 +111,11 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
     };
   };
   connect();
-  return () => { stopped = true; if (reconnectTimer !== null) window.clearTimeout(reconnectTimer); source?.close(); source = null; onState("OFFLINE"); };
+  return () => {
+    stopped = true;
+    if (reconnectTimer !== null) window.clearTimeout(reconnectTimer);
+    source?.close();
+    source = null;
+    onState("OFFLINE");
+  };
 }
