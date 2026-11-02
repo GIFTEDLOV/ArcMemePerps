@@ -27,6 +27,15 @@ contract ArcLpDeploymentForkTest {
     address private constant LP_A = address(0xA003);
     address private constant LP_B = address(0xA004);
     uint256 private constant ONE_DAY = 1 days;
+    address private forkMargin;
+    uint256 private simulatedActivePositions;
+    uint256 private simulatedNotional;
+
+    // Local fork test contract models the engine; the live deployment must
+    // bind to the real, verified PerpEngine instead of this test stand-in.
+    function marginVault() external view returns (address) { return forkMargin; }
+    function activePositionCount() external view returns (uint256) { return simulatedActivePositions; }
+    function totalOpenNotionalUsdc() external view returns (uint256) { return simulatedNotional; }
 
     function testNewPairConfiguresAgainstRealArcUSDCWithoutTouchingExistingCustody() public {
         require(block.chainid == 5042, "wrong fork chain");
@@ -51,9 +60,11 @@ contract ArcLpDeploymentForkTest {
 
         margin.setCollateralToken(USDC);
         margin.setEngine(address(this)); // simulated controller; no live engine binding
+        forkMargin = address(margin);
         lp.setRiskController(address(this));
         margin.setLpVault(address(lp));
         lp.setMarginVault(address(margin));
+        lp.setSettlementEngine(address(this));
         require(margin.lpVault() == address(lp), "missing margin LP link");
         require(lp.marginVault() == address(margin), "missing LP margin link");
 
@@ -98,8 +109,10 @@ contract ArcLpDeploymentForkTest {
 
         margin.setCollateralToken(address(usdc));
         margin.setEngine(address(this));
+        forkMargin = address(margin);
         margin.setLpVault(address(lp));
         lp.setMarginVault(address(margin));
+        lp.setSettlementEngine(address(this));
         lp.setRiskController(address(this));
         lp.setRole(lp.EMERGENCY_ADMIN_ROLE(), GUARDIAN, true);
         margin.setGovernanceExecutor(address(timelock));
@@ -161,6 +174,18 @@ contract ArcLpDeploymentForkTest {
         );
         lp.setMarketRiskBudget(0);
         require(lp.allocatedBacking() == 0 && margin.lpBacking() == 0, "backing not returned");
+        // A controller cannot declare a market flat while the linked engine
+        // still exposes a non-zero position count or aggregate OI.
+        simulatedActivePositions = 1;
+        simulatedNotional = 1;
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        simulatedActivePositions = 0;
+        simulatedNotional = 0;
+        margin.setPendingPositivePnl(1);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        margin.setPendingPositivePnl(0);
         lp.certifyWithdrawalAccounting();
         vm.prank(LP_A);
         lp.renewWithdrawalRequest();
