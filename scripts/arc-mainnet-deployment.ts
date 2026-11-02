@@ -264,6 +264,7 @@ async function configureSuite(
   // bootstrap authority disappears. Never reuse the historical margin vault.
   await call("USDCMarginVault", "setLpVault", [requireAddress(deployed.PublicLPVault ?? null, "PublicLPVault")]);
   await call("PublicLPVault", "setMarginVault", [requireAddress(deployed.USDCMarginVault ?? null, "USDCMarginVault")]);
+  await call("PublicLPVault", "setSettlementEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
   await call("InsuranceFund", "setCollateralToken", [ARC_MAINNET.usdcAddress]);
   await call("InsuranceFund", "setEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
   await call("RiskConfig", "setExposureProvider", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
@@ -288,9 +289,11 @@ async function configureSuite(
   const lpActive = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "publicLpActive" });
   const lpShares = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "totalShares" });
   const marginBacking = await publicClient.readContract({ address: marginAddress, abi: margin, functionName: "lpBacking" });
+  const certifiedEngine = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "settlementEngine" });
+  const realEngine = requireAddress(deployed.PerpEngine ?? null, "PerpEngine");
   if (
     lpLinked !== marginAddress || marginLinked !== lpAddress
-      || lpActive !== false || lpShares !== 0n || marginBacking !== 0n
+      || certifiedEngine !== realEngine || lpActive !== false || lpShares !== 0n || marginBacking !== 0n
   ) throw new Error("MAINNET_LP_LINK_OR_INACTIVE_GENESIS_MISMATCH");
 
   for (const contract of ARC_DEPLOYMENT_CONTRACTS) await call(contract, "finalizeBootstrap", []);
