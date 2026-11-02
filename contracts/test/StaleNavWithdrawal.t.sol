@@ -94,6 +94,57 @@ contract StaleNavWithdrawalTest {
         vault.claimWithdraw();
     }
 
+    function testUnsolicitedSurplusCannotFreezeCertifiedWithdrawals() public {
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        // Any external account can donate/dust the ERC20 vault. The extra
+        // balance must not enter NAV or deny all legitimate LP claims.
+        usdc.mint(address(vault), 1);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        require(vault.claimWithdraw() == 1_000_000, "donation moved LP share value");
+        require(vault.navAssets() == 1_000_000, "surplus incorrectly counted in NAV");
+        require(usdc.balanceOf(address(vault)) == 1_000_001, "surplus disappeared");
+    }
+
+    function testSurplusArrivingAfterCertificationDoesNotFreezeClaims() public {
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        usdc.mint(address(vault), 1);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        require(vault.claimWithdraw() == 1_000_000, "dust blocked settlement");
+    }
+
+    function testPhysicalCustodyDeficitBlocksApprovedWithdrawal() public {
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        // A deficit after controller certification must invalidate payout
+        // even when some physical USDC remains to pay the first LP.
+        usdc.burn(address(vault), 1);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        vm.expectRevert();
+        vault.claimWithdraw();
+        require(vault.totalShares() == 2_000_000, "shares burned under deficit");
+        require(usdc.balanceOf(LP_A) == 0, "cash escaped under custody deficit");
+    }
+
     function testDepositsCannotUseStaleNavWhileRiskIsOpen() public {
         vault.setMarketRiskBudget(500_000);
         usdc.mint(LP_A, 100_000);
