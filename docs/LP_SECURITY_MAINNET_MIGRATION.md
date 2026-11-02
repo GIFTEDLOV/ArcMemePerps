@@ -111,6 +111,30 @@ interim fail-closed mechanism. It does not prove that *unrecorded*
 external liabilities or historical oracle valuations are complete, and
 cannot substitute for an independently reviewed economic settlement epoch.
 
+### Engine settlement epochs and explicit governance reauthorization
+
+The `PerpEngine.settlementSequence` is a monotonic counter on position open,
+increase, partial/full reduce, close, liquidation, ADL, and terminal
+insolvency. When the market-exposed LP pool is certified, its withdrawal
+certificate now commits to **both** the margin settlement-state digest and
+the engine sequence; either changing blocks all claims until a fresh
+certificate is issued. The engine's terminal insolvency flag separately
+blocks settlement regardless of whether all positions appear closed.
+
+A **new certificate closes any existing governance-authorized withdrawal
+window**. The controller cannot silently replace a stale ledger or engine
+snapshot while relying on yesterday's governance authorization. The
+governance timelock/executor must explicitly enable settlement again.
+
+The linked LP and margin vaults must also report matching allocated/backing
+principal and cumulative LP write-downs. This detects inconsistent
+attribution even when all market positions are flat.
+
+These checks defend against *post-certification* state changes and
+accounting inconsistencies. They do **not** independently prove that every
+historic exchange rate, realized PnL, or external obligation is complete:
+that release blocker remains tracked in [issue #29](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29).
+
 ### Residual findings that block mainnet LP activation
 
 1. **Controller trust / NAV integrity (partially hardened):**
