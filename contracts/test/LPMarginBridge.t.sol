@@ -22,6 +22,8 @@ contract LPMarginBridgeTest {
     MockUSDC private usdc;
     PublicLPVault private lp;
     USDCMarginVault private margin;
+    uint256 public settlementSequence;
+    bool public solvencyBlocked;
 
     // Local engine stand-in: tests of trading PnL call margin directly under
     // the test contract's engine authority, and do not model PerpEngine OI.
