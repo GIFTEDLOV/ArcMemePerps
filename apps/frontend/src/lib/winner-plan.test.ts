@@ -8,6 +8,10 @@ describe("winner pretrade binding", () => {
   it("rejects price, oracle, account, and expiry mutation", () => {
     expect(isPretradeIntact(base, { ...base, acceptablePriceWad: "2" }, 1000)).toBe(false);
     expect(isPretradeIntact(base, { ...base, oracle: { sequence: "8" } }, 1000)).toBe(false);
+    expect(isPretradeIntact(base, { ...base, oracle: { sequence: "7", priceWad: "2" } }, 1000)).toBe(false);
+    expect(isPretradeIntact(base, { ...base, qualification: { ...base.qualification, proofHash: "0xchanged" } }, 1000)).toBe(false);
+    expect(isPretradeIntact(base, { ...base, qualification: { ...base.qualification, eligible: false } }, 1000)).toBe(false);
+    expect(isPretradeIntact(base, { ...base, risk: { maxOIWad: "10" } }, 1000)).toBe(false);
     expect(isPretradeIntact(base, { ...base, account: "0xother" }, 1000)).toBe(false);
     expect(isPretradeIntact(base, { ...base }, 2000)).toBe(false);
   });
