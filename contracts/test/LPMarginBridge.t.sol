@@ -99,6 +99,12 @@ contract LPMarginBridgeTest {
         require(margin.cumulativeLpWriteOff() == 200_000, "margin loss not recorded");
         require(lp.allocatedBacking() == 0, "historical backing fully reconciled");
         require(lp.navAssets() == 800_000, "write-off cannot double-charge NAV");
+        lp.setMarketRiskBudget(0);
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
         require(lp.claimWithdraw() == 800_000, "remaining NAV safely redeemed");
         require(lp.totalShares() == 0, "shares consumed");
         _assertCustody();
