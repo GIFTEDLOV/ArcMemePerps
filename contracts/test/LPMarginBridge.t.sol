@@ -25,9 +25,17 @@ contract LPMarginBridgeTest {
 
     // Local engine stand-in: tests of trading PnL call margin directly under
     // the test contract's engine authority, and do not model PerpEngine OI.
-    function marginVault() external view returns (address) { return address(margin); }
-    function activePositionCount() external pure returns (uint256) { return 0; }
-    function totalOpenNotionalUsdc() external pure returns (uint256) { return 0; }
+    function marginVault() external view returns (address) {
+        return address(margin);
+    }
+
+    function activePositionCount() external pure returns (uint256) {
+        return 0;
+    }
+
+    function totalOpenNotionalUsdc() external pure returns (uint256) {
+        return 0;
+    }
 
     function setUp() public {
         usdc = new MockUSDC();
