@@ -63,14 +63,17 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
   const margin = source["contracts/src/USDCMarginVault.sol"] ?? "";
   const verify = source["scripts/verify-mainnet-deployment.ts"] ?? "";
   add(!deployer.includes('await call("USDCMarginVault", "setLpVault"') ||
-      !deployer.includes('await call("PublicLPVault", "setMarginVault"'),
+      !deployer.includes('await call("PublicLPVault", "setMarginVault"') ||
+      !deployer.includes('await call("PublicLPVault", "setSettlementEngine"'),
     "DEPLOYMENT_MISSING_TWO_WAY_LP_MARGIN_LINK");
   add(!legacyDeployer.includes("blockUnsafeLegacyMainnetDeployment();"),
     "LEGACY_MAINNET_BROADCASTER_NOT_DISABLED");
   add(!deployer.includes("assertCheckoutMatchesFrozenRelease();"),
     "DEPLOYMENT_RELEASE_CHECKOUT_GUARD_MISSING");
   add(!vault.includes("certifyWithdrawalAccounting()") ||
-      !vault.includes("emergencyPauseWithdrawalSettlement()"),
+      !vault.includes("emergencyPauseWithdrawalSettlement()") ||
+      !vault.includes("_assertNoEngineExposure()") ||
+      !vault.includes("hasEverOpenedMarketRisk"),
     "LP_WITHDRAWAL_CERTIFICATION_GUARDS_MISSING");
   add(!margin.includes("function lpRecoverable()"), "MARGIN_LP_RECOVERY_INTERFACE_MISSING");
   add(verify.includes('const expectedSourceSha = "0xaf772928c7dff9735b777f5d612a4a64bf2210d72d90c0a51f786e84702f1c7b"'),
