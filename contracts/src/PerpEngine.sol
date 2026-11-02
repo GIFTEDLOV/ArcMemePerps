@@ -104,6 +104,10 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     mapping(address keeper => bool enabled) public liquidationKeeper;
     mapping(address keeper => bool enabled) public orderKeeper;
     uint256 public nextPositionId = 1;
+    // Global counters cover all markets; a single per-market read cannot prove
+    // the engine is flat when multiple markets can be traded.
+    uint256 public activePositionCount;
+    uint256 public totalOpenNotionalUsdc;
     address public adlController;
 
     EconomicModel.FundingConfig public fundingConfig;
@@ -565,6 +569,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         });
         positionStates[positionId] = state;
         activePosition[accountMarket] = positionId;
+        activePositionCount += 1;
+        totalOpenNotionalUsdc += size;
         totalOpenInterest[marketId] += size;
         if (isLong) longOpenInterest[marketId] += size;
         else shortOpenInterest[marketId] += size;
@@ -614,6 +620,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         state.entryBorrowIndex = marketAccrual[position.marketId].borrowIndexWad;
         state.lastIncreasedAt = SafeCast.toUint64(block.timestamp);
         totalOpenInterest[position.marketId] += sizeAdded;
+        totalOpenNotionalUsdc += sizeAdded;
         if (position.isLong) longOpenInterest[position.marketId] += sizeAdded;
         else shortOpenInterest[position.marketId] += sizeAdded;
         emit PositionIncreased(positionId, collateralAdded, sizeAdded);
@@ -670,9 +677,11 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         storedState.entryFundingIndex = accrual.fundingIndexWad;
         storedState.entryBorrowIndex = accrual.borrowIndexWad;
         totalOpenInterest[position.marketId] -= sizeReduced;
+        totalOpenNotionalUsdc -= sizeReduced;
         if (position.isLong) longOpenInterest[position.marketId] -= sizeReduced;
         else shortOpenInterest[position.marketId] -= sizeReduced;
         if (stored.size == 0) {
+            activePositionCount -= 1;
             stored.open = false;
             activePosition[_accountMarket(position.trader, position.marketId)] = 0;
         }
@@ -749,6 +758,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     }
 
     function _removePosition(uint256 positionId, Position memory position) private {
+        totalOpenNotionalUsdc -= position.size;
+        activePositionCount -= 1;
         totalOpenInterest[position.marketId] -= position.size;
         if (position.isLong) longOpenInterest[position.marketId] -= position.size;
         else shortOpenInterest[position.marketId] -= position.size;
@@ -902,9 +913,11 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         positionStates[positionId].entryBorrowIndex =
         marketAccrual[position.marketId].borrowIndexWad;
         totalOpenInterest[position.marketId] -= sizeReduced;
+        totalOpenNotionalUsdc -= sizeReduced;
         if (position.isLong) longOpenInterest[position.marketId] -= sizeReduced;
         else shortOpenInterest[position.marketId] -= sizeReduced;
         if (remainingSize == 0) {
+            activePositionCount -= 1;
             positions[positionId].open = false;
             activePosition[_accountMarket(position.trader, position.marketId)] = 0;
             positionStates[positionId].sizeUsdWad = 0;
