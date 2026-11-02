@@ -7,7 +7,6 @@ import type { Health, MarketPage, OriginMarket, Pretrade, RealtimeEvent } from "
 import { isPretradeIntact } from "./lib/winner-plan";
 import { tradeReleaseBlocker, type ProductionTradingState } from "./lib/winner-trade-safety";
 import { planHash, useWallet } from "./lib/winner-wallet";
-import fallbackSnapshot from "./lib/markets-snapshot.json";
 import { LandingPage } from "./components/LandingPage";
 import { ProfilePage } from "./components/ProfilePage";
 import { OnboardingTour, triggerAppTour } from "./components/OnboardingTour";
@@ -517,15 +516,9 @@ export async function fetchLiveDexPairs(): Promise<OriginMarket[]> {
 }
 
 function useProductData() {
-  const [page, setPage] = useState<MarketPage>(() => {
-    try {
-      const custom = JSON.parse(window.localStorage.getItem("arcmemeperps.custom_markets") || "[]") as OriginMarket[];
-      const dex = JSON.parse(window.localStorage.getItem("arcmemeperps.dex_pairs") || "[]") as OriginMarket[];
-      const all = [...custom, ...dex];
-      return { items: all, nextCursor: null, discoveryCount: all.length, perpCount: 0, total: all.length };
-    } catch {
-      return { items: [], nextCursor: null };
-    }
+  // Do not surface old browser-saved DEX or demo snapshots as current data.
+  const [page, setPage] = useState<MarketPage>({
+    items: [], nextCursor: null, discoveryCount: 0, perpCount: 0, total: 0,
   });
   const [health, setHealth] = useState<Health | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -536,37 +529,15 @@ function useProductData() {
   const scanLivePairs = useCallback(async () => {
     setScanning(true);
     try {
-      const live = await fetchLiveDexPairs();
-      if (live.length > 0) {
-        // Persist to localStorage so they are immediately accessible and permanent
-        let savedDex: OriginMarket[] = [];
-        try {
-          savedDex = JSON.parse(window.localStorage.getItem("arcmemeperps.dex_pairs") || "[]") as OriginMarket[];
-        } catch {
-          /* ignore */
-        }
-        const existingAddrs = new Set(savedDex.map((m) => m.tokenAddress.toLowerCase()));
-        const fresh = live.filter((m) => !existingAddrs.has(m.tokenAddress.toLowerCase()));
-        const updatedDex = [...fresh, ...savedDex].slice(0, 100);
-        try {
-          window.localStorage.setItem("arcmemeperps.dex_pairs", JSON.stringify(updatedDex));
-        } catch {
-          /* ignore */
-        }
-
-        // Dynamically update dashboard state right now
-        setPage((prev) => {
-          const currentAddrs = new Set(prev.items.map((i) => i.tokenAddress.toLowerCase()));
-          const toAdd = live.filter((i) => !currentAddrs.has(i.tokenAddress.toLowerCase()));
-          if (!toAdd.length) return prev;
-          return {
-            ...prev,
-            items: [...toAdd, ...prev.items],
-            discoveryCount: (prev.discoveryCount ?? prev.items.length) + toAdd.length,
-            total: (prev.total ?? prev.items.length) + toAdd.length,
-          };
-        });
-      }
+      // Discovery is served by the read-only backend with a clear
+      // provenance label. No client-side cache is promoted to a live feed.
+      const result = await api.markets({ limit: 60 });
+      if (!result || !Array.isArray(result.items)) throw new Error("INVALID_API_RESPONSE");
+      setPage({ ...result, items: result.items.map(normalize) });
+      setError(null);
+    } catch (errorValue) {
+      setPage({ items: [], nextCursor: null, total: 0, perpCount: 0 });
+      setError(errorValue instanceof Error ? errorValue.message : "DISCOVERY_API_UNAVAILABLE");
     } finally {
       setScanning(false);
     }
@@ -578,36 +549,9 @@ function useProductData() {
       if (!result || !Array.isArray(result.items)) throw new Error("INVALID_API_RESPONSE");
       setPage({ ...result, items: result.items.map(normalize) });
       setError(null);
-    } catch {
-      let custom: OriginMarket[] = [];
-      let dexPairs: OriginMarket[] = [];
-      try {
-        custom = JSON.parse(window.localStorage.getItem("arcmemeperps.custom_markets") || "[]") as OriginMarket[];
-        dexPairs = JSON.parse(window.localStorage.getItem("arcmemeperps.dex_pairs") || "[]") as OriginMarket[];
-      } catch {
-        /* ignore */
-      }
-      const snapshot = ((fallbackSnapshot as unknown as { markets: unknown[] }).markets ?? []).map(normalize);
-      const all = [
-        ...custom,
-        ...dexPairs.filter((d) => !custom.some((c) => c.tokenAddress.toLowerCase() === d.tokenAddress.toLowerCase())),
-        ...snapshot.filter((s) => !custom.some((c) => c.tokenAddress.toLowerCase() === s.tokenAddress.toLowerCase()) && !dexPairs.some((d) => d.tokenAddress.toLowerCase() === s.tokenAddress.toLowerCase())),
-      ];
-      let filtered = all;
-      if (params.chain && params.chain !== "ALL") filtered = filtered.filter((m) => m.chain === params.chain);
-      if (params.lifecycle && params.lifecycle !== "ALL") filtered = filtered.filter((m) => m.lifecycle.status === params.lifecycle);
-      if (params.q) {
-        const q = String(params.q).toLowerCase();
-        filtered = filtered.filter((m) => (m.symbol ?? "").toLowerCase().includes(q) || (m.name ?? "").toLowerCase().includes(q) || m.tokenAddress.toLowerCase().includes(q));
-      }
-      setPage({
-        items: filtered,
-        nextCursor: null,
-        discoveryCount: all.length,
-        perpCount: 0,
-        total: filtered.length,
-      });
-      setError(null);
+    } catch (errorValue) {
+      setPage({ items: [], nextCursor: null, discoveryCount: 0, perpCount: 0, total: 0 });
+      setError(errorValue instanceof Error ? errorValue.message : "DISCOVERY_API_UNAVAILABLE");
     }
   }, []);
 
@@ -659,19 +603,17 @@ function useProductData() {
 
   useEffect(() => {
     void refresh({ limit: 60 });
-    void scanLivePairs();
-    runContinuousAntiRugScan();
     const interval = setInterval(() => {
-      void scanLivePairs();
+      void refresh({ limit: 60 });
       runContinuousAntiRugScan();
-    }, 12000);
+    }, 60000);
     void api.health().then(setHealth).catch(() => setHealth(null));
     const unsub = subscribeRealtime(WINNER_CONFIG.apiUrl, (event) => setEvents((current) => [event, ...current].slice(0, 30)), setStream);
     return () => {
       clearInterval(interval);
       unsub();
     };
-  }, [refresh, scanLivePairs, runContinuousAntiRugScan]);
+  }, [refresh, runContinuousAntiRugScan]);
 
   return { page, health, error, stream, scanning, refresh, scanLivePairs, addCustomMarket };
 }
@@ -724,12 +666,11 @@ function StatusPill({ value, tone, label }: { value: string; tone?: "good" | "wa
 
 function productState(market: OriginMarket) {
   if (market.perp.status === "LIVE") return { label: "LIVE PERP", tone: "good" as const };
-  if (market.chain === "ARC") return { label: "ARC ELIGIBLE", tone: "good" as const };
   if (market.perp.status === "PAUSED") return { label: "PAUSED", tone: "warn" as const };
   if (market.perp.status === "CLOSE_ONLY") return { label: "CLOSE ONLY", tone: "warn" as const };
   if (market.integrity.status === "REJECTED" || market.perp.status === "BLOCKED") return { label: "REJECTED", tone: "bad" as const };
   if (market.integrity.status === "PENDING") return { label: "PENDING EVIDENCE", tone: "warn" as const };
-  if (market.integrity.status === "QUALIFIED" && market.perp.status === "ELIGIBLE") return { label: "QUALIFIED", tone: "good" as const };
+  if (market.integrity.status === "QUALIFIED" && market.perp.status === "ELIGIBLE") return { label: "PENDING ACTIVATION", tone: "warn" as const };
   if (market.integrity.status === "WATCH") return { label: "WATCH", tone: "warn" as const };
   return { label: "DISCOVERY", tone: "muted" as const };
 }
