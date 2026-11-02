@@ -75,6 +75,7 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
   const streamUrl = `${origin}/api/v1/stream`;
   let source: EventSource | null = null;
   let lastSequence = 0n;
+  let lastReorgSequence = 0n;
   let reconnectTimer: number | null = null;
   let stopped = false;
   const handleEvent = (message: MessageEvent<string>) => {
@@ -83,11 +84,16 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
       onState("STALE");
       return;
     }
-    // Invalidating a reorg is necessary even if another stream event has
-    // the same numeric ID in an independent table.
+    // Event and reorg IDs are separate PostgreSQL sequences. Both must
+    // replay independently or a smaller reorg ID will be silently skipped.
     const sequence = BigInt(event.sequence);
-    if (event.type === "protocol.event" && sequence <= lastSequence) return;
-    if (sequence > lastSequence) lastSequence = sequence;
+    if (event.type === "protocol.event") {
+      if (sequence <= lastSequence) return;
+      lastSequence = sequence;
+    } else {
+      if (sequence <= lastReorgSequence) return;
+      lastReorgSequence = sequence;
+    }
     onState("LIVE");
     onEvent(event);
   };
@@ -96,6 +102,7 @@ export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEven
     onState("RECONNECTING");
     const url = new URL(streamUrl, window.location.href);
     if (lastSequence > 0n) url.searchParams.set("after", lastSequence.toString());
+    if (lastReorgSequence > 0n) url.searchParams.set("reorgAfter", lastReorgSequence.toString());
     source = new EventSource(url.toString());
     // A successful SSE handshake/heartbeat alone does not prove indexed
     // executions are flowing. Only receipt-backed data marks the tape LIVE.
