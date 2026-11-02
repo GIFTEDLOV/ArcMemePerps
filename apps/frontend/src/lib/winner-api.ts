@@ -11,6 +11,33 @@ function unwrap<T>(value: unknown): T {
   return value as T;
 }
 
+export interface IndexedArcWallet {
+  schemaVersion: "v1";
+  wallet: {
+    address: string;
+    positions: Array<{
+      positionId: string;
+      openingArguments: Record<string, unknown> | null;
+      eventDerivedSize: string;
+      lastEvent: string;
+      verificationState: string;
+    }>;
+    activity: Array<{
+      contract: string;
+      eventName: string;
+      marketId: string | null;
+      positionId: string | null;
+      transactionHash: string;
+      blockNumber: string;
+      arguments: Record<string, unknown> | null;
+    }>;
+  };
+  state: "RECEIPT_EVENT_PROJECTION_NOT_ONCHAIN_BALANCE_PARITY";
+  readOnly: true;
+  complete: false;
+  coverage: { status: string; throughBlock: string | null; gaps: number };
+}
+
 export class WinnerApi {
   public constructor(private readonly baseUrl: string) {}
 
@@ -38,7 +65,11 @@ export class WinnerApi {
   }
   public health(): Promise<Health> { return this.get("/protocol/status"); }
   public profile(address: string): Promise<Profile> { return this.get<unknown>(`/profile/${address}`).then(unwrap<Profile>); }
-  public portfolio(address: string): Promise<unknown> { return this.get(`/wallet/${address}`); }
+  public portfolio(address: string): Promise<IndexedArcWallet> {
+    if (!/^0x[0-9a-fA-F]{40}$/.test(address))
+      return Promise.reject(new Error("INVALID_ARC_ADDRESS"));
+    return this.get<IndexedArcWallet>(`/wallet/${encodeURIComponent(address)}`, { cache: "no-store" });
+  }
   public activity(address: string): Promise<unknown> { return this.get(`/wallet/${address}/activity`); }
   public notifications(address: string): Promise<{ items: Array<Record<string, unknown>> }> { return this.get(`/notifications/${address}`); }
   public attention(address: string): Promise<{ items: Array<Record<string, unknown>> }> { return this.get(`/attention/${address}`); }
