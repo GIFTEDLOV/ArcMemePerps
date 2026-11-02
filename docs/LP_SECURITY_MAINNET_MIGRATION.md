@@ -50,6 +50,57 @@ Passing a fork rehearsal **does not** authorize deploying a new vault or
 migrating real funds. An independently approved production graph and
 controller/engine reconciliation workflow remain necessary.
 
+## November 2 implementation review — predeployment gate
+
+The candidate deployment configuration is deliberately **not an executable
+production release**:
+
+- [Release plan template](../deployments/arc-lp-security-release-plan.template.json)
+  declares Arc chain 5042, six-decimal USDC, a **fresh margin vault and LP
+  vault**, reciprocal links, inactive new LP defaults, and nullable role
+  addresses. Signers and approvals remain intentionally unspecified rather
+  than fabricated.
+- [Release preflight](../scripts/arc-lp-release-preflight.mjs) evaluates this
+  plan and inspected source. The expected result is `NO_GO` until an approved
+  exact release commit, genuine multi-owner governance Safe, emergency admin,
+  risk controller, engine-to-NAV settlement proof, external economic review,
+  live state reconciliation and authorized deployment are established.
+  `--require-go` exits nonzero if unresolved; neither mode can sign or deploy.
+- [CI preflight](../.github/workflows/arc-lp-release-preflight.yml)
+  runs deterministic tests and confirms the preflight is **still blocked**.
+  Its green status means the *blocking guard works*, not that production may
+  deploy.
+- `scripts/arc-mainnet-deployment.ts` now performs reciprocal
+  `setLpVault` / `setMarginVault` calls, checks inactive zero-share
+  genesis and requires the actual local Git checkout to equal its frozen
+  release commit. That historical commit constant is intentionally stale on
+  this branch, so `--deploy` must fail until a separately approved freeze.
+- `scripts/deploy-mainnet-suite.ts` has been **disabled** because it reused
+  an older margin vault without the candidate LP-backing interface. Do not
+  remove that guard to reuse the older deployment.
+- `scripts/verify-mainnet-deployment.ts` still contains an old frozen
+  source hash. It must be reworked for the new release before its output can
+  be trusted.
+
+### Residual findings that block mainnet LP activation
+
+1. **Controller trust / NAV integrity:** `PerpEngine` does not automatically
+   prove all unrealized positions, PnL and bad debt to `PublicLPVault`.
+   A controller that sets risk budget to zero prematurely and certifies stale
+   liabilities can still authorize a loss-shifting withdrawal. The temporary
+   fail-closed model requires verified de-risking and offchain human review.
+   A continuously active LP product needs a separately designed and
+   independently reviewed onchain settlement/epoch mechanism.
+2. **Historical deployed bytecode:** Old vaults on Arc mainnet have missing
+   newer LP-backing getters. Their current and historical collateral is not
+   replacement LP capital, and cannot be reclassified by a source change.
+3. **Governance and migration:** Role address placeholders, a timelock/Safe
+   deployment plan, economic sign-off and existing trader-collateral
+   migration authorization are missing. No live funds should move.
+
+This is an **internal code/configuration review**, not an independent
+third-party audit or authorization for public liquidity.
+
 ## Mandatory deployment gates
 
 1. **Review/CI:** Require final CI green at the exact PR head, complete Foundry tests, strong independent review of NAV, pricing and governance, plus fork tests under the intended constructor and role graph.
