@@ -630,70 +630,30 @@ function useProductData() {
   const runContinuousAntiRugScan = useCallback(() => {
     setPage((prev) => {
       let changed = false;
-      let userPositions: StoredPosition[] = [];
-      try {
-        userPositions = JSON.parse(window.localStorage.getItem("arcmemeperps.positions") || "[]") as StoredPosition[];
-      } catch {
-        /* ignore */
-      }
-
       const updated = prev.items.map((m) => {
-        const liq = Number(m.originSpotLiquidityUsd || "0");
-        const vol = Number(m.volume24hUsd || "0");
-        const isDrained = liq < 1000;
-        const isWashTrading = vol > 0 && liq > 0 && (vol / liq > 300) && liq < 25000;
-        const shouldQuarantine = isDrained || isWashTrading;
-
-        if (shouldQuarantine && !m.isQuarantined) {
-          changed = true;
-          const reason = isDrained
-            ? `Drained Liquidity ($${liq.toFixed(2)} < $1,000 floor)`
-            : `Wash Trading Bot Farm (${(vol / liq).toFixed(0)}x Vol/Liq Ratio)`;
-
-          const matching = userPositions.filter(
-            (p) => p.symbol.toUpperCase() === (m.symbol || "").toUpperCase() || p.marketId === m.marketId
-          );
-          if (matching.length > 0) {
-            try {
-              const existingNotifs = JSON.parse(
-                window.localStorage.getItem("arcmemeperps.notifications") || "[]"
-              ) as StoredNotification[];
-              if (!existingNotifs.some((n) => n.symbol === m.symbol && n.type === "DELISTING_WARNING")) {
-                const newNotif: StoredNotification = {
-                  id: `delist-${m.marketId}-${Date.now()}`,
-                  type: "DELISTING_WARNING",
-                  symbol: m.symbol || "TOKEN",
-                  title: `URGENT: Delisting Risk on $${m.symbol}`,
-                  message: `Origin pool triggered Anti-Rug Risk Circuit-Breaker (${reason}). Close your position immediately, or the automated Arc Safety Keeper will auto-close it to protect remaining collateral.`,
-                  urgent: true,
-                  time: "Just now",
-                  read: false,
-                  positionId: matching[0].id,
-                };
-                window.localStorage.setItem(
-                  "arcmemeperps.notifications",
-                  JSON.stringify([newNotif, ...existingNotifs])
-                );
-              }
-            } catch {
-              /* ignore */
-            }
-          }
-
-          return {
-            ...m,
-            isQuarantined: true,
-            quarantineReason: reason,
-            lifecycle: { ...m.lifecycle, status: "CLOSE_ONLY" as OriginMarket["lifecycle"]["status"] },
-            derivatives: { ...m.derivatives, status: "CLOSE_ONLY" as OriginMarket["derivatives"]["status"], maxLeverage: "None" },
-            perp: { ...m.perp, status: "CLOSE_ONLY" as OriginMarket["perp"]["status"] },
-          };
-        }
-        return m;
+        // Spot-price and DEX volume heuristics are not an Arc governance
+        // action. Unknown liquidity is not proof of a rug, and browser-only
+        // alarms must not assert that a real position has been closed.
+        const liq = m.originSpotLiquidityUsd == null ? null : Number(m.originSpotLiquidityUsd);
+        const vol = m.volume24hUsd == null ? null : Number(m.volume24hUsd);
+        const isDrained = liq !== null && liq < 1000;
+        const isVolumeAnomaly = vol !== null && liq !== null &&
+          vol > 0 && liq > 0 && vol / liq > 300 && liq < 25000;
+        if (!isDrained && !isVolumeAnomaly) return m;
+        if (m.isQuarantined) return m;
+        changed = true;
+        const reason = isDrained
+          ? `Observed spot liquidity below $1,000 ($${liq?.toFixed(2)})`
+          : `Suspicious spot volume/liquidity ratio (${(vol! / liq!).toFixed(0)}x)`;
+        return {
+          ...m,
+          isQuarantined: true,
+          quarantineReason: reason,
+          derivatives: { ...m.derivatives, status: "BLOCKED" as OriginMarket["derivatives"]["status"], maxLeverage: null },
+          perp: { ...m.perp, status: m.perp.status === "LIVE" ? "PAUSED" as OriginMarket["perp"]["status"] : m.perp.status },
+        };
       });
-
-      if (!changed) return prev;
-      return { ...prev, items: updated };
+      return changed ? { ...prev, items: updated } : prev;
     });
   }, []);
 
@@ -3568,8 +3528,14 @@ function Activity({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
 
   useEffect(() => {
     try {
+      // Historical browser-only fills and closes were never signed or
+      // reconciled on-chain. Display only pending intent receipts, clearly
+      // labeled as unverified until the indexed execution log is available.
       const saved = JSON.parse(window.localStorage.getItem("arcmemeperps.activity") || "[]") as StoredActivity[];
-      setEvents(saved);
+      setEvents(saved.filter((entry) =>
+        entry.type === "ORDER_SUBMITTED" &&
+        /0x[0-9a-fA-F]{64}/.test(entry.msg)
+      ).map((entry) => ({ ...entry, type: "ORDER_INTENT_PENDING", msg: entry.msg + " (Execution not verified)" })));
     } catch {
       setEvents([]);
     }
