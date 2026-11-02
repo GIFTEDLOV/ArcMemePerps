@@ -45,6 +45,97 @@ contract StaleNavWithdrawalTest {
         vault.deposit(1_000_000);
     }
 
+    function testDepositsCannotUseStaleNavWhileRiskIsOpen() public {
+        vault.setMarketRiskBudget(500_000);
+        usdc.mint(LP_A, 100_000);
+        vm.prank(LP_A);
+        vm.expectRevert();
+        vault.deposit(100_000);
+        require(vault.totalShares() == 2_000_000, "stale-price share mint");
+    }
+
+    function testClaimsRequireSeparateControllerCertificationAndGovernance() public {
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vm.prank(GOVERNANCE);
+        vm.expectRevert();
+        vault.setWithdrawalSettlementEnabled(true);
+
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        require(vault.withdrawalSettlementEnabled(), "settlement not open");
+
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        require(vault.claimWithdraw() == 1_000_000, "wrong LP payout");
+        require(vault.totalShares() == 1_000_000, "wrong remaining shares");
+    }
+
+    function testLateLiabilityUpdateClosesSettlementUntilReconciledAgain() public {
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        vm.warp(vm.getBlockTimestamp() + 10);
+
+        vault.recordTraderLiability(500_000);
+        require(!vault.withdrawalSettlementEnabled(), "stale certification survived");
+        vm.prank(LP_A);
+        vm.expectRevert();
+        vault.claimWithdraw();
+
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        vm.prank(LP_A);
+        require(vault.claimWithdraw() == 750_000, "repriced LP NAV is wrong");
+        require(vault.navAssets() == 750_000, "remaining LP NAV is wrong");
+    }
+
+    function testBadDebtCanBePricedAfterQuiescentReconciliation() public {
+        vault.recordBadDebt(400_000);
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        require(vault.claimWithdraw() == 800_000, "known bad debt omitted");
+        require(vault.navAssets() == 800_000, "remaining LP overcharged");
+    }
+
+    function testExpiredQueueMustRenewCooldownBeforeClaim() public {
+        vm.prank(LP_A);
+        vault.requestWithdraw(1_000_000);
+        vm.warp(vm.getBlockTimestamp() + 1 days + 11);
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+
+        vm.prank(LP_A);
+        vm.expectRevert();
+        vault.claimWithdraw();
+        vm.prank(LP_A);
+        vault.renewWithdrawalRequest();
+        vm.prank(LP_A);
+        vm.expectRevert();
+        vault.claimWithdraw();
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        require(vault.claimWithdraw() == 1_000_000, "renewal failed");
+    }
+
     function testMaturedWithdrawalCannotExitAgainstUnreportedTraderLoss() public {
         // LP risk budget is outstanding, but an external keeper has not yet
         // published the trader's 1 USDC positive PnL liability.
