@@ -30,6 +30,8 @@ contract ArcLpDeploymentForkTest {
     address private forkMargin;
     uint256 private simulatedActivePositions;
     uint256 private simulatedNotional;
+    uint256 public settlementSequence;
+    bool public solvencyBlocked;
 
     // Local fork test contract models the engine; the live deployment must
     // bind to the real, verified PerpEngine instead of this test stand-in.
