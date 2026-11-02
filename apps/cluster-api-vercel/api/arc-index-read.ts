@@ -107,6 +107,47 @@ export async function readIndexedPositions(
   return result.rows;
 }
 
+/** Wallet-scoped Arc event projections. All reads are from indexed,
+ * receipt-matched logs and remain INCOMPLETE until coverage and canonical
+ * onchain position readbacks are independently proven. */
+export async function readIndexedWalletPositions(
+  address: string,
+  limit = 100,
+  connection: Pool = database(),
+): Promise<unknown[]> {
+  if (!/^0x[0-9a-fA-F]{40}$/.test(address)) throw new Error("INVALID_ARC_ADDRESS");
+  const result = await connection.query(
+    `SELECT position_id AS "positionId",opening_arguments AS "openingArguments",
+      last_event AS "lastEvent",event_derived_size::text AS "eventDerivedSize",
+      event_count::int AS "eventCount",verification_state AS "verificationState"
+      FROM arc_position_projection
+      WHERE lower(coalesce(opening_arguments->>'trader',opening_arguments->>'account',''))=lower($1)
+      ORDER BY position_id::numeric DESC LIMIT $2`,
+    [address, Math.max(1, Math.min(limit, 100))],
+  );
+  return result.rows;
+}
+
+export async function readIndexedWalletActivity(
+  address: string,
+  limit = 100,
+  connection: Pool = database(),
+): Promise<unknown[]> {
+  if (!/^0x[0-9a-fA-F]{40}$/.test(address)) throw new Error("INVALID_ARC_ADDRESS");
+  const result = await connection.query(
+    `SELECT d.contract_name AS "contract",d.event_name AS "eventName",
+      d.market_id AS "marketId",d.account,d.position_id AS "positionId",d.arguments,
+      d.block_number::text AS "blockNumber",r.block_hash AS "blockHash",
+      d.transaction_hash AS "transactionHash",d.log_index AS "logIndex"
+      FROM arc_decoded_events d
+      JOIN arc_raw_events r USING (chain_id,block_number,transaction_hash,log_index)
+      WHERE d.chain_id=$1 AND lower(d.account)=lower($2)
+      ORDER BY d.block_number DESC,r.transaction_index DESC,d.log_index DESC LIMIT $3`,
+    [ARC_CHAIN_ID, address, Math.max(1, Math.min(limit, 100))],
+  );
+  return result.rows;
+}
+
 export async function readIndexedFinancialTotals(
   connection: Pool = database(),
 ): Promise<unknown[]> {
