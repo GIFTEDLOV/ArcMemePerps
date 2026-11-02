@@ -157,6 +157,7 @@ export interface OutboxEvent {
 export async function readOutbox(
   afterId: bigint,
   connection: Pool = database(),
+  afterReorgId: bigint = 0n,
 ): Promise<OutboxEvent[]> {
   const result = await connection.query<{
     id: string;
@@ -174,9 +175,9 @@ export async function readOutbox(
       SELECT n.id,'protocol.reorg'::text AS type,
         jsonb_build_object('fromBlock',n.from_block::text,'previousThrough',n.previous_through::text,
           'previousCheckpointHash',n.previous_checkpoint_hash) AS payload,n.created_at AS committed_at
-      FROM arc_reorg_notices n WHERE n.chain_id=$1 AND n.id>$2
-    ) events ORDER BY events.id LIMIT 100`,
-    [ARC_CHAIN_ID, afterId.toString()],
+      FROM arc_reorg_notices n WHERE n.chain_id=$1 AND n.id>$3
+    ) events ORDER BY events.committed_at,events.id LIMIT 100`,
+    [ARC_CHAIN_ID, afterId.toString(), afterReorgId.toString()],
   );
   return result.rows.map((row) => ({
     id: row.id,
@@ -192,7 +193,8 @@ export function parseResumeId(raw: string | null): bigint {
 }
 
 export function formatIndexedSse(row: OutboxEvent): string {
-  return `id: ${row.id}\nevent: ${row.type}\ndata: ${JSON.stringify({
+  const prefix = row.type === "protocol.reorg" ? "r:" : "e:";
+  return `id: ${prefix}${row.id}\nevent: ${row.type}\ndata: ${JSON.stringify({
     id: row.id,
     sequence: row.id,
     type: row.type,
@@ -203,7 +205,13 @@ export function formatIndexedSse(row: OutboxEvent): string {
 
 export function arcIndexStream(request: Request): Response {
   const url = new URL(request.url);
-  let cursor = parseResumeId(request.headers.get("Last-Event-ID") ?? url.searchParams.get("after"));
+  const resume = request.headers.get("Last-Event-ID");
+  let cursor = parseResumeId(url.searchParams.get("after"));
+  let reorgCursor = parseResumeId(url.searchParams.get("reorgAfter"));
+  if (!url.searchParams.has("after") && resume?.startsWith("e:"))
+    cursor = parseResumeId(resume.slice(2));
+  if (!url.searchParams.has("reorgAfter") && resume?.startsWith("r:"))
+    reorgCursor = parseResumeId(resume.slice(2));
   const encoder = new TextEncoder();
   let cancelled = false;
   const stream = new ReadableStream<Uint8Array>({
@@ -212,11 +220,12 @@ export function arcIndexStream(request: Request): Response {
       const until = Date.now() + 24_000;
       while (!cancelled && Date.now() < until) {
         try {
-          const rows = await readOutbox(cursor);
+          const rows = await readOutbox(cursor, database(), reorgCursor);
           for (const row of rows) {
             if (cancelled) break;
             controller.enqueue(encoder.encode(formatIndexedSse(row)));
-            cursor = BigInt(row.id);
+            if (row.type === "protocol.reorg") reorgCursor = BigInt(row.id);
+            else cursor = BigInt(row.id);
           }
           if (rows.length === 0)
             controller.enqueue(encoder.encode(`: heartbeat ${new Date().toISOString()}\n\n`));
