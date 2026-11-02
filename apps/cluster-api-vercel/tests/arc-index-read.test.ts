@@ -14,7 +14,7 @@ describe("Arc index SSE contract", () => {
       committedAt: new Date("2026-10-29T00:00:00Z"),
       payload: { transactionHash: "0xreceipt", blockNumber: "27246895", logIndex: 5 },
     });
-    expect(frame).toContain("id: 31\nevent: protocol.event\ndata: ");
+    expect(frame).toContain("id: e:31\nevent: protocol.event\ndata: ");
     expect(frame).toContain('"sequence":"31"');
     expect(frame).toContain('"transactionHash":"0xreceipt"');
     expect(frame.endsWith("\n\n")).toBe(true);
@@ -26,7 +26,7 @@ describe("Arc index SSE contract", () => {
       committedAt: new Date("2026-10-29T00:00:01Z"),
       payload: { fromBlock: "100", previousThrough: "101" },
     });
-    expect(frame).toContain("id: 32\nevent: protocol.reorg\ndata: ");
+    expect(frame).toContain("id: r:32\nevent: protocol.reorg\ndata: ");
     expect(frame).toContain('"type":"protocol.reorg"');
   });
   it("does not confuse the independent event and reorg PostgreSQL ID sequences", async () => {
