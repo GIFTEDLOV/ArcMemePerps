@@ -309,7 +309,14 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = { dryRun: t
                 functionName: "liquidate",
                 args: [id],
               });
-              console.log(`  ⚡ LIQUIDATION EXECUTED for position #${id}: ${hash}`);
+              // Transaction submission is not settlement. Count a liquidation
+              // only after a canonical receipt confirms successful execution.
+              const receipt = await publicClient.waitForTransactionReceipt({
+                hash, confirmations: 1, timeout: 90_000,
+              });
+              if (receipt.status !== "success")
+                throw new Error("LIQUIDATION_TRANSACTION_REVERTED");
+              console.log(`  ⚡ LIQUIDATION CONFIRMED for position #${id}: ${hash}`);
               liquidationsTriggered++;
               state.onchainLiquidations.push({
                 positionId: id.toString(),
