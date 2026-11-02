@@ -199,14 +199,16 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
             ) revert ActivationUnsafe();
             if (totalShares != 0 && nav == 0) revert ActivationUnsafe();
             if (marketRiskBudget > nav) revert ActivationUnsafe();
+            // Prior withdrawal certification cannot survive a new deposit phase.
+            _invalidateWithdrawalAccounting();
         }
         publicLpActive = active;
         emit PublicLPActivationSet(active, msg.sender);
     }
 
     /**
-     * Emergency control only turns public deposits off. Withdrawals and claims
-     * remain available subject to the existing queue, NAV, and liquidity checks.
+     * Emergency control only turns public deposits off. Requests remain open;
+     * claims require separate, certified withdrawal-settlement authorization.
      */
     function emergencyPausePublicLp() external onlyEmergencyAdmin {
         if (!publicLpActive) revert InvalidActivationState();
@@ -293,6 +295,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (totalShares != 0 && navBefore == 0) revert InsufficientLiquidity();
         shares = totalShares == 0 ? assets : (assets * totalShares) / navBefore;
         if (shares == 0) revert InvalidAmount();
+        // Defense in depth: minting shares always invalidates older NAV approval.
+        _invalidateWithdrawalAccounting();
         uint256 beforeBalance = asset.balanceOf(address(this));
         asset.safeTransferFrom(msg.sender, address(this), assets);
         uint256 afterBalance = asset.balanceOf(address(this));
