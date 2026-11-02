@@ -3313,14 +3313,9 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
   const [positions, setPositions] = useState<StoredPosition[]>([]);
   const [sharePos, setSharePos] = useState<StoredPosition | null>(null);
 
-  const loadPositions = useCallback(() => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem("arcmemeperps.positions") || "[]") as StoredPosition[];
-      setPositions(saved);
-    } catch {
-      setPositions([]);
-    }
-  }, []);
+  // Historical arcmemeperps.positions entries were created without a chain
+  // receipt; they must not be displayed as a wallet's real positions.
+  const loadPositions = useCallback(() => setPositions([]), []);
 
   useEffect(() => {
     loadPositions();
@@ -3350,24 +3345,10 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
     void fetchBalance();
   }, [wallet.state.address, loadPositions]);
 
-  const closePosition = (id: string) => {
-    const updated = positions.filter((p) => p.id !== id);
-    setPositions(updated);
-    try {
-      window.localStorage.setItem("arcmemeperps.positions", JSON.stringify(updated));
-      const savedActs = JSON.parse(window.localStorage.getItem("arcmemeperps.activity") || "[]") as StoredActivity[];
-      const closed = positions.find((p) => p.id === id);
-      if (closed) {
-        const newAct = {
-          type: "POSITION_CLOSED",
-          msg: `Closed ${closed.side} ${closed.leverage} on $${closed.symbol}. Collateral returned to vault.`,
-          time: "Just now",
-        };
-        window.localStorage.setItem("arcmemeperps.activity", JSON.stringify([newAct, ...savedActs]));
-      }
-    } catch {
-      /* ignore */
-    }
+  const closePosition = (_id: string) => {
+    // Closing a contract position requires an authenticated chain action.
+    // No local-storage mutation is a settlement receipt.
+    setPositions([]);
   };
 
   const [isCopied, setIsCopied] = useState(false);
@@ -3389,7 +3370,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
   }
 
   const totalPositionSize = positions.reduce((acc, p) => acc + Number(p.size.replace(/[^0-9.-]+/g, "") || 0), 0);
-  const totalCollateral = positions.reduce((acc, p) => acc + Number(p.collateral.replace(/[^0-9.-]+/g, "") || 0), 0);
+  const totalCollateral = 0;
   const availableBal = Math.max(0, Number(usdcBalance) - totalCollateral);
 
   return (
@@ -3452,21 +3433,21 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
         <div className="metric">
           <span>Available Collateral</span>
           <strong>${availableBal.toFixed(2)} USDC</strong>
-          <small>Unencumbered margin capacity</small>
+          <small>Wallet USDC only; margin availability unverified</small>
         </div>
         <div className="metric">
           <span>Active Perp Margin</span>
           <strong style={{ color: totalCollateral > 0 ? "var(--good)" : "var(--muted)" }}>
             ${totalCollateral.toFixed(2)} USDC
           </strong>
-          <small>Locked isolated collateral</small>
+          <small>Not confirmed from the live contract</small>
         </div>
         <div className="metric">
           <span>Open Positions</span>
           <strong style={{ color: positions.length > 0 ? "var(--good)" : "var(--accent)" }}>
-            {positions.length > 0 ? `${positions.length} Active` : "0 (Zero Risk)"}
+            {positions.length > 0 ? `${positions.length} Active` : "Unverified"}
           </strong>
-          <small>{positions.length > 0 ? "Under Anti-Rug Guard" : "Zero margin exposure"}</small>
+          <small>Requires indexed on-chain readback</small>
         </div>
       </div>
 
@@ -3537,7 +3518,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
               No Active Perpetual Positions
             </h3>
             <p style={{ margin: "0 0 10px", color: "var(--muted)", fontSize: "11px", maxWidth: "440px" }}>
-              Your account currently has zero open risk. Enter an isolated Long or Short position with Arc USDC on trending meme pairs.
+              No chain-verified positions are available. Browser-saved records are not proof of trading or collateral.
             </p>
 
             <div className="portfolio-quick-tokens">
@@ -3557,18 +3538,18 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
       <div className="portfolio-grid">
         <div className="metric">
           <span>24h Realized PnL</span>
-          <strong style={{ color: "var(--good)" }}>+$0.00 (0.0%)</strong>
+          <strong>Not verified</strong>
           <small>Mark-to-market settlements</small>
         </div>
         <div className="metric">
           <span>Historical Win Rate</span>
-          <strong style={{ color: "var(--good)" }}>75.0%</strong>
-          <small>3 Won / 1 Lost</small>
+          <strong>Not verified</strong>
+          <small>Requires settled trade receipts</small>
         </div>
         <div className="metric">
           <span>Total Notional Volume</span>
-          <strong>$1,250.00</strong>
-          <small>Arc Mainnet Swaps &amp; Perps</small>
+          <strong>Not verified</strong>
+          <small>Requires indexed Arc transactions</small>
         </div>
         <div className="metric">
           <span>Solvency Sentinel</span>
@@ -3836,25 +3817,18 @@ function SettingsPage() {
 }
 
 function EarnPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
+  // The historical mainnet vault is inactive. No local storage write can
+  // represent USDC custody or ALP shares, and no fake deposit is allowed.
   const [depositAmount, setDepositAmount] = useState("");
-  const [stakedAmount, setStakedAmount] = useState(() => localStorage.getItem("arcmemeperps.lp.staked") || "0.00");
-  const [successMsg, setSuccessMsg] = useState("");
-
+  const stakedAmount = "Unverified";
+  const successMsg = "";
   const handleDeposit = () => {
-    const val = parseFloat(depositAmount);
-    if (!val || val <= 0) return;
-    const current = parseFloat(stakedAmount) || 0;
-    const next = (current + val).toFixed(2);
-    setStakedAmount(next);
-    localStorage.setItem("arcmemeperps.lp.staked", next);
     setDepositAmount("");
-    setSuccessMsg(`Successfully deposited ${val.toFixed(2)} USDC to Arc Liquidity Pool.`);
-    setTimeout(() => setSuccessMsg(""), 4000);
   };
 
   return (
     <section className="page earn-page">
-      <PageIntro eyebrow="Arc Liquidity Pool" title="Earn Protocol Fees from Perp Volume" copy="Provide USDC liquidity to power Arc meme perpetuals and earn 70% of all trading and liquidation fees." />
+      <PageIntro eyebrow="Arc Liquidity Pool" title="Liquidity Pool Status" copy="LP deposits are disabled until the Arc margin and withdrawal settlement audit is complete." />
 
       {successMsg && (
         <div style={{ background: "rgba(16, 185, 129, 0.15)", border: "1px solid rgba(16, 185, 129, 0.3)", borderRadius: "6px", padding: "10px 14px", fontSize: "12px", color: "var(--up)", marginBottom: "16px" }}>
@@ -3867,18 +3841,18 @@ function EarnPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
           <span className="eyebrow">Pool Overview</span>
           <h2>ALP (Arc Liquidity Pool)</h2>
           <div className="proof-list" style={{ marginTop: "14px" }}>
-            <span>Annual Percentage Yield (7d) <b style={{ color: "var(--up)", fontSize: "16px" }}>18.4% APY</b></span>
-            <span>Total Pool Size <b>$450,000 USDC</b></span>
-            <span>24h Revenue Distributed <b>$2,840.50 USDC</b></span>
-            <span>Fee Allocation <b>70% to LP · 30% to Insurance</b></span>
-            <span>Collateral Utilization <b>38.2%</b></span>
+            <span>Annual Percentage Yield (7d) <b style={{ color: "var(--up)", fontSize: "16px" }}>Not available</b></span>
+            <span>Total Pool Size <b>Not verified</b></span>
+            <span>24h Revenue Distributed <b>Not verified</b></span>
+            <span>Fee Allocation <b>Not verified</b></span>
+            <span>Collateral Utilization <b>Not verified</b></span>
           </div>
 
           <div style={{ marginTop: "20px", padding: "14px", background: "var(--surface)", borderRadius: "6px", border: "1px solid var(--border)" }}>
             <span style={{ fontSize: "11px", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em", display: "block" }}>Your Position</span>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginTop: "6px" }}>
               <span style={{ fontSize: "20px", fontWeight: 700, fontFamily: "var(--font-mono)" }}>{stakedAmount} USDC</span>
-              <span style={{ fontSize: "12px", color: "var(--up)", fontFamily: "var(--font-mono)" }}>Earned: $0.00 USDC</span>
+              <span style={{ fontSize: "12px", color: "var(--up)", fontFamily: "var(--font-mono)" }}>Earned: Not verified</span>
             </div>
           </div>
         </div>
@@ -3887,7 +3861,7 @@ function EarnPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
           <span className="eyebrow">Deposit Liquidity</span>
           <h2>Add USDC Collateral</h2>
           <p style={{ fontSize: "12px", color: "var(--muted)", margin: "8px 0 16px" }}>
-            USDC deposited into ALP is automatically deployed as counterparty collateral for qualified perpetual pairs.
+            Deposits are currently disabled. Never send USDC to the historical LP vault based on this page.
           </p>
 
           <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
@@ -3934,13 +3908,14 @@ function EarnPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
               type="button"
               className="button button-primary"
               onClick={handleDeposit}
+              disabled
               style={{ width: "100%", marginTop: "8px" }}
             >
-              Deposit USDC into ALP
+              LP Deposits Unavailable
             </button>
 
             <span style={{ fontSize: "11px", color: "var(--muted)", textAlign: "center", display: "block" }}>
-              Instant withdrawal available at any time subject to utilization capacity.
+              Withdrawals require a verified settlement window and governance authorization; instant withdrawals are not promised.
             </span>
           </div>
         </div>
@@ -4296,16 +4271,9 @@ export function WinnerApp() {
   const navigate = useNavigate();
   const [importOpen, setImportOpen] = useState(false);
   const [showRiskModal, setShowRiskModal] = useState(false);
-  const [positions, setPositions] = useState<StoredPosition[]>(() => {
-    try {
-      return JSON.parse(window.localStorage.getItem("arcmemeperps.positions") || "[]") as StoredPosition[];
-    } catch {
-      return [];
-    }
-  });
+  const [positions, setPositions] = useState<StoredPosition[]>([]);
 
-  const endangeredCycles = useRef<Record<string, number>>({});
-
+ 
   // Prompt risk agreement modal ONLY when a user clicks Connect Wallet for the first time
   const connectWithRiskGate = useCallback(async () => {
     const ack = window.localStorage.getItem("arcmemeperps.risk_ack_agreed");
@@ -4338,83 +4306,12 @@ export function WinnerApp() {
     [rawWallet, connectWithRiskGate]
   );
 
-  // Sync positions from localStorage periodically
-  useEffect(() => {
-    const sync = () => {
-      try {
-        const p = JSON.parse(window.localStorage.getItem("arcmemeperps.positions") || "[]") as StoredPosition[];
-        setPositions(p);
-      } catch {
-        /* ignore */
-      }
-    };
-    const t = setInterval(sync, 3000);
-    return () => clearInterval(t);
+  // Never trust historical locally fabricated positions or browser-based
+  // liquidation as verified on-chain account state.
+  const closePosition = useCallback((_positionId: string, _reason?: string) => {
+    setPositions([]);
   }, []);
 
-  const closePosition = useCallback((positionId: string, reason?: string) => {
-    try {
-      const saved = JSON.parse(window.localStorage.getItem("arcmemeperps.positions") || "[]") as StoredPosition[];
-      const target = saved.find((p) => p.id === positionId);
-      const remaining = saved.filter((p) => p.id !== positionId);
-      window.localStorage.setItem("arcmemeperps.positions", JSON.stringify(remaining));
-      setPositions(remaining);
-
-      if (target) {
-        const isAuto = Boolean(reason);
-        const savedActs = JSON.parse(window.localStorage.getItem("arcmemeperps.activity") || "[]") as StoredActivity[];
-        const newAct: StoredActivity = {
-          type: "POSITION_CLOSED",
-          msg: isAuto
-            ? ` Position on $${target.symbol} auto-settled by Arc Safety Keeper due to pool risk. ${target.collateral} returned to vault.`
-            : `Closed ${target.side} ${target.leverage} on $${target.symbol}. Margin returned to vault.`,
-          time: "Just now",
-        };
-        window.localStorage.setItem("arcmemeperps.activity", JSON.stringify([newAct, ...savedActs]));
-
-        notifications.addNotification({
-          type: "POSITION_CLOSED",
-          symbol: target.symbol,
-          title: isAuto ? ` Auto-Closed: $${target.symbol}` : ` Closed $${target.symbol}`,
-          message: isAuto
-            ? `Your open position on $${target.symbol} was automatically closed by Arc Safety Keeper due to origin pool delisting risk (${reason}). ${target.collateral} collateral was returned to your vault.`
-            : `Successfully closed ${target.side} ${target.leverage} on $${target.symbol}. Margin credited back to vault balance.`,
-          urgent: false,
-        });
-        if (isAuto) {
-          playSecuritySiren();
-          sendDesktopPushAlert(` Arc Safety Keeper Auto-Settled $${target.symbol}`, {
-            body: `Your position was auto-closed due to delisting risk (${reason}). ${target.collateral} collateral was safeguarded back into your vault.`,
-          });
-        }
-      }
-    } catch {
-      /* ignore */
-    }
-  }, [notifications]);
-
-  // Automated Safety Keeper: Auto-closes positions that remain open on endangered markets
-  useEffect(() => {
-    const keeper = setInterval(() => {
-      for (const pos of positions) {
-        const endangeredMarket = data.page.items.find(
-          (m) => (m.marketId === pos.marketId || (m.symbol && m.symbol.toUpperCase() === pos.symbol.toUpperCase())) && m.isQuarantined
-        );
-        if (endangeredMarket) {
-          const cycles = (endangeredCycles.current[pos.id] || 0) + 1;
-          endangeredCycles.current[pos.id] = cycles;
-          if (cycles >= 3) {
-            closePosition(pos.id, endangeredMarket.quarantineReason || "Underlying pool collapsed");
-            delete endangeredCycles.current[pos.id];
-          }
-        } else {
-          delete endangeredCycles.current[pos.id];
-        }
-      }
-    }, 10000);
-
-    return () => clearInterval(keeper);
-  }, [positions, data.page.items, closePosition]);
 
   return (
     <>
