@@ -2658,19 +2658,19 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
         <div className="gmgn-sec-grid">
           <div className="gmgn-sec-cell">
             <label>TOP 10</label>
-            <strong className="warn">{((market.top10ConcentrationBps ?? 1696) / 100).toFixed(1)}%</strong>
+            <strong className="warn">{market.top10ConcentrationBps == null ? "—" : `${(market.top10ConcentrationBps / 100).toFixed(1)}%`}</strong>
           </div>
           <div className="gmgn-sec-cell">
             <label>DEV HELD</label>
-            <strong className="good">0.0%</strong>
+            <strong>Unverified</strong>
           </div>
           <div className="gmgn-sec-cell">
             <label>HOLDERS</label>
-            <strong>{(market.holders ?? 3234).toLocaleString()}</strong>
+            <strong>{market.holders == null ? "—" : market.holders.toLocaleString()}</strong>
           </div>
           <div className="gmgn-sec-cell">
             <label>BUNDLER</label>
-            <strong className="warn">{(market.largestClusterBps ? (market.largestClusterBps / 100).toFixed(1) : "12.4")}%</strong>
+            <strong className="warn">{market.largestClusterBps == null ? "—" : `${(market.largestClusterBps / 100).toFixed(1)}%`}</strong>
           </div>
           <div className="gmgn-sec-cell">
             <label>INSIDERS</label>
@@ -2732,6 +2732,9 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
     );
   }
 
+  const state = productState(market);
+  const tabs = ["Overview", "Trades", "Holders", "Risk", "Liquidity", "Deployer", "Proof"];
+
   return (
     <section className="page detail-page">
       {/* GMGN-Style Compact, Sophisticated Token Header (Integrated Bar) */}
@@ -2776,10 +2779,10 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
                 Bubblemaps
               </a>
               <span className="token-bar-tag" title="Top 10 concentration">
-                Top 10: {((market.top10ConcentrationBps ?? 1850) / 100).toFixed(1)}%
+                Top 10: {market.top10ConcentrationBps == null ? "Unknown" : `${(market.top10ConcentrationBps / 100).toFixed(1)}%`}
               </span>
               <span className="token-bar-tag" title="Dev holding safe">
-                Dev: 0% Held
+                Dev holding: Unverified
               </span>
             </div>
           </div>
@@ -2789,9 +2792,7 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
           <div className="token-bar-hero-stat">
             <span>Market Cap</span>
             <strong className="mono">
-              {Number(market.originSpotLiquidityUsd || "0") > 0
-                ? `$${(Number(market.originSpotLiquidityUsd) * 1.8).toLocaleString(undefined, { maximumFractionDigits: 0 })}`
-                : "$712.72K"}
+              Unknown
             </strong>
           </div>
           <div className="token-bar-hero-stat">
@@ -2810,22 +2811,22 @@ function MarketDetail({ data, wallet, watchlist }: { data: ReturnType<typeof use
             </div>
             <div className="token-bar-pill">
               <span>1m</span>
-              <strong className="mono pos">+0.82%</strong>
+              <strong className="mono pos">—</strong>
             </div>
             <div className="token-bar-pill">
               <span>5m</span>
-              <strong className="mono pos">+3.45%</strong>
+              <strong className="mono pos">—</strong>
             </div>
             <div className="token-bar-pill">
               <span>1h</span>
               <strong className={`mono ${((market.priceChange24hBps ?? 0) >= 0) ? "pos" : "neg"}`}>
-                {formatPercentBps(Math.round((market.priceChange24hBps ?? 280) * 0.4))}
+                —
               </strong>
             </div>
             <div className="token-bar-pill">
               <span>24h</span>
               <strong className={`mono ${((market.priceChange24hBps ?? 0) >= 0) ? "pos" : "neg"}`}>
-                {formatPercentBps(market.priceChange24hBps ?? 280)}
+                {market.priceChange24hBps == null ? "—" : formatPercentBps(market.priceChange24hBps)}
               </strong>
             </div>
             <div className="token-bar-pill">
