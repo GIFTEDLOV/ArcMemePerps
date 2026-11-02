@@ -83,6 +83,34 @@ production release**:
   source hash. It must be reworked for the new release before its output can
   be trusted.
 
+### New margin solvency and settlement-state commitment
+
+The interim mitigation also checks the margin vault's **senior recorded claims
+against physically accounted USDC**. A zero open-position count alone is
+insufficient: a trader may have realized profit into free collateral without
+the custody vault possessing enough USDC to pay the resulting claim.
+`USDCMarginVault.seniorLiabilitiesCovered()` requires physical ledger cash
+to cover free/locked collateral, pending profit, uncovered bad debt, and the
+larger of accrued fees or insurance reserve. Governance-funded protocol
+backing is risk capital, not counted again as a trader claim.
+
+Once a vault has taken LP market risk, the controller captures
+`USDCMarginVault.settlementStateDigest()` during certification. The LP
+requires that digest to remain unchanged when governance opens settlement
+and each LP withdrawal claim executes. Any intervening trader collateral
+deposit, PnL settlement, insurance accounting, loss write-down or other
+included ledger mutation blocks the claim until new certification. An
+unsolicited ERC-20 donation is intentionally excluded from the digest
+because it is not recorded margin equity and cannot mint LP NAV.
+Physical custody deficits still block claims separately.
+
+Regression tests cover an **unfunded realized trader profit despite
+zero engine exposure**, a margin ledger change after certification,
+fresh recertification and surplus-donation tolerance. This is still an
+interim fail-closed mechanism. It does not prove that *unrecorded*
+external liabilities or historical oracle valuations are complete, and
+cannot substitute for an independently reviewed economic settlement epoch.
+
 ### Residual findings that block mainnet LP activation
 
 1. **Controller trust / NAV integrity (partially hardened):**
