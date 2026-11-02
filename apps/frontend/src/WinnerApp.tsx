@@ -5,6 +5,7 @@ import { WinnerApi, subscribeRealtime } from "./lib/winner-api";
 import { ageLabel, formatDecimal, formatPercentBps, formatUsd, shorten, statusClass } from "./lib/winner-format";
 import type { Health, MarketPage, OriginMarket, Pretrade, RealtimeEvent } from "./lib/winner-types";
 import { isPretradeIntact } from "./lib/winner-plan";
+import { tradeReleaseBlocker, type ProductionTradingState } from "./lib/winner-trade-safety";
 import { planHash, useWallet } from "./lib/winner-wallet";
 import fallbackSnapshot from "./lib/markets-snapshot.json";
 import { LandingPage } from "./components/LandingPage";
@@ -2430,6 +2431,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
   const [slActive, setSlActive] = useState(false);
   const [slPercent, setSlPercent] = useState("20");
   const [testSuccess, setTestSuccess] = useState<string | null>(null);
+  const [tradeError, setTradeError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [sharePos, setSharePos] = useState<StoredPosition | null>(null);
   const [userUsdcBal, setUserUsdcBal] = useState<string>("0.00");
@@ -2496,49 +2498,48 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
   const executeTrade = async () => {
     setSubmitting(true);
     setTestSuccess(null);
+    setTradeError(null);
+    setSharePos(null);
     try {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-      const newPos: StoredPosition = {
-        id: `pos-${Date.now()}`,
-        marketId: market.marketId,
-        symbol: market.symbol ?? "TOKEN",
-        chain: market.chain,
-        side,
-        leverage: `${leverage}x`,
-        collateral: `$${collateralNum.toFixed(2)} USDC`,
-        size: `$${positionSizeUsd.toFixed(2)}`,
-        entryPrice: displayed(market.priceUsd, formatUsd),
-        currentPrice: displayed(market.priceUsd, formatUsd),
-        openedAt: timeStr,
-        tp: tpActive && estTpPrice ? { price: estTpPrice, percent: `${tpPercent}%` } : null,
-        sl: slActive && estSlPrice ? { price: estSlPrice, percent: `${slPercent}%` } : null,
+      // Never convert a DEX listing or wallet connection into a simulated
+      // fill. The server must explicitly attest real trading availability.
+      const protocol = await api.get<ProductionTradingState>("/protocol/status", {
+        cache: "no-store",
+      });
+      const preliminary = tradeReleaseBlocker(
+        market, protocol, null, wallet.state.address, wallet.state.chainId ?? 0,
+      );
+      if (preliminary) throw new Error(preliminary);
+
+      // Pretrade must be independently verified and bound to this wallet,
+      // market, oracle report and release epoch before *any* token approval.
+      const first = await api.pretrade(market.marketId, wallet.state.address ?? undefined);
+      const second = await api.pretrade(market.marketId, wallet.state.address ?? undefined);
+      if (!isPretradeIntact(first, second)) throw new Error("Trading quote changed or expired.");
+      const blocker = tradeReleaseBlocker(
+        market, protocol, second, wallet.state.address, wallet.state.chainId ?? 0,
+      );
+      if (blocker) throw new Error(blocker);
+
+      const hashes = await wallet.submitPlan(second);
+      if (!/^0x[0-9a-fA-F]{64}$/.test(hashes.order))
+        throw new Error("The chain did not return a valid order transaction.");
+      // submitOrder creates an order intent; only a keeper can execute/fill it.
+      // Do not invent a filled position or pretend the order was executed.
+      const submitted: StoredActivity = {
+        type: "ORDER_SUBMITTED",
+        msg: `Order intent submitted on Arc; awaiting keeper execution. Tx: ${hashes.order}`,
+        time: new Date().toISOString(),
       };
-
       try {
-        const savedPos = JSON.parse(window.localStorage.getItem("arcmemeperps.positions") || "[]") as StoredPosition[];
-        window.localStorage.setItem("arcmemeperps.positions", JSON.stringify([newPos, ...savedPos]));
-
-        const savedActs = JSON.parse(window.localStorage.getItem("arcmemeperps.activity") || "[]") as StoredActivity[];
-        const newAct: StoredActivity = {
-          type: "ORDER_EXECUTED",
-          msg: `Opened ${side} ${leverage}x on $${market.symbol ?? "TOKEN"} with $${collateralNum} Arc USDC margin`,
-          time: "Just now",
-        };
-        window.localStorage.setItem("arcmemeperps.activity", JSON.stringify([newAct, ...savedActs]));
+        const saved = JSON.parse(window.localStorage.getItem("arcmemeperps.activity") || "[]") as StoredActivity[];
+        window.localStorage.setItem("arcmemeperps.activity", JSON.stringify([submitted, ...saved]));
       } catch {
-        /* ignore localStorage quota errors */
+        /* no substitute for verified onchain data */
       }
-
-      setSharePos(newPos);
-
-      if (wallet.state.status === "CONNECTED") {
-        await new Promise((r) => setTimeout(r, 600));
-        setTestSuccess(`Order placed on Arc Mainnet: ${side} $${positionSizeUsd.toFixed(2)} (${leverage}x) via Arc USDC Margin. TxHash: 0x${Math.random().toString(16).slice(2, 10)}...`);
-      } else {
-        await new Promise((r) => setTimeout(r, 400));
-        setTestSuccess(`Simulated Fill: Opened ${leverage}x ${side} on $${market.symbol ?? "TOKEN"} with $${collateral} Arc USDC collateral!`);
-      }
+      setTestSuccess(`Order submitted on Arc. Confirmation: ${hashes.order}. Execution pending.`);
+    } catch (error) {
+      setTradeError(error instanceof Error ? error.message : "Trade unavailable: verification failed.");
     } finally {
       setSubmitting(false);
     }
@@ -2552,7 +2553,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
           <h2>Trade {market.symbol ?? "Market"}</h2>
           <span>Arc USDC Margin Settlement (5042)</span>
         </div>
-        <StatusPill value={market.chain === "ARC" ? "ARC_ELIGIBLE" : "LIVE"} tone="good" label={market.chain === "ARC" ? "ARC ELIGIBLE" : "PERP READY"} />
+        <StatusPill value={market.perp.status} tone={market.perp.status === "LIVE" ? "good" : "neutral"} label={market.perp.status === "LIVE" ? "PERP LIVE" : "TRADING UNVERIFIED"} />
       </div>
 
       <LongShortSentimentBar market={market} />
@@ -2728,6 +2729,10 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
         </div>
       </div>
 
+      {tradeError && (
+        <div className="notice notice-bad" role="alert">{tradeError}</div>
+      )}
+
       {testSuccess && (
         <div className="trade-success-box" style={{ flexDirection: "column", alignItems: "flex-start", gap: "6px" }}>
           <div style={{ display: "flex", gap: "8px", alignItems: "center" }}>
@@ -2754,10 +2759,10 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
       ) : (
         <button
           className={`button button-wide trade-action-btn ${side === "LONG" ? "btn-long" : "btn-short"}`}
-          disabled={submitting || collateralNum <= 0}
+          disabled={submitting || collateralNum <= 0 || market.perp.status !== "LIVE" || market.derivatives.status !== "LIVE" || market.integrity.status !== "QUALIFIED"}
           onClick={() => void executeTrade()}
         >
-          {submitting ? "Submitting to Arc..." : `${side} $${market.symbol ?? "TOKEN"} (${leverage}x)`}
+          {submitting ? "Verifying on Arc..." : market.perp.status !== "LIVE" ? "Trading Not Verified" : `${side} ${market.symbol ?? "TOKEN"} (${leverage}x)`}
         </button>
       )}
 
@@ -2765,7 +2770,7 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
       <div className="gmgn-security-card">
         <div className="gmgn-security-head">
           <span>CLUSTER RADAR</span>
-          <span style={{ color: "#00f5a0", fontSize: "10px" }}>AUDITED SAFE</span>
+          <span style={{ color: "var(--muted)", fontSize: "10px" }}>VERIFY BEFORE TRADING</span>
         </div>
         <div className="gmgn-sec-grid">
           <div className="gmgn-sec-cell">
