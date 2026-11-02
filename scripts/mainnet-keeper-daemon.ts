@@ -339,15 +339,21 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = { dryRun: t
   let quarantinedThisCycle = 0;
 
   for (const market of markets) {
-    const liq = Number(market.originSpotLiquidityUsd || "0");
-    const vol = Number(market.volume24hUsd || "0");
+    // Missing spot evidence is UNKNOWN, not a confirmed drained-liquidity event.
+    if (market.originSpotLiquidityUsd == null || market.originSpotLiquidityUsd === "")
+      continue;
+    const liq = Number(market.originSpotLiquidityUsd);
+    const vol = market.volume24hUsd == null || market.volume24hUsd === ""
+      ? null : Number(market.volume24hUsd);
+    if (!Number.isFinite(liq) || liq < 0) continue;
     const isDrained = liq < 1000;
-    const isWashTrading = vol > 0 && liq > 0 && vol / liq > 300 && liq < 25000;
+    const isWashTrading = vol !== null && Number.isFinite(vol) &&
+      vol > 0 && liq > 0 && vol / liq > 300 && liq < 25000;
 
     if (isDrained || isWashTrading) {
       const reason = isDrained
-        ? `Liquidity Floor Breach ($${liq.toFixed(2)} < $1,000 floor)`
-        : `Wash Trading Bot Farm (${(vol / liq).toFixed(0)}x Vol/Liq)`;
+        ? `Observed Spot Liquidity Below Floor ($${liq.toFixed(2)} < $1,000)`
+        : `Suspicious Volume/Liquidity Ratio (${((vol ?? 0) / liq).toFixed(0)}x, requires review)`;
 
       const symbol = (market.symbol || market.baseSymbol || "UNKNOWN").toUpperCase();
       if (!state.quarantinedSymbols[symbol]) {
