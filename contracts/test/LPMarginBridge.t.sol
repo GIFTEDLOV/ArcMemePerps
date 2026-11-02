@@ -191,11 +191,58 @@ contract LPMarginBridgeTest {
         require(lp.totalShares() == 1_000_000, "stale approval consumed LP shares");
 
         lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalSettlementEnabled(), "controller reapproved prior governance window");
         require(
             lp.certifiedMarginStateDigest() == margin.settlementStateDigest(), "fresh digest wrong"
         );
+        vm.expectRevert();
+        lp.claimWithdraw();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
         require(lp.claimWithdraw() == 1_000_000, "freshly reconciled exit refused");
         require(lp.totalShares() == 0, "shares not consumed on fresh claim");
+    }
+
+    function testTradingEngineSequenceChangeForcesFreshGovernanceApproval() public {
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.setMarketRiskBudget(0);
+        lp.requestWithdraw(1_000_000);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
+
+        bytes32 digestBefore = margin.settlementStateDigest();
+        uint256 sequenceBefore = lp.certifiedEngineSettlementSequence();
+        settlementSequence += 1;
+        require(
+            margin.settlementStateDigest() == digestBefore, "engine-only mutation altered margin"
+        );
+        require(settlementSequence != sequenceBefore, "engine epoch did not advance");
+        vm.expectRevert();
+        lp.claimWithdraw();
+        require(lp.totalShares() == 1_000_000, "stale engine epoch burned shares");
+
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalSettlementEnabled(), "controller bypassed governance reapproval");
+        vm.expectRevert();
+        lp.claimWithdraw();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
+        require(lp.claimWithdraw() == 1_000_000, "reapproved epoch unable to exit");
+    }
+
+    function testTerminalEngineInsolvencyBlocksLpSettlement() public {
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.setMarketRiskBudget(0);
+        solvencyBlocked = true;
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        vm.expectRevert();
+        lp.setWithdrawalSettlementEnabled(true);
     }
 
     function testUnsolicitedMarginDonationDoesNotChangeAccountingFingerprint() public {
