@@ -170,6 +170,9 @@ contract Gate4F1ClosureTest {
         vault.requestWithdraw(500_000);
         vm.prank(EMERGENCY);
         vault.emergencyPausePublicLp();
+        vault.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        vault.setWithdrawalSettlementEnabled(true);
         vm.warp(vm.getBlockTimestamp() + 10);
         vm.prank(LP1);
         uint256 firstClaim = vault.claimWithdraw();
