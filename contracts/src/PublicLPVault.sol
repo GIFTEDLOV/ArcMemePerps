@@ -225,7 +225,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
             revert ActiveLpExposure();
         }
         (CustodyStatus status,,,) = custodyStatus();
-        if (status != CustodyStatus.MATCH) revert InsufficientLiquidity();
+        // Unsolicited surplus is excluded from NAV; deficit must block exit.
+        if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
         withdrawalAccountingCertified = true;
         emit WithdrawalAccountingCertified(msg.sender, navAssets());
     }
@@ -239,7 +240,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                     || allocatedBacking != 0
             ) revert ActiveLpExposure();
             (CustodyStatus status,,,) = custodyStatus();
-            if (status != CustodyStatus.MATCH) revert InsufficientLiquidity();
+            if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
         }
         withdrawalSettlementEnabled = enabled;
         emit WithdrawalSettlementChanged(enabled, msg.sender);
@@ -344,6 +345,9 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (block.timestamp > uint256(request.availableAt) + WITHDRAWAL_CLAIM_WINDOW) {
             revert WithdrawalRequestExpired();
         }
+        // Reject a physical shortfall even if it occurred after certification.
+        (CustodyStatus status,,,) = custodyStatus();
+        if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
         // Closing the final share series requires all historic backing to
         // return or be explicitly written down, preventing cross-generation PnL.
         if (request.shares == totalShares && allocatedBacking != 0) {
