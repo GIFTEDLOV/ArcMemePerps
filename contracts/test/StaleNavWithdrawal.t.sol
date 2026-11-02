@@ -237,33 +237,28 @@ contract StaleNavWithdrawalTest {
         require(vault.claimWithdraw() == 1_000_000, "renewal failed");
     }
 
-    /// @notice Documents an explicit RELEASE BLOCKER, not acceptable production
-    /// behavior. A dishonest or stale controller can clear the risk budget
-    /// without proving outstanding trader PnL is settled onchain.
-    function testKnownLimitationFalseControllerCertificationStillMispricesNav() public {
+    /// @notice Regression: the controller cannot certify an exposed pool
+    /// without a bound, mutually verified engine and matching margin vault.
+    function testFalseControllerCertificationFailsWithoutVerifiedEngine() public {
         vault.setMarketRiskBudget(1_000_000);
         vm.prank(LP_A);
         vault.requestWithdraw(1_000_000);
         vm.warp(vm.getBlockTimestamp() + 10);
 
-        // The vault does not consult PerpEngine positions here. The
-        // controller's risk-budget report can be incorrect.
+        // Controller intentionally lies about all market risk being flat.
         vault.setMarketRiskBudget(0);
         vm.prank(GOVERNANCE);
         vault.setPublicLpActive(false);
+        vm.expectRevert();
         vault.certifyWithdrawalAccounting();
         vm.prank(GOVERNANCE);
+        vm.expectRevert();
         vault.setWithdrawalSettlementEnabled(true);
-
         vm.prank(LP_A);
-        require(vault.claimWithdraw() == 1_000_000, "expected stale-price trust gap");
-
-        // The actual trader obligation arrives late: LP_B absorbs the full
-        // loss while LP_A already exited. This must block real deployment
-        // until controller/engine economic integration is independently proved.
-        vault.recordTraderLiability(1_000_000);
-        require(vault.navAssets() == 0, "remaining LP loss was not exposed");
-        require(vault.totalShares() == 1_000_000, "remaining share series wrong");
+        vm.expectRevert();
+        vault.claimWithdraw();
+        require(vault.totalShares() == 2_000_000, "shares unexpectedly burnt");
+        require(usdc.balanceOf(LP_A) == 0, "first LP received unpriced profit");
     }
 
     function testMaturedWithdrawalCannotExitAgainstUnreportedTraderLoss() public {
