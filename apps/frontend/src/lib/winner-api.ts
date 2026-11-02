@@ -71,7 +71,8 @@ export function decodeArcIndexEvent(
 }
 
 export function subscribeRealtime(baseUrl: string, onEvent: (event: RealtimeEvent) => void, onState: (state: "LIVE" | "RECONNECTING" | "STALE" | "OFFLINE") => void): () => void {
-  const streamUrl = `${baseUrl.replace(/\\/api\\/v1\\/?$/, "")}/api/v1/stream`;
+  const origin = baseUrl.endsWith("/api/v1") ? baseUrl.slice(0, -7) : baseUrl.endsWith("/") ? baseUrl.slice(0, -1) : baseUrl;
+  const streamUrl = `${origin}/api/v1/stream`;
   let source: EventSource | null = null;
   let lastSequence = 0n;
   let reconnectTimer: number | null = null;
