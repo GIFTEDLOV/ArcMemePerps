@@ -32,7 +32,7 @@ Passing CI and simulated EVM tests do **not** prove all economic invariants, mar
 - Global trading-engine position/notional counters and monotonic settlement sequence checked before and after certification.
 - Senior-liability cash coverage, stable margin accounting fingerprint, physical custody checks, reciprocal backing parity, and loss-accounting checks.
 - Timelocked LP/margin/engine configuration with keyless Arc fork tests.
-- A separate [preflight release-plan template](../deployments/arc-lp-security-release-plan.template.json) in PR #28; it intentionally has missing authorized role addresses and NO-GO approvals.
+- A separate [preflight release-plan template](https://github.com/GIFTEDLOV/ArcMemePerps/blob/security/lp-withdrawal-accounting-20261102/deployments/arc-lp-security-release-plan.template.json) in PR #28; it intentionally has missing authorized role addresses and NO-GO approvals.
 - No deliberate visual design changes.
 
 The branch is **not a replacement for a complete operating perpetual exchange**. A fail-closed, zero-risk redemption path must not be advertised as continuous live-LP trading support.
