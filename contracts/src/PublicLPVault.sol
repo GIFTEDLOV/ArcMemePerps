@@ -15,6 +15,20 @@ interface ILpMarginCustody {
     function writeDownLpBacking(uint256 amount) external;
 }
 
+interface ILpEngineExposure {
+    function marginVault() external view returns (address);
+    function activePositionCount() external view returns (uint256);
+    function totalOpenNotionalUsdc() external view returns (uint256);
+}
+
+interface ILpMarginExposure {
+    function engine() external view returns (address);
+    function totalLockedCollateral() external view returns (uint256);
+    function pendingPositivePnl() external view returns (uint256);
+    function pendingNegativePnl() external view returns (uint256);
+    function protocolBadDebt() external view returns (uint256);
+}
+
 /**
  *  Queued public LP accounting. NAV includes pending profitable-trader
  * liabilities and withdrawals cannot settle in the same block as a deposit.
@@ -38,6 +52,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     // LP shares can only be settled after the controller certifies a de-risked NAV.
     bool public withdrawalAccountingCertified;
     bool public withdrawalSettlementEnabled;
+    address public settlementEngine;
+    bool public hasEverOpenedMarketRisk;
     uint256 public constant WITHDRAWAL_CLAIM_WINDOW = 1 days;
     mapping(address account => uint256 shares) public shareBalance;
     mapping(address account => WithdrawalRequest request) public withdrawals;
@@ -61,6 +77,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error ActiveLpExposure();
     error WithdrawalSettlementClosed();
     error WithdrawalRequestExpired();
+    error SettlementEngineUnverified();
+    error EngineExposureStillOpen();
 
     enum CustodyStatus {
         MATCH,
@@ -87,6 +105,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     event WithdrawalAccountingCertified(address indexed controller, uint256 nav);
     event WithdrawalSettlementChanged(bool enabled, address indexed actor);
     event WithdrawalRequestRenewed(address indexed account, uint256 shares, uint64 availableAt);
+    event SettlementEngineLinked(address indexed engine);
 
     modifier onlyController() {
         if (msg.sender != riskController && !(!bootstrapFinalized && msg.sender == owner)) {
@@ -130,6 +149,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         ) revert InsufficientLiquidity();
 
         _invalidateWithdrawalAccounting();
+        hasEverOpenedMarketRisk = true;
         managedAssets -= amount;
         allocatedBacking += amount;
         asset.safeTransfer(marginVault, amount);
@@ -170,6 +190,45 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         allocatedBacking -= amount;
         cumulativeLpBackingLosses += amount;
         emit LpBackingLossRealized(amount);
+    }
+
+    /// @notice One-time binding to the verified trading engine and the *same*
+    /// custody vault that receives LP-backed USDC. Governance cannot simply
+    /// attest a zero risk budget after this pool has backed markets.
+    function setSettlementEngine(address engine_) external onlyGovernanceExecutor {
+        if (
+            settlementEngine != address(0) || engine_ == address(0) || engine_.code.length == 0
+                || marginVault == address(0)
+        ) revert SettlementEngineUnverified();
+        if (
+            ILpEngineExposure(engine_).marginVault() != marginVault
+                || ILpMarginExposure(marginVault).engine() != engine_
+        ) revert SettlementEngineUnverified();
+        settlementEngine = engine_;
+        _invalidateWithdrawalAccounting();
+        emit SettlementEngineLinked(engine_);
+    }
+
+    /// @dev A zero controller-pushed risk budget is not evidence of zero
+    /// open trader exposure. Every engine market and margin debt must be flat.
+    function _assertNoEngineExposure() internal view {
+        address engine_ = settlementEngine;
+        if (engine_ == address(0) || marginVault == address(0)) {
+            revert SettlementEngineUnverified();
+        }
+        if (
+            ILpEngineExposure(engine_).marginVault() != marginVault
+                || ILpMarginExposure(marginVault).engine() != engine_
+                || ILpMarginCustody(marginVault).lpVault() != address(this)
+        ) revert SettlementEngineUnverified();
+        if (
+            ILpEngineExposure(engine_).activePositionCount() != 0
+                || ILpEngineExposure(engine_).totalOpenNotionalUsdc() != 0
+                || ILpMarginExposure(marginVault).totalLockedCollateral() != 0
+                || ILpMarginExposure(marginVault).pendingPositivePnl() != 0
+                || ILpMarginExposure(marginVault).pendingNegativePnl() != 0
+                || ILpMarginExposure(marginVault).protocolBadDebt() != 0
+        ) revert EngineExposureStillOpen();
     }
 
     function setRiskController(address controller) external onlyGovernanceExecutor {
@@ -224,6 +283,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
             revert ActiveLpExposure();
         }
+        if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
         (CustodyStatus status,,,) = custodyStatus();
         // Unsolicited surplus is excluded from NAV; deficit must block exit.
         if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
@@ -239,6 +299,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                 !withdrawalAccountingCertified || publicLpActive || marketRiskBudget != 0
                     || allocatedBacking != 0
             ) revert ActiveLpExposure();
+            if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
             (CustodyStatus status,,,) = custodyStatus();
             if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
         }
@@ -336,6 +397,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
             revert ActiveLpExposure();
         }
+        if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
         WithdrawalRequest memory request = withdrawals[msg.sender];
         if (request.shares == 0 || shareBalance[msg.sender] < request.shares) {
             revert InsufficientShares();
@@ -403,6 +465,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function setMarketRiskBudget(uint256 riskBudget) external onlyController {
         _invalidateWithdrawalAccounting();
         if (riskBudget > navAssets()) revert InsufficientLiquidity();
+        if (riskBudget != 0) hasEverOpenedMarketRisk = true;
         marketRiskBudget = riskBudget;
         emit MarketRiskBudgetSet(riskBudget);
     }
