@@ -29,6 +29,8 @@ interface ILpMarginExposure {
     function protocolBadDebt() external view returns (uint256);
     function actualCustodyUsdc() external view returns (uint256);
     function expectedCustodyUsdc() external view returns (uint256);
+    function seniorLiabilitiesCovered() external view returns (bool);
+    function settlementStateDigest() external view returns (bytes32);
 }
 
 /**
@@ -56,6 +58,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     bool public withdrawalSettlementEnabled;
     address public settlementEngine;
     bool public hasEverOpenedMarketRisk;
+    bytes32 public certifiedMarginStateDigest;
     uint256 public constant WITHDRAWAL_CLAIM_WINDOW = 1 days;
     mapping(address account => uint256 shares) public shareBalance;
     mapping(address account => WithdrawalRequest request) public withdrawals;
@@ -81,6 +84,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     error WithdrawalRequestExpired();
     error SettlementEngineUnverified();
     error EngineExposureStillOpen();
+    error MarginSettlementStateChanged();
 
     enum CustodyStatus {
         MATCH,
@@ -230,9 +234,23 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                 || ILpMarginExposure(marginVault).pendingPositivePnl() != 0
                 || ILpMarginExposure(marginVault).pendingNegativePnl() != 0
                 || ILpMarginExposure(marginVault).protocolBadDebt() != 0
+                || !ILpMarginExposure(marginVault).seniorLiabilitiesCovered()
                 || ILpMarginExposure(marginVault).actualCustodyUsdc()
                     < ILpMarginExposure(marginVault).expectedCustodyUsdc()
         ) revert EngineExposureStillOpen();
+    }
+
+    /// @notice A signed-off settlement window must also remain unchanged
+    /// at the linked margin-vault ledger between certification and claim.
+    function _assertCertifiedMarginState() internal view {
+        if (hasEverOpenedMarketRisk) {
+            _assertNoEngineExposure();
+            if (
+                certifiedMarginStateDigest == bytes32(0)
+                    || ILpMarginExposure(marginVault).settlementStateDigest()
+                        != certifiedMarginStateDigest
+            ) revert MarginSettlementStateChanged();
+        }
     }
 
     function setRiskController(address controller) external onlyGovernanceExecutor {
@@ -288,7 +306,11 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
             revert ActiveLpExposure();
         }
-        if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
+        if (hasEverOpenedMarketRisk) {
+            _assertNoEngineExposure();
+            certifiedMarginStateDigest =
+                ILpMarginExposure(marginVault).settlementStateDigest();
+        }
         (CustodyStatus status,,,) = custodyStatus();
         // Unsolicited surplus is excluded from NAV; deficit must block exit.
         if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
@@ -304,7 +326,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
                 !withdrawalAccountingCertified || publicLpActive || marketRiskBudget != 0
                     || allocatedBacking != 0
             ) revert ActiveLpExposure();
-            if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
+            _assertCertifiedMarginState();
             (CustodyStatus status,,,) = custodyStatus();
             if (status == CustodyStatus.DEFICIT) revert InsufficientLiquidity();
         }
@@ -316,6 +338,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     function emergencyPauseWithdrawalSettlement() external onlyEmergencyAdmin {
         withdrawalAccountingCertified = false;
         withdrawalSettlementEnabled = false;
+        certifiedMarginStateDigest = bytes32(0);
         emit WithdrawalSettlementChanged(false, msg.sender);
     }
 
@@ -323,6 +346,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
     /// snapshot unusable until the new values are independently reconciled.
     function _invalidateWithdrawalAccounting() internal {
         withdrawalAccountingCertified = false;
+        certifiedMarginStateDigest = bytes32(0);
         if (withdrawalSettlementEnabled) {
             withdrawalSettlementEnabled = false;
             emit WithdrawalSettlementChanged(false, msg.sender);
@@ -403,7 +427,7 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (publicLpActive || marketRiskBudget != 0 || allocatedBacking != 0) {
             revert ActiveLpExposure();
         }
-        if (hasEverOpenedMarketRisk) _assertNoEngineExposure();
+        _assertCertifiedMarginState();
         WithdrawalRequest memory request = withdrawals[msg.sender];
         if (request.shares == 0 || shareBalance[msg.sender] < request.shares) {
             revert InsufficientShares();
