@@ -9,10 +9,10 @@
 </p>
 
 <p align="center">
-  <a href="https://cluster-terminal.vercel.app"><img src="https://img.shields.io/badge/Production-Live-00f5a0?style=for-the-badge&logo=vercel&logoColor=white" alt="Production Live" /></a>
+  <a href="https://cluster-terminal.vercel.app"><img src="https://img.shields.io/badge/Frontend-Deployed-555555?style=for-the-badge&logo=vercel&logoColor=white" alt="Frontend Deployed" /></a>
   <a href="https://explorer.arc.io"><img src="https://img.shields.io/badge/Arc_Mainnet-Chain_5042-0052FF?style=for-the-badge&logo=ethereum&logoColor=white" alt="Arc Mainnet 5042" /></a>
-  <a href="https://github.com/GIFTEDLOV/ArcMemePerps/actions"><img src="https://img.shields.io/badge/Keeper_Daemon-24%2F7_Active-brightgreen?style=for-the-badge&logo=githubactions&logoColor=white" alt="Keeper 24/7 Active" /></a>
-  <a href="#test-and-verification-suite"><img src="https://img.shields.io/badge/Tests-238%2F238_Passing-success?style=for-the-badge" alt="Tests Passing" /></a>
+  <a href="https://github.com/GIFTEDLOV/ArcMemePerps/actions"><img src="https://img.shields.io/badge/Keeper-Deployment_Not_Verified-999999?style=for-the-badge&logo=githubactions&logoColor=white" alt="Keeper deployment not verified" /></a>
+  <a href="#test-and-verification-suite"><img src="https://img.shields.io/badge/Tests-See_CI-blue?style=for-the-badge" alt="See CI for current test results" /></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License: MIT" /></a>
 </p>
 
@@ -27,6 +27,16 @@
 
 ---
 
+## Review status (November 2, 2026)
+
+**Steward review: working frontend and Arc mainnet contract references; public LP trading and withdrawals are NOT approved as live.** The last checked Arc PublicLPVault was inactive and had zero shares, and its deployed bytecode predates the security fixes. Existing trader collateral must not be represented as withdrawable LP capital. The proposed replacement vault, engine settlement controls and migration checklist are in [draft security PR #28](https://github.com/GIFTEDLOV/ArcMemePerps/pull/28), which is **unmerged and undeployed**.
+
+[Verified source and release status for stewards](docs/CLUSTER_STEWARD_REVIEW_STATUS_2026-11-02.md) · [Unresolved economic release blocker](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29) · [Exact security-branch CI](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41495362004) · [Arc mainnet fork simulation](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41495342172)
+
+**Do not fund, connect trading bots to, or deposit public LP liquidity into the historical mainnet vaults based only on this README.** A deployed protocol contract is not evidence that active trading, indexing, pricing, keeper execution, or LP economic safety has been independently verified. The frontend can be reviewed without activating money-moving features.
+
+---
+
 ## 📌 Executive Overview
 
 **CLUSTER** is a next-generation decentralized perpetual trading protocol and high-density terminal tailored for multichain meme markets, settled entirely in native **USDC on Arc Mainnet** (`Chain ID: 5042`).
@@ -35,7 +45,7 @@ Unlike conventional platforms that list synthetic assets with unverified counter
 - **Discovery Is Public**: Scans and indexes over 260+ active meme markets across Solana, Arc, Base, Ethereum, and BNB in real-time.
 - **Qualification Is Strict**: Enforces a 5-Gate Anti-Rug framework. No market can be leveraged until it mathematically earns qualification.
 - **Fail-Closed Execution**: If underlying pool liquidity drops below \$1,000 or wash-trading bots flood the book, the market is instantly quarantined and exposure can only be reduced or settled.
-- **Physical USDC Custody**: All margin collateral is segregated in the audited `USDCMarginVault` on Arc Mainnet, with real USDC collateral deposits actively moving on-chain.
+- **Physical USDC Custody**: Arc mainnet USDC margin-vault bytecode and an earlier trader deposit have been verified. This is not an independent audit of the currently deployed vault or evidence that LP trading is enabled.
 
 ---
 
@@ -146,7 +156,7 @@ flowchart TD
 
 ## 🌐 Arc Mainnet Live Deployment (Chain ID: 5042)
 
-The complete protocol suite is **fully deployed and operational on Arc Mainnet** (`https://rpc.mainnet.arc.io`, Chain ID: `5042`). All contract permissions, risk providers, and keeper authorizations are permanently wired.
+Protocol contracts have been deployed to Arc Mainnet (`https://rpc.mainnet.arc.io`, Chain ID: `5042`), but **deployment is not equivalent to production readiness or live trading**. The historical PublicLPVault remains separate from the corrected source and needs a new, independently authorized deployment and verified governance configuration.
 
 | Contract | Arc Mainnet Address | Verification & Explorer |
 | :--- | :--- | :--- |
@@ -164,14 +174,12 @@ The complete protocol suite is **fully deployed and operational on Arc Mainnet**
 
 > [!WARNING]
 > ### 🚨 Counterparty Vault Liquidity Notice: UNFUNDED / AWAITING SEED CAPITAL
-> **The Arc Counterparty Liquidity Vault / ALP (`PublicLPVault` at `0x9ff8358dc5ee866e0b9707d0139cf47b399f5257` and `USDCMarginVault` at `0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf`) is deployed and active on Arc Mainnet, but has NOT yet been seeded with counterparty liquidity.**
+> **The historical Arc PublicLPVault (`0x9ff8358dc5ee866e0b9707d0139cf47b399f5257`) was INACTIVE with zero LP shares in the latest verified read-only check; it has NOT been replaced by the candidate in security PR #28. Do not fund or assume claims are enabled.**
 >
 > - **Operational State**: Physical USDC margin custody is active and verified on Arc Mainnet (with real 1.000000 USDC collateral deposit verified at Tx `0x7dd1dfeddc682e745ed84ba885ad3fd800400952522b03cc1126fd81915c4dc9`).
 > - **Truth in Reporting**: CLUSTER refuses to simulate paper liquidity or fake volume. Protocol backing remains unseeded until community/institutional liquidity providers deposit capital.
-> - **How to Seed Counterparty Liquidity**:
->   1. Counterparty LP providers deposit native Arc USDC into `PublicLPVault` (`0x9ff8358dc5ee866e0b9707d0139cf47b399f5257`) to mint ALP shares.
->   2. Alternatively, direct institutional balance backing can be funded directly into `USDCMarginVault.deposit(...)`.
->   3. Once seeded, the risk engine dynamically unlocks open interest capacity proportional to available vault depth.
+> - **Funding restriction:** No public LP deposits, capital migration, or real trading activation are authorized by this documentation. The 1 USDC recorded as trader collateral is not available LP backing.
+
 
 ---
 
@@ -372,7 +380,7 @@ ArcMemePerps/
 
 ## 🤖 24/7 Keeper & Liquidation Hosting
 
-CLUSTER includes a production-grade **Autonomous Keeper & Liquidation Engine** (`scripts/mainnet-keeper-daemon.ts`):
+CLUSTER includes an **Autonomous Keeper & Liquidation Engine implementation** (`scripts/mainnet-keeper-daemon.ts`):
 1. **On-Chain Position Liquidation**: Continually inspects open positions in `PerpEngine`. When a position's equity breaches maintenance margin thresholds, the keeper broadcasts `liquidate(positionId)` on Arc Mainnet.
 2. **Anti-Rug Sentinel**: Continuously evaluates underlying spot pool liquidity. If pool liquidity drops below \$1,000 or wash-trading bots spike, the market is instantly quarantined.
 3. **Multi-Platform Hosting Support**:
@@ -384,7 +392,7 @@ CLUSTER includes a production-grade **Autonomous Keeper & Liquidation Engine** (
 
 ## 🧪 Test and Verification Suite
 
-CLUSTER enforces 100% test passing across unit, integration, simulation, and security checks:
+The following is an **earlier test-run snapshot**, not proof of the current deployment or the new security branch. For current status, follow the exact-head CI links above:
 
 ```text
  ✓ packages/providers/src/blockscout.test.ts (4 tests)
