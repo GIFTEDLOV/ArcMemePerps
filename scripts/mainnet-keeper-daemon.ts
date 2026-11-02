@@ -32,14 +32,10 @@ const ARC_MAINNET = defineChain({
   blockExplorers: { default: { name: "Arc Explorer", url: "https://explorer.arc.io" } },
 });
 
-// ZERO FALLBACKS: Fail immediately in fail-closed mode if no keeper secret is provided
+// Scheduled read-only inspection never requires custody of a signer key.
 const rawKeeperKey = process.env.ARC_KEEPER_PRIVATE_KEY || process.env.KEEPER_PRIVATE_KEY;
-if (!rawKeeperKey || !rawKeeperKey.startsWith("0x") || rawKeeperKey.length !== 66) {
-  console.error("[CRITICAL][SECURITY] Missing or invalid ARC_KEEPER_PRIVATE_KEY environment variable.");
-  console.error("[CRITICAL][SECURITY] Refusing to start keeper daemon in an unauthenticated or fallback state.");
-  process.exit(1);
-}
-const KEEPER_KEY = rawKeeperKey as Hex;
+const KEEPER_KEY: Hex | null =
+  rawKeeperKey && /^0x[0-9a-fA-F]{64}$/.test(rawKeeperKey) ? rawKeeperKey as Hex : null;
 
 const CONTRACT_MANIFEST = resolve(process.cwd(), "evidence/mainnet/contracts.json");
 const STATE_FILE = resolve(process.cwd(), "evidence/keeper-state.json");
@@ -167,19 +163,28 @@ function classifyLiquidationError(error: any): { category: string; description: 
   return { category: "UNKNOWN_REVERT", description: `Contract reverted: ${msg.slice(0, 100)}`, isHealthy: false };
 }
 
-export async function runDaemonCycle(options: { dryRun?: boolean } = {}) {
+export async function runDaemonCycle(options: { dryRun?: boolean } = { dryRun: true }) {
+  const dryRun = options.dryRun !== false;
+  if (!dryRun && (
+    process.env.CLUSTER_KEEPER_LIVE_APPROVED !== "true" ||
+    process.env.CLUSTER_MAINNET_TRADING_ENABLED !== "true"
+  )) throw new Error("MAINNET_KEEPER_RELEASE_NOT_APPROVED");
+  if (!dryRun && !KEEPER_KEY) throw new Error("MAINNET_KEEPER_SIGNER_REQUIRED");
+
   const startTime = Date.now();
-  const account = privateKeyToAccount(KEEPER_KEY);
-  diagnostics.keeperAddress = account.address;
+  const account = KEEPER_KEY ? privateKeyToAccount(KEEPER_KEY) : null;
+  diagnostics.keeperAddress = account?.address ?? "READ_ONLY_NO_SIGNER";
 
   const publicClient = createPublicClient({ chain: ARC_MAINNET, transport: http() });
-  const walletClient = createWalletClient({ account, chain: ARC_MAINNET, transport: http() });
+  const walletClient = account
+    ? createWalletClient({ account, chain: ARC_MAINNET, transport: http() })
+    : null;
   const contracts = loadContracts();
   const state = loadState();
 
   console.log(`\n=======================================================`);
   console.log(`[CLUSTER KEEPER CYCLE] ${new Date().toISOString()}`);
-  console.log(`Keeper Address: ${account.address}`);
+  console.log(`Keeper Address: ${account?.address ?? "READ_ONLY_NO_SIGNER"}`);
   console.log(`PerpEngine:     ${contracts.PerpEngine}`);
   console.log(`USDCMarginVault: ${contracts.USDCMarginVault}`);
   console.log(`=======================================================`);
@@ -187,7 +192,9 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = {}) {
   // 1. Check keeper balance and RPC latency
   try {
     const t0 = Date.now();
-    const bal = await publicClient.getBalance({ address: account.address });
+    const bal = account
+      ? await publicClient.getBalance({ address: account.address })
+      : 0n;
     diagnostics.lastRpcLatencyMs = Date.now() - t0;
     diagnostics.keeperBalanceArc = formatEther(bal);
     console.log(`Keeper Native Gas Balance: ${diagnostics.keeperBalanceArc} ARC (RPC Latency: ${diagnostics.lastRpcLatencyMs}ms)`);
@@ -209,14 +216,20 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = {}) {
   ] as const;
 
   try {
-    const isAuth = await publicClient.readContract({
-      address: contracts.PerpEngine,
-      abi: keeperRoleAbi,
-      functionName: "liquidationKeeper",
-      args: [account.address],
-    });
-    diagnostics.isAuthorizedKeeper = isAuth;
-    console.log(`Keeper On-Chain Authorization: ${isAuth ? "✓ AUTHORIZED" : "⚠ NOT AUTHORIZED (Needs Governance Role)"}`);
+    if (!account) {
+      diagnostics.isAuthorizedKeeper = null;
+      console.log("Keeper On-Chain Authorization: NOT CHECKED (KEYLESS READ-ONLY)");
+    } else {
+      const isAuth = await publicClient.readContract({
+        address: contracts.PerpEngine,
+        abi: keeperRoleAbi,
+        functionName: "liquidationKeeper",
+        args: [account.address],
+      });
+      diagnostics.isAuthorizedKeeper = isAuth;
+      if (!isAuth && !dryRun) throw new Error("UNAUTHORIZED_MAINNET_KEEPER");
+      console.log(`Keeper On-Chain Authorization: ${isAuth ? "✓ AUTHORIZED" : "⚠ NOT AUTHORIZED (Needs Governance Role)"}`);
+    }
   } catch (authErr) {
     console.warn(`  Could not verify keeper role: ${(authErr as Error).message.slice(0, 60)}`);
   }
@@ -277,8 +290,19 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = {}) {
 
         if (pos[6]) { // pos.open === true
           console.log(`  Evaluating open position #${id}: trader=${pos[0]} size=${pos[4]}`);
-          if (!options.dryRun) {
+          if (!dryRun) {
             try {
+              if (!account || !walletClient || diagnostics.isAuthorizedKeeper !== true)
+                throw new Error("KEEPER_LIVE_AUTHORIZATION_MISSING");
+              // A successful contract simulation is necessary before spending
+              // mainnet gas; healthy positions must never be blindly submitted.
+              await publicClient.simulateContract({
+                address: contracts.PerpEngine,
+                abi: perpAbi,
+                functionName: "liquidate",
+                args: [id],
+                account,
+              });
               const hash = await walletClient.writeContract({
                 address: contracts.PerpEngine,
                 abi: perpAbi,
@@ -346,7 +370,7 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = {}) {
           volume24hUsd: vol,
           url: `https://cluster-terminal.vercel.app/trade/${encodeURIComponent(market.marketId)}`,
         };
-        await dispatchMultiChannelAlert(alert, { dryRun: options.dryRun }).catch(() => {});
+        await dispatchMultiChannelAlert(alert, { dryRun }).catch(() => {});
       }
     }
   }
@@ -422,7 +446,7 @@ async function main() {
   const args = process.argv.slice(2);
   const isLoop = args.includes("--loop");
   const isOnce = args.includes("--once") || !isLoop;
-  const dryRun = args.includes("--dry-run");
+  const dryRun = args.includes("--dry-run") || !args.includes("--live");
 
   const intervalArg = args.find((a) => a.startsWith("--interval="));
   const intervalSec = intervalArg ? parseInt(intervalArg.split("=")[1], 10) : 30;
