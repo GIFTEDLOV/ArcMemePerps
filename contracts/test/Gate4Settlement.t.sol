@@ -133,6 +133,45 @@ contract Gate4SettlementTest {
         require(lp.withdrawalAccountingCertified(), "fully flat engine still blocked");
     }
 
+    function testRealizedProfitWithInsufficientMarginCashBlocksLpCertification() public {
+        PublicLPVault lp = new PublicLPVault(address(usdc), 10);
+        vault.setLpVault(address(lp));
+        lp.setMarginVault(address(vault));
+        lp.setSettlementEngine(address(engine));
+        lp.setRiskController(address(this));
+        address governor = address(0xA11CE);
+        lp.setGovernanceExecutor(governor);
+        lp.finalizeBootstrap();
+
+        usdc.mint(address(this), 80_000_000);
+        usdc.approve(address(lp), 80_000_000);
+        vm.prank(governor);
+        lp.setPublicLpActive(true);
+        lp.deposit(80_000_000);
+        lp.setMarketRiskBudget(40_000_000);
+
+        vm.prank(TRADER);
+        uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
+        oracle.setPrice(marketId, 20e18, uint64(vm.getBlockTimestamp()), 9_500);
+        vm.prank(TRADER);
+        engine.closePosition(positionId);
+        require(engine.activePositionCount() == 0, "position not closed");
+        require(engine.totalOpenNotionalUsdc() == 0, "notional not flat");
+        require(vault.totalLockedCollateral() == 0, "locked collateral still present");
+        require(vault.protocolBadDebt() == 0, "unexpected bad debt");
+        require(vault.totalFreeCollateral() > vault.rawCash(), "trader profit fully funded");
+        require(!vault.seniorLiabilitiesCovered(), "margin insolvency not detected");
+
+        // Even when the engine is flat, the trader's realized, unpaid profit
+        // is senior to LP capital; a risk controller may not certify the exit.
+        lp.setMarketRiskBudget(0);
+        vm.prank(governor);
+        lp.setPublicLpActive(false);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalAccountingCertified(), "unfunded gains approved");
+    }
+
     function testDepositOpenCloseAndCustodyMatch() public {
         _assertMatch();
         vm.prank(TRADER);
