@@ -177,6 +177,7 @@ contract Gate4SettlementTest {
         vm.prank(TRADER);
         uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
         require(engine.totalOpenInterest(marketId) == 40_000_000);
+        require(engine.settlementSequence() == 1, "open did not advance engine epoch");
         require(engine.activePositionCount() == 1, "active engine position was missed");
         require(engine.totalOpenNotionalUsdc() == 40_000_000, "global OI was missed");
 
@@ -193,6 +194,7 @@ contract Gate4SettlementTest {
         );
 
         require(engine.totalOpenInterest(marketId) == 0);
+        require(engine.settlementSequence() == 2, "close did not advance engine epoch");
         require(engine.activePositionCount() == 0, "engine position not cleared");
         require(engine.totalOpenNotionalUsdc() == 0, "global OI not cleared");
         require(vault.lockedCollateral(TRADER) == 0);
@@ -268,6 +270,7 @@ contract Gate4SettlementTest {
         require(size == 20_000_000);
         require(collateral == 10_000_000);
         require(engine.totalOpenInterest(marketId) == 20_000_000);
+        require(engine.settlementSequence() == 2, "partial reduction epoch missing");
         require(engine.activePositionCount() == 1, "partial reduction closed position");
         require(engine.totalOpenNotionalUsdc() == 20_000_000, "reduced global OI wrong");
         require(vault.lockedCollateral(TRADER) == 10_000_000);
@@ -276,6 +279,7 @@ contract Gate4SettlementTest {
         vm.prank(TRADER);
         engine.reducePosition(positionId, 20_000_000, 10_000_000);
         require(engine.totalOpenInterest(marketId) == 0);
+        require(engine.settlementSequence() == 3, "full reduction epoch missing");
         require(engine.activePositionCount() == 0, "full reduction left active position");
         require(engine.totalOpenNotionalUsdc() == 0, "full reduction left global OI");
         require(vault.lockedCollateral(TRADER) == 0);
