@@ -2506,10 +2506,15 @@ function TradingRail({ market, wallet }: { market: OriginMarket; wallet: ReturnT
       const protocol = await api.get<ProductionTradingState>("/protocol/status", {
         cache: "no-store",
       });
-      const preliminary = tradeReleaseBlocker(
-        market, protocol, null, wallet.state.address, wallet.state.chainId ?? 0,
-      );
-      if (preliminary) throw new Error(preliminary);
+      if (wallet.state.status !== "CONNECTED" || !wallet.state.address ||
+          wallet.state.chainId !== 5042)
+        throw new Error("Connect a real Arc mainnet wallet.");
+      if (protocol.tradingEnabled !== true || protocol.lpDepositsEnabled !== true ||
+          protocol.qualificationInventory !== "VERIFIED" ||
+          market.perp.status !== "LIVE" ||
+          market.derivatives.status !== "LIVE" ||
+          market.integrity.status !== "QUALIFIED" || market.isQuarantined)
+        throw new Error("Live trading is not approved for this market.");
 
       // Pretrade must be independently verified and bound to this wallet,
       // market, oracle report and release epoch before *any* token approval.
