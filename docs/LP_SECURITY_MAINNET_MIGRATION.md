@@ -19,6 +19,37 @@ A read-only Arc mainnet RPC check at block **29,158,309** ([CI evidence](https:/
 - `scripts/arc-mainnet-deployment.ts` and `scripts/verify-mainnet-deployment.ts` contain historical frozen source/release hashes. They must be updated, re-audited and compared to freshly built artifacts before any security release; an old hash is not evidence for the revised source.
 - Do not overwrite deployment manifests or reuse unconfirmed role addresses. The protocol contracts shown here are ordinary deployments; source edits do **not** upgrade an existing deployment.
 
+## Fork deployment rehearsal
+
+A keyless, read-only-on-mainnet / locally executed fork rehearsal is now implemented:
+- `contracts/fork-test/ArcLpDeploymentFork.t.sol` — isolated Foundry tests
+  running on an Arc mainnet fork. The first test deploys a fresh replacement
+  `PublicLPVault`, `USDCMarginVault` and `ProtocolTimelock` against the
+  **real Arc USDC contract address**, confirms the 6-decimal token,
+  one-time vault links, bootstrap finalization, default-inactive status,
+  and that only timelocked governance activates LP deposits. It checks
+  the original deployed vaults' USDC balances and shares remain unchanged.
+- The second test uses **newly deployed MockUSDC**, not user collateral, to
+  simulate LP deposits, governed backing allocation and recovery, a rejected
+  early withdrawal, de-risking, certification, and an allowed fair claim.
+  Mock-funded simulation is not a proof that all real-USDC token transfers
+  and accounting edge cases have been exercised.
+- `.github/workflows/arc-lp-fork-rehearsal.yml` runs a read-only Arc RPC
+  snapshot check, compiles the new source and executes the fork test at a
+  single selected Arc block. It does not use deployer private keys, a
+  broadcast action, or any account capable of moving production funds.
+
+To reproduce:
+
+```bash
+FOUNDRY_PROFILE=arc-lp-fork forge test --fork-url https://rpc.mainnet.arc.io --match-contract ArcLpDeploymentForkTest -vv
+```
+
+The GitHub Actions workflow pins an observed block number for its own run.
+Passing a fork rehearsal **does not** authorize deploying a new vault or
+migrating real funds. An independently approved production graph and
+controller/engine reconciliation workflow remain necessary.
+
 ## Mandatory deployment gates
 
 1. **Review/CI:** Require final CI green at the exact PR head, complete Foundry tests, strong independent review of NAV, pricing and governance, plus fork tests under the intended constructor and role graph.
