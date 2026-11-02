@@ -3874,23 +3874,19 @@ function EarnPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
 }
 
 function CompetitionsPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) {
-  const leaderboard = [
-    { rank: 1, handle: "ArcWhale_99", address: "0x7a89...42f1", pnl: "+342.5%", vol: "$1,842,000", prize: "$12,500 USDC" },
-    { rank: 2, handle: "DegenSniper", address: "0x3c12...99e0", pnl: "+218.1%", vol: "$1,120,400", prize: "$6,250 USDC" },
-    { rank: 3, handle: "SolToArcTrader", address: "0x91d4...11b8", pnl: "+175.9%", vol: "$890,200", prize: "$3,750 USDC" },
-    { rank: 4, handle: "MemeCapital", address: "0x4e22...77a5", pnl: "+94.3%", vol: "$540,100", prize: "$1,500 USDC" },
-    { rank: 5, handle: "ArcPupHodler", address: "0x15f9...cc02", pnl: "+88.2%", vol: "$420,000", prize: "$1,000 USDC" },
-  ];
+  // No verified Arc trading competition, prize escrow or onchain PnL
+  // ranking exists. Never publish made-up trader identities or cash prizes.
+  const leaderboard: Array<{rank: number; handle: string; address: string; pnl: string; vol: string; prize: string}> = [];
 
   return (
     <section className="page competitions-page">
-      <PageIntro eyebrow="Seasonal Trading League" title="Arc Season 1 Meme Perps Championship" copy="Compete for $25,000 USDC in prizes. Ranked purely on verified on-chain PnL % across Arc Mainnet perpetuals." />
+      <PageIntro eyebrow="Seasonal Trading League" title="Trading Competitions" copy="No Arc trading competition or funded prize pool has been verified." />
 
       <div className="proof-banner" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "16px" }}>
         <div>
-          <span className="eyebrow">Season 1 Active</span>
-          <h2 style={{ fontSize: "20px", margin: "4px 0" }}>Total Prize Pool: $25,000 USDC</h2>
-          <p style={{ margin: 0, fontSize: "12px", color: "var(--muted)" }}>Competition ends in 6 days 14 hours. Top 20 traders receive on-chain payouts.</p>
+          <span className="eyebrow">No Active Season Verified</span>
+          <h2 style={{ fontSize: "20px", margin: "4px 0" }}>Prize Pool: Not Verified</h2>
+          <p style={{ margin: 0, fontSize: "12px", color: "var(--muted)" }}>Dates, rankings, and payouts will be published only after verified on-chain funding.</p>
         </div>
         <div style={{ display: "flex", gap: "8px" }}>
           <Link to="/markets" className="button button-primary">Trade to Join</Link>
@@ -3899,8 +3895,8 @@ function CompetitionsPage({ wallet }: { wallet: ReturnType<typeof useWallet> }) 
 
       <div className="panel" style={{ marginTop: "20px" }}>
         <div className="panel-heading" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "12px 16px", borderBottom: "1px solid var(--border)" }}>
-          <span className="eyebrow" style={{ margin: 0 }}>Top Verified Leaders</span>
-          <span style={{ fontSize: "11px", color: "var(--muted)", fontFamily: "var(--font-mono)" }}>Updated real-time from Arc Mainnet</span>
+          <span className="eyebrow" style={{ margin: 0 }}>Verified Rankings</span>
+          <span style={{ fontSize: "11px", color: "var(--muted)", fontFamily: "var(--font-mono)" }}>No verified results available</span>
         </div>
 
         <div style={{ overflowX: "auto" }}>
