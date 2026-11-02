@@ -45,6 +45,55 @@ contract StaleNavWithdrawalTest {
         vault.deposit(1_000_000);
     }
 
+    function testOldAccountingCertificationCannotSurviveDepositReactivation() public {
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        require(vault.withdrawalAccountingCertified(), "initial certification missing");
+
+        // Even a zero-risk deposit phase changes the liability/accounting epoch.
+        // Governance must not reuse an earlier approval after that phase.
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(true);
+        require(!vault.withdrawalAccountingCertified(), "reused stale certificate");
+
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vm.prank(GOVERNANCE);
+        vm.expectRevert();
+        vault.setWithdrawalSettlementEnabled(true);
+
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        require(vault.withdrawalSettlementEnabled(), "fresh approval rejected");
+    }
+
+    function testEmergencyGuardianCanCloseActiveSettlement() public {
+        // The deployment bootstrap owner grants this capability to a guardian.
+        address guardian = address(0xC);
+        // The vault is already finalized, so a governance executor assigns it.
+        vm.prank(GOVERNANCE);
+        vault.setRole(vault.EMERGENCY_ADMIN_ROLE(), guardian, true);
+        vm.prank(LP_A);
+        vault.requestWithdraw(500_000);
+
+        vm.prank(GOVERNANCE);
+        vault.setPublicLpActive(false);
+        vault.certifyWithdrawalAccounting();
+        vm.prank(GOVERNANCE);
+        vault.setWithdrawalSettlementEnabled(true);
+        vm.prank(guardian);
+        vault.emergencyPauseWithdrawalSettlement();
+
+        require(!vault.withdrawalSettlementEnabled(), "guardian failed to stop claims");
+        require(!vault.withdrawalAccountingCertified(), "guardian left stale certification");
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(LP_A);
+        vm.expectRevert();
+        vault.claimWithdraw();
+    }
+
     function testDepositsCannotUseStaleNavWhileRiskIsOpen() public {
         vault.setMarketRiskBudget(500_000);
         usdc.mint(LP_A, 100_000);
