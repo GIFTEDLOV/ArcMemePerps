@@ -40,5 +40,11 @@ describe("CLUSTER mainnet keeper release boundary", () => {
     expect(simulation).toBeGreaterThan(0);
     expect(broadcast).toBeGreaterThan(simulation);
     expect(daemon).toContain('diagnostics.isAuthorizedKeeper !== true');
+    const transactionHash = daemon.indexOf('const hash = await walletClient.writeContract(');
+    const receipt = daemon.indexOf('const receipt = await publicClient.waitForTransactionReceipt(');
+    const counted = daemon.indexOf('liquidationsTriggered++;');
+    expect(receipt).toBeGreaterThan(transactionHash);
+    expect(counted).toBeGreaterThan(receipt);
+    expect(daemon).toContain('if (receipt.status !== "success")');
   });
 });
