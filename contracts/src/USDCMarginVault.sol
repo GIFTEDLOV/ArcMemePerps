@@ -588,12 +588,10 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         uint256 uncoveredBadDebt = protocolBadDebt > insuranceCoveredBadDebt
             ? protocolBadDebt - insuranceCoveredBadDebt
             : 0;
-        uint256 feeReserve =
-            accruedFees > insuranceReserve ? accruedFees : insuranceReserve;
-        uint256 claims = totalFreeCollateral + totalLockedCollateral
-            + pendingPositivePnl + uncoveredBadDebt + feeReserve;
-        return rawCash >= claims
-            && address(_collateralToken) != address(0)
+        uint256 feeReserve = accruedFees > insuranceReserve ? accruedFees : insuranceReserve;
+        uint256 claims = totalFreeCollateral + totalLockedCollateral + pendingPositivePnl
+            + uncoveredBadDebt + feeReserve;
+        return rawCash >= claims && address(_collateralToken) != address(0)
             && _collateralToken.balanceOf(address(this)) >= rawCash;
     }
 
@@ -604,11 +602,23 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
     function settlementStateDigest() external view returns (bytes32) {
         return keccak256(
             abi.encode(
-                address(this), block.chainid, rawCash, totalFreeCollateral,
-                totalLockedCollateral, pendingPositivePnl, pendingNegativePnl,
-                protocolBadDebt, insuranceCoveredBadDebt, adlCoveredBadDebt,
-                accruedFees, insuranceReserve, protocolBacking, lpBacking,
-                cumulativeLpWriteOff, realizedTraderPnlGains, realizedTraderPnlLosses
+                address(this),
+                block.chainid,
+                rawCash,
+                totalFreeCollateral,
+                totalLockedCollateral,
+                pendingPositivePnl,
+                pendingNegativePnl,
+                protocolBadDebt,
+                insuranceCoveredBadDebt,
+                adlCoveredBadDebt,
+                accruedFees,
+                insuranceReserve,
+                protocolBacking,
+                lpBacking,
+                cumulativeLpWriteOff,
+                realizedTraderPnlGains,
+                realizedTraderPnlLosses
             )
         );
     }
