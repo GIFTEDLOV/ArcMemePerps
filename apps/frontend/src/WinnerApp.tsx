@@ -3163,8 +3163,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
     );
   }
 
-  const totalPositionSize = positions.reduce((acc, p) => acc + Number(p.size.replace(/[^0-9.-]+/g, "") || 0), 0);
-  const totalCollateral = 0;
+  // The on-chain margin balance is not known from the wallet's USDC balance.
   // Wallet cash is not the same as free trading collateral: contract margin
   // allocations and pending withdrawals have not been independently reconciled.
   const availableBal = "Unverified";
@@ -3233,9 +3232,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
         </div>
         <div className="metric">
           <span>Active Perp Margin</span>
-          <strong style={{ color: totalCollateral > 0 ? "var(--good)" : "var(--muted)" }}>
-            ${totalCollateral.toFixed(2)} USDC
-          </strong>
+          <strong style={{ color: "var(--muted)" }}>Unverified</strong>
           <small>Not confirmed from the live contract</small>
         </div>
         <div className="metric">
