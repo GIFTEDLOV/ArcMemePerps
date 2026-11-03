@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type
 import { Link, NavLink, Outlet, Route, Routes, useLocation, useNavigate, useParams } from "react-router-dom";
 import { CHAIN_OPTIONS, LIFECYCLE_OPTIONS, STRESS_EVIDENCE, WINNER_CONFIG } from "./lib/winner-config";
 import { WinnerApi, subscribeRealtime, type IndexedArcWallet } from "./lib/winner-api";
+import { formatArcErc20Usdc } from "./lib/arc-usdc";
 import { ageLabel, formatDecimal, formatPercentBps, formatUsd, shorten, statusClass } from "./lib/winner-format";
 import type { Health, MarketPage, OriginMarket, Pretrade, RealtimeEvent } from "./lib/winner-types";
 import { isPretradeIntact } from "./lib/winner-plan";
@@ -3129,11 +3130,10 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
         const json = await res.json() as { result?: string };
         if (json.result && json.result !== "0x") {
           const raw = BigInt(json.result);
-          const bal = (Number(raw) / 1e6).toFixed(2);
-          setUsdcBalance(bal);
+          setUsdcBalance(formatArcErc20Usdc(raw));
         }
       } catch {
-        /* fallback to 0 */
+        setUsdcBalance("—");
       }
     };
     void fetchBalance();
@@ -3165,9 +3165,9 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
 
   const totalPositionSize = positions.reduce((acc, p) => acc + Number(p.size.replace(/[^0-9.-]+/g, "") || 0), 0);
   const totalCollateral = 0;
-  const availableBal = Number.isFinite(Number(usdcBalance))
-    ? Math.max(0, Number(usdcBalance) - totalCollateral).toFixed(2)
-    : "—";
+  // Wallet cash is not the same as free trading collateral: contract margin
+  // allocations and pending withdrawals have not been independently reconciled.
+  const availableBal = "Unverified";
 
   return (
     <section className="page portfolio-page">
@@ -3228,7 +3228,7 @@ function Portfolio({ wallet, data, onClosePosition }: { wallet: ReturnType<typeo
         </div>
         <div className="metric">
           <span>Available Collateral</span>
-          <strong>${availableBal} USDC</strong>
+          <strong>{availableBal}</strong>
           <small>Wallet USDC only; margin availability unverified</small>
         </div>
         <div className="metric">
