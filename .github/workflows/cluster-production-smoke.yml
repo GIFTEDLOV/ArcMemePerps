@@ -54,6 +54,15 @@ jobs:
             throw Error("PUBLIC_TRADING_UNEXPECTEDLY_ENABLED");
           const markets=await request("markets",api+"/api/v1/markets?limit=2","application/json");
           if(!Array.isArray(markets.value.items))throw Error("MARKETS_NOT_ARRAY");
+          const index=await request("index-status",api+"/api/v1/index/status","application/json");
+          if(typeof index.value.throughBlock!=="string" || !Number.isFinite(index.value.gaps))
+            throw Error("ARC_INDEX_COVERAGE_MISSING");
+          console.log(JSON.stringify({arcIndexThroughBlock:index.value.throughBlock,gaps:index.value.gaps,
+            sourceConflicts:index.value.singleSourceRanges,events:index.value.observedContractEvents}));
+          const wallet=await request("wallet-index-read",api+"/api/v1/wallet/0x1111111111111111111111111111111111111111","application/json");
+          if(!wallet.value.readOnly||wallet.value.complete!==false||
+             !Array.isArray(wallet.value.wallet?.positions)||!Array.isArray(wallet.value.wallet?.activity))
+            throw Error("WALLET_RECEIPT_PROJECTION_UNAVAILABLE");
           const invalid=await request("reject-invalid-wallet",api+"/api/v1/wallet/not-an-arc-address","application/json",[400]);
           if(invalid.value.error!=="INVALID_ARC_ADDRESS")throw Error("INVALID_WALLET_NOT_REJECTED");
           console.log("CLUSTER_PRODUCTION_SMOKE_PASSED");
