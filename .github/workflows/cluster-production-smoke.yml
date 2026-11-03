@@ -116,8 +116,14 @@ jobs:
               },process.env.API_ORIGIN);
               if(result.status!==200||result.data.readOnly!==true||result.data.tradingEnabled===true)
                 throw Error(label+" API_CORS_OR_TRADING_RELEASE_FAILURE");
+              const marketRow=page.locator('.market-row-link').first();
+              await marketRow.waitFor({state:'visible',timeout:20000});
+              await marketRow.click();
+              await page.locator('.token-detail-bar').waitFor({state:'visible',timeout:20000});
+              const detailText=await page.locator('.token-detail-bar').innerText();
+              if(!detailText || detailText.length<30)throw Error(label+" TOKEN_DETAIL_NOT_RENDERED");
               if(exceptions.length)throw Error(label+" BROWSER_EXCEPTIONS "+exceptions.slice(0,3).join(' | '));
-              console.log(JSON.stringify({browser:label,rendered:true,apiCors:true,marketsTextBytes:bodyText.length}));
+              console.log(JSON.stringify({browser:label,rendered:true,apiCors:true,marketsTextBytes:bodyText.length,detailRendered:true}));
               await page.close();
             }
             console.log('CLUSTER_PRODUCTION_BROWSER_SMOKE_PASSED');
