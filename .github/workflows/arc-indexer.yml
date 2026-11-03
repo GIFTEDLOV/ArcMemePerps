@@ -23,7 +23,7 @@ jobs:
       DATABASE_URL: ${{ secrets.CLUSTER_INDEX_WORKER_DATABASE_URL }}
       ARC_INDEX_RPC_PRIMARY: ${{ vars.CLUSTER_ARC_RPC_PRIMARY || 'https://rpc.mainnet.arc.io' }}
       ARC_INDEX_RPC_SECONDARY: ${{ vars.CLUSTER_ARC_RPC_SECONDARY || 'https://rpc.quicknode.mainnet.arc.io' }}
-      ARC_INDEX_MAX_WINDOWS: ${{ vars.ARC_INDEX_MAX_WINDOWS || '25' }}
+      ARC_INDEX_MAX_WINDOWS: ${{ vars.ARC_INDEX_MAX_WINDOWS || '70' }}
     steps:
       - name: Checkout in-repo worker at exact reviewed source commit
         uses: actions/checkout@v4
@@ -50,8 +50,8 @@ jobs:
         run: |
           set -euo pipefail
           # Multiple bounded cycles recover after GitHub schedule delays.
-          for cycle in {1..6}; do
-            echo "Arc indexer catch-up cycle ${cycle}/6"
+          for cycle in {1..8}; do
+            echo "Arc indexer catch-up cycle ${cycle}/8"
             result="$(pnpm --filter @arcmemeperps/indexer arc:backfill)"
             printf '%s\n' "$result"
             if [[ "$result" == *'"status":"SKIPPED_CONCURRENT_INDEXER_RUNNING"'* ]]; then
@@ -66,5 +66,5 @@ jobs:
               echo "Already at selected finalized head."
               break
             fi
-            if [[ "$cycle" -lt 6 ]]; then sleep 15; fi
+            if [[ "$cycle" -lt 8 ]]; then sleep 3; fi
           done
