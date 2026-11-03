@@ -9,7 +9,7 @@
 </p>
 
 <p align="center">
-  <a href="https://cluster-terminal.vercel.app"><img src="https://img.shields.io/badge/Frontend-Deployed-555555?style=for-the-badge&logo=vercel&logoColor=white" alt="Frontend Deployed" /></a>
+  <a href="https://arcmemeperps.vercel.app"><img src="https://img.shields.io/badge/Frontend-Deployed-555555?style=for-the-badge&logo=vercel&logoColor=white" alt="Frontend Deployed" /></a>
   <a href="https://explorer.arc.io"><img src="https://img.shields.io/badge/Arc_Mainnet-Chain_5042-0052FF?style=for-the-badge&logo=ethereum&logoColor=white" alt="Arc Mainnet 5042" /></a>
   <a href="https://github.com/GIFTEDLOV/ArcMemePerps/actions"><img src="https://img.shields.io/badge/Keeper-Deployment_Not_Verified-999999?style=for-the-badge&logo=githubactions&logoColor=white" alt="Keeper deployment not verified" /></a>
   <a href="#test-and-verification-suite"><img src="https://img.shields.io/badge/Tests-See_CI-blue?style=for-the-badge" alt="See CI for current test results" /></a>
@@ -17,8 +17,8 @@
 </p>
 
 <p align="center">
-  <a href="https://cluster-terminal.vercel.app"><strong>Launch Terminal</strong></a> •
-  <a href="https://cluster-trade.vercel.app"><strong>Alternative Mirror</strong></a> •
+  <a href="https://arcmemeperps.vercel.app"><strong>Launch Terminal</strong></a> •
+  <a href="https://cluster-readonly-api.vercel.app/health"><strong>Live API Health</strong></a> •
   <a href="#arc-mainnet-live-deployment-chain-id-5042"><strong>Mainnet Contracts</strong></a> •
   <a href="#visual-interface-walkthrough"><strong>Screenshots</strong></a> •
   <a href="#architecture--workflow-maps"><strong>Architecture</strong></a> •
@@ -27,6 +27,17 @@
 
 ---
 
+## Verified production frontend and API — November 3, 2026
+
+- **Current terminal:** [arcmemeperps.vercel.app](https://arcmemeperps.vercel.app)
+- **Current API:** [cluster-readonly-api.vercel.app](https://cluster-readonly-api.vercel.app)
+- **Deployed application commit:** `01958fcc3ceca8c340f2ba48a398349091b3c81f`, built on Vercel for both projects.
+- **Public HTTP, indexer, and wallet projection checks:** [PASS](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41670838703). Arc index snapshot: through block `29209806`, 0 gaps, 0 single-RPC ranges, 29 contract events at that read. This is a point-in-time historical index, **not** live finality at the current block.
+- **Actual browser test:** [PASS on desktop and mobile](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41671409573), including API CORS and no JS page errors.
+- **Live financial features:** **NOT ACTIVATED.** No qualified Arc mainnet perp market, finalized engine/LP governance bootstrap, approved LP settlement, or independently signed trade is claimed here. See [security PR #28](https://github.com/GIFTEDLOV/ArcMemePerps/pull/28) and [economic release blocker #29](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29).
+
+---
+ 
 ## Review status (November 2, 2026)
 
 **Steward review: working frontend and Arc mainnet contract references; public LP trading and withdrawals are NOT approved as live.** The last checked Arc PublicLPVault was inactive and had zero shares, and its deployed bytecode predates the security fixes. Existing trader collateral must not be represented as withdrawable LP capital. The proposed replacement vault, engine settlement controls and migration checklist are in [draft security PR #28](https://github.com/GIFTEDLOV/ArcMemePerps/pull/28), which is **unmerged and undeployed**.
@@ -424,7 +435,7 @@ The following is an **earlier test-run snapshot**, not proof of the current depl
 This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
 
 - **Hackathon Track**: Arc Microgrants / DeFi Infrastructure
-- **Live Terminal**: [cluster-terminal.vercel.app](https://cluster-terminal.vercel.app)
+- **Live Terminal**: [cluster-terminal.vercel.app](https://arcmemeperps.vercel.app)
 - **Deployment Evidence**: [`evidence/mainnet/contracts.json`](evidence/mainnet/contracts.json)
 - **Chain ID**: `5042` (Arc Mainnet)
 
