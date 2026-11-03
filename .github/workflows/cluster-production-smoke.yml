@@ -67,3 +67,59 @@ jobs:
           if(invalid.value.error!=="INVALID_ARC_ADDRESS")throw Error("INVALID_WALLET_NOT_REJECTED");
           console.log("CLUSTER_PRODUCTION_SMOKE_PASSED");
           EOF
+
+  browser-render-verification:
+    if: github.event_name != 'schedule'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Checkout source for browser runtime dependencies
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11.0.9
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @arcmemeperps/frontend exec playwright install --with-deps chromium
+      - name: Verify React renders and cross-origin API is accessible on desktop/mobile
+        env:
+          FRONTEND_ORIGIN: https://arcmemeperps.vercel.app
+          API_ORIGIN: https://cluster-readonly-api.vercel.app
+        working-directory: apps/frontend
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          import { chromium } from '@playwright/test';
+          const browser=await chromium.launch({headless:true});
+          try{
+            for(const [label,viewport] of [
+              ["desktop",{width:1365,height:850}],
+              ["mobile",{width:390,height:844}],
+            ]){
+              const page=await browser.newPage({viewport});
+              const exceptions=[];
+              page.on('pageerror',error=>exceptions.push(error.message));
+              const response=await page.goto(process.env.FRONTEND_ORIGIN+'/markets',{waitUntil:'domcontentloaded',timeout:30000});
+              if(response?.status()!==200)throw Error(label+" MARKETS_HTTP_"+response?.status());
+              await page.locator('#root').waitFor({state:'visible',timeout:20000});
+              await page.getByRole('heading',{name:'Markets'}).first().waitFor({state:'visible',timeout:20000});
+              const bodyText=await page.locator('#root').innerText();
+              if(bodyText.length<150)throw Error(label+" APP_RENDER_INCOMPLETE");
+              const result=await page.evaluate(async origin=>{
+                const res=await fetch(origin+'/api/v1/protocol/status',{cache:'no-store'});
+                return {status:res.status,data:await res.json()};
+              },process.env.API_ORIGIN);
+              if(result.status!==200||result.data.readOnly!==true||result.data.tradingEnabled===true)
+                throw Error(label+" API_CORS_OR_TRADING_RELEASE_FAILURE");
+              if(exceptions.length)throw Error(label+" BROWSER_EXCEPTIONS "+exceptions.slice(0,3).join(' | '));
+              console.log(JSON.stringify({browser:label,rendered:true,apiCors:true,marketsTextBytes:bodyText.length}));
+              await page.close();
+            }
+            console.log('CLUSTER_PRODUCTION_BROWSER_SMOKE_PASSED');
+          } finally{await browser.close()}
+          EOF
