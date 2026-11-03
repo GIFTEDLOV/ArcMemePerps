@@ -27,7 +27,7 @@ import { dispatchMultiChannelAlert, type AlertPayload } from "@arcmemeperps/prov
 const ARC_MAINNET = defineChain({
   id: 5042,
   name: "Arc Mainnet",
-  nativeCurrency: { name: "Arc", symbol: "ARC", decimals: 18 },
+  nativeCurrency: { name: "USDC", symbol: "USDC", decimals: 18 },
   rpcUrls: { default: { http: [process.env.ARC_RPC_URL || "https://rpc.mainnet.arc.io"] } },
   blockExplorers: { default: { name: "Arc Explorer", url: "https://explorer.arc.io" } },
 });
@@ -48,7 +48,7 @@ interface DiagnosticMetrics {
   consecutiveFailures: number;
   lastError: string | null;
   keeperAddress: string;
-  keeperBalanceArc: string;
+  keeperBalanceUsdc: string;
   isAuthorizedKeeper: boolean | null;
 }
 
@@ -59,7 +59,7 @@ const diagnostics: DiagnosticMetrics = {
   consecutiveFailures: 0,
   lastError: null,
   keeperAddress: "",
-  keeperBalanceArc: "0.0",
+  keeperBalanceUsdc: "0.0",
   isAuthorizedKeeper: null,
 };
 
@@ -196,8 +196,8 @@ export async function runDaemonCycle(options: { dryRun?: boolean } = { dryRun: t
       ? await publicClient.getBalance({ address: account.address })
       : 0n;
     diagnostics.lastRpcLatencyMs = Date.now() - t0;
-    diagnostics.keeperBalanceArc = formatEther(bal);
-    console.log(`Keeper Native Gas Balance: ${diagnostics.keeperBalanceArc} ARC (RPC Latency: ${diagnostics.lastRpcLatencyMs}ms)`);
+    diagnostics.keeperBalanceUsdc = formatEther(bal);
+    console.log(`Keeper Native Gas Balance: ${diagnostics.keeperBalanceUsdc} USDC (RPC Latency: ${diagnostics.lastRpcLatencyMs}ms)`);
   } catch (err) {
     diagnostics.consecutiveFailures++;
     diagnostics.lastError = `RPC Error fetching balance: ${(err as Error).message}`;
@@ -424,7 +424,7 @@ function startHealthServer(port: number = Number(process.env.PORT || 8080)) {
             status: isDegraded ? "DEGRADED" : "HEALTHY",
             keeper: {
               address: diagnostics.keeperAddress,
-              nativeBalanceArc: diagnostics.keeperBalanceArc,
+              nativeBalanceUsdc: diagnostics.keeperBalanceUsdc,
               onChainAuthorized: diagnostics.isAuthorizedKeeper,
             },
             operationalMetrics: {
