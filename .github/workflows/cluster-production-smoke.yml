@@ -1,0 +1,60 @@
+name: CLUSTER Production Live Endpoint Smoke
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/cluster-production-smoke.yml"
+  workflow_dispatch:
+  schedule:
+    - cron: "29 */6 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cluster-production-smoke
+  cancel-in-progress: false
+
+jobs:
+  live-http-verification:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify public frontend and live API JSON contracts
+        env:
+          FRONTEND_ORIGIN: https://arcmemeperps.vercel.app
+          API_ORIGIN: https://cluster-readonly-api.vercel.app
+        run: |
+          set -euo pipefail
+          node --input-type=module <<'EOF'
+          const frontend = process.env.FRONTEND_ORIGIN;
+          const api = process.env.API_ORIGIN;
+          const abort = AbortSignal.timeout(25000);
+          async function request(label,url,accept,allowed=[200]) {
+            const res=await fetch(url,{signal:abort,headers:{"accept":accept},redirect:"follow"});
+            const type=res.headers.get("content-type")??"";
+            const body=await res.text();
+            const ok=allowed.includes(res.status) && (accept==="application/json"
+              ? type.includes("application/json") : type.includes("text/html"));
+            const result={label,status:res.status,ok,contentType:type.slice(0,48),bytes:body.length};
+            console.log(JSON.stringify(result));
+            if(!ok) throw Error(label+" HTTP_OR_CONTENT_TYPE_FAILED "+res.status+" "+body.slice(0,170));
+            if(accept==="application/json"){try{return {status:res.status,value:JSON.parse(body)}}
+              catch{throw Error(label+" INVALID_JSON")}}
+            if(!body.includes('<html')&&!body.includes('<!DOCTYPE html'))throw Error("FRONTEND_HTML_NOT_FOUND");
+            return {status:res.status,value:body};
+          }
+          const home=await request("frontend",frontend+"/","text/html");
+          if(!home.value.includes('<div id="root"'))throw Error("FRONTEND_ROOT_NOT_FOUND");
+          const health=await request("api-health",api+"/health","application/json");
+          if(health.value.status!=="ok"||health.value.readOnly!==true)throw Error("API_HEALTH_NOT_READ_ONLY");
+          const status=await request("protocol-status",api+"/api/v1/protocol/status","application/json");
+          if(status.value.readOnly!==true||status.value.tradingEnabled===true)
+            throw Error("PUBLIC_TRADING_UNEXPECTEDLY_ENABLED");
+          const markets=await request("markets",api+"/api/v1/markets?limit=2","application/json");
+          if(!Array.isArray(markets.value.items))throw Error("MARKETS_NOT_ARRAY");
+          const invalid=await request("reject-invalid-wallet",api+"/api/v1/wallet/not-an-arc-address","application/json",[400]);
+          if(invalid.value.error!=="INVALID_ARC_ADDRESS")throw Error("INVALID_WALLET_NOT_REJECTED");
+          console.log("CLUSTER_PRODUCTION_SMOKE_PASSED");
+          EOF
