@@ -8,8 +8,10 @@
 **Tagline:** High-Velocity Meme Perpetual Futures with Multi-Source Oracle Verification and Donation-Immune LP Accounting on Arc Network.  
 **Repository:** [https://github.com/GIFTEDLOV/ArcMemePerps](https://github.com/GIFTEDLOV/ArcMemePerps)  
 **Production API:** [https://cluster-readonly-api.vercel.app](https://cluster-readonly-api.vercel.app)  
-**Interactive Web Terminal:** [https://cluster-hackathon-preview.vercel.app](https://cluster-hackathon-preview.vercel.app)  
+**Verified Production Web Terminal:** [https://arcmemeperps.vercel.app](https://arcmemeperps.vercel.app)  
 **Demo Video:** [`arcmemeperps_3min_demo.mp4` (public GitHub source)](https://github.com/GIFTEDLOV/ArcMemePerps/blob/main/arcmemeperps_3min_demo.mp4)  
+**Latest browser + API production smoke:** [Passed on November 3, 2026](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41671409573)  
+**Public API + Arc indexer + wallet readback:** [Passed, latest deployed code](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41670838703)  
 **Track:** DeFi & Derivatives / Arc Ecosystem  
 
 ---
