@@ -5,6 +5,17 @@
 **Decision:** **FRONTEND REVIEWABLE / PUBLIC-LP MAINNET ACTIVATION NO-GO**  
 **No mainnet contract upgrade, signing, token funding, trade, or migration was performed by this review.**
 
+## Updated live release evidence — November 3, 2026
+
+The **verified** frontend and read-only API were both redeployed successfully from application commit `01958fcc3ceca8c340f2ba48a398349091b3c81f`. The user-visible website now has a working live market discovery feed and CORS-enabled API, independently tested in desktop and mobile Chromium. [Public HTTP/API/index/wallet smoke PASS](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41670838703) and [live desktop/mobile browser PASS](https://github.com/GIFTEDLOV/ArcMemePerps/actions/runs/41671409573).
+
+- [Latest frontend](https://arcmemeperps.vercel.app) — React SPA renders and requests API successfully
+- [Latest API](https://cluster-readonly-api.vercel.app) — health, protocol, markets, indexed event coverage, and receipt-derived wallet positions/activity return structurally verified responses
+- Arc indexer snapshot at production smoke: through block `29209806`, 0 gaps, 0 single-source ranges, 29 recorded contract events. This is **not** proof of zero lag or market qualification.
+- No real positions are invented, no browser keeper or simulated deposit is presented as an actual trade, and money-moving actions remain closed pending independent verified market/LP release.
+
+**Unresolved mainnet blockers are specific:** no registered/approved live perpetual markets; unfinalized PerpEngine and PublicLPVault bootstrap; missing governance-executor configuration; unverified full market/oracle qualification; and incomplete near-head indexed state. Independent economic reconciliation remains tracked in [Issue #29](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29). Green CI is not permission to activate trading.
+
 ## Reviewer access
 
 - **Frontend / terminal:** [cluster-terminal.vercel.app](https://cluster-terminal.vercel.app) (published application link; HTTP accessibility should be checked directly by the reviewer)
