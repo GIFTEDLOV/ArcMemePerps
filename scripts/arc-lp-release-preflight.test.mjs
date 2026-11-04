@@ -74,6 +74,26 @@ test("missing engine settlement epoch is an unconditional release blocker", () =
   assert.ok(result.blockers.includes("ENGINE_SETTLEMENT_SEQUENCE_GUARD_MISSING"));
 });
 
+test("removing onchain outstanding-order proof is a release blocker", () => {
+  const broken = { ...source,
+    "contracts/src/PerpEngine.sol": source["contracts/src/PerpEngine.sol"]
+      .replace("uint256 public pendingOrderCount;", "uint256 public missingPendingOrderCount;"),
+  };
+  const result = evaluateLpReleasePlan(template, broken, fakeHead);
+  assert.equal(result.status, "NO_GO");
+  assert.ok(result.blockers.includes("UNSETTLED_ORDER_AND_RISK_OFF_GUARDS_MISSING"));
+});
+
+test("deployment must start engine risk-off before bootstrap ends", () => {
+  const broken = { ...source,
+    "scripts/arc-mainnet-deployment.ts": source["scripts/arc-mainnet-deployment.ts"]
+      .replace('await call("PerpEngine", "setLpSettlementMode"', 'await call("PerpEngine", "unsafeNoHalt"'),
+  };
+  const result = evaluateLpReleasePlan(template, broken, fakeHead);
+  assert.equal(result.status, "NO_GO");
+  assert.ok(result.blockers.includes("DEPLOYMENT_MISSING_TWO_WAY_LP_MARGIN_LINK"));
+});
+
 test("historical mainnet broadcaster may not be re-enabled", () => {
   const broken = { ...source,
     "scripts/deploy-mainnet-suite.ts": source["scripts/deploy-mainnet-suite.ts"]
