@@ -460,7 +460,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint64 currentTime = SafeCast.toUint64(block.timestamp);
         if (
             marketId == bytes32(0) || sizeDelta == 0 || acceptablePrice == 0
-                || expiry <= currentTime || uint256(expiry) > uint256(currentTime) + MAX_ORDER_LIFETIME
+                || expiry <= currentTime
+                || uint256(expiry) > uint256(currentTime) + MAX_ORDER_LIFETIME
                 || !marketRegistry.marketExists(marketId)
         ) revert InvalidOrder();
         if (action == Action.OPEN || action == Action.INCREASE) {
@@ -470,8 +471,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         }
         if (action != Action.OPEN) {
             uint256 existing = activePosition[_accountMarket(msg.sender, marketId)];
-            if (existing == 0 || !positions[existing].open
-                || positions[existing].isLong != isLong) revert InvalidPosition();
+            if (existing == 0 || !positions[existing].open || positions[existing].isLong != isLong) revert InvalidPosition();
         }
         uint256 nonce = nextOrderNonce[msg.sender]++;
         orderId = keccak256(
