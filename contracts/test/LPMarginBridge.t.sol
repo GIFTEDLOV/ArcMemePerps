@@ -24,6 +24,8 @@ contract LPMarginBridgeTest {
     USDCMarginVault private margin;
     uint256 public settlementSequence;
     bool public solvencyBlocked;
+    bool public lpSettlementMode = true;
+    uint256 public pendingOrderCount;
 
     // Local engine stand-in: tests of trading PnL call margin directly under
     // the test contract's engine authority, and do not model PerpEngine OI.
