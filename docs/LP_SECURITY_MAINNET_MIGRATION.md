@@ -135,6 +135,29 @@ accounting inconsistencies. They do **not** independently prove that every
 historic exchange rate, realized PnL, or external obligation is complete:
 that release blocker remains tracked in [issue #29](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29).
 
+### Pending-order settlement proof and risk-off phase
+
+A flat active-position count is **not enough** if an authenticated trader order is
+still executable by the keeper. The candidate PerpEngine now maintains a
+monotonic `pendingOrderCount`, including order submission, cancellation,
+execution, and permissionless expiry cleanup. Outstanding intents expire within
+a fixed one-hour maximum; arbitrary unknown markets or non-owned closing
+positions cannot create unbounded pending liabilities.
+
+Governance must place the engine in `lpSettlementMode` before the LP can
+certify its withdrawal epoch. Risk-off mode stops new order submissions and
+direct increases/openings, while existing positions may still be reduced,
+closed or liquidated; queued orders must be executed, cancelled, or expired.
+Every mode or order-lifecycle transition advances `settlementSequence`,
+invalidating any earlier LP approval. Deployment starts with the new engine
+explicitly risk-off, zero pending orders, and inactive LP shares.
+
+Regression tests cover pending-open-order certification denial, expiration,
+new-order rejection, invalid market/long-expiry griefing, and replay-safe
+order counters. This *does not* prove historical PnL, reporter/oracle
+completeness, or final audit sign-off; [Issue #29](https://github.com/GIFTEDLOV/ArcMemePerps/issues/29)
+remains a release blocker.
+
 ### Residual findings that block mainnet LP activation
 
 1. **Controller trust / NAV integrity (partially hardened):**
