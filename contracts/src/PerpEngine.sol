@@ -113,6 +113,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     uint256 public settlementSequence;
     // Queued executable orders are independent of current open interest.
     uint256 public pendingOrderCount;
+    uint256 public constant MAX_ORDER_LIFETIME = 1 hours;
     bool public lpSettlementMode;
     address public adlController;
 
@@ -459,8 +460,19 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint64 currentTime = SafeCast.toUint64(block.timestamp);
         if (
             marketId == bytes32(0) || sizeDelta == 0 || acceptablePrice == 0
-                || expiry <= currentTime
+                || expiry <= currentTime || uint256(expiry) > uint256(currentTime) + MAX_ORDER_LIFETIME
+                || !marketRegistry.marketExists(marketId)
         ) revert InvalidOrder();
+        if (action == Action.OPEN || action == Action.INCREASE) {
+            _requireCanIncrease(marketId);
+        } else if (!marketRegistry.canReduceExposure(marketId)) {
+            revert MarketCannotReduceExposure();
+        }
+        if (action != Action.OPEN) {
+            uint256 existing = activePosition[_accountMarket(msg.sender, marketId)];
+            if (existing == 0 || !positions[existing].open
+                || positions[existing].isLong != isLong) revert InvalidPosition();
+        }
         uint256 nonce = nextOrderNonce[msg.sender]++;
         orderId = keccak256(
             abi.encode(
