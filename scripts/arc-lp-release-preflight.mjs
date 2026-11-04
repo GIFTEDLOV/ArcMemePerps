@@ -66,7 +66,8 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
   const verify = source["scripts/verify-mainnet-deployment.ts"] ?? "";
   add(!deployer.includes('await call("USDCMarginVault", "setLpVault"') ||
       !deployer.includes('await call("PublicLPVault", "setMarginVault"') ||
-      !deployer.includes('await call("PublicLPVault", "setSettlementEngine"'),
+      !deployer.includes('await call("PublicLPVault", "setSettlementEngine"') ||
+      !deployer.includes('await call("PerpEngine", "setLpSettlementMode"'),
     "DEPLOYMENT_MISSING_TWO_WAY_LP_MARGIN_LINK");
   add(!legacyDeployer.includes("blockUnsafeLegacyMainnetDeployment();"),
     "LEGACY_MAINNET_BROADCASTER_NOT_DISABLED");
@@ -86,6 +87,12 @@ export function evaluateLpReleasePlan(plan, source = {}, checkout = null) {
       !engine.includes("settlementSequence += 1;") ||
       !vault.includes("ILpEngineExposure(settlementEngine).settlementSequence()"),
     "ENGINE_SETTLEMENT_SEQUENCE_GUARD_MISSING");
+  add(!engine.includes("uint256 public pendingOrderCount;") ||
+      !engine.includes("bool public lpSettlementMode;") ||
+      !engine.includes("function expireOrder(bytes32 orderId)") ||
+      !vault.includes("ILpEngineExposure(engine_).pendingOrderCount()") ||
+      !vault.includes("ILpEngineExposure(engine_).lpSettlementMode()"),
+    "UNSETTLED_ORDER_AND_RISK_OFF_GUARDS_MISSING");
   add(!margin.includes("function seniorLiabilitiesCovered()") ||
       !margin.includes("function settlementStateDigest()"),
     "MARGIN_SOLVENCY_AND_STATE_COMMITMENT_MISSING");
