@@ -233,20 +233,28 @@ contract Gate4SettlementTest {
         vm.prank(TRADER);
         vm.expectRevert();
         engine.submitOrder(
-            keccak256("UNREGISTERED_MARKET"), PerpEngine.Action.OPEN,
-            true, 1_000_000, 1_000_000, 2e18, expiry
+            keccak256("UNREGISTERED_MARKET"),
+            PerpEngine.Action.OPEN,
+            true,
+            1_000_000,
+            1_000_000,
+            2e18,
+            expiry
         );
         vm.prank(TRADER);
         vm.expectRevert();
         engine.submitOrder(
-            marketId, PerpEngine.Action.OPEN, true, 1_000_000, 1_000_000,
-            2e18, uint64(vm.getBlockTimestamp() + 2 hours)
+            marketId,
+            PerpEngine.Action.OPEN,
+            true,
+            1_000_000,
+            1_000_000,
+            2e18,
+            uint64(vm.getBlockTimestamp() + 2 hours)
         );
         vm.prank(TRADER);
         vm.expectRevert();
-        engine.submitOrder(
-            marketId, PerpEngine.Action.CLOSE, true, 1_000_000, 0, 2e18, expiry
-        );
+        engine.submitOrder(marketId, PerpEngine.Action.CLOSE, true, 1_000_000, 0, 2e18, expiry);
         require(engine.pendingOrderCount() == 0, "invalid orders increased pending count");
     }
 
