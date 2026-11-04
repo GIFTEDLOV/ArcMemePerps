@@ -32,6 +32,8 @@ contract ArcLpDeploymentForkTest {
     uint256 private simulatedNotional;
     uint256 public settlementSequence;
     bool public solvencyBlocked;
+    bool public lpSettlementMode = true;
+    uint256 public pendingOrderCount;
 
     // Local fork test contract models the engine; the live deployment must
     // bind to the real, verified PerpEngine instead of this test stand-in.
