@@ -265,6 +265,9 @@ async function configureSuite(
   await call("USDCMarginVault", "setLpVault", [requireAddress(deployed.PublicLPVault ?? null, "PublicLPVault")]);
   await call("PublicLPVault", "setMarginVault", [requireAddress(deployed.USDCMarginVault ?? null, "USDCMarginVault")]);
   await call("PublicLPVault", "setSettlementEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
+  // Fresh contracts start risk-off. Governance must separately approve a
+  // reviewed trading release before any order or position can create risk.
+  await call("PerpEngine", "setLpSettlementMode", [true]);
   await call("InsuranceFund", "setCollateralToken", [ARC_MAINNET.usdcAddress]);
   await call("InsuranceFund", "setEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
   await call("RiskConfig", "setExposureProvider", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
@@ -291,9 +294,17 @@ async function configureSuite(
   const marginBacking = await publicClient.readContract({ address: marginAddress, abi: margin, functionName: "lpBacking" });
   const certifiedEngine = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "settlementEngine" });
   const realEngine = requireAddress(deployed.PerpEngine ?? null, "PerpEngine");
+  const engineAbi = artifact("PerpEngine").abi;
+  const engineHalted = await publicClient.readContract({
+    address: realEngine, abi: engineAbi, functionName: "lpSettlementMode"
+  });
+  const pendingOrders = await publicClient.readContract({
+    address: realEngine, abi: engineAbi, functionName: "pendingOrderCount"
+  });
   if (
     lpLinked !== marginAddress || marginLinked !== lpAddress
-      || certifiedEngine !== realEngine || lpActive !== false || lpShares !== 0n || marginBacking !== 0n
+      || certifiedEngine !== realEngine || engineHalted !== true || pendingOrders !== 0n
+      || lpActive !== false || lpShares !== 0n || marginBacking !== 0n
   ) throw new Error("MAINNET_LP_LINK_OR_INACTIVE_GENESIS_MISMATCH");
 
   for (const contract of ARC_DEPLOYMENT_CONTRACTS) await call(contract, "finalizeBootstrap", []);
