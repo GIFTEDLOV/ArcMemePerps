@@ -1,0 +1,23 @@
+name: Arc LP Mainnet Read-Only Check
+
+on:
+  push:
+    branches:
+      - security/lp-withdrawal-accounting-20261102
+    paths:
+      - scripts/arc-lp-readonly-state.sh
+      - .github/workflows/arc-lp-mainnet-readonly.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read-live-state:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Inspect public Arc mainnet state without any signing
+        run: bash scripts/arc-lp-readonly-state.sh

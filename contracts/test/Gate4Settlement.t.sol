@@ -8,6 +8,7 @@ import { IUSDCMarginVault } from "../src/interfaces/IUSDCMarginVault.sol";
 import { MarketRegistry } from "../src/MarketRegistry.sol";
 import { OracleRouter } from "../src/OracleRouter.sol";
 import { PerpEngine } from "../src/PerpEngine.sol";
+import { PublicLPVault } from "../src/PublicLPVault.sol";
 import { QualificationRegistry } from "../src/QualificationRegistry.sol";
 import { RiskConfig } from "../src/RiskConfig.sol";
 import { USDCMarginVault } from "../src/USDCMarginVault.sol";
@@ -93,11 +94,178 @@ contract Gate4SettlementTest {
         );
     }
 
+    function testRealEngineOpenPositionBlocksLpCertificationDespiteFalseZeroRiskBudget() public {
+        PublicLPVault lp = new PublicLPVault(address(usdc), 10);
+        vault.setLpVault(address(lp));
+        lp.setMarginVault(address(vault));
+        lp.setSettlementEngine(address(engine));
+        lp.setRiskController(address(this));
+        address governor = address(0xA11CE);
+        lp.setGovernanceExecutor(governor);
+        lp.finalizeBootstrap();
+
+        usdc.mint(address(this), 80_000_000);
+        usdc.approve(address(lp), 80_000_000);
+        vm.prank(governor);
+        lp.setPublicLpActive(true);
+        lp.deposit(80_000_000);
+        lp.setMarketRiskBudget(40_000_000);
+
+        vm.prank(TRADER);
+        uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
+        require(engine.activePositionCount() == 1, "engine must report the position");
+        require(engine.totalOpenNotionalUsdc() == 40_000_000, "engine notional missing");
+
+        // Controller sends a false report that all LP market risk is gone.
+        lp.setMarketRiskBudget(0);
+        vm.prank(governor);
+        lp.setPublicLpActive(false);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalAccountingCertified(), "unsettled trader escaped guard");
+
+        vm.prank(TRADER);
+        engine.closePosition(positionId);
+        require(engine.activePositionCount() == 0, "trader close did not clear count");
+        require(engine.totalOpenNotionalUsdc() == 0, "trader close did not clear notional");
+        require(vault.totalLockedCollateral() == 0, "margin collateral still locked");
+        engine.setLpSettlementMode(true);
+        lp.certifyWithdrawalAccounting();
+        require(lp.withdrawalAccountingCertified(), "fully flat engine still blocked");
+    }
+
+    function testRealizedProfitWithInsufficientMarginCashBlocksLpCertification() public {
+        PublicLPVault lp = new PublicLPVault(address(usdc), 10);
+        vault.setLpVault(address(lp));
+        lp.setMarginVault(address(vault));
+        lp.setSettlementEngine(address(engine));
+        lp.setRiskController(address(this));
+        address governor = address(0xA11CE);
+        lp.setGovernanceExecutor(governor);
+        lp.finalizeBootstrap();
+
+        usdc.mint(address(this), 80_000_000);
+        usdc.approve(address(lp), 80_000_000);
+        vm.prank(governor);
+        lp.setPublicLpActive(true);
+        lp.deposit(80_000_000);
+        lp.setMarketRiskBudget(40_000_000);
+
+        vm.prank(TRADER);
+        uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
+        oracle.setPrice(marketId, 20e18, uint64(vm.getBlockTimestamp()), 9_500);
+        vm.prank(TRADER);
+        engine.closePosition(positionId);
+        require(engine.activePositionCount() == 0, "position not closed");
+        require(engine.totalOpenNotionalUsdc() == 0, "notional not flat");
+        require(vault.totalLockedCollateral() == 0, "locked collateral still present");
+        require(vault.protocolBadDebt() == 0, "unexpected bad debt");
+        require(vault.totalFreeCollateral() > vault.rawCash(), "trader profit fully funded");
+        require(!vault.seniorLiabilitiesCovered(), "margin insolvency not detected");
+
+        // Even when the engine is flat, the trader's realized, unpaid profit
+        // is senior to LP capital; a risk controller may not certify the exit.
+        lp.setMarketRiskBudget(0);
+        vm.prank(governor);
+        lp.setPublicLpActive(false);
+        engine.setLpSettlementMode(true);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalAccountingCertified(), "unfunded gains approved");
+    }
+
+    function testPendingOrdersPreventLpSettlementUntilCancelledOrExpired() public {
+        PublicLPVault lp = new PublicLPVault(address(usdc), 10);
+        vault.setLpVault(address(lp));
+        lp.setMarginVault(address(vault));
+        lp.setSettlementEngine(address(engine));
+        lp.setRiskController(address(this));
+        address governor = address(0xA11CE);
+        lp.setGovernanceExecutor(governor);
+        lp.finalizeBootstrap();
+
+        usdc.mint(address(this), 80_000_000);
+        usdc.approve(address(lp), 80_000_000);
+        vm.prank(governor);
+        lp.setPublicLpActive(true);
+        lp.deposit(80_000_000);
+        lp.setMarketRiskBudget(40_000_000);
+
+        uint64 expiry = uint64(vm.getBlockTimestamp() + 100);
+        vm.prank(TRADER);
+        bytes32 orderId = engine.submitOrder(
+            marketId, PerpEngine.Action.OPEN, true, 1_000_000, 10_000_000, 2e18, expiry
+        );
+        require(engine.pendingOrderCount() == 1, "queued order not counted");
+        require(engine.activePositionCount() == 0, "unexpected active position");
+        lp.setMarketRiskBudget(0);
+        vm.prank(governor);
+        lp.setPublicLpActive(false);
+
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        engine.setLpSettlementMode(true);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            marketId, PerpEngine.Action.OPEN, true, 1_000_000, 10_000_000, 2e18, expiry
+        );
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.openPosition(marketId, true, 10_000_000, 20_000_000);
+
+        vm.warp(uint256(expiry) + 1);
+        engine.expireOrder(orderId);
+        require(engine.pendingOrderCount() == 0, "expired order not cleared");
+        lp.certifyWithdrawalAccounting();
+        require(lp.withdrawalAccountingCertified(), "unencumbered pool could not certify");
+
+        engine.setLpSettlementMode(false);
+        vm.prank(governor);
+        vm.expectRevert();
+        lp.setWithdrawalSettlementEnabled(true);
+    }
+
+    function testOrderQueueCannotBeGriefedByUnknownMarketsOrUnlimitedExpiry() public {
+        uint64 expiry = uint64(vm.getBlockTimestamp() + 120);
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            keccak256("UNREGISTERED_MARKET"),
+            PerpEngine.Action.OPEN,
+            true,
+            1_000_000,
+            1_000_000,
+            2e18,
+            expiry
+        );
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            marketId,
+            PerpEngine.Action.OPEN,
+            true,
+            1_000_000,
+            1_000_000,
+            2e18,
+            uint64(vm.getBlockTimestamp() + 2 hours)
+        );
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(marketId, PerpEngine.Action.CLOSE, true, 1_000_000, 0, 2e18, expiry);
+        require(engine.pendingOrderCount() == 0, "invalid orders increased pending count");
+    }
+
     function testDepositOpenCloseAndCustodyMatch() public {
         _assertMatch();
         vm.prank(TRADER);
         uint256 positionId = engine.openPosition(marketId, true, 20_000_000, 40_000_000);
         require(engine.totalOpenInterest(marketId) == 40_000_000);
+        require(engine.settlementSequence() == 1, "open did not advance engine epoch");
+        require(engine.activePositionCount() == 1, "active engine position was missed");
+        require(engine.totalOpenNotionalUsdc() == 40_000_000, "global OI was missed");
 
         oracle.setPrice(marketId, 2e18, uint64(vm.getBlockTimestamp()), 9_500);
         uint256 feesBeforeClose = vault.accruedFees();
@@ -112,6 +280,9 @@ contract Gate4SettlementTest {
         );
 
         require(engine.totalOpenInterest(marketId) == 0);
+        require(engine.settlementSequence() == 2, "close did not advance engine epoch");
+        require(engine.activePositionCount() == 0, "engine position not cleared");
+        require(engine.totalOpenNotionalUsdc() == 0, "global OI not cleared");
         require(vault.lockedCollateral(TRADER) == 0);
         require(vault.freeCollateral(TRADER) > 100_000_000);
         _assertMatch();
@@ -129,8 +300,10 @@ contract Gate4SettlementTest {
         bytes32 orderId = engine.submitOrder(
             marketId, PerpEngine.Action.OPEN, true, 10_000_000, 10_000_000, 2e18, expiry
         );
+        require(engine.pendingOrderCount() == 1, "pending order not counted");
         uint64 sequence = oracle.latestSequence(marketId);
         engine.executeOrder(orderId, sequence);
+        require(engine.pendingOrderCount() == 0, "execution left a pending order");
         require(engine.activePosition(keccak256(abi.encode(TRADER, marketId))) != 0);
         vm.expectRevert();
         engine.executeOrder(orderId, sequence);
@@ -140,6 +313,7 @@ contract Gate4SettlementTest {
             engine.submitOrder(marketId, PerpEngine.Action.CLOSE, true, 1, 0, 0.5e18, expiry);
         vm.prank(TRADER);
         engine.cancelOrder(cancelled);
+        require(engine.pendingOrderCount() == 0, "cancel left a pending order");
         vm.expectRevert();
         engine.executeOrder(cancelled, sequence);
     }
@@ -185,12 +359,18 @@ contract Gate4SettlementTest {
         require(size == 20_000_000);
         require(collateral == 10_000_000);
         require(engine.totalOpenInterest(marketId) == 20_000_000);
+        require(engine.settlementSequence() == 2, "partial reduction epoch missing");
+        require(engine.activePositionCount() == 1, "partial reduction closed position");
+        require(engine.totalOpenNotionalUsdc() == 20_000_000, "reduced global OI wrong");
         require(vault.lockedCollateral(TRADER) == 10_000_000);
         _assertMatch();
 
         vm.prank(TRADER);
         engine.reducePosition(positionId, 20_000_000, 10_000_000);
         require(engine.totalOpenInterest(marketId) == 0);
+        require(engine.settlementSequence() == 3, "full reduction epoch missing");
+        require(engine.activePositionCount() == 0, "full reduction left active position");
+        require(engine.totalOpenNotionalUsdc() == 0, "full reduction left global OI");
         require(vault.lockedCollateral(TRADER) == 0);
         _assertMatch();
     }

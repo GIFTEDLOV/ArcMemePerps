@@ -23,9 +23,13 @@ release guard makes that boundary auditable.
 Public deposits are release-guarded by `publicLpActive`. The governance
 executor can activate only after bootstrap, controller assignment, exact
 custody reconciliation, zero cumulative bad debt, non-zero NAV for any
-non-empty accounting state, and a risk budget no greater than NAV. Emergency
-authority can deactivate deposits but cannot activate them; queued withdrawals
-and claims remain subject to cooldown, NAV, reserved liabilities, and custody
-checks. In a release deployment the governance executor is the timelock, so
-activation is a documented governance action rather than an operational-role
-bypass.
+non-empty accounting state, and a risk budget no greater than NAV. The
+security candidate additionally blocks deposits while risk is outstanding.
+Emergency authority can deactivate deposits but cannot activate them.
+Withdrawals now require a **separate controller-certified, fully de-risked
+settlement interval** authorized by governance, with an emergency guardian
+stop and an expiring/renewable claim window. Certification is invalidated on
+controller writes, deposit reactivation and new deposits. In a release
+deployment the executor should be the timelock, not an operational hot wallet.
+This temporary containment does not provide atomic market-to-NAV accounting;
+see `LP_WITHDRAWAL_SECURITY_REMEDIATION.md`.

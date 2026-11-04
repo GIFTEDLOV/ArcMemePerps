@@ -1,0 +1,50 @@
+name: CLUSTER Arc LP Fork Deployment Rehearsal
+
+on:
+  push:
+    branches:
+      - security/lp-withdrawal-accounting-20261102
+    paths:
+      - contracts/fork-test/**
+      - contracts/src/**
+      - contracts/test/MockUSDC.sol
+      - foundry.toml
+      - .github/workflows/arc-lp-fork-rehearsal.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: arc-lp-fork-rehearsal-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  arc-mainnet-fork:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      ARC_RPC_URL: https://rpc.mainnet.arc.io
+      FOUNDRY_PROFILE: arc-lp-fork
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+      - name: Check network and pin a public Arc RPC snapshot
+        id: snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          chain="$(cast chain-id --rpc-url "$ARC_RPC_URL")"
+          test "$chain" = "5042"
+          block="$(cast block-number --rpc-url "$ARC_RPC_URL")"
+          echo "block=$block" >> "$GITHUB_OUTPUT"
+          echo "Arc mainnet simulation: chain=$chain snapshot=$block"
+      - name: Compile fork-only rehearsal
+        run: forge build
+      - name: Simulate new LP/margin deployments and governance (no broadcast)
+        shell: bash
+        run: |
+          set -euo pipefail
+          forge test --fork-url "$ARC_RPC_URL" --fork-block-number "${{ steps.snapshot.outputs.block }}" --match-contract ArcLpDeploymentForkTest -vv
+      - name: Assert contract formatting
+        run: forge fmt --check

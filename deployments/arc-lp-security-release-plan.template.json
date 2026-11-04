@@ -1,0 +1,45 @@
+{
+  "schema": "cluster/arc-lp-security-release-plan/v1",
+  "mode": "PREPARE_ONLY",
+  "network": {
+    "name": "Arc Mainnet",
+    "chainId": 5042,
+    "rpc": "https://rpc.mainnet.arc.io",
+    "usdc": "0x3600000000000000000000000000000000000000",
+    "usdcDecimals": 6
+  },
+  "existingContracts": {
+    "publicLpVault": "0x9ff8358dc5ee866e0b9707d0139cf47b399f5257",
+    "marginVault": "0xa818dd503641ffdfe11ff8a4b7e8020d2a36bcaf",
+    "publicLpMustBeInactive": true,
+    "publicLpMustHaveZeroShares": true
+  },
+  "replacement": {
+    "deployFreshMarginVault": true,
+    "deployFreshPublicLpVault": true,
+    "reuseExistingMarginVault": false,
+    "requireReciprocalLpLinks": true,
+    "requireSixDecimalUsdc": true,
+    "lpWithdrawalCooldownSeconds": 86400,
+    "publicLpActivationOnDeployment": false,
+    "withdrawalSettlementOnDeployment": false,
+    "migrateExistingTraderCollateral": false,
+    "engineIntegrationVerified": false
+  },
+  "governance": {
+    "timelockMinimumSeconds": 86400,
+    "safeAddress": null,
+    "lpRiskControllerAddress": null,
+    "emergencyAdminAddress": null,
+    "deployerAddress": null,
+    "minimumSafeOwners": 2
+  },
+  "release": {
+    "approvedCommit": null,
+    "sourceReviewApproved": false,
+    "externalEconomicReviewApproved": false,
+    "liveFundsAndPositionsReconciled": false,
+    "fullDependencyGraphVerified": false,
+    "authorizedWalletExecutionApproved": false
+  }
+}

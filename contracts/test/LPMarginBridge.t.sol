@@ -22,6 +22,24 @@ contract LPMarginBridgeTest {
     MockUSDC private usdc;
     PublicLPVault private lp;
     USDCMarginVault private margin;
+    uint256 public settlementSequence;
+    bool public solvencyBlocked;
+    bool public lpSettlementMode = true;
+    uint256 public pendingOrderCount;
+
+    // Local engine stand-in: tests of trading PnL call margin directly under
+    // the test contract's engine authority, and do not model PerpEngine OI.
+    function marginVault() external view returns (address) {
+        return address(margin);
+    }
+
+    function activePositionCount() external pure returns (uint256) {
+        return 0;
+    }
+
+    function totalOpenNotionalUsdc() external pure returns (uint256) {
+        return 0;
+    }
 
     function setUp() public {
         usdc = new MockUSDC();
@@ -31,6 +49,7 @@ contract LPMarginBridgeTest {
         margin.setEngine(address(this));
         margin.setLpVault(address(lp));
         lp.setMarginVault(address(margin));
+        lp.setSettlementEngine(address(this));
         lp.setRiskController(address(this));
         margin.setGovernanceExecutor(EXECUTOR);
         lp.setGovernanceExecutor(EXECUTOR);
@@ -99,9 +118,146 @@ contract LPMarginBridgeTest {
         require(margin.cumulativeLpWriteOff() == 200_000, "margin loss not recorded");
         require(lp.allocatedBacking() == 0, "historical backing fully reconciled");
         require(lp.navAssets() == 800_000, "write-off cannot double-charge NAV");
+        lp.setMarketRiskBudget(0);
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
         require(lp.claimWithdraw() == 800_000, "remaining NAV safely redeemed");
         require(lp.totalShares() == 0, "shares consumed");
         _assertCustody();
+    }
+
+    function testUnfundedTraderProfitCannotBeReconciledAsSafeLpWithdrawal() public {
+        vm.prank(EXECUTOR);
+        lp.allocateToMargin(400_000);
+        usdc.mint(TRADER, 100_000);
+        vm.prank(TRADER);
+        usdc.approve(address(margin), type(uint256).max);
+        vm.prank(TRADER);
+        margin.deposit(100_000);
+        margin.lockCollateral(TRADER, 100_000);
+
+        // The test contract is the configured margin engine. Realized gain
+        // increases trader cash claims without transferring any additional
+        // physical USDC. No open position or pending PnL survives this write.
+        margin.settlePosition(TRADER, 100_000, 700_000);
+        require(margin.totalLockedCollateral() == 0, "locked collateral unexpectedly remains");
+        require(margin.totalFreeCollateral() == 800_000, "senior claim not recorded");
+        require(margin.rawCash() == 500_000, "physical cash changed without transfer");
+        require(!margin.seniorLiabilitiesCovered(), "unbacked trader profit accepted");
+
+        lp.requestWithdraw(1_000_000);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        vm.prank(EXECUTOR);
+        lp.realizeBackingLoss(400_000);
+        lp.setMarketRiskBudget(0);
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+
+        // The controller knows no open trades and zero risk budget but it
+        // cannot issue a settlement certificate while senior cash is short.
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        vm.expectRevert();
+        lp.setWithdrawalSettlementEnabled(true);
+        vm.expectRevert();
+        lp.claimWithdraw();
+        require(lp.totalShares() == 1_000_000, "unfair LP share burn");
+    }
+
+    function testMarginStateChangeRequiresFreshWithdrawalCertification() public {
+        // A flat linked market can certify withdrawal after all LP backing
+        // returns, but any later trader-ledger change invalidates that price.
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.setMarketRiskBudget(0);
+        lp.requestWithdraw(1_000_000);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
+        bytes32 initialDigest = lp.certifiedMarginStateDigest();
+        require(initialDigest != bytes32(0), "missing accounting fingerprint");
+
+        usdc.mint(TRADER, 100);
+        vm.prank(TRADER);
+        usdc.approve(address(margin), type(uint256).max);
+        vm.prank(TRADER);
+        margin.deposit(100);
+        require(margin.settlementStateDigest() != initialDigest, "margin change not detected");
+        vm.expectRevert();
+        lp.claimWithdraw();
+        require(lp.totalShares() == 1_000_000, "stale approval consumed LP shares");
+
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalSettlementEnabled(), "controller reapproved prior governance window");
+        require(
+            lp.certifiedMarginStateDigest() == margin.settlementStateDigest(), "fresh digest wrong"
+        );
+        vm.expectRevert();
+        lp.claimWithdraw();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
+        require(lp.claimWithdraw() == 1_000_000, "freshly reconciled exit refused");
+        require(lp.totalShares() == 0, "shares not consumed on fresh claim");
+    }
+
+    function testTradingEngineSequenceChangeForcesFreshGovernanceApproval() public {
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.setMarketRiskBudget(0);
+        lp.requestWithdraw(1_000_000);
+        vm.warp(vm.getBlockTimestamp() + 10);
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
+
+        bytes32 digestBefore = margin.settlementStateDigest();
+        uint256 sequenceBefore = lp.certifiedEngineSettlementSequence();
+        settlementSequence += 1;
+        require(
+            margin.settlementStateDigest() == digestBefore, "engine-only mutation altered margin"
+        );
+        require(settlementSequence != sequenceBefore, "engine epoch did not advance");
+        vm.expectRevert();
+        lp.claimWithdraw();
+        require(lp.totalShares() == 1_000_000, "stale engine epoch burned shares");
+
+        lp.certifyWithdrawalAccounting();
+        require(!lp.withdrawalSettlementEnabled(), "controller bypassed governance reapproval");
+        vm.expectRevert();
+        lp.claimWithdraw();
+        vm.prank(EXECUTOR);
+        lp.setWithdrawalSettlementEnabled(true);
+        require(lp.claimWithdraw() == 1_000_000, "reapproved epoch unable to exit");
+    }
+
+    function testTerminalEngineInsolvencyBlocksLpSettlement() public {
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.setMarketRiskBudget(0);
+        solvencyBlocked = true;
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        vm.prank(EXECUTOR);
+        vm.expectRevert();
+        lp.setWithdrawalSettlementEnabled(true);
+    }
+
+    function testUnsolicitedMarginDonationDoesNotChangeAccountingFingerprint() public {
+        vm.prank(EXECUTOR);
+        lp.setPublicLpActive(false);
+        lp.setMarketRiskBudget(0);
+        lp.certifyWithdrawalAccounting();
+        bytes32 beforeDigest = margin.settlementStateDigest();
+        usdc.mint(address(margin), 1);
+        require(margin.settlementStateDigest() == beforeDigest, "donation changed ledger");
+        require(
+            lp.certifiedMarginStateDigest() == beforeDigest, "certification unexpectedly changed"
+        );
     }
 
     function testCollectedProtocolFeesCannotInflateLpNav() public {

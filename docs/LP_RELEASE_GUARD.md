@@ -2,13 +2,14 @@
 
 ## Source of truth
 
-The release guard is implemented in `contracts/src/PublicLPVault.sol` by the
-`publicLpActive` flag, `setPublicLpActive(bool)`, and
-`emergencyPausePublicLp()`. `deposit()` checks `publicLpActive` before any
-share calculation or token transfer. Withdrawal requests and claims do not
-depend on the flag, so an emergency deactivation does not strand already
-issued shares; the existing cooldown, NAV, reserved-liability, and liquidity
-checks still apply.
+The release guard is implemented in `contracts/src/PublicLPVault.sol`.
+`publicLpActive`, `setPublicLpActive(bool)` and `emergencyPausePublicLp()`
+control public deposits. The hardened candidate additionally blocks deposits
+during outstanding risk budgets, allocated LP backing or recorded trader
+liabilities, and requires independent controller certification plus governance
+authorization for withdrawal claims. The emergency admin can halt withdrawal
+settlement separately. Withdrawal requests remain queued during a shutdown;
+claims require the reconciled, de-risked window.
 
 ## Initial and activated state
 
@@ -59,11 +60,17 @@ the standalone public-LP ledger, exercise real USDC deposits, NAV changes,
 queued withdrawals, and claims, while separately proving that the margin vault
 does not count LP assets unless that route is explicitly configured.
 
-This is a safety boundary, not simulated activation: after governance calls
-`setPublicLpActive(true)`, deposits transfer the real configured ERC-20 and
-mint shares using the onchain NAV formula. No redeployment is required to
-activate the feature. Bootstrap finalization and role assignment are required;
-activation cannot bypass custody, NAV, bad-debt, or risk-budget checks.
+This is a safety boundary, not simulated activation. When governance enables
+public deposits in an appropriately deployed version, deposits transfer the
+real configured ERC-20 and mint shares using the onchain NAV formula.
+**Existing Arc mainnet vault bytecode is older than the security candidate
+and cannot be patched by a GitHub change.** A separate verified deployment
+and migration would be needed to use the candidate. Bootstrap finalization
+and role assignment remain mandatory. Closing deposits alone does **not**
+authorize claims: market exposure must be zero and the risk controller must
+certify the completed reconciliation before governance opens settlement.
+The controller's assessment of outstanding PnL remains a trusted external
+input; see `LP_WITHDRAWAL_SECURITY_REMEDIATION.md`.
 
 ## Tests
 

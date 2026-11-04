@@ -104,6 +104,17 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     mapping(address keeper => bool enabled) public liquidationKeeper;
     mapping(address keeper => bool enabled) public orderKeeper;
     uint256 public nextPositionId = 1;
+    // Global counters cover all markets; a single per-market read cannot prove
+    // the engine is flat when multiple markets can be traded.
+    uint256 public activePositionCount;
+    uint256 public totalOpenNotionalUsdc;
+    // Monotonic trade-lifecycle sequence: a flat engine may be different
+    // from the engine that the controller previously certified.
+    uint256 public settlementSequence;
+    // Queued executable orders are independent of current open interest.
+    uint256 public pendingOrderCount;
+    uint256 public constant MAX_ORDER_LIFETIME = 1 hours;
+    bool public lpSettlementMode;
     address public adlController;
 
     EconomicModel.FundingConfig public fundingConfig;
@@ -131,6 +142,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     error OrderNotFound();
     error OrderExpired();
     error OrderAlreadyFinalized();
+    error LpSettlementModeActive();
+    error OrderNotExpired();
     error UnauthorizedOrder();
     error PriceOutsideBound();
     error InvalidEconomicConfig();
@@ -164,6 +177,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         bytes32 indexed orderId, address indexed account, bytes32 indexed marketId, uint256 nonce
     );
     event OrderCancelled(bytes32 indexed orderId, address indexed account);
+    event OrderExpiredUnexecuted(bytes32 indexed orderId);
+    event LpSettlementModeChanged(bool enabled);
     event OrderExecuted(bytes32 indexed orderId, uint256 executionPrice, uint64 oracleSequence);
     event MarketAccrualUpdated(
         bytes32 indexed marketId, int256 fundingIndexWad, uint256 borrowIndexWad, uint64 timestamp
@@ -237,6 +252,16 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         emit LiquidationKeeperSet(keeper, enabled);
     }
 
+    /// @notice A governance-activated risk-off phase for LP settlement.
+    /// All new orders and direct position increases are disabled while active.
+    /// A change to this phase invalidates any existing LP certificate.
+    function setLpSettlementMode(bool enabled) external onlyGovernanceExecutor {
+        if (lpSettlementMode == enabled) revert InvalidOrder();
+        lpSettlementMode = enabled;
+        settlementSequence += 1;
+        emit LpSettlementModeChanged(enabled);
+    }
+
     function setOrderKeeper(address keeper, bool enabled) external onlyGovernanceExecutor {
         if (keeper == address(0)) revert ZeroAddress();
         orderKeeper[keeper] = enabled;
@@ -269,6 +294,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     }
 
     function enterTerminalInsolvencyState() external onlyADLController {
+        settlementSequence += 1;
         solvencyBlocked = true;
         emit TerminalInsolvencyStateEntered();
     }
@@ -430,11 +456,23 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 acceptablePrice,
         uint64 expiry
     ) external returns (bytes32 orderId) {
+        if (lpSettlementMode) revert LpSettlementModeActive();
         uint64 currentTime = SafeCast.toUint64(block.timestamp);
         if (
             marketId == bytes32(0) || sizeDelta == 0 || acceptablePrice == 0
                 || expiry <= currentTime
+                || uint256(expiry) > uint256(currentTime) + MAX_ORDER_LIFETIME
+                || !marketRegistry.marketExists(marketId)
         ) revert InvalidOrder();
+        if (action == Action.OPEN || action == Action.INCREASE) {
+            _requireCanIncrease(marketId);
+        } else if (!marketRegistry.canReduceExposure(marketId)) {
+            revert MarketCannotReduceExposure();
+        }
+        if (action != Action.OPEN) {
+            uint256 existing = activePosition[_accountMarket(msg.sender, marketId)];
+            if (existing == 0 || !positions[existing].open || positions[existing].isLong != isLong) revert InvalidPosition();
+        }
         uint256 nonce = nextOrderNonce[msg.sender]++;
         orderId = keccak256(
             abi.encode(
@@ -449,6 +487,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
                 nonce
             )
         );
+        pendingOrderCount += 1;
+        settlementSequence += 1;
         orders[orderId] = OrderIntent(
             msg.sender,
             marketId,
@@ -472,7 +512,22 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         if (order.account != msg.sender) revert UnauthorizedOrder();
         if (order.executed || order.cancelled) revert OrderAlreadyFinalized();
         order.cancelled = true;
+        pendingOrderCount -= 1;
+        settlementSequence += 1;
         emit OrderCancelled(orderId, msg.sender);
+    }
+
+    /// @notice Permissionless expired-order cleanup permits LP settlement
+    /// after abandoned intents expire without requiring an online keeper.
+    function expireOrder(bytes32 orderId) external {
+        OrderIntent storage order = orders[orderId];
+        if (order.account == address(0)) revert OrderNotFound();
+        if (order.executed || order.cancelled) revert OrderAlreadyFinalized();
+        if (block.timestamp <= order.expiry) revert OrderNotExpired();
+        order.cancelled = true;
+        pendingOrderCount -= 1;
+        settlementSequence += 1;
+        emit OrderExpiredUnexecuted(orderId);
     }
 
     function executeOrder(bytes32 orderId, uint64 oracleSequence)
@@ -498,6 +553,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
         // Mark consumed before any vault or insurance interaction. Reverts roll back this write.
         order.executed = true;
+        pendingOrderCount -= 1;
+        settlementSequence += 1;
         emit OrderExecuted(orderId, executionPrice, report.sequence);
         if (order.action == Action.OPEN) {
             _openFor(
@@ -564,7 +621,10 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
             lastIncreasedAt: now64
         });
         positionStates[positionId] = state;
+        settlementSequence += 1;
         activePosition[accountMarket] = positionId;
+        activePositionCount += 1;
+        totalOpenNotionalUsdc += size;
         totalOpenInterest[marketId] += size;
         if (isLong) longOpenInterest[marketId] += size;
         else shortOpenInterest[marketId] += size;
@@ -613,7 +673,9 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         state.entryFundingIndex = marketAccrual[position.marketId].fundingIndexWad;
         state.entryBorrowIndex = marketAccrual[position.marketId].borrowIndexWad;
         state.lastIncreasedAt = SafeCast.toUint64(block.timestamp);
+        settlementSequence += 1;
         totalOpenInterest[position.marketId] += sizeAdded;
+        totalOpenNotionalUsdc += sizeAdded;
         if (position.isLong) longOpenInterest[position.marketId] += sizeAdded;
         else shortOpenInterest[position.marketId] += sizeAdded;
         emit PositionIncreased(positionId, collateralAdded, sizeAdded);
@@ -669,10 +731,13 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         storedState.collateralUsdc = expectedRemaining;
         storedState.entryFundingIndex = accrual.fundingIndexWad;
         storedState.entryBorrowIndex = accrual.borrowIndexWad;
+        settlementSequence += 1;
         totalOpenInterest[position.marketId] -= sizeReduced;
+        totalOpenNotionalUsdc -= sizeReduced;
         if (position.isLong) longOpenInterest[position.marketId] -= sizeReduced;
         else shortOpenInterest[position.marketId] -= sizeReduced;
         if (stored.size == 0) {
+            activePositionCount -= 1;
             stored.open = false;
             activePosition[_accountMarket(position.trader, position.marketId)] = 0;
         }
@@ -749,6 +814,9 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     }
 
     function _removePosition(uint256 positionId, Position memory position) private {
+        settlementSequence += 1;
+        totalOpenNotionalUsdc -= position.size;
+        activePositionCount -= 1;
         totalOpenInterest[position.marketId] -= position.size;
         if (position.isLong) longOpenInterest[position.marketId] -= position.size;
         else shortOpenInterest[position.marketId] -= position.size;
@@ -872,7 +940,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     function _requireCanIncrease(bytes32 marketId) private view {
         if (
-            solvencyBlocked || !marketRegistry.canIncreaseExposure(marketId)
+            solvencyBlocked || lpSettlementMode || !marketRegistry.canIncreaseExposure(marketId)
                 || !riskConfig.canIncreaseExposure(marketId)
         ) revert MarketCannotIncreaseExposure();
     }
@@ -897,14 +965,17 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 remainingSize = position.size - sizeReduced;
         positions[positionId].size = remainingSize;
         positionStates[positionId].sizeUsdWad -= state.sizeUsdWad;
+        settlementSequence += 1;
         positionStates[positionId].entryFundingIndex =
         marketAccrual[position.marketId].fundingIndexWad;
         positionStates[positionId].entryBorrowIndex =
         marketAccrual[position.marketId].borrowIndexWad;
         totalOpenInterest[position.marketId] -= sizeReduced;
+        totalOpenNotionalUsdc -= sizeReduced;
         if (position.isLong) longOpenInterest[position.marketId] -= sizeReduced;
         else shortOpenInterest[position.marketId] -= sizeReduced;
         if (remainingSize == 0) {
+            activePositionCount -= 1;
             positions[positionId].open = false;
             activePosition[_accountMarket(position.trader, position.marketId)] = 0;
             positionStates[positionId].sizeUsdWad = 0;

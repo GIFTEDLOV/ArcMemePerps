@@ -1,4 +1,5 @@
 import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
@@ -188,6 +189,27 @@ function assertFrozenSource(): void {
   if (process.env.RELEASE_COMMIT && process.env.RELEASE_COMMIT !== RELEASE_COMMIT) throw new Error("RELEASE_COMMIT_MISMATCH");
 }
 
+/** Hard fail on a changed checkout: a new contract must have an explicitly
+ * audited, pinned release SHA. Merely retaining the old constant in this script
+ * is not proof of current source provenance. This check does not authorize
+ * deployment or resolve independent security sign-off.
+ */
+function assertCheckoutMatchesFrozenRelease(): void {
+  let checkoutCommit: string;
+  try {
+    checkoutCommit = execFileSync("git", ["rev-parse", "HEAD"], { cwd: ROOT, encoding: "utf8" }).trim();
+  } catch {
+    throw new Error("MAINNET_RELEASE_CHECKOUT_UNVERIFIABLE");
+  }
+  if (checkoutCommit !== RELEASE_COMMIT) {
+    throw new Error("MAINNET_RELEASE_CHECKOUT_MISMATCH_REFREEZE_REQUIRED");
+  }
+  const trackedChanges = execFileSync("git", ["status", "--porcelain", "--untracked-files=no"], {
+    cwd: ROOT, encoding: "utf8",
+  }).trim();
+  if (trackedChanges) throw new Error("MAINNET_RELEASE_DIRTY_CHECKOUT");
+}
+
 function assertNoPartialProgress(): void {
   if (!existsSync(PROGRESS_PATH)) return;
   const progress = JSON.parse(readFileSync(PROGRESS_PATH, "utf8")) as { readonly deployments?: readonly unknown[]; readonly failed?: boolean };
@@ -238,6 +260,14 @@ async function configureSuite(
 
   await call("USDCMarginVault", "setCollateralToken", [ARC_MAINNET.usdcAddress]);
   await call("USDCMarginVault", "setEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
+  // The two-way LP-to-margin link is mandatory and must be established before
+  // bootstrap authority disappears. Never reuse the historical margin vault.
+  await call("USDCMarginVault", "setLpVault", [requireAddress(deployed.PublicLPVault ?? null, "PublicLPVault")]);
+  await call("PublicLPVault", "setMarginVault", [requireAddress(deployed.USDCMarginVault ?? null, "USDCMarginVault")]);
+  await call("PublicLPVault", "setSettlementEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
+  // Fresh contracts start risk-off. Governance must separately approve a
+  // reviewed trading release before any order or position can create risk.
+  await call("PerpEngine", "setLpSettlementMode", [true]);
   await call("InsuranceFund", "setCollateralToken", [ARC_MAINNET.usdcAddress]);
   await call("InsuranceFund", "setEngine", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
   await call("RiskConfig", "setExposureProvider", [requireAddress(deployed.PerpEngine ?? null, "PerpEngine")]);
@@ -251,6 +281,31 @@ async function configureSuite(
   await call("OracleRouter", "setReporter", [requireAddress(roles.reporter3 ?? null, "reporter3"), true]);
   await call("OracleRouter", "setReporterThreshold", [2n, requireBytes32(process.env.MAINNET_REPORTER_SET_VERSION, "MAINNET_REPORTER_SET_VERSION")]);
   await call("OracleRouter", "setPolicy", [envBigInt("MAINNET_ORACLE_MAX_AGE_SECONDS", true)!, envBigInt("MAINNET_ORACLE_MIN_CONFIDENCE_BPS", true)!, 2n]);
+
+  // Check new source-state and reciprocal linkage before finalizing permissions.
+  const lpAddress = requireAddress(deployed.PublicLPVault ?? null, "PublicLPVault");
+  const marginAddress = requireAddress(deployed.USDCMarginVault ?? null, "USDCMarginVault");
+  const lp = artifact("PublicLPVault").abi;
+  const margin = artifact("USDCMarginVault").abi;
+  const lpLinked = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "marginVault" });
+  const marginLinked = await publicClient.readContract({ address: marginAddress, abi: margin, functionName: "lpVault" });
+  const lpActive = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "publicLpActive" });
+  const lpShares = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "totalShares" });
+  const marginBacking = await publicClient.readContract({ address: marginAddress, abi: margin, functionName: "lpBacking" });
+  const certifiedEngine = await publicClient.readContract({ address: lpAddress, abi: lp, functionName: "settlementEngine" });
+  const realEngine = requireAddress(deployed.PerpEngine ?? null, "PerpEngine");
+  const engineAbi = artifact("PerpEngine").abi;
+  const engineHalted = await publicClient.readContract({
+    address: realEngine, abi: engineAbi, functionName: "lpSettlementMode"
+  });
+  const pendingOrders = await publicClient.readContract({
+    address: realEngine, abi: engineAbi, functionName: "pendingOrderCount"
+  });
+  if (
+    lpLinked !== marginAddress || marginLinked !== lpAddress
+      || certifiedEngine !== realEngine || engineHalted !== true || pendingOrders !== 0n
+      || lpActive !== false || lpShares !== 0n || marginBacking !== 0n
+  ) throw new Error("MAINNET_LP_LINK_OR_INACTIVE_GENESIS_MISMATCH");
 
   for (const contract of ARC_DEPLOYMENT_CONTRACTS) await call(contract, "finalizeBootstrap", []);
   return hashes;
@@ -280,6 +335,7 @@ function resolveArgs(name: ArcDeploymentContract, deployed: Partial<Record<ArcDe
 
 async function deploySuite(): Promise<void> {
   assertFrozenSource();
+  assertCheckoutMatchesFrozenRelease();
   assertNoPartialProgress();
   const config = loadArcDeploymentConfig({ ...process.env, ARCMEMEPERPS_DEPLOYMENT_NETWORK: "MAINNET" });
   if (config.deploymentStatus !== "PENDING") throw new Error("MAINNET_DEPLOYMENT_ALREADY_CONFIGURED");

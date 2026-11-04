@@ -1,8 +1,11 @@
 # Security policy
 
-ArcMemePerps is a testnet protocol and local product rebuild. Do not send
-funds to any contract or URL unless it is listed in the canonical deployment
-documentation.
+CLUSTER (formerly ArcMemePerps) includes historical testnet contracts and
+documented Arc mainnet deployments. Deployment records do not establish that
+mainnet contracts are audited or safe. Do not send funds to any contract or URL
+without independently verifying live deployment state and security controls.
+See docs/LP_WITHDRAWAL_SECURITY_REMEDIATION.md for a pending security candidate;
+source changes alone do not protect already deployed immutable contracts.
 
 Please report security issues privately to the repository maintainers before
 opening a public issue. Include the affected component, a minimal

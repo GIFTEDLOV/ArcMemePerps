@@ -580,6 +580,49 @@ contract USDCMarginVault is AccessControlled, IUSDCMarginVault, ReentrancyGuard 
         emit ADLResolutionApplied(amount, protocolBadDebt);
     }
 
+    /// @notice Whether physical accounted cash can meet all recorded trader
+    /// claims and accrued protocol fees / insurance reserves. Governance-funded
+    /// protocol backing is loss-absorbing capital, not an additional trader debt.
+    /// This is conservative: it fails closed if accounting claims exceed cash.
+    function seniorLiabilitiesCovered() external view returns (bool) {
+        uint256 uncoveredBadDebt = protocolBadDebt > insuranceCoveredBadDebt
+            ? protocolBadDebt - insuranceCoveredBadDebt
+            : 0;
+        uint256 feeReserve = accruedFees > insuranceReserve ? accruedFees : insuranceReserve;
+        uint256 claims = totalFreeCollateral + totalLockedCollateral + pendingPositivePnl
+            + uncoveredBadDebt + feeReserve;
+        return rawCash >= claims && address(_collateralToken) != address(0)
+            && _collateralToken.balanceOf(address(this)) >= rawCash;
+    }
+
+    /// @notice Compact state commitment for an LP withdrawal settlement window.
+    /// Changes to ANY accounted cash, trader claim, backing, fee, loss, reserve,
+    /// or uncovered debt invalidate the previous LP settlement certificate.
+    /// An unsolicited token donation does not alter the accounting digest.
+    function settlementStateDigest() external view returns (bytes32) {
+        return keccak256(
+            abi.encode(
+                address(this),
+                block.chainid,
+                rawCash,
+                totalFreeCollateral,
+                totalLockedCollateral,
+                pendingPositivePnl,
+                pendingNegativePnl,
+                protocolBadDebt,
+                insuranceCoveredBadDebt,
+                adlCoveredBadDebt,
+                accruedFees,
+                insuranceReserve,
+                protocolBacking,
+                lpBacking,
+                cumulativeLpWriteOff,
+                realizedTraderPnlGains,
+                realizedTraderPnlLosses
+            )
+        );
+    }
+
     function withdrawableLiquidity() public view returns (uint256) {
         uint256 uncoveredBadDebt = protocolBadDebt > insuranceCoveredBadDebt
             ? protocolBadDebt - insuranceCoveredBadDebt

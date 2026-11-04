@@ -37,7 +37,15 @@ function loadArtifact(name: string): { abi: Abi; bytecode: Hex } {
   };
 }
 
+function blockUnsafeLegacyMainnetDeployment(): void {
+  // The legacy script reuses older margin-vault bytecode without the
+  // reciprocal LP-backing interface. Historical records remain readable,
+  // but broadcasting this deployment graph is permanently disabled.
+  throw new Error("LEGACY_MAINNET_DEPLOYER_DISABLED_INCOMPATIBLE_MARGIN_VAULT");
+}
+
 async function main() {
+  blockUnsafeLegacyMainnetDeployment();
   const account = privateKeyToAccount(PRIVATE_KEY);
   console.log(`=======================================================`);
   console.log(`CLUSTER Mainnet Contract Suite Deployment`);
