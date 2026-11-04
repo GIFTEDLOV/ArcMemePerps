@@ -129,6 +129,7 @@ contract Gate4SettlementTest {
         require(engine.activePositionCount() == 0, "trader close did not clear count");
         require(engine.totalOpenNotionalUsdc() == 0, "trader close did not clear notional");
         require(vault.totalLockedCollateral() == 0, "margin collateral still locked");
+        engine.setLpSettlementMode(true);
         lp.certifyWithdrawalAccounting();
         require(lp.withdrawalAccountingCertified(), "fully flat engine still blocked");
     }
@@ -167,9 +168,64 @@ contract Gate4SettlementTest {
         lp.setMarketRiskBudget(0);
         vm.prank(governor);
         lp.setPublicLpActive(false);
+        engine.setLpSettlementMode(true);
         vm.expectRevert();
         lp.certifyWithdrawalAccounting();
         require(!lp.withdrawalAccountingCertified(), "unfunded gains approved");
+    }
+
+    function testPendingOrdersPreventLpSettlementUntilCancelledOrExpired() public {
+        PublicLPVault lp = new PublicLPVault(address(usdc), 10);
+        vault.setLpVault(address(lp));
+        lp.setMarginVault(address(vault));
+        lp.setSettlementEngine(address(engine));
+        lp.setRiskController(address(this));
+        address governor = address(0xA11CE);
+        lp.setGovernanceExecutor(governor);
+        lp.finalizeBootstrap();
+
+        usdc.mint(address(this), 80_000_000);
+        usdc.approve(address(lp), 80_000_000);
+        vm.prank(governor);
+        lp.setPublicLpActive(true);
+        lp.deposit(80_000_000);
+        lp.setMarketRiskBudget(40_000_000);
+
+        uint64 expiry = uint64(vm.getBlockTimestamp() + 100);
+        vm.prank(TRADER);
+        bytes32 orderId = engine.submitOrder(
+            marketId, PerpEngine.Action.OPEN, true, 1_000_000, 10_000_000, 2e18, expiry
+        );
+        require(engine.pendingOrderCount() == 1, "queued order not counted");
+        require(engine.activePositionCount() == 0, "unexpected active position");
+        lp.setMarketRiskBudget(0);
+        vm.prank(governor);
+        lp.setPublicLpActive(false);
+
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        engine.setLpSettlementMode(true);
+        vm.expectRevert();
+        lp.certifyWithdrawalAccounting();
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            marketId, PerpEngine.Action.OPEN, true, 1_000_000, 10_000_000, 2e18, expiry
+        );
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.openPosition(marketId, true, 10_000_000, 20_000_000);
+
+        vm.warp(uint256(expiry) + 1);
+        engine.expireOrder(orderId);
+        require(engine.pendingOrderCount() == 0, "expired order not cleared");
+        lp.certifyWithdrawalAccounting();
+        require(lp.withdrawalAccountingCertified(), "unencumbered pool could not certify");
+
+        engine.setLpSettlementMode(false);
+        vm.prank(governor);
+        vm.expectRevert();
+        lp.setWithdrawalSettlementEnabled(true);
     }
 
     function testDepositOpenCloseAndCustodyMatch() public {
