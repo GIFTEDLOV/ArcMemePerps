@@ -228,6 +228,28 @@ contract Gate4SettlementTest {
         lp.setWithdrawalSettlementEnabled(true);
     }
 
+    function testOrderQueueCannotBeGriefedByUnknownMarketsOrUnlimitedExpiry() public {
+        uint64 expiry = uint64(vm.getBlockTimestamp() + 120);
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            keccak256("UNREGISTERED_MARKET"), PerpEngine.Action.OPEN,
+            true, 1_000_000, 1_000_000, 2e18, expiry
+        );
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            marketId, PerpEngine.Action.OPEN, true, 1_000_000, 1_000_000,
+            2e18, uint64(vm.getBlockTimestamp() + 2 hours)
+        );
+        vm.prank(TRADER);
+        vm.expectRevert();
+        engine.submitOrder(
+            marketId, PerpEngine.Action.CLOSE, true, 1_000_000, 0, 2e18, expiry
+        );
+        require(engine.pendingOrderCount() == 0, "invalid orders increased pending count");
+    }
+
     function testDepositOpenCloseAndCustodyMatch() public {
         _assertMatch();
         vm.prank(TRADER);
