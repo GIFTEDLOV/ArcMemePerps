@@ -111,6 +111,9 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     // Monotonic trade-lifecycle sequence: a flat engine may be different
     // from the engine that the controller previously certified.
     uint256 public settlementSequence;
+    // Queued executable orders are independent of current open interest.
+    uint256 public pendingOrderCount;
+    bool public lpSettlementMode;
     address public adlController;
 
     EconomicModel.FundingConfig public fundingConfig;
@@ -138,6 +141,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
     error OrderNotFound();
     error OrderExpired();
     error OrderAlreadyFinalized();
+    error LpSettlementModeActive();
+    error OrderNotExpired();
     error UnauthorizedOrder();
     error PriceOutsideBound();
     error InvalidEconomicConfig();
@@ -171,6 +176,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         bytes32 indexed orderId, address indexed account, bytes32 indexed marketId, uint256 nonce
     );
     event OrderCancelled(bytes32 indexed orderId, address indexed account);
+    event OrderExpiredUnexecuted(bytes32 indexed orderId);
+    event LpSettlementModeChanged(bool enabled);
     event OrderExecuted(bytes32 indexed orderId, uint256 executionPrice, uint64 oracleSequence);
     event MarketAccrualUpdated(
         bytes32 indexed marketId, int256 fundingIndexWad, uint256 borrowIndexWad, uint64 timestamp
@@ -242,6 +249,16 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         if (keeper == address(0)) revert ZeroAddress();
         liquidationKeeper[keeper] = enabled;
         emit LiquidationKeeperSet(keeper, enabled);
+    }
+
+    /// @notice A governance-activated risk-off phase for LP settlement.
+    /// All new orders and direct position increases are disabled while active.
+    /// A change to this phase invalidates any existing LP certificate.
+    function setLpSettlementMode(bool enabled) external onlyGovernanceExecutor {
+        if (lpSettlementMode == enabled) revert InvalidOrder();
+        lpSettlementMode = enabled;
+        settlementSequence += 1;
+        emit LpSettlementModeChanged(enabled);
     }
 
     function setOrderKeeper(address keeper, bool enabled) external onlyGovernanceExecutor {
@@ -438,6 +455,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         uint256 acceptablePrice,
         uint64 expiry
     ) external returns (bytes32 orderId) {
+        if (lpSettlementMode) revert LpSettlementModeActive();
         uint64 currentTime = SafeCast.toUint64(block.timestamp);
         if (
             marketId == bytes32(0) || sizeDelta == 0 || acceptablePrice == 0
@@ -457,6 +475,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
                 nonce
             )
         );
+        pendingOrderCount += 1;
+        settlementSequence += 1;
         orders[orderId] = OrderIntent(
             msg.sender,
             marketId,
@@ -480,7 +500,22 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
         if (order.account != msg.sender) revert UnauthorizedOrder();
         if (order.executed || order.cancelled) revert OrderAlreadyFinalized();
         order.cancelled = true;
+        pendingOrderCount -= 1;
+        settlementSequence += 1;
         emit OrderCancelled(orderId, msg.sender);
+    }
+
+    /// @notice Permissionless expired-order cleanup permits LP settlement
+    /// after abandoned intents expire without requiring an online keeper.
+    function expireOrder(bytes32 orderId) external {
+        OrderIntent storage order = orders[orderId];
+        if (order.account == address(0)) revert OrderNotFound();
+        if (order.executed || order.cancelled) revert OrderAlreadyFinalized();
+        if (block.timestamp <= order.expiry) revert OrderNotExpired();
+        order.cancelled = true;
+        pendingOrderCount -= 1;
+        settlementSequence += 1;
+        emit OrderExpiredUnexecuted(orderId);
     }
 
     function executeOrder(bytes32 orderId, uint64 oracleSequence)
@@ -506,6 +541,8 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
         // Mark consumed before any vault or insurance interaction. Reverts roll back this write.
         order.executed = true;
+        pendingOrderCount -= 1;
+        settlementSequence += 1;
         emit OrderExecuted(orderId, executionPrice, report.sequence);
         if (order.action == Action.OPEN) {
             _openFor(
@@ -891,7 +928,7 @@ contract PerpEngine is AccessControlled, ReentrancyGuard {
 
     function _requireCanIncrease(bytes32 marketId) private view {
         if (
-            solvencyBlocked || !marketRegistry.canIncreaseExposure(marketId)
+            solvencyBlocked || lpSettlementMode || !marketRegistry.canIncreaseExposure(marketId)
                 || !riskConfig.canIncreaseExposure(marketId)
         ) revert MarketCannotIncreaseExposure();
     }
