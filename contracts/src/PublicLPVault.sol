@@ -20,6 +20,8 @@ interface ILpEngineExposure {
     function activePositionCount() external view returns (uint256);
     function totalOpenNotionalUsdc() external view returns (uint256);
     function settlementSequence() external view returns (uint256);
+    function pendingOrderCount() external view returns (uint256);
+    function lpSettlementMode() external view returns (bool);
     function solvencyBlocked() external view returns (bool);
 }
 
@@ -236,6 +238,8 @@ contract PublicLPVault is AccessControlled, ReentrancyGuard {
         if (
             ILpEngineExposure(engine_).activePositionCount() != 0
                 || ILpEngineExposure(engine_).totalOpenNotionalUsdc() != 0
+                || ILpEngineExposure(engine_).pendingOrderCount() != 0
+                || !ILpEngineExposure(engine_).lpSettlementMode()
                 || ILpEngineExposure(engine_).solvencyBlocked()
                 || ILpMarginExposure(marginVault).lpBacking() != allocatedBacking
                 || ILpMarginExposure(marginVault).cumulativeLpWriteOff()
