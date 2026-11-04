@@ -270,8 +270,10 @@ contract Gate4SettlementTest {
         bytes32 orderId = engine.submitOrder(
             marketId, PerpEngine.Action.OPEN, true, 10_000_000, 10_000_000, 2e18, expiry
         );
+        require(engine.pendingOrderCount() == 1, "pending order not counted");
         uint64 sequence = oracle.latestSequence(marketId);
         engine.executeOrder(orderId, sequence);
+        require(engine.pendingOrderCount() == 0, "execution left a pending order");
         require(engine.activePosition(keccak256(abi.encode(TRADER, marketId))) != 0);
         vm.expectRevert();
         engine.executeOrder(orderId, sequence);
@@ -281,6 +283,7 @@ contract Gate4SettlementTest {
             engine.submitOrder(marketId, PerpEngine.Action.CLOSE, true, 1, 0, 0.5e18, expiry);
         vm.prank(TRADER);
         engine.cancelOrder(cancelled);
+        require(engine.pendingOrderCount() == 0, "cancel left a pending order");
         vm.expectRevert();
         engine.executeOrder(cancelled, sequence);
     }
